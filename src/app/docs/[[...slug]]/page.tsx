@@ -14,7 +14,7 @@ export default async function Page(props: {
   const params = await props.params;
 
   if (!params.slug || params.slug.length === 0) {
-    redirect("/docs/panel/getting-started");
+    redirect("/docs/getting-started");
   }
 
   const page = source.getPage(params.slug);

@@ -277,7 +277,7 @@ export default function Home() {
               Browse Euphoria blueprints <ExternalLink size={14} />
             </a>
             <Link
-              href="/docs/panel/additional-configuration#blueprint"
+              href="/docs/manual-install/additional-configuration#blueprint"
               className="flex min-h-8 items-center gap-1.75 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline"
             >
               Blueprint setup guide <ArrowRight size={14} />

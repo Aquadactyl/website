@@ -1,0 +1,226 @@
+---
+title: Installing the Panel
+description: Complete step-by-step manual installation guide for Aquadactyl Panel on a Linux server without running the automated installer script.
+---
+
+This guide walks you through manually installing Aquadactyl Panel step-by-step without using the automated installer script.
+
+<Callout type="info">
+  Looking for a fast automated install? See the [Getting
+  Started](/docs/getting-started) guide.
+</Callout>
+
+---
+
+## System Requirements [#requirements]
+
+Before starting, ensure your server meets the following requirements:
+
+| Component            | Minimum / Supported Specification                                                                         |
+| :------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Operating System** | Ubuntu 22.04 / 24.04 LTS or Debian 11 / 12                                                                |
+| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM _(PHP 8.2 and 8.3 are unsupported)_                 |
+| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
+| **Node.js & pnpm**   | **Node.js >= 22.13** and **pnpm 12.10.1** (pinned)                                                        |
+| **Composer**         | Composer 2                                                                                                |
+| **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
+| **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
+| **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
+
+---
+
+## Step 1: Install System Packages
+
+Update your system packages and install required dependencies, PHP 8.5, MariaDB, Redis, and build tools:
+
+```bash title="Install system packages"
+sudo apt update && sudo apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+
+# Add PHP PPA
+sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+sudo apt update
+
+# Install PHP 8.5 and extensions
+sudo apt install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
+  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
+  mariadb-server mariadb-client nginx redis-server git tar unzip rsync util-linux
+
+# Install Composer 2
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install Node.js 22 & pinned pnpm 12.10.1
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install --global pnpm@12.10.1
+```
+
+---
+
+## Step 2: Configure MariaDB Database
+
+Open your database shell:
+
+```bash title="Access MariaDB"
+sudo mariadb -u root
+```
+
+Create the database and grant permissions:
+
+```sql
+CREATE DATABASE aquadactyl;
+CREATE USER 'aquadactyl'@'127.0.0.1' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON aquadactyl.* TO 'aquadactyl'@'127.0.0.1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+---
+
+## Step 3: Download Panel Code
+
+Create the panel directory and clone the Aquadactyl repository:
+
+```bash title="Clone repository"
+sudo mkdir -p /var/www/aquadactyl
+cd /var/www/aquadactyl
+sudo git clone https://github.com/Aquadactyl/aquadactyl.git .
+```
+
+---
+
+## Step 4: Configure Environment
+
+Copy the example environment file and set secure permissions:
+
+```bash title="Setup .env"
+sudo cp .env.example .env
+sudo chmod 640 .env
+sudo nano .env
+```
+
+Configure your domain name and credentials:
+
+```ini title="/var/www/aquadactyl/.env"
+APP_URL=https://panel.example.com
+DB_HOST=127.0.0.1
+DB_DATABASE=aquadactyl
+DB_USERNAME=aquadactyl
+DB_PASSWORD=your_secure_password
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
+
+---
+
+## Step 5: Install Dependencies
+
+Install Composer PHP packages and Node frontend dependencies using the frozen lockfiles:
+
+```bash title="Install PHP & Node packages"
+cd /var/www/aquadactyl
+
+# Install PHP dependencies
+sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+# Install Node dependencies
+sudo pnpm install --frozen-lockfile
+```
+
+---
+
+## Step 6: Generate Encryption Keys
+
+Generate the Laravel application key and configure Hashids salt in `.env`:
+
+```bash title="Generate application key"
+sudo php artisan key:generate --force
+```
+
+If `HASHIDS_SALT` is empty in `.env`, generate a 32-character random string and add it:
+
+```bash title="Set HASHIDS_SALT"
+sudo sed -i "s/^HASHIDS_SALT=.*$/HASHIDS_SALT=$(openssl rand -hex 16)/" .env
+```
+
+---
+
+## Step 7: Database Migrations & Seeders
+
+Run the database migrations and seed the bundled Blueprint framework tables:
+
+```bash title="Run migrations and seeders"
+sudo php artisan migrate --force
+sudo php artisan db:seed --class=BlueprintSeeder --force
+
+# Seed default nests & eggs for game servers
+sudo php artisan db:seed --class=DatabaseSeeder --force
+```
+
+---
+
+## Step 8: Initialize Blueprint & Build Frontend
+
+Initialize the bundled Blueprint beta-2026-08 integration and compile the production frontend:
+
+```bash title="Initialize Blueprint and build"
+# Initialize Blueprint
+sudo BLUEPRINT_ENVIRONMENT=ci bash blueprint.sh
+sudo php artisan bp:cache
+
+# Build production assets
+sudo pnpm run build:production
+```
+
+---
+
+## Step 9: Configure File Permissions
+
+Set the strict production permissions model (code owned by `root:www-data`, only `storage/` and `bootstrap/cache/` writable by `www-data`):
+
+```bash title="Set permissions"
+cd /var/www/aquadactyl
+
+sudo chown -R root:www-data /var/www/aquadactyl
+
+# Restore executable flags for tools and scripts
+sudo chmod 0750 blueprint.sh
+
+# Writable application state directories
+sudo mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod 0640 .env
+```
+
+---
+
+## Step 10: Create Initial Administrator
+
+Create your administrative user:
+
+```bash title="Create administrative user"
+sudo -u www-data php artisan p:user:make
+```
+
+Follow the interactive prompts to enter your email address, username, first name, last name, and password.
+
+---
+
+## Step 11: Cache Configuration & Optimize
+
+Cache Laravel configuration, routes, and views:
+
+```bash title="Cache configuration"
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan view:cache
+```
+
+---
+
+## Next Steps
+
+Complete your installation by configuring the web server and background queue worker:
+
+1. [Webserver Configuration](/docs/manual-install/webserver-configuration) — Set up Nginx or Caddy with SSL.
+2. [Additional Configuration](/docs/manual-install/additional-configuration) — Configure the background queue worker (`pteroq.service`), cron scheduler, and Redis.

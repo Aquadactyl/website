@@ -1,0 +1,168 @@
+---
+title: Getting Started
+description: Quickly install Aquadactyl Panel on your Linux server using the automated installation script.
+---
+
+Aquadactyl is an open-source game server management panel built on Pterodactyl, featuring bundled Blueprint beta-2026-08 integration, production performance defaults, and managed update tooling.
+
+This guide covers installing Aquadactyl Panel using the automated deployment script (`scripts/panel-install.sh`).
+
+<Callout type="info">
+  Looking for a step-by-step installation without using the script? Check out
+  our [Manual Installation](/docs/manual-install/installing-the-panel) guide.
+</Callout>
+
+---
+
+## System Requirements [#requirements]
+
+Ensure your host meets the following requirements before proceeding:
+
+| Component            | Minimum / Supported Specification                                                                         |
+| :------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Operating System** | Ubuntu 22.04 / 24.04 LTS or Debian 11 / 12                                                                |
+| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM _(PHP 8.2 and 8.3 are unsupported)_                 |
+| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
+| **Node.js & pnpm**   | **Node.js >= 22.13** and **pnpm 12.10.1** (pinned)                                                        |
+| **Composer**         | Composer 2                                                                                                |
+| **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
+| **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
+| **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
+
+---
+
+## Step 1: Install System Prerequisites
+
+Install PHP 8.5, MariaDB, Redis, Nginx, Node.js, and pnpm:
+
+```bash title="Install core packages"
+sudo apt update && sudo apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+
+# Add PHP PPA
+sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+sudo apt update
+
+# Install PHP 8.5 with FPM and extensions
+sudo apt install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
+  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
+  mariadb-server mariadb-client nginx redis-server git tar unzip rsync util-linux
+
+# Install Composer 2
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install Node.js 22 & pinned pnpm 12.10.1
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install --global pnpm@12.10.1
+```
+
+---
+
+## Step 2: Configure Database
+
+Log in to your MariaDB instance:
+
+```bash title="Open database prompt"
+sudo mariadb -u root
+```
+
+Create the database and database user:
+
+```sql
+CREATE DATABASE aquadactyl;
+CREATE USER 'aquadactyl'@'127.0.0.1' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON aquadactyl.* TO 'aquadactyl'@'127.0.0.1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+---
+
+## Step 3: Download Panel & Setup Environment
+
+Create the web root directory and fetch the repository:
+
+```bash title="Download panel"
+sudo mkdir -p /var/www/aquadactyl
+cd /var/www/aquadactyl
+sudo git clone https://github.com/Aquadactyl/aquadactyl.git .
+
+sudo cp .env.example .env
+sudo chmod 640 .env
+sudo nano .env
+```
+
+Configure your domain name and database connection in `.env`:
+
+```ini title="/var/www/aquadactyl/.env"
+APP_URL=https://panel.example.com
+DB_HOST=127.0.0.1
+DB_DATABASE=aquadactyl
+DB_USERNAME=aquadactyl
+DB_PASSWORD=your_secure_password
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
+
+---
+
+## Step 4: Run the Installation Script
+
+Run the automated installer script:
+
+```bash title="Execute panel installer"
+sudo bash scripts/panel-install.sh
+```
+
+### What `panel-install.sh` Performs
+
+1. **Preflight verification**: Checks required command-line tools, PHP version (8.4/8.5), Node (>= 22.13), and pinned pnpm (12.10.1).
+2. **Dependency installation**: Runs `composer install --no-dev --optimize-autoloader` and `pnpm install --frozen-lockfile`.
+3. **Application secrets**: Automatically generates `APP_KEY` and `HASHIDS_SALT` in `.env` if missing.
+4. **Maintenance mode**: Enables maintenance mode (`artisan down --retry=60`) during migration.
+5. **Database migrations**: Executes `artisan migrate --force` and seeds Blueprint's database tables.
+6. **Blueprint initialization**: Sets up bundled Blueprint beta-2026-08 hooks and CLI links without upstream prompts.
+7. **Production asset building**: Builds frontend assets via `pnpm run build:production`.
+8. **Permissions & caching**: Applies strict security permissions (`root:www-data`, only `storage/` and `bootstrap/cache/` writable by `www-data`), caches config/routes/views, and reloads PHP-FPM.
+9. **Online transition**: Disables maintenance mode (`artisan up`).
+
+---
+
+## Step 5: Seed Base Data & Create Admin User
+
+For a fresh installation, seed the default nests and create your administrative account:
+
+```bash title="Create administrator"
+cd /var/www/aquadactyl
+sudo -u www-data php artisan db:seed --class=DatabaseSeeder --force
+sudo -u www-data php artisan p:user:make
+```
+
+Follow the prompts to enter your email address, username, name, and password.
+
+---
+
+## Step 6: Web Server & Queue Setup
+
+Configure Nginx with SSL and enable the background queue worker:
+
+```bash title="Setup Nginx and SSL"
+sudo cp deploy/nginx/panel.conf /etc/nginx/sites-available/aquadactyl.conf
+sudo ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d panel.example.com
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Enable the background queue worker (`pteroq.service`) and the Laravel scheduler:
+
+```bash title="Start queue and scheduler"
+sudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now pteroq.service
+
+echo "* * * * * www-data cd /var/www/aquadactyl && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" | sudo tee /etc/cron.d/aquadactyl
+```
+
+Navigate to `https://panel.example.com` to log in to your panel!

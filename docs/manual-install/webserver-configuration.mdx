@@ -1,6 +1,6 @@
 ---
 title: Webserver Configuration
-description: Configure web servers like Nginx, Apache, or Caddy to serve Aquadactyl with SSL/TLS encryption.
+description: Configure web servers like Nginx or Caddy to serve Aquadactyl with SSL/TLS encryption.
 ---
 
 Aquadactyl requires a reverse proxy / web server to handle HTTP/HTTPS traffic, serve static assets, and proxy dynamic requests through PHP-FPM.
@@ -106,7 +106,6 @@ server {
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo mkdir -p /var/www/letsencrypt
 sudo certbot --nginx -d panel.example.com
 ```
 
@@ -122,31 +121,75 @@ sudo systemctl reload nginx
 
 ## Caddy (Alternative) [#caddy]
 
-Caddy automatically handles HTTPS certificate provisioning and renewals out of the box.
+If you use Caddy instead of Nginx, Caddy automatically provisions and renews TLS certificates.
+
+Below is an equivalent Caddyfile configured with the same security headers, 100MB body limits, fastcgi timeouts, hidden file protection, front-controller PHP isolation, and immutable asset caching as the Nginx deployment template:
 
 ```nginx title="/etc/caddy/Caddyfile"
-panel.yourdomain.com {
+panel.example.com {
     root * /var/www/aquadactyl/public
-    file_server
-    php_fastcgi unix//run/php/php8.5-fpm.sock
-    encode gzip zstd
 
+    # Match Nginx client_max_body_size (100MB upload limit)
+    request_body {
+        max_size 100MB
+    }
+
+    # Enable compression (Zstandard & Gzip)
+    encode zstd gzip
+
+    # Security headers (exact match with deploy/nginx/panel.conf)
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+        -X-Powered-By
+    }
+
+    # Cache immutable hashed frontend assets for 1 year
+    @hashedAssets path_regexp hashed ^/assets/[^/]+\.[a-f0-9]{8}\.(js|css|woff2?|png|jpe?g|svg)$
+    header @hashedAssets {
+        Cache-Control "public, max-age=31536000, immutable"
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Deny all hidden files except .well-known
     @hidden {
         path */.*
+        not path */.well-known/*
     }
-    error @hidden 404
+    respond @hidden 404
 
-    header {
-        X-Robots-Tag "none"
-        X-Frame-Options "DENY"
-        X-Content-Type-Options "nosniff"
-        Referrer-Policy "same-origin"
+    # Deny direct execution of arbitrary PHP files (only index.php executes)
+    @disallowedPhp {
+        path *.php
+        not path /index.php
     }
+    respond @disallowedPhp 404
+
+    # PHP-FPM fastcgi proxy
+    php_fastcgi unix//run/php/php8.5-fpm.sock {
+        read_timeout 300s
+        env PHP_VALUE "upload_max_filesize=100M\npost_max_size=100M"
+        capture_stderr
+    }
+
+    file_server
 }
 ```
 
-Restart Caddy:
+<Callout type="info">
+  If using PHP 8.4 instead of PHP 8.5, update the upstream socket path to
+  `unix//run/php/php8.4-fpm.sock`.
+</Callout>
+
+Validate your Caddy configuration and reload:
 
 ```bash
+sudo caddy validate --config /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```

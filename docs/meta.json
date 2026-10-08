@@ -1,4 +1,4 @@
 {
   "title": "Documentation",
-  "pages": ["panel", "wings"]
+  "pages": ["getting-started", "manual-install", "wings"]
 }

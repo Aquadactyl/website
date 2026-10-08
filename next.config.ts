@@ -7,12 +7,27 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/docs/blueprint",
-        destination: "/docs/panel/additional-configuration#blueprint",
+        destination: "/docs/manual-install/additional-configuration#blueprint",
         permanent: true,
       },
       {
         source: "/docs/updating",
-        destination: "/docs/panel/updating-the-panel",
+        destination: "/docs/manual-install/updating-the-panel",
+        permanent: true,
+      },
+      {
+        source: "/docs/panel/getting-started",
+        destination: "/docs/getting-started",
+        permanent: true,
+      },
+      {
+        source: "/docs/panel/:slug*",
+        destination: "/docs/manual-install/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/migrating-to-wings",
+        destination: "/docs/wings/installing-wings",
         permanent: true,
       },
     ];

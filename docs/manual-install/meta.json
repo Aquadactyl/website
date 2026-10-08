@@ -1,7 +1,7 @@
 {
-  "title": "Panel",
+  "title": "Manual Install",
   "pages": [
-    "getting-started",
+    "installing-the-panel",
     "webserver-configuration",
     "additional-configuration",
     "updating-the-panel",
