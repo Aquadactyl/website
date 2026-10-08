@@ -1,5 +1,5 @@
 :root {
-  font-family: 'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, sans-serif;
+  font-family: "IBM Plex Sans Variable", "IBM Plex Sans", system-ui, sans-serif;
   color: #e5e5e5;
   background: #0a0a0a;
   font-synthesis: none;
@@ -11,8 +11,8 @@
   --text: #e5e5e5;
   --muted: #a3a3a3;
   --accent: #60a5fa;
-  --mono: 'JetBrains Mono', monospace;
-  --display: 'Space Grotesk Variable', 'IBM Plex Sans Variable', sans-serif;
+  --mono: "JetBrains Mono", monospace;
+  --display: "Space Grotesk Variable", "IBM Plex Sans Variable", sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -212,7 +212,7 @@ input:focus-visible {
   position: relative;
 }
 .hero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -444,11 +444,11 @@ input:focus-visible {
   color: #c1cbd5;
   position: relative;
 }
-.panel-tabs > button[aria-selected='true'] {
+.panel-tabs > button[aria-selected="true"] {
   color: #93c5fd;
 }
-.panel-tabs > button[aria-selected='true']::after {
-  content: '';
+.panel-tabs > button[aria-selected="true"]::after {
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
@@ -989,11 +989,11 @@ input:focus-visible {
   padding-left: 0;
   padding-right: 11px;
 }
-.install-tabs > button[aria-selected='true'] {
+.install-tabs > button[aria-selected="true"] {
   color: #93c5fd;
 }
-.install-tabs > button[aria-selected='true']::after {
-  content: '';
+.install-tabs > button[aria-selected="true"]::after {
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;

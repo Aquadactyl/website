@@ -1,7 +1,7 @@
-export const REPOSITORY = 'https://github.com/EuphoriaTheme/aquadactyl';
-export const COMMUNITY = 'https://discord.euphoriadevelopment.uk';
-export const EUPHORIA = 'https://euphoriadevelopment.uk';
-export const BRANCH = '1.0-develop';
+export const REPOSITORY = "https://github.com/EuphoriaTheme/aquadactyl";
+export const COMMUNITY = "https://discord.euphoriadevelopment.uk";
+export const EUPHORIA = "https://euphoriadevelopment.uk";
+export const BRANCH = "1.0-develop";
 
 export const INSTALL_COMMAND = `cd /var/www/pterodactyl
 sudo cp .env.example .env

@@ -3,11 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.25.0",
-  "engines": {
-    "node": "^24",
-    "pnpm": "11.25.0"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -33,5 +28,10 @@
     "oxfmt": "^0.72.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.3"
-  }
+  },
+  "engines": {
+    "node": "^24",
+    "pnpm": "11.25.0"
+  },
+  "packageManager": "pnpm@11.25.0"
 }

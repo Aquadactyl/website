@@ -1,7 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { Check, Copy, Terminal } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { Check, Copy, Terminal } from "lucide-react";
 
-export default function CodeBlock({ code, title = 'Terminal' }: { code: string; title?: string }) {
+export default function CodeBlock({
+  code,
+  title = "Terminal",
+}: {
+  code: string;
+  title?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -33,9 +39,13 @@ export default function CodeBlock({ code, title = 'Terminal' }: { code: string; 
           <Terminal className="terminal-symbol" size={14} />
           {title}
         </span>
-        <button type="button" onClick={copy} aria-label={`Copy ${title.toLowerCase()} commands`}>
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={`Copy ${title.toLowerCase()} commands`}
+        >
           {copied ? <Check size={14} /> : <Copy size={14} />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? "Copied" : "Copy"}
         </button>
       </div>
       <pre>

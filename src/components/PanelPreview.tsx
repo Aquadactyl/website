@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
 import {
   Activity,
   Archive,
@@ -18,40 +18,56 @@ import {
   Square,
   Terminal,
   UserRound,
-} from 'lucide-react';
+} from "lucide-react";
 
-type Tab = 'Console' | 'Files' | 'Backups' | 'Settings';
-type Status = 'Running' | 'Offline' | 'Starting';
-type Line = { text: string; tone?: 'green' | 'muted' | 'yellow' };
+type Tab = "Console" | "Files" | "Backups" | "Settings";
+type Status = "Running" | "Offline" | "Starting";
+type Line = { text: string; tone?: "green" | "muted" | "yellow" };
 
 const initialLogs: Line[] = [
-  { text: 'container@aquadactyl~ Server marked as starting...', tone: 'muted' },
-  { text: '[18:42:01 INFO]: Starting minecraft server version 1.21.4' },
-  { text: '[18:42:01 INFO]: Loading properties' },
-  { text: '[18:42:02 INFO]: This server is running Paper' },
+  { text: "container@aquadactyl~ Server marked as starting...", tone: "muted" },
+  { text: "[18:42:01 INFO]: Starting minecraft server version 1.21.4" },
+  { text: "[18:42:01 INFO]: Loading properties" },
+  { text: "[18:42:02 INFO]: This server is running Paper" },
   { text: '[18:42:02 INFO]: Preparing level "world"' },
-  { text: '[18:42:03 INFO]: Preparing start region for dimension minecraft:overworld' },
-  { text: '[18:42:04 INFO]: Done (2.814s)! For help, type "help"', tone: 'green' },
-  { text: 'container@aquadactyl~ Server marked as running...', tone: 'muted' },
-  { text: '[18:42:12 INFO]: Rep joined the game', tone: 'yellow' },
+  {
+    text: "[18:42:03 INFO]: Preparing start region for dimension minecraft:overworld",
+  },
+  {
+    text: '[18:42:04 INFO]: Done (2.814s)! For help, type "help"',
+    tone: "green",
+  },
+  { text: "container@aquadactyl~ Server marked as running...", tone: "muted" },
+  { text: "[18:42:12 INFO]: Rep joined the game", tone: "yellow" },
 ];
 
 const tabs: { name: Tab; icon: typeof Terminal }[] = [
-  { name: 'Console', icon: Terminal },
-  { name: 'Files', icon: Folder },
-  { name: 'Backups', icon: Archive },
-  { name: 'Settings', icon: Settings },
+  { name: "Console", icon: Terminal },
+  { name: "Files", icon: Folder },
+  { name: "Backups", icon: Archive },
+  { name: "Settings", icon: Settings },
 ];
 
-function Sparkline({ variant = 0, offline = false }: { variant?: number; offline?: boolean }) {
+function Sparkline({
+  variant = 0,
+  offline = false,
+}: {
+  variant?: number;
+  offline?: boolean;
+}) {
   const paths = [
-    '0,45 12,45 18,35 24,42 34,40 40,29 47,35 54,20 63,32 72,29 83,35 93,20 104,27 111,12 119,22 129,19 138,28 147,24 157,31 170,21 179,27 192,18 201,25 212,20 225,24 240,15',
-    '0,41 14,40 23,37 35,38 49,32 59,33 72,28 82,30 95,25 108,26 121,22 136,22 147,19 160,22 173,19 185,20 198,17 214,18 225,16 240,17',
-    '0,47 20,47 27,29 35,47 57,47 64,21 72,47 95,47 101,33 110,47 127,47 134,16 143,47 172,47 179,28 187,47 211,47 219,24 228,47 240,47',
+    "0,45 12,45 18,35 24,42 34,40 40,29 47,35 54,20 63,32 72,29 83,35 93,20 104,27 111,12 119,22 129,19 138,28 147,24 157,31 170,21 179,27 192,18 201,25 212,20 225,24 240,15",
+    "0,41 14,40 23,37 35,38 49,32 59,33 72,28 82,30 95,25 108,26 121,22 136,22 147,19 160,22 173,19 185,20 198,17 214,18 225,16 240,17",
+    "0,47 20,47 27,29 35,47 57,47 64,21 72,47 95,47 101,33 110,47 127,47 134,16 143,47 172,47 179,28 187,47 211,47 219,24 228,47 240,47",
   ];
-  const points = offline ? '0,49 240,49' : paths[variant];
+  const points = offline ? "0,49 240,49" : paths[variant];
   return (
-    <svg className="sparkline" viewBox="0 0 240 60" preserveAspectRatio="none" aria-hidden="true">
+    <svg
+      className="sparkline"
+      viewBox="0 0 240 60"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
       <path className="graph-grid" d="M0 15H240 M0 35H240 M0 55H240" />
       <polygon className="graph-area" points={`0,60 ${points} 240,60`} />
       <polyline className="graph-line" points={points} />
@@ -60,20 +76,20 @@ function Sparkline({ variant = 0, offline = false }: { variant?: number; offline
 }
 
 export default function PanelPreview() {
-  const [tab, setTab] = useState<Tab>('Console');
-  const [status, setStatus] = useState<Status>('Running');
+  const [tab, setTab] = useState<Tab>("Console");
+  const [status, setStatus] = useState<Status>("Running");
   const [logs, setLogs] = useState<Line[]>(initialLogs);
-  const [command, setCommand] = useState('');
-  const [serverName, setServerName] = useState('community-survival');
+  const [command, setCommand] = useState("");
+  const [serverName, setServerName] = useState("community-survival");
   const [draftName, setDraftName] = useState(serverName);
   const [saved, setSaved] = useState(false);
-  const [folder, setFolder] = useState('');
+  const [folder, setFolder] = useState("");
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [backups, setBackups] = useState(['world-backup-2026-10-07']);
+  const [backups, setBackups] = useState(["world-backup-2026-10-07"]);
   const [creating, setCreating] = useState(false);
   const [tick, setTick] = useState(0);
   const [addressCopied, setAddressCopied] = useState(false);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState("");
   const terminalRef = useRef<HTMLDivElement>(null);
   const powerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,70 +104,82 @@ export default function PanelPreview() {
   }, []);
 
   useEffect(() => {
-    if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    if (terminalRef.current)
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
   }, [logs, tab]);
 
-  function addLine(text: string, tone: Line['tone'] = 'muted') {
+  function addLine(text: string, tone: Line["tone"] = "muted") {
     setLogs((previous) => [...previous.slice(-39), { text, tone }]);
   }
 
-  function power(action: 'start' | 'stop' | 'restart') {
+  function power(action: "start" | "stop" | "restart") {
     if (powerTimer.current) clearTimeout(powerTimer.current);
-    setTab('Console');
-    if (action === 'stop') {
-      setStatus('Offline');
-      addLine('[Server thread/INFO]: Saving worlds and stopping the server.');
-      addLine('container@aquadactyl~ Server marked as offline...');
+    setTab("Console");
+    if (action === "stop") {
+      setStatus("Offline");
+      addLine("[Server thread/INFO]: Saving worlds and stopping the server.");
+      addLine("container@aquadactyl~ Server marked as offline...");
       return;
     }
-    setStatus('Starting');
-    addLine(`container@aquadactyl~ ${action === 'restart' ? 'Restarting' : 'Starting'} server...`);
+    setStatus("Starting");
+    addLine(
+      `container@aquadactyl~ ${action === "restart" ? "Restarting" : "Starting"} server...`,
+    );
     powerTimer.current = setTimeout(() => {
-      setStatus('Running');
-      addLine('[Server thread/INFO]: Done (2.814s)! For help, type "help"', 'green');
-      addLine('container@aquadactyl~ Server marked as running...');
+      setStatus("Running");
+      addLine(
+        '[Server thread/INFO]: Done (2.814s)! For help, type "help"',
+        "green",
+      );
+      addLine("container@aquadactyl~ Server marked as running...");
     }, 1400);
   }
 
   function sendCommand(event: FormEvent) {
     event.preventDefault();
     const input = command.trim();
-    if (!input || status !== 'Running') return;
+    if (!input || status !== "Running") return;
     addLine(`> ${input}`);
     switch (input.toLowerCase()) {
-      case 'help':
-        addLine('Demo commands: help, list, status, say <message>, clear, stop', 'green');
+      case "help":
+        addLine(
+          "Demo commands: help, list, status, say <message>, clear, stop",
+          "green",
+        );
         break;
-      case 'list':
-        addLine('There are 1 of a max of 20 players online: Rep', 'green');
+      case "list":
+        addLine("There are 1 of a max of 20 players online: Rep", "green");
         break;
-      case 'status':
-        addLine(`Paper 1.21.4 • Running • CPU ${18 + (tick % 5)}% • Memory 1.24 GiB`, 'green');
+      case "status":
+        addLine(
+          `Paper 1.21.4 • Running • CPU ${18 + (tick % 5)}% • Memory 1.24 GiB`,
+          "green",
+        );
         break;
-      case 'clear':
+      case "clear":
         setLogs([]);
         break;
-      case 'stop':
-        power('stop');
+      case "stop":
+        power("stop");
         break;
       default:
         addLine(
-          input.toLowerCase().startsWith('say ')
+          input.toLowerCase().startsWith("say ")
             ? `[Server]: ${input.slice(4)}`
-            : 'Unknown demo command. Type help to see available commands.',
-          'yellow',
+            : "Unknown demo command. Type help to see available commands.",
+          "yellow",
         );
     }
-    setCommand('');
+    setCommand("");
   }
 
   async function copyAddress() {
     try {
-      await navigator.clipboard.writeText('play.example.com:25565');
+      await navigator.clipboard.writeText("play.example.com:25565");
       setAddressCopied(true);
       setTimeout(() => setAddressCopied(false), 2000);
     } catch {
-      setNotice('Demo address: play.example.com:25565');
+      setNotice("Demo address: play.example.com:25565");
     }
   }
 
@@ -163,7 +191,7 @@ export default function PanelPreview() {
     }, 1000);
   }
 
-  const running = status === 'Running';
+  const running = status === "Running";
 
   return (
     <div id="panel-preview" className="preview-wrap">
@@ -171,7 +199,10 @@ export default function PanelPreview() {
         <span>Demo panel</span>
         <span>Sample data</span>
       </div>
-      <div className="panel-preview" aria-label="Interactive Aquadactyl panel demo">
+      <div
+        className="panel-preview"
+        aria-label="Interactive Aquadactyl panel demo"
+      >
         <div className="panel-topbar">
           <div className="panel-wordmark">
             <img src="/brand/euphoria.png" alt="" />
@@ -194,12 +225,19 @@ export default function PanelPreview() {
                   Paper 1.21.4 <span>·</span> Community Minecraft server
                 </p>
               </div>
-              <span className={`server-status ${status.toLowerCase()}`} role="status">
+              <span
+                className={`server-status ${status.toLowerCase()}`}
+                role="status"
+              >
                 <span className="status-dot" />
                 {status}
               </span>
             </div>
-            <div className="panel-tabs" role="tablist" aria-label="Demo server views">
+            <div
+              className="panel-tabs"
+              role="tablist"
+              aria-label="Demo server views"
+            >
               {tabs.map(({ name, icon: Icon }) => (
                 <button
                   key={name}
@@ -209,11 +247,17 @@ export default function PanelPreview() {
                   aria-controls="preview-content"
                   tabIndex={tab === name ? 0 : -1}
                   onKeyDown={(event) => {
-                    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                    if (
+                      event.key === "ArrowRight" ||
+                      event.key === "ArrowLeft"
+                    ) {
                       event.preventDefault();
                       const index = tabs.findIndex((item) => item.name === tab);
                       const next =
-                        tabs[(index + (event.key === 'ArrowRight' ? 1 : 3)) % tabs.length].name;
+                        tabs[
+                          (index + (event.key === "ArrowRight" ? 1 : 3)) %
+                            tabs.length
+                        ].name;
                       setTab(next);
                       document.getElementById(`tab-${next}`)?.focus();
                     }
@@ -225,8 +269,12 @@ export default function PanelPreview() {
                 </button>
               ))}
             </div>
-            <div id="preview-content" role="tabpanel" aria-labelledby={`tab-${tab}`}>
-              {tab === 'Console' && (
+            <div
+              id="preview-content"
+              role="tabpanel"
+              aria-labelledby={`tab-${tab}`}
+            >
+              {tab === "Console" && (
                 <>
                   <div className="console-toolbar">
                     <span>
@@ -235,8 +283,8 @@ export default function PanelPreview() {
                     <div className="power-controls">
                       <button
                         type="button"
-                        onClick={() => power('start')}
-                        disabled={status !== 'Offline'}
+                        onClick={() => power("start")}
+                        disabled={status !== "Offline"}
                         className="start-control"
                         aria-label="Start demo server"
                       >
@@ -245,8 +293,8 @@ export default function PanelPreview() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => power('restart')}
-                        disabled={status === 'Starting'}
+                        onClick={() => power("restart")}
+                        disabled={status === "Starting"}
                         aria-label="Restart demo server"
                       >
                         <RotateCw size={10} />
@@ -254,8 +302,8 @@ export default function PanelPreview() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => power('stop')}
-                        disabled={status === 'Offline'}
+                        onClick={() => power("stop")}
+                        disabled={status === "Offline"}
                         aria-label="Stop demo server"
                       >
                         <Square size={9} fill="currentColor" />
@@ -263,13 +311,20 @@ export default function PanelPreview() {
                       </button>
                     </div>
                   </div>
-                  <div className="console-output" ref={terminalRef} aria-label="Demo server output">
+                  <div
+                    className="console-output"
+                    ref={terminalRef}
+                    aria-label="Demo server output"
+                  >
                     {logs.map((line, index) => (
-                      <div key={index} className={`log-line ${line.tone ?? ''}`}>
+                      <div
+                        key={index}
+                        className={`log-line ${line.tone ?? ""}`}
+                      >
                         {line.text}
                       </div>
                     ))}
-                    {status === 'Starting' && (
+                    {status === "Starting" && (
                       <div className="log-line green">
                         Starting<span className="terminal-cursor">_</span>
                       </div>
@@ -280,7 +335,9 @@ export default function PanelPreview() {
                     <input
                       aria-label="Demo console command"
                       placeholder={
-                        running ? 'Type a command… (try help)' : 'Start the server to send commands'
+                        running
+                          ? "Type a command… (try help)"
+                          : "Start the server to send commands"
                       }
                       value={command}
                       onChange={(event) => setCommand(event.target.value)}
@@ -303,7 +360,7 @@ export default function PanelPreview() {
                         CPU usage
                       </span>
                       <strong>
-                        {running ? `${18 + (tick % 5)}%` : '0%'}
+                        {running ? `${18 + (tick % 5)}%` : "0%"}
                         <small>/ 200%</small>
                       </strong>
                       <Sparkline offline={!running} />
@@ -314,7 +371,7 @@ export default function PanelPreview() {
                         Memory
                       </span>
                       <strong>
-                        {running ? '1.24' : '0'}
+                        {running ? "1.24" : "0"}
                         <small>/ 4 GiB</small>
                       </strong>
                       <Sparkline variant={1} offline={!running} />
@@ -332,7 +389,7 @@ export default function PanelPreview() {
                   </div>
                 </>
               )}
-              {tab === 'Files' && (
+              {tab === "Files" && (
                 <div className="preview-secondary">
                   <div className="secondary-heading">
                     <h3>File manager</h3>
@@ -342,11 +399,11 @@ export default function PanelPreview() {
                     className="file-path"
                     type="button"
                     onClick={() => {
-                      setFolder('');
+                      setFolder("");
                       setFilePreview(null);
                     }}
                   >
-                    <Folder size={12} /> /home/container{folder && `/${folder}`}{' '}
+                    <Folder size={12} /> /home/container{folder && `/${folder}`}{" "}
                     <ChevronRight size={12} />
                   </button>
                   {filePreview ? (
@@ -354,14 +411,17 @@ export default function PanelPreview() {
                       <div className="file-preview-heading">
                         <File size={12} />
                         {filePreview}
-                        <button type="button" onClick={() => setFilePreview(null)}>
+                        <button
+                          type="button"
+                          onClick={() => setFilePreview(null)}
+                        >
                           Back to files
                         </button>
                       </div>
                       <pre className="demo-file-content">
-                        {filePreview === 'server.properties'
-                          ? '# Minecraft server properties\nserver-port=25565\nmax-players=20\nmotd=An Aquadactyl community server\nonline-mode=true\ndifficulty=normal'
-                          : '# Demo file preview\n# Your real panel supports viewing and editing files.\n# This preview uses sample data.'}
+                        {filePreview === "server.properties"
+                          ? "# Minecraft server properties\nserver-port=25565\nmax-players=20\nmotd=An Aquadactyl community server\nonline-mode=true\ndifficulty=normal"
+                          : "# Demo file preview\n# Your real panel supports viewing and editing files.\n# This preview uses sample data."}
                       </pre>
                     </>
                   ) : (
@@ -369,27 +429,56 @@ export default function PanelPreview() {
                       {(folder
                         ? [
                             {
-                              name: folder === 'plugins' ? 'README.txt' : 'level.dat',
+                              name:
+                                folder === "plugins"
+                                  ? "README.txt"
+                                  : "level.dat",
                               directory: false,
-                              size: '2.4 KiB',
+                              size: "2.4 KiB",
                             },
                           ]
                         : [
-                            { name: 'plugins', directory: true, size: 'Directory' },
-                            { name: 'world', directory: true, size: 'Directory' },
-                            { name: 'server.properties', directory: false, size: '1.2 KiB' },
-                            { name: 'paper.jar', directory: false, size: '48.6 MiB' },
-                            { name: 'eula.txt', directory: false, size: '162 B' },
+                            {
+                              name: "plugins",
+                              directory: true,
+                              size: "Directory",
+                            },
+                            {
+                              name: "world",
+                              directory: true,
+                              size: "Directory",
+                            },
+                            {
+                              name: "server.properties",
+                              directory: false,
+                              size: "1.2 KiB",
+                            },
+                            {
+                              name: "paper.jar",
+                              directory: false,
+                              size: "48.6 MiB",
+                            },
+                            {
+                              name: "eula.txt",
+                              directory: false,
+                              size: "162 B",
+                            },
                           ]
                       ).map((item) => (
                         <button
                           key={item.name}
                           type="button"
                           onClick={() =>
-                            item.directory ? setFolder(item.name) : setFilePreview(item.name)
+                            item.directory
+                              ? setFolder(item.name)
+                              : setFilePreview(item.name)
                           }
                         >
-                          {item.directory ? <Folder size={15} /> : <File size={15} />}
+                          {item.directory ? (
+                            <Folder size={15} />
+                          ) : (
+                            <File size={15} />
+                          )}
                           <span>{item.name}</span>
                           <small>{item.size}</small>
                           <ChevronRight size={12} />
@@ -399,7 +488,7 @@ export default function PanelPreview() {
                   )}
                 </div>
               )}
-              {tab === 'Backups' && (
+              {tab === "Backups" && (
                 <div className="preview-secondary">
                   <div className="secondary-heading">
                     <h3>Backups</h3>
@@ -409,10 +498,12 @@ export default function PanelPreview() {
                       disabled={creating}
                       onClick={createBackup}
                     >
-                      {creating ? 'Creating…' : 'Create backup'}
+                      {creating ? "Creating…" : "Create backup"}
                     </button>
                   </div>
-                  <p className="secondary-description">Keep a copy before changing your server.</p>
+                  <p className="secondary-description">
+                    Keep a copy before changing your server.
+                  </p>
                   {backups.map((name) => (
                     <div className="backup-row" key={name}>
                       <Archive size={18} />
@@ -423,10 +514,12 @@ export default function PanelPreview() {
                       <Check size={15} />
                     </div>
                   ))}
-                  <p className="demo-note">This preview creates sample backups in your browser.</p>
+                  <p className="demo-note">
+                    This preview creates sample backups in your browser.
+                  </p>
                 </div>
               )}
-              {tab === 'Settings' && (
+              {tab === "Settings" && (
                 <form
                   className="preview-secondary"
                   onSubmit={(event) => {
@@ -458,16 +551,18 @@ export default function PanelPreview() {
                     <input value="Community Minecraft server" readOnly />
                   </label>
                   <button type="submit" className="small-accent-button">
-                    {saved ? 'Changes saved' : 'Save changes'}
+                    {saved ? "Changes saved" : "Save changes"}
                   </button>
-                  <p className="demo-note">Changes apply to this browser preview.</p>
+                  <p className="demo-note">
+                    Changes apply to this browser preview.
+                  </p>
                 </form>
               )}
             </div>
             <div className="panel-statusbar">
               <button type="button" onClick={copyAddress}>
-                {addressCopied ? <Check size={10} /> : <Activity size={10} />}{' '}
-                {addressCopied ? 'Address copied' : 'play.example.com:25565'}{' '}
+                {addressCopied ? <Check size={10} /> : <Activity size={10} />}{" "}
+                {addressCopied ? "Address copied" : "play.example.com:25565"}{" "}
                 <ArrowUpRight size={10} />
               </button>
               <span>
