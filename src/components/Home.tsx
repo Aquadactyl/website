@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
   Box,
   ChevronDown,
   Code2,
@@ -18,15 +16,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";
-import CodeBlock from "./CodeBlock";
-import {
-  BLUEPRINT_COMMAND,
-  COMMUNITY,
-  EUPHORIA,
-  INSTALL_COMMAND,
-  REPOSITORY,
-  UPDATE_COMMAND,
-} from "../config";
+import { COMMUNITY, EUPHORIA, REPOSITORY } from "../config";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   {
@@ -86,36 +76,6 @@ const addons = [
 ];
 
 export default function Home() {
-  const [installTab, setInstallTab] = useState<
-    "install" | "update" | "extensions"
-  >("install");
-  const installContent = {
-    install: {
-      title: "New installation",
-      intro:
-        "Prepare a Linux host and place the Aquadactyl source in /var/www/aquadactyl. Configure your environment before running the installer.",
-      code: INSTALL_COMMAND,
-      note: "Set your HTTPS domain, database, Redis and mail settings in .env. The full guide also covers Nginx, the queue service and Wings.",
-      link: "/docs",
-    },
-    update: {
-      title: "Update your panel",
-      intro:
-        "Use a reviewed Aquadactyl release to update the panel and bundled Blueprint together. The updater backs up your panel first.",
-      code: UPDATE_COMMAND,
-      note: "Replace vRELEASE_TAG with a published release tag. Keep your original .blueprint extension packages in the panel root.",
-      link: "/docs/updating",
-    },
-    extensions: {
-      title: "Install an extension",
-      intro:
-        "Place your extension package in the panel root, then install it with the bundled Blueprint CLI.",
-      code: BLUEPRINT_COMMAND,
-      note: "Replace myextension with the package identifier. Extensions are available separately; check compatibility before installing.",
-      link: "/docs/blueprint",
-    },
-  }[installTab];
-
   return (
     <main>
       <section className="bg-[#11161b]" aria-labelledby="hero-heading">
@@ -332,9 +292,9 @@ export default function Home() {
         className="mx-auto w-full max-w-296 px-5 py-11 sm:px-6 sm:py-14 md:px-8 md:py-19"
         aria-labelledby="install-heading"
       >
-        <div className="mb-7 flex flex-col justify-between gap-4 sm:mb-9 md:flex-row md:items-end md:gap-8">
+        <div className="flex flex-col justify-between gap-6 rounded-[9px] border border-[#303b45] bg-[#1b232b] p-6 sm:p-8 md:flex-row md:items-center">
           <div>
-            <p className="mb-3 text-[11px] font-medium tracking-widest text-[#8c9aa7] uppercase">
+            <p className="mb-2 text-[11px] font-medium tracking-widest text-[#8c9aa7] uppercase">
               Your next step
             </p>
             <h2
@@ -343,104 +303,17 @@ export default function Home() {
             >
               Get up and running
             </h2>
-          </div>
-          <p className="max-w-145 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm md:max-w-105">
-            Follow the guide for a new panel, or use the managed updater.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-6 rounded-[9px] border border-[#303b45] bg-[#1b232b] p-4.5 sm:gap-7.5 sm:p-7 md:p-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-11">
-          <div className="min-w-0">
-            <div
-              className="border-mb-6.5 mb-6.5 flex gap-2 border-b"
-              role="tablist"
-              aria-label="Installation commands"
-            >
-              {(
-                [
-                  { value: "install", label: "Install" },
-                  { value: "update", label: "Update" },
-                  { value: "extensions", label: "Extensions" },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={installTab === item.value}
-                  aria-controls="install-content"
-                  id={"install-tab-" + item.value}
-                  tabIndex={installTab === item.value ? 0 : -1}
-                  onClick={() => setInstallTab(item.value)}
-                  className={`relative cursor-pointer border-0 bg-transparent px-2.5 py-2.25 pb-3.5 text-xs transition-colors sm:px-3 sm:text-[13px] ${
-                    item.value === "install" ? "pl-0" : ""
-                  } ${
-                    installTab === item.value
-                      ? "text-[#a4e3dc] after:absolute after:right-0 after:-bottom-px after:left-0 after:h-0.5 after:bg-[#78d4cc] after:content-['']"
-                      : "text-[#a0abb6] hover:text-[#e9edf0]"
-                  }`}
-                  onKeyDown={(event) => {
-                    const choices = [
-                      "install",
-                      "update",
-                      "extensions",
-                    ] as const;
-                    if (
-                      event.key === "ArrowRight" ||
-                      event.key === "ArrowLeft"
-                    ) {
-                      event.preventDefault();
-                      const next =
-                        choices[
-                          (choices.indexOf(installTab) +
-                            (event.key === "ArrowRight" ? 1 : 2)) %
-                            3
-                        ];
-                      setInstallTab(next);
-                      document.getElementById("install-tab-" + next)?.focus();
-                    }
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-            <div
-              id="install-content"
-              role="tabpanel"
-              aria-labelledby={"install-tab-" + installTab}
-            >
-              <h3 className="text-lg font-medium tracking-[-0.2px] text-[#e9edf0] sm:text-xl">
-                {installContent.title}
-              </h3>
-              <p className="mt-3 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm">
-                {installContent.intro}
-              </p>
-              <Link
-                href={installContent.link}
-                className="mt-5 inline-flex items-center gap-2 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline sm:text-sm"
-              >
-                <BookOpen size={15} />
-                Read the full guide <ArrowRight size={14} />
-              </Link>
-            </div>
-            <p className="mt-7 flex items-center gap-2.5 text-xs leading-[1.9] text-[#8c9aa7]">
-              <Server size={15} className="shrink-0 text-[#78d4cc]" />
-              <span>
-                Linux · PHP 8.4 / 8.5 · Node.js 22.13+
-                <br />
-                Nginx · MariaDB / MySQL · Redis
-              </span>
+            <p className="mt-2 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm">
+              Follow our guide for a new panel installation, managed updates,
+              and extension configuration.
             </p>
           </div>
-          <div className="min-w-0">
-            <CodeBlock
-              title={installContent.title}
-              code={installContent.code}
-            />
-            <p className="mt-3.75 text-xs leading-[1.85] wrap-break-word text-[#a0abb6]">
-              {installContent.note}
-            </p>
-          </div>
+          <Link
+            href="/docs"
+            className="inline-flex min-h-11.5 shrink-0 items-center justify-center gap-2.5 rounded-md border border-[#2b7c80] bg-[#20696d] px-5 text-sm font-medium whitespace-nowrap text-[#effcfa] transition-colors duration-150 hover:border-[#55c0b7] hover:bg-[#237c7f]"
+          >
+            Installation guide <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
 
