@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "@/styles.css";
-import "@/components/PanelPreview.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -51,10 +50,13 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className="min-w-[320px] bg-[#11161b] text-[#e9edf0] antialiased">
         <RootProvider>
           <div id="top">
-            <a className="skip-link" href="#main-content">
+            <a
+              className="fixed -top-25 left-5 z-100 rounded-[5px] bg-[#20696d] px-5 py-3.5 text-white transition-all focus:top-2.5"
+              href="#main-content"
+            >
               Skip to content
             </a>
             <ScrollToLocation />

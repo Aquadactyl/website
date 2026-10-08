@@ -65,14 +65,20 @@ function Sparkline({
   const points = offline ? "0,49 240,49" : paths[variant];
   return (
     <svg
-      className="sparkline"
+      className="mt-2 block h-7 w-full sm:h-7.75"
       viewBox="0 0 240 60"
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path className="graph-grid" d="M0 15H240 M0 35H240 M0 55H240" />
-      <polygon className="graph-area" points={`0,60 ${points} 240,60`} />
-      <polyline className="graph-line" points={points} />
+      <path
+        className="fill-none stroke-[#52616f] stroke-[0.6] opacity-50"
+        d="M0 15H240 M0 35H240 M0 55H240"
+      />
+      <polygon className="fill-[#78d4cc0e]" points={`0,60 ${points} 240,60`} />
+      <polyline
+        className="fill-none stroke-[#78d4cc] stroke-[1.5]"
+        points={points}
+      />
     </svg>
   );
 }
@@ -196,47 +202,70 @@ export default function PanelPreview() {
   const running = status === "Running";
 
   return (
-    <div id="panel-preview" className="preview-wrap">
-      <div className="preview-label">
-        <span>Try the panel</span>
+    <div id="panel-preview" className="w-full scroll-mt-27.5">
+      <div className="mb-3 flex items-center justify-between gap-2.5 text-[10px] text-[#8c9aa7] sm:gap-3 sm:text-[11px]">
+        <span className="font-medium text-[#bbc5ce]">Try the panel</span>
         <span>Interactive demo · sample data</span>
       </div>
       <div
-        className="panel-preview"
+        className="overflow-hidden rounded-[9px] border border-[#3b4854] bg-[#1b232b]"
         aria-label="Interactive Aquadactyl panel demo"
       >
-        <div className="panel-topbar">
-          <div className="panel-wordmark">
-            <img src="/brand/aquadactyl-emblem.png" alt="" />
-            Aquadactyl<span>/</span>
-            <span className="panel-context">Servers</span>
+        <div className="flex h-11.25 items-center justify-between border-b border-[#303b45] bg-[#151c23] px-3.5 sm:h-12 sm:px-5">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#e9edf0] sm:gap-2 sm:text-xs">
+            <img
+              src="/brand/aquadactyl-emblem.png"
+              alt=""
+              className="h-5.25 w-5.25 object-contain sm:h-5.75 sm:w-5.75"
+            />
+            Aquadactyl<span className="font-normal text-[#8c9aa7]">/</span>
+            <span className="text-[10px] font-normal text-[#8c9aa7] sm:text-[11px]">
+              Servers
+            </span>
           </div>
-          <span className="panel-user">
+          <span className="flex items-center gap-1 text-[11px] text-[#bbc5ce]">
             <UserRound size={12} /> R
           </span>
         </div>
-        <div className="panel-shell">
-          <div className="panel-main">
-            <div className="server-heading">
+        <div className="flex min-w-0">
+          <div className="w-full min-w-0 px-3.5 pt-4.5 sm:px-5 sm:pt-5.25">
+            <div className="flex items-start justify-between gap-2 sm:items-center sm:gap-3.5">
               <div>
-                <div className="server-breadcrumb">
+                <div className="flex items-center gap-1.5 text-[8px] font-medium tracking-wider text-[#8c9aa7] sm:text-[9px]">
                   SERVERS <ChevronRight size={9} /> MINECRAFT
                 </div>
-                <h2>{serverName}</h2>
-                <p>
-                  Paper 1.21.4 <span>·</span> Community Minecraft server
+                <h2 className="mt-2 text-lg leading-[1.35] font-medium tracking-[-0.3px] wrap-break-word text-[#e9edf0] sm:mt-2.25 sm:text-[21px]">
+                  {serverName}
+                </h2>
+                <p className="mt-1 text-[10px] leading-[1.6] text-[#a0abb6] sm:mt-1.5 sm:text-[11px]">
+                  Paper 1.21.4 <span className="px-1">·</span> Community
+                  Minecraft server
                 </p>
               </div>
               <span
-                className={`server-status ${status.toLowerCase()}`}
+                className={`mt-6 flex items-center gap-1.5 rounded-[5px] border px-1.5 py-1 text-[9px] font-medium whitespace-nowrap sm:mt-0 sm:px-2 sm:py-1 sm:text-[10px] ${
+                  status === "Running"
+                    ? "border-[#365744] bg-[#20352a] text-[#a6d5b7]"
+                    : status === "Offline"
+                      ? "border-[#4b424e] bg-[#302d31] text-[#b6aeb7]"
+                      : "border-[#635339] bg-[#342f24] text-[#e8c38b]"
+                }`}
                 role="status"
               >
-                <span className="status-dot" />
+                <span
+                  className={`h-1.25 w-1.25 shrink-0 rounded-full ${
+                    status === "Running"
+                      ? "bg-[#a6d5b7]"
+                      : status === "Offline"
+                        ? "bg-[#b6aeb7]"
+                        : "bg-[#e8c38b]"
+                  }`}
+                />
                 {status}
               </span>
             </div>
             <div
-              className="panel-tabs"
+              className="mt-3.75 mb-4 flex scrollbar-none gap-4.5 overflow-x-auto border-b border-[#3b4854] sm:mt-4.5 sm:gap-5.5"
               role="tablist"
               aria-label="Demo server views"
             >
@@ -265,8 +294,13 @@ export default function PanelPreview() {
                     }
                   }}
                   onClick={() => setTab(name)}
+                  className={`relative flex cursor-pointer items-center gap-1.5 border-0 bg-transparent px-0.5 py-1.5 pb-3 text-[11px] whitespace-nowrap transition-colors sm:py-1.75 sm:pb-3.25 sm:text-xs ${
+                    tab === name
+                      ? "text-[#a4e3dc] after:absolute after:right-0 after:bottom-0 after:left-0 after:h-0.5 after:bg-[#78d4cc] after:content-['']"
+                      : "text-[#a0abb6] hover:text-[#e9edf0]"
+                  }`}
                 >
-                  <Icon size={12} />
+                  <Icon className="h-3 w-3 sm:h-3 sm:w-3" size={12} />
                   {name}
                 </button>
               ))}
@@ -278,16 +312,16 @@ export default function PanelPreview() {
             >
               {tab === "Console" && (
                 <>
-                  <div className="console-toolbar">
-                    <span>
+                  <div className="mb-2.5 flex items-center justify-between gap-2.5">
+                    <span className="hidden items-center gap-1.5 text-[11px] text-[#a0abb6] sm:flex">
                       <Terminal size={12} /> Console
                     </span>
-                    <div className="power-controls">
+                    <div className="flex w-full gap-1.5 sm:w-auto">
                       <button
                         type="button"
                         onClick={() => power("start")}
                         disabled={status !== "Offline"}
-                        className="start-control"
+                        className="flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] border border-[#2b7c80] bg-[#20696d] px-2 py-1.5 text-[11px] text-[#effcfa] transition-colors hover:enabled:brightness-115 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-8.25 sm:flex-initial sm:px-2.5"
                         aria-label="Start demo server"
                       >
                         <Play size={10} fill="currentColor" />
@@ -297,6 +331,7 @@ export default function PanelPreview() {
                         type="button"
                         onClick={() => power("restart")}
                         disabled={status === "Starting"}
+                        className="flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] border border-[#52616f] bg-[#26313b] px-2 py-1.5 text-[11px] text-[#e9edf0] transition-colors hover:enabled:brightness-115 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-8.25 sm:flex-initial sm:px-2.5"
                         aria-label="Restart demo server"
                       >
                         <RotateCw size={10} />
@@ -306,6 +341,7 @@ export default function PanelPreview() {
                         type="button"
                         onClick={() => power("stop")}
                         disabled={status === "Offline"}
+                        className="flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] border border-[#87515b] bg-[#61363e] px-2 py-1.5 text-[11px] text-[#fce3e7] transition-colors hover:enabled:brightness-115 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-8.25 sm:flex-initial sm:px-2.5"
                         aria-label="Stop demo server"
                       >
                         <Square size={9} fill="currentColor" />
@@ -314,25 +350,39 @@ export default function PanelPreview() {
                     </div>
                   </div>
                   <div
-                    className="console-output"
+                    className="h-52.5 scrollbar-thin [scrollbar-color:#52616f_transparent] overflow-auto rounded-t-md border border-[#303b45] bg-[#0d1217] p-2.5 min-[1051px]:h-47.5 sm:h-55 sm:p-3"
                     ref={terminalRef}
                     aria-label="Demo server output"
                   >
                     {logs.map((line, index) => (
                       <div
                         key={index}
-                        className={`log-line ${line.tone ?? ""}`}
+                        className={`font-mono text-[10px] leading-[1.95] wrap-break-word whitespace-pre-wrap min-[1051px]:text-[10px] sm:text-[11px] ${
+                          line.tone === "muted"
+                            ? "text-[#8c9aa7]"
+                            : line.tone === "green"
+                              ? "text-[#a6d5b7]"
+                              : line.tone === "yellow"
+                                ? "text-[#e8c38b]"
+                                : "text-[#d7dce1]"
+                        }`}
                       >
                         {line.text}
                       </div>
                     ))}
                     {status === "Starting" && (
-                      <div className="log-line green">
-                        Starting<span className="terminal-cursor">_</span>
+                      <div className="font-mono text-[10px] leading-[1.95] text-[#a6d5b7] min-[1051px]:text-[10px] sm:text-[11px]">
+                        Starting
+                        <span className="inline-block animate-[pulse_1s_infinite]">
+                          _
+                        </span>
                       </div>
                     )}
                   </div>
-                  <form className="console-input" onSubmit={sendCommand}>
+                  <form
+                    className="flex h-11 items-center gap-1.5 rounded-b-md border border-t-0 border-[#303b45] bg-[#151c23] px-2 text-[#8c9aa7] focus-within:border-[#78d4cc] focus-within:[box-shadow:inset_0_-1px_#78d4cc] sm:h-10.25 sm:gap-1.75 sm:px-3"
+                    onSubmit={sendCommand}
+                  >
                     <ChevronRight size={13} />
                     <input
                       aria-label="Demo console command"
@@ -346,45 +396,60 @@ export default function PanelPreview() {
                       disabled={!running}
                       autoComplete="off"
                       spellCheck={false}
+                      className="min-w-0 flex-1 border-0 bg-transparent p-0 font-mono text-[10px] text-[#e9edf0] outline-none placeholder:text-[#8c9aa7] sm:text-[11px]"
                     />
                     <button
                       type="submit"
                       disabled={!running || !command.trim()}
                       aria-label="Send demo command"
+                      className="flex cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-2 text-[#a4e3dc] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <Send size={12} />
                     </button>
                   </form>
-                  <div className="panel-stats">
-                    <div>
-                      <span>
-                        <Cpu size={12} />
+                  <div className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-3.25 sm:gap-2.5">
+                    <div className="min-w-0 overflow-hidden rounded-md border border-[#3b4854] bg-[#202a33] p-2 pb-0 sm:p-3">
+                      <span className="flex items-center gap-1 text-[9px] font-medium text-[#a0abb6] sm:text-[10px]">
+                        <Cpu className="h-2.5 w-2.5 sm:h-3 sm:w-3" size={12} />
                         CPU usage
                       </span>
-                      <strong>
+                      <strong className="mt-2 block text-lg font-medium whitespace-nowrap text-[#e9edf0] sm:text-xl">
                         {running ? `${18 + (tick % 5)}%` : "0%"}
-                        <small>/ 200%</small>
+                        <small className="ml-0 block text-[9px] font-normal text-[#8c9aa7] sm:ml-1 sm:inline sm:text-[10px]">
+                          / 200%
+                        </small>
                       </strong>
                       <Sparkline offline={!running} />
                     </div>
-                    <div>
-                      <span>
-                        <MemoryStick size={12} />
+                    <div className="min-w-0 overflow-hidden rounded-md border border-[#3b4854] bg-[#202a33] p-2 pb-0 sm:p-3">
+                      <span className="flex items-center gap-1 text-[9px] font-medium text-[#a0abb6] sm:text-[10px]">
+                        <MemoryStick
+                          className="h-2.5 w-2.5 sm:h-3 sm:w-3"
+                          size={12}
+                        />
                         Memory
                       </span>
-                      <strong>
+                      <strong className="mt-2 block text-lg font-medium whitespace-nowrap text-[#e9edf0] sm:text-xl">
                         {running ? "1.24" : "0"}
-                        <small>/ 4 GiB</small>
+                        <small className="ml-0 block text-[9px] font-normal text-[#8c9aa7] sm:ml-1 sm:inline sm:text-[10px]">
+                          / 4 GiB
+                        </small>
                       </strong>
                       <Sparkline variant={1} offline={!running} />
                     </div>
-                    <div>
-                      <span>
-                        <HardDrive size={12} />
+                    <div className="min-w-0 overflow-hidden rounded-md border border-[#3b4854] bg-[#202a33] p-2 pb-0 sm:p-3">
+                      <span className="flex items-center gap-1 text-[9px] font-medium text-[#a0abb6] sm:text-[10px]">
+                        <HardDrive
+                          className="h-2.5 w-2.5 sm:h-3 sm:w-3"
+                          size={12}
+                        />
                         Disk
                       </span>
-                      <strong>
-                        2.18<small>/ 10 GiB</small>
+                      <strong className="mt-2 block text-lg font-medium whitespace-nowrap text-[#e9edf0] sm:text-xl">
+                        2.18
+                        <small className="ml-0 block text-[9px] font-normal text-[#8c9aa7] sm:ml-1 sm:inline sm:text-[10px]">
+                          / 10 GiB
+                        </small>
                       </strong>
                       <Sparkline variant={2} />
                     </div>
@@ -392,13 +457,17 @@ export default function PanelPreview() {
                 </>
               )}
               {tab === "Files" && (
-                <div className="preview-secondary">
-                  <div className="secondary-heading">
-                    <h3>File manager</h3>
-                    <span>DEMO FILES</span>
+                <div className="max-h-96.75 min-h-96.75 scrollbar-thin [scrollbar-color:#52616f_transparent] overflow-auto py-1 min-[1051px]:max-h-96.75 min-[1051px]:min-h-96.75 sm:max-h-104.25 sm:min-h-104.25">
+                  <div className="mb-4.5 flex items-center justify-between gap-2.5">
+                    <h3 className="text-lg font-medium text-[#e9edf0]">
+                      File manager
+                    </h3>
+                    <span className="text-[10px] text-[#8c9aa7]">
+                      DEMO FILES
+                    </span>
                   </div>
                   <button
-                    className="file-path"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-[5px] border border-[#3b4854] bg-[#151c23] p-3 text-left font-mono text-[11px] text-[#bbc5ce]"
                     type="button"
                     onClick={() => {
                       setFolder("");
@@ -406,28 +475,29 @@ export default function PanelPreview() {
                     }}
                   >
                     <Folder size={12} /> /home/container{folder && `/${folder}`}{" "}
-                    <ChevronRight size={12} />
+                    <ChevronRight size={12} className="ml-auto" />
                   </button>
                   {filePreview ? (
                     <>
-                      <div className="file-preview-heading">
+                      <div className="my-4.25 flex items-center gap-1.75 text-xs text-[#bbc5ce]">
                         <File size={12} />
                         {filePreview}
                         <button
                           type="button"
+                          className="ml-auto cursor-pointer border-0 bg-transparent py-1.75 text-[11px] text-[#a4e3dc]"
                           onClick={() => setFilePreview(null)}
                         >
                           Back to files
                         </button>
                       </div>
-                      <pre className="demo-file-content">
+                      <pre className="rounded border border-[#303b45] bg-[#0d1217] p-3.75 font-mono text-[11px] leading-[1.9] whitespace-pre-wrap text-[#d7dce1]">
                         {filePreview === "server.properties"
                           ? "# Minecraft server properties\nserver-port=25565\nmax-players=20\nmotd=An Aquadactyl community server\nonline-mode=true\ndifficulty=normal"
                           : "# Demo file preview\n# Your real panel supports viewing and editing files.\n# This preview uses sample data."}
                       </pre>
                     </>
                   ) : (
-                    <div className="file-list">
+                    <div className="mt-2">
                       {(folder
                         ? [
                             {
@@ -475,6 +545,7 @@ export default function PanelPreview() {
                               ? setFolder(item.name)
                               : setFilePreview(item.name)
                           }
+                          className="flex w-full cursor-pointer items-center gap-2 border-0 border-b border-[#303b45] bg-transparent p-3 text-left text-xs text-[#e9edf0] transition-colors hover:bg-[#26313b] sm:gap-2.5 sm:p-3.5"
                         >
                           {item.directory ? (
                             <Folder size={15} />
@@ -482,8 +553,13 @@ export default function PanelPreview() {
                             <File size={15} />
                           )}
                           <span>{item.name}</span>
-                          <small>{item.size}</small>
-                          <ChevronRight size={12} />
+                          <small className="ml-auto text-[9px] text-[#8c9aa7] sm:text-[10px]">
+                            {item.size}
+                          </small>
+                          <ChevronRight
+                            size={12}
+                            className="hidden sm:inline"
+                          />
                         </button>
                       ))}
                     </div>
@@ -491,39 +567,48 @@ export default function PanelPreview() {
                 </div>
               )}
               {tab === "Backups" && (
-                <div className="preview-secondary">
-                  <div className="secondary-heading">
-                    <h3>Backups</h3>
+                <div className="max-h-96.75 min-h-96.75 scrollbar-thin [scrollbar-color:#52616f_transparent] overflow-auto py-1 min-[1051px]:max-h-96.75 min-[1051px]:min-h-96.75 sm:max-h-104.25 sm:min-h-104.25">
+                  <div className="mb-4.5 flex items-center justify-between gap-2.5">
+                    <h3 className="text-lg font-medium text-[#e9edf0]">
+                      Backups
+                    </h3>
                     <button
                       type="button"
-                      className="small-accent-button"
+                      className="min-h-9.5 cursor-pointer rounded-[5px] border border-[#2b7c80] bg-[#20696d] px-3.5 py-2 text-xs font-medium text-[#effcfa] hover:bg-[#237c7f] disabled:opacity-60"
                       disabled={creating}
                       onClick={createBackup}
                     >
                       {creating ? "Creating…" : "Create backup"}
                     </button>
                   </div>
-                  <p className="secondary-description">
+                  <p className="text-[13px] leading-[1.8] text-[#a0abb6]">
                     Keep a copy before changing your server.
                   </p>
                   {backups.map((name) => (
-                    <div className="backup-row" key={name}>
+                    <div
+                      className="flex items-center gap-3 border-b border-[#303b45] py-4 text-[#a4e3dc]"
+                      key={name}
+                    >
                       <Archive size={18} />
-                      <div>
-                        <strong>{name}</strong>
-                        <small>Sample backup · 124 MiB</small>
+                      <div className="flex min-w-0 flex-col gap-1.5">
+                        <strong className="text-xs font-medium wrap-break-word text-[#e9edf0]">
+                          {name}
+                        </strong>
+                        <small className="text-[11px] text-[#8c9aa7]">
+                          Sample backup · 124 MiB
+                        </small>
                       </div>
-                      <Check size={15} />
+                      <Check size={15} className="ml-auto" />
                     </div>
                   ))}
-                  <p className="demo-note">
+                  <p className="mt-4.25 text-[11px] leading-[1.8] text-[#8c9aa7]">
                     This preview creates sample backups in your browser.
                   </p>
                 </div>
               )}
               {tab === "Settings" && (
                 <form
-                  className="preview-secondary"
+                  className="max-h-96.75 min-h-96.75 scrollbar-thin [scrollbar-color:#52616f_transparent] overflow-auto py-1 min-[1051px]:max-h-96.75 min-[1051px]:min-h-96.75 sm:max-h-104.25 sm:min-h-104.25"
                   onSubmit={(event) => {
                     event.preventDefault();
                     if (draftName.trim()) {
@@ -532,11 +617,13 @@ export default function PanelPreview() {
                     }
                   }}
                 >
-                  <div className="secondary-heading">
-                    <h3>Server settings</h3>
-                    <Settings size={15} />
+                  <div className="mb-4.5 flex items-center justify-between gap-2.5">
+                    <h3 className="text-lg font-medium text-[#e9edf0]">
+                      Server settings
+                    </h3>
+                    <Settings size={15} className="text-[#a0abb6]" />
                   </div>
-                  <label className="demo-setting">
+                  <label className="mb-5 flex flex-col gap-2 text-xs text-[#bbc5ce]">
                     Server name
                     <input
                       required
@@ -546,41 +633,57 @@ export default function PanelPreview() {
                         setDraftName(event.target.value);
                         setSaved(false);
                       }}
+                      className="min-w-0 rounded-[5px] border border-[#3b4854] bg-[#11161b] p-3 text-[13px] text-[#e9edf0] outline-none focus:border-[#78d4cc]"
                     />
                   </label>
-                  <label className="demo-setting">
+                  <label className="mb-5 flex flex-col gap-2 text-xs text-[#bbc5ce]">
                     Description
-                    <input value="Community Minecraft server" readOnly />
+                    <input
+                      value="Community Minecraft server"
+                      readOnly
+                      className="min-w-0 rounded-[5px] border border-[#3b4854] bg-[#11161b] p-3 text-[13px] text-[#8c9aa7] outline-none"
+                    />
                   </label>
-                  <button type="submit" className="small-accent-button">
+                  <button
+                    type="submit"
+                    className="min-h-9.5 cursor-pointer rounded-[5px] border border-[#2b7c80] bg-[#20696d] px-3.5 py-2 text-xs font-medium text-[#effcfa] hover:bg-[#237c7f]"
+                  >
                     {saved ? "Changes saved" : "Save changes"}
                   </button>
-                  <p className="demo-note">
+                  <p className="mt-4.25 text-[11px] leading-[1.8] text-[#8c9aa7]">
                     Changes apply to this browser preview.
                   </p>
                 </form>
               )}
             </div>
-            <div className="panel-statusbar">
-              <button type="button" onClick={copyAddress}>
+            <div className="flex min-h-10.25 items-center justify-between gap-2 text-[9px] text-[#8c9aa7] sm:text-[10px]">
+              <button
+                type="button"
+                onClick={copyAddress}
+                className="flex cursor-pointer items-center gap-1.5 rounded-[3px] border-0 bg-transparent px-0 py-1.5 text-[9px] text-[#a0abb6] hover:text-[#a4e3dc] sm:text-[10px]"
+              >
                 {addressCopied ? <Check size={10} /> : <Activity size={10} />}{" "}
                 {addressCopied ? "Address copied" : "play.example.com:25565"}{" "}
-                <ArrowUpRight size={10} />
+                <ArrowUpRight size={10} className="hidden sm:inline" />
               </button>
-              <span>
-                <span className="status-dot" /> eu-west-01
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.25 w-1.25 shrink-0 rounded-full bg-[#a6d5b7]" />{" "}
+                eu-west-01
               </span>
             </div>
             {notice && (
-              <p className="demo-note" role="status">
+              <p
+                className="mt-4.25 text-[11px] leading-[1.8] text-[#8c9aa7]"
+                role="status"
+              >
                 {notice}
               </p>
             )}
           </div>
         </div>
-        <div className="panel-footnote">
+        <div className="flex items-center justify-between gap-3 border-t border-[#303b45] bg-[#151c23] px-3.5 py-2.5 text-[9px] leading-[1.6] text-[#8c9aa7] sm:px-5 sm:text-[10px]">
           <span>Interactive demo · no live server connection</span>
-          <span>Aquadactyl</span>
+          <span className="hidden sm:inline">Aquadactyl</span>
         </div>
       </div>
     </div>

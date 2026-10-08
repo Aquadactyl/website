@@ -35,26 +35,29 @@ export default function CodeBlock({
   }
 
   return (
-    <div className="code-block">
-      <div className="code-heading">
-        <span>
-          <Terminal className="terminal-symbol" size={14} />
+    <div className="min-w-0 overflow-hidden rounded-[7px] border border-[#303b45] bg-[#0d1217]">
+      <div className="flex items-center justify-between gap-3 border-b border-[#303b45] bg-[#202a33] px-3 py-2.5 text-[11px] text-[#bbc5ce] sm:px-3.75 sm:py-2.75 sm:text-xs">
+        <span className="flex min-w-0 items-center gap-2 font-medium">
+          <Terminal className="text-[#8c9aa7]" size={14} />
           {title}
         </span>
         <button
           type="button"
           onClick={copy}
+          className="flex shrink-0 items-center gap-1.5 rounded-sm p-1.5 text-xs text-[#a0abb6] transition-colors hover:bg-[#303b45] hover:text-[#e9edf0]"
           aria-label={`Copy ${title.toLowerCase()} commands`}
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre>
-        <code>{code}</code>
+      <pre className="m-0 scrollbar-thin [scrollbar-color:#52616f_transparent] overflow-x-auto p-3.5 sm:p-4.5 md:p-5">
+        <code className="block bg-transparent p-0 font-mono text-[11px] leading-loose text-[#d7dce1] sm:text-xs">
+          {code}
+        </code>
       </pre>
       {error && (
-        <p className="copy-error" role="status">
+        <p className="px-4.25 pb-3.5 text-xs text-[#e8c38b]" role="status">
           Select and copy the commands above; clipboard access is unavailable.
         </p>
       )}
