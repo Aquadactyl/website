@@ -1,0 +1,9 @@
+{
+  "title": "Wings",
+  "pages": [
+    "installing-wings",
+    "additional-configuration",
+    "upgrading-wings",
+    "migrating-to-wings"
+  ]
+}

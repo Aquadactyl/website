@@ -1,0 +1,65 @@
+---
+title: Migrating to Wings
+description: How to migrate server nodes, transfer game volumes, or migrate from legacy daemons to Wings.
+---
+
+This guide covers migrating your game servers to a new Wings node or transitioning between server hardware.
+
+## Migrating Servers Between Nodes [#migrating-servers]
+
+Aquadactyl includes built-in server transfer tools to move instances between different Wings nodes.
+
+### 1. Requirements
+
+Before transferring servers:
+
+- Both nodes must be online with green heartbeat indicators in the panel.
+- Ensure the destination node has sufficient memory and disk space allocated.
+- Ports required by the game server must be allocated on the destination node.
+
+### 2. Initiating Transfer from Panel
+
+1. Log in to Aquadactyl Panel and go to the target server's page.
+2. In the top-right navigation, open **Settings** or **Manage**.
+3. Under **Transfer Server**, select the destination node and allocation.
+4. Click **Transfer Server**.
+
+Aquadactyl will archive the server's volume files, stream them to the destination Wings daemon, recreate the Docker container, and start the game server automatically.
+
+---
+
+## Manual Node Migration [#manual-migration]
+
+If you are replacing an existing machine entirely and keeping the same node identity in the panel:
+
+### 1. Stop Services on Old Node
+
+```bash
+sudo systemctl stop wings
+```
+
+### 2. Copy Game Server Volumes
+
+Transfer server data from `/var/lib/pterodactyl/volumes/` to the new node using rsync:
+
+```bash title="Copy server volumes"
+rsync -avzP /var/lib/pterodactyl/volumes/ root@new-node-ip:/var/lib/pterodactyl/volumes/
+```
+
+### 3. Copy Node Configuration
+
+Copy `/etc/pterodactyl/config.yml` from the old server to the new server:
+
+```bash title="Copy configuration"
+scp /etc/pterodactyl/config.yml root@new-node-ip:/etc/pterodactyl/config.yml
+```
+
+### 4. Point DNS and Start Wings
+
+1. Update your node's domain DNS A record (e.g. `node1.yourdomain.com`) to the new server's IP.
+2. Re-issue your SSL certificate on the new node via Certbot if needed.
+3. Start the Wings service on the new server:
+   ```bash
+   sudo systemctl enable --now wings
+   ```
+4. Verify all game servers populate and are manageable from the panel.

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
 import { FaGithub } from "react-icons/fa6";
-import { COMMUNITY, REPOSITORY } from "../config";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -130,7 +129,7 @@ export default function Header() {
             Documentation
           </Link>
           <a
-            href={REPOSITORY}
+            href={"https://github.com/Aquadactyl/aquadactyl"}
             target="_blank"
             rel="noreferrer"
             className="flex min-h-10 items-center gap-1.5 text-xs text-[#a0abb6] transition-colors duration-150 hover:text-[#e9edf0] lg:text-[13px]"
@@ -215,7 +214,7 @@ export default function Header() {
             Documentation
           </Link>
           <a
-            href={COMMUNITY}
+            href={"https://discord.euphoriadevelopment.uk"}
             target="_blank"
             rel="noreferrer"
             onClick={() => setOpen(false)}
@@ -224,7 +223,7 @@ export default function Header() {
             Discord <ArrowUpRight size={14} />
           </a>
           <a
-            href={REPOSITORY}
+            href={"https://github.com/Aquadactyl/aquadactyl"}
             target="_blank"
             rel="noreferrer"
             onClick={() => setOpen(false)}

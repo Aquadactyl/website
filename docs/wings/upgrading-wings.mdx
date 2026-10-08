@@ -1,0 +1,53 @@
+---
+title: Upgrading Wings
+description: How to upgrade the Wings daemon binary safely with zero downtime for running game servers.
+---
+
+Upgrading Wings is quick and simple. Because game servers run inside decoupled Docker containers, restarting Wings **does not** stop or interrupt running games.
+
+## 1. Check Current Version [#version]
+
+```bash
+wings --version
+```
+
+---
+
+## 2. Download Latest Wings Binary [#download]
+
+Download the latest compiled executable from GitHub releases:
+
+```bash title="Download latest Wings release"
+curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64"
+sudo chmod u+x /usr/local/bin/wings
+```
+
+<Callout type="info">For ARM64 platforms, use `wings_linux_arm64`.</Callout>
+
+---
+
+## 3. Restart the Service [#restart]
+
+Restart the background systemd service:
+
+```bash title="Restart Wings"
+sudo systemctl restart wings
+```
+
+---
+
+## 4. Verify Upgrade [#verify]
+
+Check that the new binary is loaded and communicating with the panel:
+
+```bash title="Check service status"
+sudo systemctl status wings
+```
+
+View the latest startup logs:
+
+```bash title="View live logs"
+journalctl -u wings -n 50 --no-pager
+```
+
+Your game servers will continue running normally, and the Aquadactyl Panel node indicator will remain green.

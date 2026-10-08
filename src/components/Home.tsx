@@ -16,7 +16,6 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";
-import { COMMUNITY, EUPHORIA, REPOSITORY } from "../config";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   {
@@ -109,7 +108,7 @@ export default function Home() {
                 Install Aquadactyl <ArrowRight size={16} />
               </Link>
               <a
-                href={REPOSITORY}
+                href={"https://github.com/Aquadactyl/aquadactyl"}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex min-h-11.5 items-center justify-center gap-2.5 rounded-md border border-[#3d4a56] bg-[#1b232b] px-4 text-[13px] font-medium text-[#e9edf0] transition-colors duration-150 hover:border-[#64717f] hover:bg-[#26313b] sm:px-5 sm:text-sm"
@@ -270,7 +269,7 @@ export default function Home() {
           </div>
           <div className="mt-7 flex flex-col flex-wrap gap-2.5 sm:flex-row sm:items-center sm:gap-7">
             <a
-              href={EUPHORIA + "/#blueprints"}
+              href={"https://euphoriadevelopment.uk" + "/#blueprints"}
               target="_blank"
               rel="noreferrer"
               className="flex min-h-8 items-center gap-1.75 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline"
@@ -278,7 +277,7 @@ export default function Home() {
               Browse Euphoria blueprints <ExternalLink size={14} />
             </a>
             <Link
-              href="/docs/blueprint"
+              href="/docs/panel/additional-configuration#blueprint"
               className="flex min-h-8 items-center gap-1.75 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline"
             >
               Blueprint setup guide <ArrowRight size={14} />
@@ -391,7 +390,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6">
             <a
-              href={REPOSITORY}
+              href={"https://github.com/Aquadactyl/aquadactyl"}
               target="_blank"
               rel="noreferrer"
               className="relative block rounded-lg border border-[#303b45] bg-[#1b232b] p-5 transition-all duration-150 hover:border-[#52616f] hover:bg-[#202a33] sm:p-5 md:p-6.5"
@@ -408,7 +407,7 @@ export default function Home() {
               </span>
             </a>
             <a
-              href={COMMUNITY}
+              href={"https://discord.euphoriadevelopment.uk"}
               target="_blank"
               rel="noreferrer"
               className="relative block rounded-lg border border-[#303b45] bg-[#1b232b] p-5 transition-all duration-150 hover:border-[#52616f] hover:bg-[#202a33] sm:p-5 md:p-6.5"
@@ -425,7 +424,7 @@ export default function Home() {
               </span>
             </a>
             <a
-              href={EUPHORIA}
+              href={"https://euphoriadevelopment.uk"}
               target="_blank"
               rel="noreferrer"
               className="relative block rounded-lg border border-[#303b45] bg-[#1b232b] p-5 transition-all duration-150 hover:border-[#52616f] hover:bg-[#202a33] sm:p-5 md:p-6.5"

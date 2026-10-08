@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BRANCH, COMMUNITY, EUPHORIA, REPOSITORY } from "../config";
 
 export default function Footer() {
   return (
@@ -7,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-296 px-5 sm:px-6 md:px-8">
         <div className="mb-6 flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-6.25">
           <a
-            href={EUPHORIA}
+            href={"https://euphoriadevelopment.uk"}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-2.25 text-[13px] font-medium text-[#e9edf0]"
@@ -30,7 +29,7 @@ export default function Footer() {
               Documentation
             </Link>
             <a
-              href={REPOSITORY}
+              href={"https://github.com/Aquadactyl/aquadactyl"}
               target="_blank"
               rel="noreferrer"
               className="transition-colors hover:text-[#e9edf0]"
@@ -38,7 +37,7 @@ export default function Footer() {
               GitHub
             </a>
             <a
-              href={COMMUNITY}
+              href={"https://discord.euphoriadevelopment.uk"}
               target="_blank"
               rel="noreferrer"
               className="transition-colors hover:text-[#e9edf0]"
@@ -50,7 +49,7 @@ export default function Footer() {
         <p className="text-[11px] leading-[1.9] text-[#8c9aa7]">
           © {new Date().getFullYear()} Euphoria Development ·{" "}
           <a
-            href={`${REPOSITORY}/blob/${BRANCH}/LICENSE.md`}
+            href={`https://github.com/Aquadactyl/aquadactyl/blob/main/LICENSE.md`}
             target="_blank"
             rel="noreferrer"
             className="underline underline-offset-[3px] hover:text-[#e9edf0]"

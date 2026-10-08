@@ -1,0 +1,88 @@
+---
+title: Additional Configuration
+description: Advanced Wings configuration options including SSL/TLS certificates, firewall port management, and Docker daemon tuning.
+---
+
+Fine-tune your Wings node for security, custom ports, and optimal Docker networking.
+
+## SSL / TLS Certificates [#ssl]
+
+When your Aquadactyl Panel is served over HTTPS, web browsers require Wings to use SSL/TLS to prevent mixed content blocking when connecting to the console websocket (port 8080).
+
+### 1. Generate Certificates with Certbot
+
+Ensure your node's FQDN (e.g. `node1.yourdomain.com`) points to the node's public IP address:
+
+```bash
+sudo apt install -y certbot
+sudo certbot certonly --standalone -d node1.yourdomain.com
+```
+
+### 2. Update Wings Configuration
+
+Open `/etc/pterodactyl/config.yml`:
+
+```yaml title="/etc/pterodactyl/config.yml"
+api:
+  host: 0.0.0.0
+  port: 8080
+  ssl:
+    enabled: true
+    cert: /etc/letsencrypt/live/node1.yourdomain.com/fullchain.pem
+    key: /etc/letsencrypt/live/node1.yourdomain.com/privkey.pem
+```
+
+Restart Wings to apply the certificate:
+
+```bash
+sudo systemctl restart wings
+```
+
+---
+
+## Firewall & Port Rules (UFW) [#ports]
+
+Wings and hosted game servers require specific incoming ports to function:
+
+| Port / Protocol         | Service                 | Description                                        |
+| :---------------------- | :---------------------- | :------------------------------------------------- |
+| **8080/tcp**            | Daemon API & Websockets | Panel-to-node communication and live console       |
+| **2022/tcp**            | Built-in SFTP           | Server file management via SFTP clients            |
+| **80/tcp**              | Certbot HTTP-01         | Let's Encrypt certificate issuance & renewals      |
+| **25565-25600/tcp+udp** | Game Allocations        | Ports allocated to game servers (adjust as needed) |
+
+Configure UFW:
+
+```bash title="Allow Wings ports in UFW"
+sudo ufw allow 8080/tcp
+sudo ufw allow 2022/tcp
+sudo ufw allow 80/tcp
+# Example game port range:
+sudo ufw allow 25565:25600/tcp
+sudo ufw allow 25565:25600/udp
+sudo ufw reload
+```
+
+---
+
+## Docker Daemon Tuning [#docker]
+
+Configure `/etc/docker/daemon.json` for reliable container DNS and logging limits:
+
+```json title="/etc/docker/daemon.json"
+{
+  "log-driver": "local",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "dns": ["1.1.1.1", "8.8.8.8"]
+}
+```
+
+Restart Docker and Wings:
+
+```bash
+sudo systemctl restart docker
+sudo systemctl restart wings
+```

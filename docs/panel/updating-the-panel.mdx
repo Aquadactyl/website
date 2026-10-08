@@ -1,0 +1,84 @@
+---
+title: Updating the Panel
+description: How to safely update Aquadactyl Panel and bundled Blueprint with automated release scripts or manual commands.
+---
+
+Aquadactyl includes a managed update script (`scripts/panel-update.sh`) that verifies checksums, creates automatic database and file backups outside the web root, preserves configurations and extension databases, reapplies active Blueprint extensions, and safely deploys updates.
+
+## Managed Update Script (Recommended) [#automated-update]
+
+Always publish or choose a reviewed release tag of Aquadactyl.
+
+```bash title="Run managed panel update"
+cd /var/www/aquadactyl
+sudo bash scripts/panel-update.sh vRELEASE_TAG Aquadactyl/aquadactyl
+```
+
+Replace `vRELEASE_TAG` with a valid release tag beginning with `v` (e.g. `v0.2.0`). If your fork is hosted under a custom repository, provide your `owner/repository`.
+
+### Updating from a Downloaded Archive
+
+If you have already downloaded `panel.tar.gz` and reviewed its SHA256 checksum:
+
+```bash title="Update using local archive"
+sudo bash scripts/panel-update.sh --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
+```
+
+---
+
+### What the Update Script Does
+
+1. **Pre-flight & Checksum Verification**: Validates the SHA256 checksum of `panel.tar.gz` against `SHA256SUMS` and checks for directory traversal or unsafe archive paths.
+2. **Blueprint Extension Validation**: Reads all installed extensions from `.blueprint/extensions/blueprint/private/db/installed_extensions` and ensures every corresponding `myextension.blueprint` package is present in the panel directory before touching any files.
+3. **Queue Pause & Maintenance Mode**: Stops `pteroq.service` to halt asynchronous background writes and puts the panel into maintenance mode (`artisan down --retry=60`).
+4. **Automated Private Backups**: Creates a secure, timestamped backup directory in `/var/backups/aquadactyl/` (mode `0700`) containing:
+   - `database.sql`: Full database snapshot taken via `php artisan p:maintenance:backup-database`.
+   - `panel.tar.gz`: Complete archive of the existing panel directory (excluding `.git` and `node_modules`).
+5. **Safe File Extraction**: Extracts the release archive via `rsync`, preserving `.env`, `.blueprintrc`, `storage/`, `bootstrap/cache/`, and extension state directories.
+6. **Locked Dependency Reinstallation**: Runs `composer install` and `pnpm install --frozen-lockfile` using the committed lockfiles.
+7. **Database Migrations & Blueprint Seeder**: Applies any schema changes (`artisan migrate --force`) and seeds Blueprint's database tables (`BlueprintSeeder`).
+8. **Extension Re-application**: Re-initializes Blueprint and executes `bash blueprint.sh -bash -i "$extension"` for every installed extension to regenerate hooks into the new source code.
+9. **Production Asset Compilation**: Compiles frontend assets with `pnpm run build:production`.
+10. **Cache Generation & Service Reload**: Refreshes configuration, route, and view caches, reloads PHP-FPM, restarts `pteroq.service`, and brings the panel back online (`artisan up`).
+
+---
+
+<Callout type="warn">
+  **Do not run `blueprint -upgrade`**: The upstream Blueprint upgrade command is
+  intentionally disabled in Aquadactyl because it would overwrite custom panel
+  code and dependency manifests. Always use `scripts/panel-update.sh` to update
+  both the panel and bundled Blueprint together.
+</Callout>
+
+---
+
+## Restoring From a Failed Update [#recovery]
+
+If an update fails at any step, maintenance mode remains enabled and the queue remains stopped. The script prints the path to the backup created in `/var/backups/aquadactyl/` (e.g. `/var/backups/aquadactyl/20261008T160000Z-abc123/`).
+
+To recover your previous version:
+
+1. Stop PHP-FPM and the queue worker:
+   ```bash
+   sudo systemctl stop php8.5-fpm pteroq.service
+   ```
+2. Move the failed panel directory aside and recreate the original path:
+   ```bash
+   sudo mv /var/www/aquadactyl /var/www/aquadactyl-failed
+   sudo mkdir -p /var/www/aquadactyl
+   ```
+3. Extract the filesystem backup:
+   ```bash
+   sudo tar -xzf /var/backups/aquadactyl/TIMESTAMP-XXXXXX/panel.tar.gz -C /var/www/aquadactyl
+   ```
+4. Restore the database snapshot:
+   ```bash
+   sudo mariadb -u aquadactyl -p aquadactyl < /var/backups/aquadactyl/TIMESTAMP-XXXXXX/database.sql
+   ```
+5. Reapply permissions, clear caches, and restart services:
+   ```bash
+   cd /var/www/aquadactyl
+   sudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'
+   sudo systemctl start php8.5-fpm pteroq.service
+   sudo -u www-data php artisan up
+   ```

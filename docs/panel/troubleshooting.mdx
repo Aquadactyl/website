@@ -1,0 +1,106 @@
+---
+title: Troubleshooting
+description: Diagnose and resolve common issues with Aquadactyl Panel, web server configuration, database connections, and permissions.
+---
+
+When encountering errors, check this guide for common causes and resolutions.
+
+## Checking Panel Logs [#logs]
+
+Aquadactyl logs Laravel exceptions and application errors to `/var/www/aquadactyl/storage/logs/`:
+
+```bash title="View live Laravel errors"
+tail -n 100 -f /var/www/aquadactyl/storage/logs/laravel-$(date +%F).log
+```
+
+---
+
+## 502 Bad Gateway [#502-bad-gateway]
+
+A `502 Bad Gateway` error indicates Nginx cannot communicate with PHP-FPM.
+
+1. **Verify PHP-FPM is running:**
+   ```bash
+   sudo systemctl status php8.5-fpm
+   ```
+2. **Verify socket path:**
+   Ensure the socket in `/etc/nginx/sites-available/aquadactyl.conf` matches your installed PHP version:
+   ```nginx
+   fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+   ```
+3. **Check socket permissions:**
+   ```bash
+   ls -la /run/php/php8.5-fpm.sock
+   ```
+
+---
+
+## Permission & Ownership Errors [#permissions]
+
+Aquadactyl enforces a strict permission model: source files are owned by `root:www-data` (mode `0750` for directories, `0640` for files), while only `storage/` and `bootstrap/cache/` are writable by the web user.
+
+To restore proper permissions without breaking security:
+
+```bash title="Restore deployment permissions"
+cd /var/www/aquadactyl
+sudo bash -c 'source scripts/deploy/common.sh; preflight; permissions; finish_deployment'
+```
+
+<Callout type="warn">
+  Never use `chmod 777` on panel files. It creates severe security
+  vulnerabilities and will fail Aquadactyl preflight checks.
+</Callout>
+
+---
+
+## CSRF Token Mismatch / Login Loop [#csrf]
+
+If logging in redirects you immediately back to the login page without an error:
+
+1. **Check `APP_URL`**: Verify `APP_URL` in `.env` matches the exact URL in your browser, including `https://`.
+2. **Cookie security**: If testing over plain HTTP locally, set:
+   ```ini
+   SESSION_SECURE_COOKIE=false
+   ```
+3. **Clear session cookies and panel cache**:
+   ```bash
+   sudo -u www-data php artisan config:clear
+   sudo -u www-data php artisan cache:clear
+   ```
+
+---
+
+## Queue Worker Issues [#queue-issues]
+
+If server installations, emails, or user account emails are never sent:
+
+1. **Inspect worker logs**:
+   ```bash
+   journalctl -u pteroq.service -f
+   ```
+2. **Restart worker**:
+   ```bash
+   sudo systemctl restart pteroq.service
+   ```
+3. **Check Redis**:
+   ```bash
+   redis-cli ping
+   ```
+
+---
+
+## Blueprint Extension Errors [#blueprint-errors]
+
+If installing a Blueprint extension fails:
+
+1. Verify that `pnpm@12.10.1` and `node 22` are installed and available in `PATH`.
+2. Clean build cache:
+   ```bash
+   cd /var/www/aquadactyl
+   sudo pnpm store prune
+   sudo -u www-data php artisan view:clear
+   ```
+3. Run the Blueprint repair/rebuild command:
+   ```bash
+   sudo blueprint -build
+   ```

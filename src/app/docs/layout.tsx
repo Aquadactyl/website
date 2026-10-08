@@ -1,7 +1,6 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { source } from "@/lib/source";
 import type { ReactNode } from "react";
-import { COMMUNITY, REPOSITORY } from "@/config";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -37,12 +36,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         },
         {
           text: "Discord",
-          url: COMMUNITY,
+          url: "https://discord.euphoriadevelopment.uk",
           external: true,
         },
         {
           text: "GitHub",
-          url: REPOSITORY,
+          url: "https://github.com/Aquadactyl/aquadactyl",
           external: true,
         },
       ]}

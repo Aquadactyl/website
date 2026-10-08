@@ -16,7 +16,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open http://localhost:5173. To build and preview production output:
+Open <http://localhost:5173>. To build and preview production output:
 
 ```bash
 pnpm build

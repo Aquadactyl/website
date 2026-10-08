@@ -1,0 +1,124 @@
+---
+title: Installing Wings
+description: Install and configure the Wings daemon to run game servers in secure Docker containers managed by Aquadactyl Panel.
+---
+
+Wings is the server control daemon. It handles game server processes, monitors resource usage, streams console outputs, and manages server files inside isolated Docker containers.
+
+## Prerequisites [#prerequisites]
+
+- **Operating System**: Ubuntu 22.04 / 24.04 LTS or Debian 11 / 12
+- **Hardware Virtualization**: Dedicated server or KVM VPS (OpenVZ is **not** supported due to Docker requirements)
+- **Kernel**: Linux kernel 5.4+ with Docker support
+
+---
+
+## 1. Install Docker [#install-docker]
+
+Wings relies on Docker to isolate game server instances. Install Docker using the official automated script:
+
+```bash title="Install Docker CE"
+curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+sudo systemctl enable --now docker
+```
+
+### Enable Swap Memory Accounting
+
+On Debian and Ubuntu, enable swap accounting in the kernel:
+
+1. Open `/etc/default/grub` in an editor:
+   ```bash
+   sudo nano /etc/default/grub
+   ```
+2. Find `GRUB_CMDLINE_LINUX_DEFAULT` and add `swapaccount=1`:
+   ```bash
+   GRUB_CMDLINE_LINUX_DEFAULT="swapaccount=1"
+   ```
+3. Update grub and reboot your server:
+   ```bash
+   sudo update-grub
+   sudo reboot
+   ```
+
+---
+
+## 2. Install Wings Binary [#install-binary]
+
+Create the Wings directories and download the executable binary:
+
+```bash title="Download Wings"
+sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
+curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64"
+sudo chmod u+x /usr/local/bin/wings
+```
+
+<Callout type="info">
+  If you are running on an ARM64 server (e.g. Raspberry Pi or Ampere Altra),
+  replace `wings_linux_amd64` with `wings_linux_arm64`.
+</Callout>
+
+---
+
+## 3. Configure the Node in Aquadactyl [#configure-node]
+
+1. Log into your Aquadactyl Panel as an administrator.
+2. In the Admin area (`/admin`), navigate to **Nodes** -> **Create New**.
+3. Fill out the node details:
+   - **Name**: A descriptive name (e.g. `US-Node-1`).
+   - **Location**: The location this node belongs to.
+   - **FQDN**: The domain pointing to this server (e.g. `node1.yourdomain.com`) or public IP.
+   - **Daemon Port**: `8080`.
+   - **Daemon SFTP Port**: `2022`.
+   - **Total Memory & Disk**: Set the hardware limits.
+4. Click **Create Node**.
+5. Switch to the **Configuration** tab. Click **Generate Token** or copy the YAML snippet shown.
+6. On your node server, paste this configuration into `/etc/pterodactyl/config.yml`:
+
+```bash
+sudo nano /etc/pterodactyl/config.yml
+```
+
+---
+
+## 4. Create Systemd Service [#systemd]
+
+Run Wings as a managed background service using systemd:
+
+```ini title="/etc/systemd/system/wings.service"
+[Unit]
+Description=Wings Daemon
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+User=root
+WorkingDirectory=/etc/pterodactyl
+LimitNOFILE=4096
+PIDFile=/var/run/wings/daemon.pid
+ExecStart=/usr/local/bin/wings
+Restart=on-failure
+StartLimitInterval=180
+StartLimitBurst=30
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now wings
+```
+
+### Verifying Connection
+
+Check that Wings is running without errors:
+
+```bash
+sudo systemctl status wings
+```
+
+In the Aquadactyl Panel under **Admin** -> **Nodes**, a green heart icon will indicate that the node is successfully communicating with the panel!

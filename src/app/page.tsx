@@ -4,10 +4,10 @@ import Home from "@/components/Home";
 
 export default function Page() {
   return (
-    <>
+    <div className="bg-[#11161b] text-[#e9edf0]">
       <Header />
       <Home />
       <Footer />
-    </>
+    </div>
   );
 }

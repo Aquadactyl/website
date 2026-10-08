@@ -1,0 +1,152 @@
+---
+title: Webserver Configuration
+description: Configure web servers like Nginx, Apache, or Caddy to serve Aquadactyl with SSL/TLS encryption.
+---
+
+Aquadactyl requires a reverse proxy / web server to handle HTTP/HTTPS traffic, serve static assets, and proxy dynamic requests through PHP-FPM.
+
+## Nginx (Recommended) [#nginx]
+
+Nginx is the recommended web server for Aquadactyl due to its performance, lightweight memory footprint, and tight integration with PHP-FPM.
+
+Aquadactyl ships with an optimized Nginx template at `deploy/nginx/panel.conf`.
+
+### 1. Remove the Default Site
+
+```bash
+sudo rm -f /etc/nginx/sites-enabled/default
+```
+
+### 2. Install the Configuration File
+
+Copy `deploy/nginx/panel.conf` to `/etc/nginx/sites-available/aquadactyl.conf`:
+
+```bash
+sudo cp deploy/nginx/panel.conf /etc/nginx/sites-available/aquadactyl.conf
+```
+
+Or configure it manually:
+
+```nginx title="/etc/nginx/sites-available/aquadactyl.conf"
+# Replace panel.example.com and certificate paths before enabling this site.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name panel.example.com;
+    location ^~ /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name panel.example.com;
+    root /var/www/aquadactyl/public;
+    index index.php;
+    charset utf-8;
+    server_tokens off;
+    ssl_certificate /etc/letsencrypt/live/panel.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/panel.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_cache shared:PanelTLS:10m;
+    ssl_session_timeout 1d;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    client_max_body_size 100m;
+    client_body_timeout 120s;
+    sendfile on;
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # Do not log query strings, which may contain signed download tokens.
+    access_log off;
+    error_log /var/log/nginx/aquadactyl-error.log warn;
+    location / { try_files $uri $uri/ /index.php?$query_string; }
+    location = /favicon.ico { log_not_found off; }
+    location = /robots.txt { log_not_found off; }
+
+    # Only the front controller may execute PHP, including in extension directories.
+    location = /index.php {
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_param PHP_VALUE "upload_max_filesize=100M\npost_max_size=100M";
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_read_timeout 300;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+    }
+    location ~ \.php(?:/|$) { return 404; }
+    location ~ /\.(?!well-known/) { deny all; }
+    location ~* "^/assets/[^/]+\.[a-f0-9]{8}\.(js|css|woff2?|png|jpe?g|svg)$" {
+        try_files $uri =404;
+        expires 1y;
+        # Repeat security headers because adding a header here resets inheritance.
+        add_header Cache-Control "public, immutable";
+        add_header Strict-Transport-Security "max-age=31536000" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+    }
+}
+```
+
+<Callout type="info">
+  If using PHP 8.4 instead of PHP 8.5, update `fastcgi_pass` to
+  `unix:/run/php/php8.4-fpm.sock`.
+</Callout>
+
+### 3. Obtain an SSL Certificate with Certbot
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo mkdir -p /var/www/letsencrypt
+sudo certbot --nginx -d panel.example.com
+```
+
+### 4. Enable and Test Nginx
+
+```bash
+sudo ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/aquadactyl.conf
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+## Caddy (Alternative) [#caddy]
+
+Caddy automatically handles HTTPS certificate provisioning and renewals out of the box.
+
+```nginx title="/etc/caddy/Caddyfile"
+panel.yourdomain.com {
+    root * /var/www/aquadactyl/public
+    file_server
+    php_fastcgi unix//run/php/php8.5-fpm.sock
+    encode gzip zstd
+
+    @hidden {
+        path */.*
+    }
+    error @hidden 404
+
+    header {
+        X-Robots-Tag "none"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "same-origin"
+    }
+}
+```
+
+Restart Caddy:
+
+```bash
+sudo systemctl reload caddy
+```

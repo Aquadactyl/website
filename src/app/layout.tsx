@@ -59,9 +59,9 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-w-[320px] bg-[#11161b] text-[#e9edf0] antialiased">
+      <body className="flex min-h-screen min-w-[320px] flex-col antialiased">
         <RootProvider>
-          <div id="top">
+          <div id="top" className="flex min-h-screen flex-col">
             <a
               className="fixed -top-25 left-5 z-100 rounded-[5px] bg-[#20696d] px-5 py-3.5 text-white transition-all focus:top-2.5"
               href="#main-content"
@@ -69,7 +69,11 @@ export default function RootLayout({
               Skip to content
             </a>
             <ScrollToLocation />
-            <div id="main-content" tabIndex={-1}>
+            <div
+              id="main-content"
+              tabIndex={-1}
+              className="flex flex-1 flex-col"
+            >
               {children}
             </div>
           </div>

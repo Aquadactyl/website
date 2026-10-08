@@ -1,0 +1,159 @@
+---
+title: Additional Configuration
+description: Advanced configuration options for Aquadactyl Panel, including Redis, mail delivery, Blueprint extensions, and firewall rules.
+---
+
+Once your panel is installed and accessible, configure additional services for caching, email delivery, Blueprint extensions, and security.
+
+## Database & Redis [#redis]
+
+Redis handles session caching, application cache, and queued background tasks. Ensure your `.env` contains:
+
+```ini title="/var/www/aquadactyl/.env"
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+Test that Redis is responding:
+
+```bash
+redis-cli ping
+# Response should be PONG
+```
+
+---
+
+## Mail Configuration (SMTP) [#mail]
+
+Aquadactyl needs email configuration to send password resets, account activations, and 2FA recovery tokens.
+
+```ini title="/var/www/aquadactyl/.env"
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailgun.org
+MAIL_PORT=587
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="Aquadactyl Panel"
+```
+
+After modifying `.env`, clear configuration cache:
+
+```bash
+cd /var/www/aquadactyl
+sudo -u www-data php artisan config:clear
+sudo -u www-data php artisan cache:clear
+```
+
+---
+
+## Blueprint Extension Framework [#blueprint]
+
+Aquadactyl includes **Blueprint beta-2026-08** built-in. Blueprint allows you to install community themes, custom dashboard widgets, and feature addons.
+
+### Using the Blueprint CLI
+
+The Blueprint command-line interface is available in the panel root:
+
+```bash title="Check Blueprint version"
+cd /var/www/aquadactyl
+sudo blueprint -version
+```
+
+### Installing an Extension
+
+1. Place the `myextension.blueprint` package in your panel root directory (`/var/www/aquadactyl/`).
+2. Run the installation command:
+
+```bash title="Install an extension"
+cd /var/www/aquadactyl
+sudo blueprint -i myextension
+```
+
+The CLI patches templates, installs dependencies using pnpm, and runs database migrations.
+
+### Reapplying Permissions
+
+Installing extensions can change file ownership. Reapply deployment permissions after modifying extensions:
+
+```bash title="Reapply deployment permissions"
+cd /var/www/aquadactyl
+sudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'
+```
+
+<Callout type="warn">
+  `blueprint -upgrade` is disabled in Aquadactyl. Update the panel and framework
+  together using `scripts/panel-update.sh`.
+</Callout>
+
+---
+
+## Background Worker (`pteroq.service`) [#queue]
+
+Background tasks like server creation, backups, and email delivery run through the `pteroq.service` worker.
+
+Aquadactyl includes the production unit definition at `deploy/systemd/pteroq.service`:
+
+```ini title="/etc/systemd/system/pteroq.service"
+[Unit]
+Description=Aquadactyl queue worker
+After=network-online.target mariadb.service redis-server.service
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/aquadactyl
+ExecStart=/usr/bin/php artisan queue:work --queue=high,standard,low --sleep=3 --tries=3 --timeout=120 --max-time=3600
+Restart=always
+RestartSec=5
+TimeoutStopSec=180
+KillSignal=SIGTERM
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now pteroq.service
+```
+
+---
+
+## Cron Scheduler [#cron]
+
+Install the Laravel task scheduler to run scheduled tasks and automated backups:
+
+```bash title="/etc/cron.d/aquadactyl"
+echo "* * * * * www-data cd /var/www/aquadactyl && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" | sudo tee /etc/cron.d/aquadactyl
+```
+
+---
+
+## Firewall Setup (UFW) [#firewall]
+
+Protect your panel by only exposing necessary ports:
+
+```bash title="Configure UFW firewall"
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP (Let's Encrypt / Redirect)
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw enable
+```

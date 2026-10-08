@@ -1,0 +1,10 @@
+{
+  "title": "Panel",
+  "pages": [
+    "getting-started",
+    "webserver-configuration",
+    "additional-configuration",
+    "updating-the-panel",
+    "troubleshooting"
+  ]
+}
