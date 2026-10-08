@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
-import Github from "./GithubIcon";
+import { FaGithub } from "react-icons/fa6";
 import { COMMUNITY, REPOSITORY } from "../config";
 
 export default function Header() {
@@ -53,7 +53,7 @@ export default function Header() {
             Documentation
           </Link>
           <a href={REPOSITORY} target="_blank" rel="noreferrer">
-            <Github size={14} />
+            <FaGithub size={14} />
             GitHub
           </a>
         </nav>
