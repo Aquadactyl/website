@@ -1,195 +1,427 @@
 ---
 title: Webserver Configuration
-description: Configure web servers like Nginx or Caddy to serve Aquadactyl with SSL/TLS encryption.
+description: Configure NGINX, Apache, or Caddy to serve the Panel.
 ---
 
-Aquadactyl requires a reverse proxy / web server to handle HTTP/HTTPS traffic, serve static assets, and proxy dynamic requests through PHP-FPM.
+## Introduction
 
-## Nginx (Recommended) [#nginx]
+The web server passes requests to PHP and serves `/var/www/aquadactyl/public`. Pick your web server and enter your Panel's domain or IP address; the configuration below fills them in.
 
-Nginx is the recommended web server for Aquadactyl due to its performance, lightweight memory footprint, and tight integration with PHP-FPM.
+<Callout type="warn">
+  SSL configurations need a certificate for your domain first, or the web server
+  will not start. Caddy with automatic SSL creates its own.
+</Callout>
 
-Aquadactyl ships with an optimized Nginx template at `deploy/nginx/panel.conf`.
+<SetupPanel fields={["php", "webserver", "ssl", "domain"]} />
 
-### 1. Remove the Default Site
-
-```bash
-sudo rm -f /etc/nginx/sites-enabled/default
-```
-
-### 2. Install the Configuration File
-
-Copy `deploy/nginx/panel.conf` to `/etc/nginx/sites-available/aquadactyl.conf`:
+<ShowFor webserver="nginx" ssl={true}>
+Remove the default NGINX site:
 
 ```bash
-sudo cp deploy/nginx/panel.conf /etc/nginx/sites-available/aquadactyl.conf
+rm /etc/nginx/sites-enabled/default
 ```
 
-Or configure it manually:
+Create `/etc/nginx/sites-available/aquadactyl.conf`:
 
-```nginx title="/etc/nginx/sites-available/aquadactyl.conf"
-# Replace panel.example.com and certificate paths before enabling this site.
+```nginx title="aquadactyl.conf"
 server {
     listen 80;
     listen [::]:80;
-    server_name panel.example.com;
-    location ^~ /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
-    location / { return 301 https://$host$request_uri; }
+    server_name <domain>;
+    return 301 https://$server_name$request_uri;
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name panel.example.com;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name <domain>;
+
     root /var/www/aquadactyl/public;
     index index.php;
-    charset utf-8;
-    server_tokens off;
-    ssl_certificate /etc/letsencrypt/live/panel.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/panel.example.com/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_session_cache shared:PanelTLS:10m;
-    ssl_session_timeout 1d;
-    add_header Strict-Transport-Security "max-age=31536000" always;
-    add_header X-Content-Type-Options nosniff always;
-    add_header X-Frame-Options DENY always;
-    add_header Referrer-Policy strict-origin-when-cross-origin always;
 
+    access_log /var/log/nginx/aquadactyl.app-access.log;
+    error_log  /var/log/nginx/aquadactyl.app-error.log error;
+
+    # Allow larger uploads and longer requests.
     client_max_body_size 100m;
     client_body_timeout 120s;
-    sendfile on;
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/css application/javascript application/json image/svg+xml;
 
-    # Do not log query strings, which may contain signed download tokens.
-    access_log off;
-    error_log /var/log/nginx/aquadactyl-error.log warn;
-    location / { try_files $uri $uri/ /index.php?$query_string; }
-    location = /favicon.ico { log_not_found off; }
-    location = /robots.txt { log_not_found off; }
+    sendfile off;
 
-    # Only the front controller may execute PHP, including in extension directories.
-    location = /index.php {
-        include fastcgi_params;
+    ssl_certificate /etc/letsencrypt/live/<domain>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<domain>/privkey.pem;
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+    ssl_prefer_server_ciphers on;
+
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Robots-Tag none;
+    add_header Content-Security-Policy "frame-ancestors 'self'";
+    add_header X-Frame-Options DENY;
+    add_header Referrer-Policy same-origin;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ^~ /assets/ {
+        location ~ /\. {
+            deny all;
+        }
+
+        try_files $uri =404;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTP_PROXY "";
-        fastcgi_param PHP_VALUE "upload_max_filesize=100M\npost_max_size=100M";
-        fastcgi_hide_header X-Powered-By;
-        fastcgi_read_timeout 300;
+        fastcgi_intercept_errors off;
         fastcgi_buffer_size 16k;
         fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
     }
-    location ~ \.php(?:/|$) { return 404; }
-    location ~ /\.(?!well-known/) { deny all; }
-    location ~* "^/assets/[^/]+\.[a-f0-9]{8}\.(js|css|woff2?|png|jpe?g|svg)$" {
-        try_files $uri =404;
-        expires 1y;
-        # Repeat security headers because adding a header here resets inheritance.
-        add_header Cache-Control "public, immutable";
-        add_header Strict-Transport-Security "max-age=31536000" always;
-        add_header X-Content-Type-Options nosniff always;
-        add_header X-Frame-Options DENY always;
-        add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    location ~ /\.ht {
+        deny all;
     }
 }
 ```
 
-<Callout type="info">
-  If using PHP 8.4 instead of PHP 8.5, update `fastcgi_pass` to
-  `unix:/run/php/php8.4-fpm.sock`.
-</Callout>
-
-### 3. Obtain an SSL Certificate with Certbot
+Enable the site and restart NGINX:
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d panel.example.com
+ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/aquadactyl.conf
+systemctl restart nginx
 ```
 
-### 4. Enable and Test Nginx
+</ShowFor>
+
+<ShowFor webserver="nginx" ssl={false}>
+Remove the default NGINX site:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/aquadactyl.conf
-sudo nginx -t
-sudo systemctl reload nginx
+rm /etc/nginx/sites-enabled/default
 ```
 
----
+Create `/etc/nginx/sites-available/aquadactyl.conf`:
 
-## Caddy (Alternative) [#caddy]
+```nginx title="aquadactyl.conf"
+server {
+    listen 80;
+    listen [::]:80;
+    server_name <domain>;
 
-If you use Caddy instead of Nginx, Caddy automatically provisions and renews TLS certificates.
+    root /var/www/aquadactyl/public;
+    index index.html index.htm index.php;
+    charset utf-8;
 
-Below is an equivalent Caddyfile configured with the same security headers, 100MB body limits, fastcgi timeouts, hidden file protection, front-controller PHP isolation, and immutable asset caching as the Nginx deployment template:
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
-```nginx title="/etc/caddy/Caddyfile"
-panel.example.com {
+    location ^~ /assets/ {
+        location ~ /\. {
+            deny all;
+        }
+
+        try_files $uri =404;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log  /var/log/nginx/aquadactyl.app-error.log error;
+
+    # Allow larger uploads and longer requests.
+    client_max_body_size 100m;
+    client_body_timeout 120s;
+
+    sendfile off;
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+```
+
+Enable the site and restart NGINX:
+
+```bash
+ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/aquadactyl.conf
+systemctl restart nginx
+```
+
+</ShowFor>
+
+<ShowFor webserver="apache" ssl={true}>
+Install Apache and its PHP module, then disable the default site:
+
+```bash
+apt -y install apache2 libapache2-mod-php8.5
+a2dissite 000-default.conf
+```
+
+Create `/etc/apache2/sites-available/aquadactyl.conf`:
+
+```apache title="aquadactyl.conf"
+<VirtualHost *:80>
+    ServerName <domain>
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName <domain>
+    DocumentRoot "/var/www/aquadactyl/public"
+
+    AllowEncodedSlashes On
+
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+
+    <Directory "/var/www/aquadactyl/public">
+        Require all granted
+        AllowOverride all
+    </Directory>
+
+    <Directory "/var/www/aquadactyl/public/assets">
+        AllowOverride None
+        php_admin_flag engine off
+
+        <FilesMatch "^\.">
+            Require all denied
+        </FilesMatch>
+    </Directory>
+
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/<domain>/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/<domain>/privkey.pem
+</VirtualHost>
+```
+
+Enable the site and its modules, and restart Apache:
+
+```bash
+a2ensite aquadactyl.conf
+a2enmod rewrite ssl
+systemctl restart apache2
+```
+
+</ShowFor>
+
+<ShowFor webserver="apache" ssl={false}>
+Install Apache and its PHP module, then disable the default site:
+
+```bash
+apt -y install apache2 libapache2-mod-php8.5
+a2dissite 000-default.conf
+```
+
+Create `/etc/apache2/sites-available/aquadactyl.conf`:
+
+```apache title="aquadactyl.conf"
+<VirtualHost *:80>
+    ServerName <domain>
+    DocumentRoot "/var/www/aquadactyl/public"
+
+    AllowEncodedSlashes On
+
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+
+    <Directory "/var/www/aquadactyl/public">
+        AllowOverride all
+        Require all granted
+    </Directory>
+
+    <Directory "/var/www/aquadactyl/public/assets">
+        AllowOverride None
+        php_admin_flag engine off
+
+        <FilesMatch "^\.">
+            Require all denied
+        </FilesMatch>
+    </Directory>
+</VirtualHost>
+```
+
+Enable the site and the rewrite module, and restart Apache:
+
+```bash
+a2ensite aquadactyl.conf
+a2enmod rewrite
+systemctl restart apache2
+```
+
+</ShowFor>
+
+<ShowFor webserver="caddy" ssl={true}>
+Caddy gets and renews a certificate automatically. Your domain must point at the server, and ports 80 and 443 must be reachable from the internet.
+
+Replace the contents of `/etc/caddy/Caddyfile` with:
+
+```text title="Caddyfile"
+{
+    servers :443 {
+        timeouts {
+            read_body 120s
+        }
+    }
+}
+
+<domain> {
     root * /var/www/aquadactyl/public
 
-    # Match Nginx client_max_body_size (100MB upload limit)
-    request_body {
-        max_size 100MB
-    }
-
-    # Enable compression (Zstandard & Gzip)
-    encode zstd gzip
-
-    # Security headers (exact match with deploy/nginx/panel.conf)
-    header {
-        Strict-Transport-Security "max-age=31536000"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-        -X-Powered-By
-    }
-
-    # Cache immutable hashed frontend assets for 1 year
-    @hashedAssets path_regexp hashed ^/assets/[^/]+\.[a-f0-9]{8}\.(js|css|woff2?|png|jpe?g|svg)$
-    header @hashedAssets {
-        Cache-Control "public, max-age=31536000, immutable"
-        Strict-Transport-Security "max-age=31536000"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
-
-    # Deny all hidden files except .well-known
-    @hidden {
-        path */.*
-        not path */.well-known/*
-    }
-    respond @hidden 404
-
-    # Deny direct execution of arbitrary PHP files (only index.php executes)
-    @disallowedPhp {
-        path *.php
-        not path /index.php
-    }
-    respond @disallowedPhp 404
-
-    # PHP-FPM fastcgi proxy
-    php_fastcgi unix//run/php/php8.5-fpm.sock {
-        read_timeout 300s
-        env PHP_VALUE "upload_max_filesize=100M\npost_max_size=100M"
-        capture_stderr
-    }
-
     file_server
+
+    @assets-dotfiles path_regexp ^/assets/(.*/)?\.
+    respond @assets-dotfiles 403
+
+    @php not path /assets/*
+    php_fastcgi @php unix//run/php/php8.5-fpm.sock {
+        root /var/www/aquadactyl/public
+        index index.php
+
+        env PHP_VALUE "upload_max_filesize = 100M
+        post_max_size = 100M"
+        env HTTP_PROXY ""
+        env HTTPS "on"
+
+        read_timeout 300s
+        dial_timeout 300s
+        write_timeout 300s
+    }
+
+    header Strict-Transport-Security "max-age=16768000; preload;"
+    header X-Content-Type-Options "nosniff"
+    header X-Robots-Tag "none"
+    header Content-Security-Policy "frame-ancestors 'self'"
+    header X-Frame-Options "DENY"
+    header Referrer-Policy "same-origin"
+
+    request_body {
+        max_size 100m
+    }
+
+    respond /.ht* 403
+
+    log {
+        output file /var/log/caddy/aquadactyl.log {
+            roll_size 100MiB
+            roll_keep_for 7d
+        }
+        level INFO
+    }
 }
 ```
 
-<Callout type="info">
-  If using PHP 8.4 instead of PHP 8.5, update the upstream socket path to
-  `unix//run/php/php8.4-fpm.sock`.
-</Callout>
+Behind Cloudflare's proxy, Caddy needs a DNS challenge to get its certificate. See [Caddy's documentation](https://caddyserver.com/docs/automatic-https#dns-challenge).
 
-Validate your Caddy configuration and reload:
+Restart Caddy:
 
 ```bash
-sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl reload caddy
+systemctl restart caddy
+```
+
+</ShowFor>
+
+<ShowFor webserver="caddy" ssl={false}>
+Replace the contents of `/etc/caddy/Caddyfile` with:
+
+```text title="Caddyfile"
+{
+    servers :80 {
+        timeouts {
+            read_body 120s
+        }
+    }
+}
+
+<domain>:80 {
+    root * /var/www/aquadactyl/public
+
+    file_server
+
+    @assets-dotfiles path_regexp ^/assets/(.*/)?\.
+    respond @assets-dotfiles 403
+
+    @php not path /assets/*
+    php_fastcgi @php unix//run/php/php8.5-fpm.sock {
+        root /var/www/aquadactyl/public
+        index index.php
+
+        env PHP_VALUE "upload_max_filesize = 100M
+        post_max_size = 100M"
+        env HTTP_PROXY ""
+
+        read_timeout 300s
+        dial_timeout 300s
+        write_timeout 300s
+    }
+
+    header X-Content-Type-Options "nosniff"
+    header X-Robots-Tag "none"
+    header Content-Security-Policy "frame-ancestors 'self'"
+    header X-Frame-Options "DENY"
+    header Referrer-Policy "same-origin"
+
+    request_body {
+        max_size 100m
+    }
+
+    respond /.ht* 403
+
+    log {
+        output file /var/log/caddy/aquadactyl.log {
+            roll_size 100MiB
+            roll_keep_for 7d
+        }
+        level INFO
+    }
+}
+```
+
+Restart Caddy:
+
+```bash
+systemctl restart caddy
+```
+
+</ShowFor>
+
+## After Configuring Your Web Server
+
+Open your Panel's address and sign in with the user you created. If you switched from HTTP to HTTPS, make sure `APP_URL` in `/var/www/aquadactyl/.env` starts with `https://`, then run:
+
+```bash title="Refresh configuration cache"
+cd /var/www/aquadactyl
+php artisan config:clear
+php artisan cache:clear
 ```

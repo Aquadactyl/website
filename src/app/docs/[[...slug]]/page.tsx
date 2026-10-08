@@ -7,6 +7,9 @@ import {
 } from "fumadocs-ui/page";
 import { notFound, redirect } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
+import { SetupCodeBlock } from "@/components/docs/setup-code-block";
+import { SetupPanel } from "@/components/docs/setup-panel";
+import { SetupValue, ShowFor } from "@/components/docs/show-for";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -28,7 +31,15 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
+        <MDX
+          components={{
+            ...defaultMdxComponents,
+            pre: SetupCodeBlock,
+            SetupPanel,
+            ShowFor,
+            SetupValue,
+          }}
+        />
       </DocsBody>
     </DocsPage>
   );
