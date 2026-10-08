@@ -1,0 +1,50 @@
+---
+title: Blueprint integration
+description: Blueprint beta-2026-08 is bundled with Aquadactyl. The panel installer initializes the framework so you can start extending your panel without a separate framework download.
+---
+
+Blueprint beta-2026-08 is bundled with Aquadactyl. The panel installer initializes the framework so you can start extending your panel without a separate framework download.
+
+## What’s included [#included]
+
+Aquadactyl integrates Blueprint’s backend, extension routes, admin pages, client hooks, components, migrations and command-line tools. Installation initializes public asset links, settings and framework placeholders.
+
+The bundled framework comes from the reviewed upstream beta-2026-08 release. Its provenance and license are recorded in the panel’s `deploy/` directory.
+
+Blueprint code and branding artwork have separate license terms. Review the panel’s [artwork licensing notes](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/BRANDING.md#names-and-artwork) before redistributing bundled artwork.
+
+## Install an extension [#extensions]
+
+Place the extension’s `myextension.blueprint` package in `/var/www/aquadactyl`. Replace `myextension` below with its identifier:
+
+```bash title="Blueprint CLI"
+cd /var/www/aquadactyl
+sudo blueprint -version
+sudo blueprint -i myextension
+```
+
+Themes and extensions are installed separately. Aquadactyl includes the framework, not every extension in the ecosystem.
+
+<Callout type="warn">
+  Extensions execute PHP, frontend and shell code as part of your panel. Use
+  trusted publishers and check compatibility before updating production.
+</Callout>
+
+## Keep your extension packages [#maintenance]
+
+Retain the original `identifier.blueprint` packages in the panel root. The managed updater uses them to rebuild hooks against the new panel source.
+
+Aquadactyl uses pnpm 12.10.1 for framework installation, extension rebuilds and development. Update extension scripts that still call Yarn to use pnpm.
+
+Extension installation can change filesystem ownership. Reapply the deployment permissions after extension maintenance:
+
+```bash title="Restore deployment permissions"
+cd /var/www/aquadactyl
+sudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'
+```
+
+## Update the framework with the panel [#framework-updates]
+
+The stock `blueprint -upgrade` command is disabled in Aquadactyl because it replaces core files and dependency manifests. Use the managed panel updater to keep the framework and panel changes compatible.
+
+[Read the update guide](/docs/updating)

@@ -1,12 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/ibm-plex-sans";
-import "@fontsource/jetbrains-mono/400.css";
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "@/styles.css";
 import "@/components/PanelPreview.css";
-import "@/documentation.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ScrollToLocation from "@/components/ScrollToLocation";
+import { RootProvider } from "fumadocs-ui/provider/next";
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-ibm-plex-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: "#11161b",
@@ -34,19 +43,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <div id="top">
-          <a className="skip-link" href="#main-content">
-            Skip to content
-          </a>
-          <ScrollToLocation />
-          <Header />
-          <div id="main-content" tabIndex={-1}>
-            {children}
-          </div>
-          <Footer />
-        </div>
+    <html
+      lang="en"
+      className={`${ibmPlexSans.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased">
+        <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );

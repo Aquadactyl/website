@@ -1,0 +1,71 @@
+---
+title: Update your panel
+description: Update Aquadactyl and its bundled Blueprint framework together, using the managed updater and a reviewed release of this fork.
+---
+
+Update Aquadactyl and its bundled Blueprint framework together, using the managed updater and a reviewed release of this fork.
+
+## Before you update [#before-updating]
+
+Choose an explicit, published Aquadactyl release tag. Review changes and check extension compatibility before updating a production panel.
+
+- Keep every installed extension’s original `identifier.blueprint` package in the panel root.
+- Back up your panel off-host as well as locally.
+- Preserve your environment, application key and Hashids salt.
+- Check custom scripts and extensions in staging first.
+
+<Callout type="info">
+  A missing extension package stops the update before maintenance or file
+  changes. Extension scripts run again when their hooks are reapplied. Keep the
+  existing panel directory, database credentials, application key and Hashids
+  salt. The updater preserves your environment and extension data.
+</Callout>
+
+## Run the managed updater [#run-update]
+
+Replace `vRELEASE_TAG` with a reviewed, published tag from the Aquadactyl repository. This is a placeholder, not a released version.
+
+```bash title="Update Aquadactyl"
+cd /var/www/aquadactyl
+sudo bash scripts/panel-update.sh vRELEASE_TAG Aquadactyl/aquadactyl
+```
+
+The release archive must include `panel.tar.gz` and `SHA256SUMS`. For an archive you’ve already downloaded, provide the verified SHA256:
+
+```bash title="Local archive"
+sudo bash scripts/panel-update.sh --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
+```
+
+<Callout type="info">
+  `php artisan p:upgrade` displays the managed update instructions and exits
+  without changing the installation. Use the managed script above to update the
+  panel and bundled Blueprint together.
+</Callout>
+
+## What happens during an update [#update-process]
+
+1. Verify the archive checksum and validate archive paths and links.
+2. Enable maintenance mode and pause the queue.
+3. Create database and filesystem backups in `/var/backups/aquadactyl`.
+4. Preserve your environment, uploads and extension data.
+5. Install locked dependencies, run migrations and restore extension hooks.
+6. Rebuild frontend assets and application caches, reload FPM and restart the queue.
+7. Bring the panel online.
+
+Override the backup location with `BACKUP_DIR`. To retain an older default location, set `BACKUP_DIR=/var/backups/pterodactyl` when running the updater.
+
+Keep copies off-host and choose a retention policy suitable for your installation.
+
+## If an update fails [#recovery]
+
+The updater leaves maintenance enabled and the queue paused when applicable, and prints the backup directory. It does not automatically reverse database migrations.
+
+For a transient failure, resolve the problem and inspect the panel before bringing it online. To recover the previous version, stop FPM and the queue, move the failed panel directory aside, recreate the original directory and extract the filesystem backup there.
+
+Restore `database.sql` using a database administrator, reinstall dependencies using the restored version’s package manager, and run the restored version’s cache commands. Reload FPM, start the queue, then run `php artisan up`.
+
+<Callout type="warn">
+  The filesystem snapshot includes `.env`, vendor dependencies and Blueprint
+  extension data. Coordinate maintenance across all panel instances if they
+  share a database.
+</Callout>

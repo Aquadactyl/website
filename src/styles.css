@@ -1,5 +1,10 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/ocean.css";
+@import "fumadocs-ui/css/preset.css";
+
 :root {
-  font-family: "IBM Plex Sans Variable", "IBM Plex Sans", system-ui, sans-serif;
+  font-family:
+    var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
   color: #e9edf0;
   background: #11161b;
   font-synthesis: none;
@@ -13,8 +18,8 @@
   --muted: #a0abb6;
   --accent: #78d4cc;
   --link: #a4e3dc;
-  --mono: "JetBrains Mono", monospace;
-  --display: "IBM Plex Sans Variable", "IBM Plex Sans", system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  --display: var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
 }
 * {
   box-sizing: border-box;
