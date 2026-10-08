@@ -3,6 +3,9 @@ import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "@/styles.css";
 import "@/components/PanelPreview.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ScrollToLocation from "@/components/ScrollToLocation";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -49,7 +52,19 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider>
+          <div id="top">
+            <a className="skip-link" href="#main-content">
+              Skip to content
+            </a>
+            <ScrollToLocation />
+            <Header />
+            <div id="main-content" tabIndex={-1}>
+              {children}
+            </div>
+            <Footer />
+          </div>
+        </RootProvider>
       </body>
     </html>
   );
