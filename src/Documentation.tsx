@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import "./documentation.css";
 import { Link, NavLink } from "react-router-dom";
 import {
   ArrowLeft,
@@ -6,6 +7,7 @@ import {
   ArrowUpRight,
   BookOpen,
   Check,
+  ChevronDown,
   ChevronRight,
   Info,
   Layers,
@@ -140,17 +142,19 @@ function Installation() {
         </h2>
         <p>
           Extract a reviewed Aquadactyl release or clone the source into{" "}
-          <code>/var/www/pterodactyl</code>. The destination must be empty for a
+          <code>/var/www/aquadactyl</code>. The destination must be empty for a
           fresh checkout.
         </p>
         <CodeBlock
           title="Source checkout"
-          code={`sudo git clone --branch ${BRANCH} ${REPOSITORY}.git /var/www/pterodactyl\ncd /var/www/pterodactyl`}
+          code={`sudo git clone --branch ${BRANCH} ${REPOSITORY}.git /var/www/aquadactyl\ncd /var/www/aquadactyl`}
         />
         <p>
-          The existing path is retained for compatibility with panel service
-          templates. The installer builds frontend assets from the committed
-          dependency lockfile.
+          The supplied Nginx and queue templates use this path for new installs.
+          The installer builds frontend assets from the committed dependency
+          lockfile. Existing installations can keep their current directory,
+          including <code>/var/www/pterodactyl</code>; adjust the templates to
+          that directory and retain the existing queue worker and scheduler.
         </p>
       </section>
       <section id="environment">
@@ -161,6 +165,13 @@ function Installation() {
           Copy the environment template and set your HTTPS <code>APP_URL</code>,
           database credentials, Redis connection and mail settings. Save the
           file before running the installer.
+        </p>
+        <p>
+          New installs default to <code>APP_NAME=Aquadactyl</code>,{" "}
+          <code>DB_USERNAME=aquadactyl</code> and{" "}
+          <code>MAIL_FROM_NAME="Aquadactyl Panel"</code>. Create the database
+          account or supply your own credentials; the installer does not create
+          database users.
         </p>
         <CodeBlock title="Install the panel" code={INSTALL_COMMAND} />
         <p>
@@ -186,7 +197,7 @@ function Installation() {
         </p>
         <CodeBlock
           title="First administrator"
-          code={`cd /var/www/pterodactyl\nsudo -u www-data php artisan db:seed --class=DatabaseSeeder --force\nsudo -u www-data php artisan p:user:make`}
+          code={`cd /var/www/aquadactyl\nsudo -u www-data php artisan db:seed --class=DatabaseSeeder --force\nsudo -u www-data php artisan p:user:make`}
         />
       </section>
       <section id="web-server">
@@ -227,14 +238,14 @@ function Installation() {
         </p>
         <CodeBlock
           title="Queue service"
-          code={`cd /var/www/pterodactyl\nsudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service\nsudo systemctl daemon-reload\nsudo systemctl enable --now pteroq.service`}
+          code={`cd /var/www/aquadactyl\nsudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service\nsudo systemctl daemon-reload\nsudo systemctl enable --now pteroq.service`}
         />
         <p>
-          Add this line to <code>/etc/cron.d/pterodactyl</code>:
+          Add this line to <code>/etc/cron.d/aquadactyl</code>:
         </p>
         <CodeBlock
           title="Scheduler"
-          code="* * * * * www-data cd /var/www/pterodactyl && /usr/bin/php artisan schedule:run >> /dev/null 2>&1"
+          code="* * * * * www-data cd /var/www/aquadactyl && /usr/bin/php artisan schedule:run >> /dev/null 2>&1"
         />
       </section>
       <section id="wings">
@@ -294,7 +305,9 @@ function Updating() {
         <Note>
           A missing extension package stops the update before maintenance or
           file changes. Extension scripts run again when their hooks are
-          reapplied.
+          reapplied. Keep the existing panel directory, database credentials,
+          application key and Hashids salt. The updater preserves your
+          environment and extension data.
         </Note>
       </section>
       <section id="run-update">
@@ -314,6 +327,12 @@ function Updating() {
           title="Local archive"
           code="sudo bash scripts/panel-update.sh --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256"
         />
+        <Note>
+          <code>php artisan p:upgrade</code> displays the managed update
+          instructions and exits without changing the installation. Use the
+          managed script above to update the panel and bundled Blueprint
+          together.
+        </Note>
       </section>
       <section id="update-process">
         <h2>What happens during an update</h2>
@@ -324,7 +343,7 @@ function Updating() {
           <li>Enable maintenance mode and pause the queue.</li>
           <li>
             Create database and filesystem backups in{" "}
-            <code>/var/backups/pterodactyl</code>.
+            <code>/var/backups/aquadactyl</code>.
           </li>
           <li>Preserve your environment, uploads and extension data.</li>
           <li>
@@ -338,8 +357,13 @@ function Updating() {
           <li>Bring the panel online.</li>
         </ol>
         <p>
-          Set <code>BACKUP_DIR</code> to change the backup destination. Keep
-          copies off-host and choose a retention policy suitable for your
+          Override the backup location with <code>BACKUP_DIR</code>. To retain
+          an older default location, set{" "}
+          <code>BACKUP_DIR=/var/backups/pterodactyl</code> when running the
+          updater.
+        </p>
+        <p>
+          Keep copies off-host and choose a retention policy suitable for your
           installation.
         </p>
       </section>
@@ -393,12 +417,22 @@ function Blueprint() {
           release. Its provenance and license are recorded in the panel’s{" "}
           <code>deploy/</code> directory.
         </p>
+        <p>
+          Blueprint code and branding artwork have separate license terms.
+          Review the panel’s{" "}
+          <a
+            href={`${REPOSITORY}/blob/${BRANCH}/docs/BRANDING.md#names-and-artwork`}
+          >
+            artwork licensing notes
+          </a>{" "}
+          before redistributing bundled artwork.
+        </p>
       </section>
       <section id="extensions">
         <h2>Install an extension</h2>
         <p>
           Place the extension’s <code>myextension.blueprint</code> package in{" "}
-          <code>/var/www/pterodactyl</code>. Replace <code>myextension</code>{" "}
+          <code>/var/www/aquadactyl</code>. Replace <code>myextension</code>{" "}
           below with its identifier:
         </p>
         <CodeBlock title="Blueprint CLI" code={BLUEPRINT_COMMAND} />
@@ -430,7 +464,7 @@ function Blueprint() {
         </p>
         <CodeBlock
           title="Restore deployment permissions"
-          code={`cd /var/www/pterodactyl\nsudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'`}
+          code={`cd /var/www/aquadactyl\nsudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'`}
         />
       </section>
       <section id="framework-updates">
@@ -496,6 +530,26 @@ export default function Documentation({ page }: { page: DocPage }) {
               : "Blueprint"}
         </div>
         <h1>{titles[page]}</h1>
+        <details className="docs-mobile-toc" key={page}>
+          <summary>
+            On this page <ChevronDown size={16} />
+          </summary>
+          <nav aria-label="Guide sections">
+            {outlines[page].map(([id, label]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={(event) =>
+                  event.currentTarget
+                    .closest("details")
+                    ?.removeAttribute("open")
+                }
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+        </details>
         {page === "installation" ? (
           <Installation />
         ) : page === "updating" ? (
