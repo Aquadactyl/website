@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "@/styles.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import ScrollToLocation from "@/components/ScrollToLocation";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -60,11 +58,9 @@ export default function RootLayout({
               Skip to content
             </a>
             <ScrollToLocation />
-            <Header />
             <div id="main-content" tabIndex={-1}>
               {children}
             </div>
-            <Footer />
           </div>
         </RootProvider>
       </body>

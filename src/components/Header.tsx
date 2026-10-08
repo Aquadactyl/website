@@ -9,6 +9,8 @@ import { COMMUNITY, REPOSITORY } from "../config";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("overview");
   const pathname = usePathname();
 
   useEffect(() => setOpen(false), [pathname]);
@@ -33,8 +35,41 @@ export default function Header() {
     return () => desktop.removeEventListener("change", closeOnDesktop);
   }, []);
 
+  useEffect(() => {
+    function updatePosition() {
+      setScrolled(window.scrollY > 20);
+
+      if (pathname !== "/") {
+        setActiveSection("");
+        return;
+      }
+
+      const scrollPos = window.scrollY + 120;
+      const blueprint = document.getElementById("blueprint");
+      const features = document.getElementById("features");
+
+      if (blueprint && scrollPos >= blueprint.offsetTop) {
+        setActiveSection("blueprint");
+      } else if (features && scrollPos >= features.offsetTop) {
+        setActiveSection("features");
+      } else {
+        setActiveSection("overview");
+      }
+    }
+
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, { passive: true });
+    return () => window.removeEventListener("scroll", updatePosition);
+  }, [pathname]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[#28313a] bg-[#11161b]">
+    <header
+      className={`sticky top-0 z-50 border-b transition-colors duration-200 ${
+        scrolled
+          ? "border-[#28313a] bg-[#11161b]/95 shadow-md shadow-black/20 backdrop-blur-md"
+          : "border-[#28313a] bg-[#11161b]"
+      }`}
+    >
       <div className="mx-auto flex h-17.5 w-full max-w-296 items-center gap-4 px-5 sm:h-18.5 sm:px-6 md:h-20.5 md:gap-5 md:px-8 lg:gap-8">
         <Link
           href="/"
@@ -57,7 +92,7 @@ export default function Header() {
           <Link
             href="/"
             className={`flex min-h-10 items-center gap-1.5 text-xs transition-colors duration-150 lg:text-[13px] ${
-              pathname === "/"
+              pathname === "/" && activeSection === "overview"
                 ? "text-[#e9edf0] underline decoration-[#78d4cc] underline-offset-[9px]"
                 : "text-[#a0abb6] hover:text-[#e9edf0]"
             }`}
@@ -66,13 +101,21 @@ export default function Header() {
           </Link>
           <Link
             href="/#features"
-            className="flex min-h-10 items-center gap-1.5 text-xs text-[#a0abb6] transition-colors duration-150 hover:text-[#e9edf0] lg:text-[13px]"
+            className={`flex min-h-10 items-center gap-1.5 text-xs transition-colors duration-150 lg:text-[13px] ${
+              pathname === "/" && activeSection === "features"
+                ? "text-[#e9edf0] underline decoration-[#78d4cc] underline-offset-[9px]"
+                : "text-[#a0abb6] hover:text-[#e9edf0]"
+            }`}
           >
             Features
           </Link>
           <Link
             href="/#blueprint"
-            className="flex min-h-10 items-center gap-1.5 text-xs text-[#a0abb6] transition-colors duration-150 hover:text-[#e9edf0] lg:text-[13px]"
+            className={`flex min-h-10 items-center gap-1.5 text-xs transition-colors duration-150 lg:text-[13px] ${
+              pathname === "/" && activeSection === "blueprint"
+                ? "text-[#e9edf0] underline decoration-[#78d4cc] underline-offset-[9px]"
+                : "text-[#a0abb6] hover:text-[#e9edf0]"
+            }`}
           >
             Extensions
           </Link>
@@ -123,7 +166,11 @@ export default function Header() {
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm text-[#d7dce1] transition-colors hover:bg-[#1b232b]"
+            className={`flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm transition-colors ${
+              pathname === "/" && activeSection === "overview"
+                ? "bg-[#1b232b] font-medium text-[#e9edf0]"
+                : "text-[#d7dce1] hover:bg-[#1b232b]"
+            }`}
           >
             Overview
           </Link>
@@ -137,21 +184,33 @@ export default function Header() {
           <Link
             href="/#features"
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm text-[#d7dce1] transition-colors hover:bg-[#1b232b]"
+            className={`flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm transition-colors ${
+              pathname === "/" && activeSection === "features"
+                ? "bg-[#1b232b] font-medium text-[#e9edf0]"
+                : "text-[#d7dce1] hover:bg-[#1b232b]"
+            }`}
           >
             Features
           </Link>
           <Link
             href="/#blueprint"
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm text-[#d7dce1] transition-colors hover:bg-[#1b232b]"
+            className={`flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm transition-colors ${
+              pathname === "/" && activeSection === "blueprint"
+                ? "bg-[#1b232b] font-medium text-[#e9edf0]"
+                : "text-[#d7dce1] hover:bg-[#1b232b]"
+            }`}
           >
             Extensions
           </Link>
           <Link
             href="/docs"
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm text-[#d7dce1] transition-colors hover:bg-[#1b232b]"
+            className={`flex min-h-11 items-center justify-between rounded-[5px] px-2.5 text-sm transition-colors ${
+              pathname.startsWith("/docs")
+                ? "bg-[#1b232b] font-medium text-[#e9edf0]"
+                : "text-[#d7dce1] hover:bg-[#1b232b]"
+            }`}
           >
             Documentation
           </Link>
