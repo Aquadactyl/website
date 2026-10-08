@@ -24,6 +24,7 @@ import CodeBlock from "./components/CodeBlock";
 import Documentation from "./Documentation";
 import {
   BLUEPRINT_COMMAND,
+  BRANCH,
   COMMUNITY,
   EUPHORIA,
   INSTALL_COMMAND,
@@ -154,7 +155,7 @@ function Footer() {
         <p>
           © {new Date().getFullYear()} Euphoria Development ·{" "}
           <a
-            href={REPOSITORY + "/blob/1.0-develop/LICENSE.md"}
+            href={`${REPOSITORY}/blob/${BRANCH}/LICENSE.md`}
             target="_blank"
             rel="noreferrer"
           >
@@ -242,7 +243,7 @@ function Home() {
     install: {
       title: "New installation",
       intro:
-        "Prepare a Linux host and place the Aquadactyl source in /var/www/pterodactyl. Configure your environment before running the installer.",
+        "Prepare a Linux host and place the Aquadactyl source in /var/www/aquadactyl. Configure your environment before running the installer.",
       code: INSTALL_COMMAND,
       note: "Set your HTTPS domain, database, Redis and mail settings in .env. The full guide also covers Nginx, the queue service and Wings.",
       link: "/docs",
