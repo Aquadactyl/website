@@ -25,6 +25,8 @@ replay_pid*
 
 # Frontend dependencies and generated output
 node_modules/
+.next/
+out/
 dist/
 *.local
 .env
@@ -34,3 +36,4 @@ artifacts/
 playwright-report/
 test-results/
 *.tsbuildinfo
+next-env.d.ts

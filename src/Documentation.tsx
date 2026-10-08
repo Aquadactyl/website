@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import "./documentation.css";
-import { Link, NavLink } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
@@ -475,7 +475,7 @@ function Blueprint() {
           Use the managed panel updater to keep the framework and panel changes
           compatible.
         </p>
-        <Link className="text-link" to="/docs/updating">
+        <Link className="text-link" href="/docs/updating">
           Read the update guide <ArrowRight size={15} />
         </Link>
       </section>
@@ -484,30 +484,36 @@ function Blueprint() {
 }
 
 export default function Documentation({ page }: { page: DocPage }) {
-  useEffect(() => {
-    document.title = `${titles[page]} — Aquadactyl documentation`;
-  }, [page]);
   return (
     <main className="docs-layout container">
       <aside className="docs-sidebar">
-        <Link className="docs-back" to="/">
+        <Link className="docs-back" href="/">
           <ArrowLeft size={13} />
           Back to the project
         </Link>
         <p className="eyebrow">Documentation</p>
         <nav aria-label="Documentation">
-          <NavLink end to="/docs">
+          <Link
+            href="/docs"
+            className={page === "installation" ? "active" : undefined}
+          >
             <Terminal size={16} />
             Installation
-          </NavLink>
-          <NavLink to="/docs/updating">
+          </Link>
+          <Link
+            href="/docs/updating"
+            className={page === "updating" ? "active" : undefined}
+          >
             <RefreshCw size={16} />
             Updating
-          </NavLink>
-          <NavLink to="/docs/blueprint">
+          </Link>
+          <Link
+            href="/docs/blueprint"
+            className={page === "blueprint" ? "active" : undefined}
+          >
             <Layers size={16} />
             Blueprint
-          </NavLink>
+          </Link>
         </nav>
         <div className="docs-sidebar-help">
           <LifeBuoy size={21} />
@@ -572,7 +578,7 @@ export default function Documentation({ page }: { page: DocPage }) {
         </div>
         <div className="docs-next">
           <Link
-            to={
+            href={
               page === "installation"
                 ? "/docs/blueprint"
                 : page === "blueprint"

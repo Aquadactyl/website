@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -8,168 +10,24 @@ import {
   ChevronDown,
   Code2,
   ExternalLink,
-  Menu,
   MessageCircle,
   Puzzle,
   RefreshCw,
   Server,
   ShieldCheck,
-  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import PanelPreview from "./components/PanelPreview";
-import Github from "./components/GithubIcon";
-import CodeBlock from "./components/CodeBlock";
-import Documentation from "./Documentation";
+import PanelPreview from "./PanelPreview";
+import Github from "./GithubIcon";
+import CodeBlock from "./CodeBlock";
 import {
   BLUEPRINT_COMMAND,
-  BRANCH,
   COMMUNITY,
   EUPHORIA,
   INSTALL_COMMAND,
   REPOSITORY,
   UPDATE_COMMAND,
-} from "./config";
-
-function Header() {
-  const [open, setOpen] = useState(false);
-  const location = useLocation();
-  useEffect(() => setOpen(false), [location]);
-  useEffect(() => {
-    function close(event: KeyboardEvent) {
-      if (event.key === "Escape" && open) {
-        setOpen(false);
-        document.getElementById("navigation-toggle")?.focus();
-      }
-    }
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [open]);
-  useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 801px)");
-    function closeOnDesktop(event: MediaQueryListEvent) {
-      if (event.matches) setOpen(false);
-    }
-    desktop.addEventListener("change", closeOnDesktop);
-    return () => desktop.removeEventListener("change", closeOnDesktop);
-  }, []);
-
-  return (
-    <header className="site-header">
-      <div className="header-inner container">
-        <Link to="/" className="brand" aria-label="Aquadactyl home">
-          <img src="/brand/aquadactyl-wordmark.png" alt="Aquadactyl" />
-          <span>by Euphoria Development</span>
-        </Link>
-        <nav className="desktop-nav" aria-label="Main navigation">
-          <NavLink end to="/">
-            Overview
-          </NavLink>
-          <Link to="/#features">Features</Link>
-          <Link to="/#blueprint">Extensions</Link>
-          <NavLink to="/docs">Documentation</NavLink>
-          <a href={REPOSITORY} target="_blank" rel="noreferrer">
-            <Github size={14} />
-            GitHub
-          </a>
-        </nav>
-        <Link to="/docs" className="button button-accent header-cta">
-          Get started <ArrowRight size={14} />
-        </Link>
-        <button
-          id="navigation-toggle"
-          className="menu-toggle"
-          type="button"
-          aria-label={open ? "Close navigation" : "Open navigation"}
-          aria-expanded={open}
-          aria-controls="mobile-navigation"
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
-      {open && (
-        <nav
-          id="mobile-navigation"
-          className="mobile-nav container"
-          aria-label="Mobile navigation"
-        >
-          <Link to="/">Overview</Link>
-          <Link to="/#panel-preview">Panel preview</Link>
-          <Link to="/#features">Features</Link>
-          <Link to="/#blueprint">Extensions</Link>
-          <Link to="/docs">Documentation</Link>
-          <a
-            href={COMMUNITY}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setOpen(false)}
-          >
-            Discord <ArrowUpRight size={14} />
-          </a>
-          <a
-            href={REPOSITORY}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setOpen(false)}
-          >
-            GitHub <ArrowUpRight size={14} />
-          </a>
-        </nav>
-      )}
-    </header>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="site-footer">
-      <div className="footer-inner container">
-        <div className="footer-main">
-          <a
-            href={EUPHORIA}
-            target="_blank"
-            rel="noreferrer"
-            className="footer-brand"
-          >
-            <img src="/brand/euphoria.png" alt="" />
-            Euphoria Development
-          </a>
-          <nav aria-label="Footer navigation">
-            <Link to="/docs">Documentation</Link>
-            <a href={REPOSITORY} target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <a href={COMMUNITY} target="_blank" rel="noreferrer">
-              Discord
-            </a>
-          </nav>
-        </div>
-        <p>
-          © {new Date().getFullYear()} Euphoria Development ·{" "}
-          <a
-            href={`${REPOSITORY}/blob/${BRANCH}/LICENSE.md`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            MIT licensed
-          </a>
-        </p>
-        <p className="fork-credit">
-          Aquadactyl is an independent fork of{" "}
-          <a href="https://pterodactyl.io" target="_blank" rel="noreferrer">
-            Pterodactyl
-          </a>
-          , with{" "}
-          <a href="https://blueprint.zip" target="_blank" rel="noreferrer">
-            Blueprint
-          </a>{" "}
-          included. Credit to their authors and contributors.
-        </p>
-      </div>
-    </footer>
-  );
-}
+} from "../config";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   {
@@ -228,7 +86,7 @@ const addons = [
   },
 ];
 
-function Home() {
+export default function Home() {
   const [installTab, setInstallTab] = useState<
     "install" | "update" | "extensions"
   >("install");
@@ -279,7 +137,7 @@ function Home() {
               community.
             </p>
             <div className="hero-actions">
-              <Link to="/docs" className="button button-accent">
+              <Link href="/docs" className="button button-accent">
                 Install Aquadactyl <ArrowRight size={16} />
               </Link>
               <a
@@ -406,7 +264,7 @@ function Home() {
             >
               Browse Euphoria blueprints <ExternalLink size={14} />
             </a>
-            <Link to="/docs/blueprint">
+            <Link href="/docs/blueprint">
               Blueprint setup guide <ArrowRight size={14} />
             </Link>
           </div>
@@ -480,7 +338,7 @@ function Home() {
             >
               <h3>{installContent.title}</h3>
               <p>{installContent.intro}</p>
-              <Link to={installContent.link} className="text-link">
+              <Link href={installContent.link} className="text-link">
                 <BookOpen size={15} />
                 Read the full guide <ArrowRight size={14} />
               </Link>
@@ -579,72 +437,5 @@ function Home() {
         </div>
       </section>
     </main>
-  );
-}
-
-function ScrollToLocation() {
-  const location = useLocation();
-  useEffect(() => {
-    if (location.hash) {
-      const timer = setTimeout(
-        () =>
-          document.getElementById(location.hash.slice(1))?.scrollIntoView({
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? "instant"
-              : "smooth",
-            block: "start",
-          }),
-        60,
-      );
-      return () => clearTimeout(timer);
-    }
-    window.scrollTo(0, 0);
-  }, [location]);
-  return null;
-}
-
-function NotFound() {
-  return (
-    <main className="not-found container">
-      <h1>This page isn’t here.</h1>
-      <p>Use the project home or documentation to find what you need.</p>
-      <Link to="/" className="button button-accent">
-        Back to Aquadactyl <ArrowRight size={16} />
-      </Link>
-    </main>
-  );
-}
-
-export default function App() {
-  const location = useLocation();
-  useEffect(() => {
-    if (location.pathname === "/")
-      document.title = "Aquadactyl | Euphoria Development";
-  }, [location.pathname]);
-  return (
-    <div id="top">
-      <a className="skip-link" href="#main-content">
-        Skip to content
-      </a>
-      <ScrollToLocation />
-      <Header />
-      <div id="main-content" tabIndex={-1}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/docs" element={<Documentation page="installation" />} />
-          <Route
-            path="/docs/updating"
-            element={<Documentation page="updating" />}
-          />
-          <Route
-            path="/docs/blueprint"
-            element={<Documentation page="blueprint" />}
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-      <Footer />
-    </div>
   );
 }

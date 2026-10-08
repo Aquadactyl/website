@@ -1,6 +1,7 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import "./PanelPreview.css";
 import {
   Activity,
   Archive,
