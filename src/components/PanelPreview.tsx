@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import "./PanelPreview.css";
 import {
   Activity,
   Archive,
@@ -196,8 +197,8 @@ export default function PanelPreview() {
   return (
     <div id="panel-preview" className="preview-wrap">
       <div className="preview-label">
-        <span>Demo panel</span>
-        <span>Sample data</span>
+        <span>Try the panel</span>
+        <span>Interactive demo · sample data</span>
       </div>
       <div
         className="panel-preview"
@@ -205,7 +206,7 @@ export default function PanelPreview() {
       >
         <div className="panel-topbar">
           <div className="panel-wordmark">
-            <img src="/brand/euphoria.png" alt="" />
+            <img src="/brand/aquadactyl-emblem.png" alt="" />
             Aquadactyl<span>/</span>
             <span className="panel-context">Servers</span>
           </div>
@@ -278,7 +279,7 @@ export default function PanelPreview() {
                 <>
                   <div className="console-toolbar">
                     <span>
-                      <Terminal size={12} /> Live console
+                      <Terminal size={12} /> Console
                     </span>
                     <div className="power-controls">
                       <button

@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Server,
   ShieldCheck,
-  Terminal,
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -59,31 +58,24 @@ function Header() {
     <header className="site-header">
       <div className="header-inner container">
         <Link to="/" className="brand" aria-label="Aquadactyl home">
-          <img src="/brand/euphoria.png" alt="Euphoria Development logo" />
-          <span>Euphoria Development</span>
+          <img src="/brand/aquadactyl-wordmark.png" alt="Aquadactyl" />
+          <span>by Euphoria Development</span>
         </Link>
         <nav className="desktop-nav" aria-label="Main navigation">
           <NavLink end to="/">
-            <Server size={14} />
-            Aquadactyl
+            Overview
           </NavLink>
-          <Link to="/#blueprint">
-            <Puzzle size={14} />
-            Blueprint
-          </Link>
-          <NavLink to="/docs">
-            <BookOpen size={14} />
-            Docs
-          </NavLink>
-          <a href={COMMUNITY} target="_blank" rel="noreferrer">
-            <MessageCircle size={14} />
-            Discord
-          </a>
+          <Link to="/#features">Features</Link>
+          <Link to="/#blueprint">Extensions</Link>
+          <NavLink to="/docs">Documentation</NavLink>
           <a href={REPOSITORY} target="_blank" rel="noreferrer">
             <Github size={14} />
             GitHub
           </a>
         </nav>
+        <Link to="/docs" className="button button-accent header-cta">
+          Get started <ArrowRight size={14} />
+        </Link>
         <button
           id="navigation-toggle"
           className="menu-toggle"
@@ -102,9 +94,10 @@ function Header() {
           className="mobile-nav container"
           aria-label="Mobile navigation"
         >
-          <Link to="/">Aquadactyl</Link>
+          <Link to="/">Overview</Link>
           <Link to="/#panel-preview">Panel preview</Link>
-          <Link to="/#blueprint">Blueprint</Link>
+          <Link to="/#features">Features</Link>
+          <Link to="/#blueprint">Extensions</Link>
           <Link to="/docs">Documentation</Link>
           <a
             href={COMMUNITY}
@@ -268,60 +261,76 @@ function Home() {
 
   return (
     <main>
-      <section className="hero">
+      <section className="hero" aria-labelledby="hero-heading">
         <div className="hero-content container">
-          <p className="project-owner">
-            <Server size={16} />A project by Euphoria Development
-          </p>
-          <h1>Aquadactyl</h1>
-          <p className="hero-description">
-            Pterodactyl Panel with Blueprint built in.
-            <br />
-            An open-source game server panel for your community.
-          </p>
-          <div className="hero-actions">
-            <Link to="/docs" className="button button-accent">
-              Install Aquadactyl <ArrowRight size={16} />
-            </Link>
-            <a
-              href={REPOSITORY}
-              target="_blank"
-              rel="noreferrer"
-              className="button button-outline"
-            >
-              <Github size={16} />
-              GitHub
+          <div className="hero-copy">
+            <p className="project-owner">
+              <span className="project-dot" /> Open-source game server panel
+            </p>
+            <h1 id="hero-heading">Aquadactyl</h1>
+            <p className="hero-tagline">
+              A familiar panel.
+              <br />
+              More room to make it yours.
+            </p>
+            <p className="hero-description">
+              Pterodactyl Panel with Blueprint built in. Manage your game
+              servers, install extensions and build a panel that fits your
+              community.
+            </p>
+            <div className="hero-actions">
+              <Link to="/docs" className="button button-accent">
+                Install Aquadactyl <ArrowRight size={16} />
+              </Link>
+              <a
+                href={REPOSITORY}
+                target="_blank"
+                rel="noreferrer"
+                className="button button-outline"
+              >
+                <Github size={16} />
+                GitHub
+              </a>
+            </div>
+            <div className="hero-highlights">
+              <span>
+                <Server size={15} /> Self hosted
+              </span>
+              <span>
+                <Puzzle size={15} /> Blueprint included
+              </span>
+            </div>
+            <p className="hero-meta">Free to use. Open source. MIT licensed.</p>
+            <a className="hero-demo-link" href="#panel-preview">
+              Explore the panel <ArrowRight size={15} />
             </a>
           </div>
-          <p className="hero-meta">
-            Free and open source <span>·</span> Self hosted <span>·</span> MIT
-            licensed
-          </p>
+          <div className="hero-demo">
+            <PanelPreview />
+          </div>
         </div>
       </section>
-      <section
-        className="panel-section container"
-        aria-labelledby="preview-heading"
-      >
-        <div className="section-heading">
-          <h2 id="preview-heading">
-            <Terminal size={23} />
-            Panel preview
-          </h2>
-          <p>Console, files and backups. Try the controls below.</p>
-        </div>
-        <PanelPreview />
-      </section>
+      <div className="games-strip container">
+        <span>For the games your community plays</span>
+        <p>
+          Minecraft <span>·</span> Rust <span>·</span> Terraria <span>·</span>{" "}
+          Valheim <span>·</span> Counter-Strike
+        </p>
+      </div>
       <section
         id="features"
         className="features-section container"
         aria-labelledby="features-heading"
       >
         <div className="section-heading">
-          <h2 id="features-heading">
-            <Server size={23} />
-            What’s included
-          </h2>
+          <div>
+            <p className="eyebrow">The essentials, together</p>
+            <h2 id="features-heading">What’s included</h2>
+          </div>
+          <p>
+            A familiar foundation, with the tools to keep your panel running and
+            make it your own.
+          </p>
         </div>
         <div className="features-grid">
           {features.map(({ icon: Icon, title, text }) => (
@@ -346,11 +355,14 @@ function Home() {
       >
         <div className="container">
           <div className="section-heading">
-            <h2 id="blueprint-heading">
-              <Puzzle size={23} />
-              Blueprint
-            </h2>
-            <p>Install themes and addons from the Euphoria ecosystem.</p>
+            <div>
+              <p className="eyebrow">Make it yours</p>
+              <h2 id="blueprint-heading">A panel with possibilities</h2>
+            </div>
+            <p>
+              Blueprint is built in. Add themes and useful tools from the
+              Euphoria ecosystem.
+            </p>
           </div>
           <p className="blueprint-description">
             Aquadactyl includes Blueprint beta-2026-08. Individual extensions
@@ -359,11 +371,6 @@ function Home() {
           <div className="addons-grid">
             {addons.map(({ name, description, repository, type, image }) => (
               <article key={name} className="addon-card">
-                <div className="addon-heading">
-                  <h3>{name}</h3>
-                  <span>{type}</span>
-                </div>
-                <p>{description}</p>
                 <img
                   className="addon-image"
                   src={image}
@@ -373,14 +380,21 @@ function Home() {
                   loading="lazy"
                   decoding="async"
                 />
-                <a
-                  href={"https://github.com/EuphoriaTheme/" + repository}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="resource-link"
-                >
-                  View on GitHub <Github size={14} />
-                </a>
+                <div className="addon-copy">
+                  <div className="addon-heading">
+                    <h3>{name}</h3>
+                    <span>{type}</span>
+                  </div>
+                  <p>{description}</p>
+                  <a
+                    href={"https://github.com/EuphoriaTheme/" + repository}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="resource-link"
+                  >
+                    View on GitHub <Github size={14} />
+                  </a>
+                </div>
               </article>
             ))}
           </div>
@@ -404,10 +418,10 @@ function Home() {
         aria-labelledby="install-heading"
       >
         <div className="section-heading">
-          <h2 id="install-heading">
-            <Terminal size={23} />
-            Installation
-          </h2>
+          <div>
+            <p className="eyebrow">Your next step</p>
+            <h2 id="install-heading">Get up and running</h2>
+          </div>
           <p>Follow the guide for a new panel, or use the managed updater.</p>
         </div>
         <div className="installation-layout">
@@ -494,7 +508,10 @@ function Home() {
         aria-labelledby="questions-heading"
       >
         <div className="section-heading">
-          <h2 id="questions-heading">Common questions</h2>
+          <div>
+            <p className="eyebrow">Good to know</p>
+            <h2 id="questions-heading">Common questions</h2>
+          </div>
         </div>
         <div className="faq-list">
           {[
@@ -527,10 +544,10 @@ function Home() {
       >
         <div className="container">
           <div className="section-heading">
-            <h2 id="community-heading">
-              <MessageCircle size={23} />
-              Get involved
-            </h2>
+            <div>
+              <p className="eyebrow">Built in the open</p>
+              <h2 id="community-heading">Join the community</h2>
+            </div>
             <p>Contribute, get support or see our other projects.</p>
           </div>
           <div className="community-grid">

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import "./documentation.css";
 import { Link, NavLink } from "react-router-dom";
 import {
   ArrowLeft,
@@ -6,6 +7,7 @@ import {
   ArrowUpRight,
   BookOpen,
   Check,
+  ChevronDown,
   ChevronRight,
   Info,
   Layers,
@@ -528,6 +530,26 @@ export default function Documentation({ page }: { page: DocPage }) {
               : "Blueprint"}
         </div>
         <h1>{titles[page]}</h1>
+        <details className="docs-mobile-toc" key={page}>
+          <summary>
+            On this page <ChevronDown size={16} />
+          </summary>
+          <nav aria-label="Guide sections">
+            {outlines[page].map(([id, label]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={(event) =>
+                  event.currentTarget
+                    .closest("details")
+                    ?.removeAttribute("open")
+                }
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+        </details>
         {page === "installation" ? (
           <Installation />
         ) : page === "updating" ? (
