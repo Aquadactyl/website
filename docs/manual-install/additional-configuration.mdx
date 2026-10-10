@@ -83,13 +83,12 @@ The CLI patches templates, installs dependencies using pnpm, and runs database m
 Installing extensions can change file ownership. Reapply deployment permissions after modifying extensions:
 
 ```bash title="Reapply deployment permissions"
-cd /var/www/aquadactyl
-sudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- permissions
 ```
 
 <Callout type="warn">
   `blueprint -upgrade` is disabled in Aquadactyl. Update the panel and framework
-  together using `scripts/panel-update.sh`.
+  together using the standalone deployment script (`deploy.sh update`).
 </Callout>
 
 ---

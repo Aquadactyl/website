@@ -7,7 +7,8 @@ This guide walks you through manually installing Aquadactyl Panel step-by-step w
 
 <Callout type="info">
   Looking for a fast automated install? See the [Getting
-  Started](/docs/getting-started) guide.
+  Started](/docs/getting-started) guide to install in minutes using the
+  standalone deployment script.
 </Callout>
 
 ---
@@ -18,40 +19,60 @@ Before starting, ensure your server meets the following requirements:
 
 | Component            | Minimum / Supported Specification                                                                         |
 | :------------------- | :-------------------------------------------------------------------------------------------------------- |
-| **Operating System** | Ubuntu 22.04 / 24.04 LTS or Debian 11 / 12                                                                |
-| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM _(PHP 8.2 and 8.3 are unsupported)_                 |
+| **Operating System** | **Ubuntu**: `24.04 LTS`, `24.10`, `26.04+ LTS`<br />**Debian**: `12 (Bookworm)`, `13 (Trixie)`            |
+| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM via Ondřej Surý repo _(PHP 8.2 & 8.3 unsupported)_  |
 | **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
-| **Node.js & pnpm**   | **Node.js >= 22.13** and **pnpm 12.10.1** (pinned)                                                        |
+| **Node.js & pnpm**   | **Node.js 24** (via NVM `v0.40.8` with `npm@latest`) and **pnpm 12.10.1** (pinned)                        |
 | **Composer**         | Composer 2                                                                                                |
 | **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
 | **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
 | **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
 
+<Callout type="warn">
+  **Deprecation Notice**: Debian &le; 11 and Ubuntu &le; 22.04 are deprecated
+  and no longer supported. Please upgrade to Ubuntu 24.04+ or Debian 12+ before
+  installing Aquadactyl.
+</Callout>
+
 ---
 
 ## Step 1: Install System Packages
 
-Update your system packages and install required dependencies, PHP 8.5, MariaDB, Redis, and build tools:
+You can automatically provision all system prerequisites using the standalone installer script:
+
+```bash title="Automated host setup"
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- setup-host
+```
+
+To configure packages manually, update your system and install the required dependencies:
 
 ```bash title="Install system packages"
-sudo apt update && sudo apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+sudo apt-get update
+sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
 
-# Add PHP PPA
-sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
-sudo apt update
+# Add Sury PHP repository
+curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+rm -f /tmp/debsuryorg-archive-keyring.deb
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+sudo apt-get update
 
-# Install PHP 8.5 and extensions
-sudo apt install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
+# Install PHP 8.5 and required extensions
+sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
   php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
-  mariadb-server mariadb-client nginx redis-server git tar unzip rsync util-linux
+  mariadb-server mariadb-client nginx redis-server git tar zip unzip rsync util-linux certbot python3-certbot-nginx
 
 # Install Composer 2
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Node.js 22 & pinned pnpm 12.10.1
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt install -y nodejs
-sudo npm install --global pnpm@12.10.1
+# Install Node.js 24 & pinned pnpm 12.10.1 via NVM v0.40.8
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install 24
+nvm use 24
+npm install --global npm@latest
+npm install --global pnpm@12.10.1
 ```
 
 ---
@@ -191,6 +212,12 @@ sudo mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstr
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod 0640 .env
 ```
+
+<Callout type="info">
+  You can also restore strict permissions automatically at any time using: `curl
+  -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh |
+  sudo bash -s -- permissions`
+</Callout>
 
 ---
 

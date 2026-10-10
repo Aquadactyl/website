@@ -1,34 +1,41 @@
 ---
 title: Updating the Panel
-description: How to safely update Aquadactyl Panel and bundled Blueprint with automated release scripts or manual commands.
+description: How to safely update Aquadactyl Panel and bundled Blueprint with the standalone deployment script.
 ---
 
-Aquadactyl includes a managed update script (`scripts/panel-update.sh`) that verifies checksums, creates automatic database and file backups outside the web root, preserves configurations and extension databases, reapplies active Blueprint extensions, and safely deploys updates.
+Aquadactyl includes a managed update routine in the standalone deployment script (`deploy.sh` from `Aquadactyl/Installer`) that verifies release checksums, creates automatic database and file backups outside the web root, preserves configurations and extension databases, reapplies active Blueprint extensions, and safely deploys updates.
 
 ## Managed Update Script (Recommended) [#automated-update]
 
 Always publish or choose a reviewed release tag of Aquadactyl.
 
+You can execute the update directly using the one-liner:
+
 ```bash title="Run managed panel update"
-cd /var/www/aquadactyl
-sudo bash scripts/panel-update.sh vRELEASE_TAG Aquadactyl/aquadactyl
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- update vRELEASE_TAG
 ```
 
-Replace `vRELEASE_TAG` with a valid release tag beginning with `v` (e.g. `v0.2.0`). If your fork is hosted under a custom repository, provide your `owner/repository`.
+Or if `deploy.sh` is already present on your server:
+
+```bash title="Update using local deploy script"
+sudo bash deploy.sh update vRELEASE_TAG
+```
+
+Replace `vRELEASE_TAG` with a valid release tag beginning with `v` (e.g. `v0.2.0`).
 
 ### Updating from a Downloaded Archive
 
 If you have already downloaded `panel.tar.gz` and reviewed its SHA256 checksum:
 
 ```bash title="Update using local archive"
-sudo bash scripts/panel-update.sh --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
+sudo bash deploy.sh update --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
 ```
 
 ---
 
 ### What the Update Script Does
 
-1. **Pre-flight & Checksum Verification**: Validates the SHA256 checksum of `panel.tar.gz` against `SHA256SUMS` and checks for directory traversal or unsafe archive paths.
+1. **Pre-flight & Checksum Verification**: Validates the operating system and SHA256 checksum of `panel.tar.gz` against `SHA256SUMS`, checking for directory traversal or unsafe archive paths.
 2. **Blueprint Extension Validation**: Reads all installed extensions from `.blueprint/extensions/blueprint/private/db/installed_extensions` and ensures every corresponding `myextension.blueprint` package is present in the panel directory before touching any files.
 3. **Queue Pause & Maintenance Mode**: Stops `pteroq.service` to halt asynchronous background writes and puts the panel into maintenance mode (`artisan down --retry=60`).
 4. **Automated Private Backups**: Creates a secure, timestamped backup directory in `/var/backups/aquadactyl/` (mode `0700`) containing:
@@ -46,8 +53,8 @@ sudo bash scripts/panel-update.sh --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_
 <Callout type="warn">
   **Do not run `blueprint -upgrade`**: The upstream Blueprint upgrade command is
   intentionally disabled in Aquadactyl because it would overwrite custom panel
-  code and dependency manifests. Always use `scripts/panel-update.sh` to update
-  both the panel and bundled Blueprint together.
+  code and dependency manifests. Always use `deploy.sh update` to update both
+  the panel and bundled Blueprint together.
 </Callout>
 
 ---
@@ -77,8 +84,7 @@ To recover your previous version:
    ```
 5. Reapply permissions, clear caches, and restart services:
    ```bash
-   cd /var/www/aquadactyl
-   sudo bash -c 'source scripts/deploy/common.sh; preflight; finish_deployment'
+   curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- permissions
    sudo systemctl start php8.5-fpm pteroq.service
-   sudo -u www-data php artisan up
+   sudo -u www-data php /var/www/aquadactyl/artisan up
    ```

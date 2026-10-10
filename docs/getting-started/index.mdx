@@ -1,16 +1,28 @@
 ---
 title: Getting Started
-description: Quickly install Aquadactyl Panel on your Linux server using the automated installation script.
+description: Quickly install Aquadactyl Panel on your Linux server using the standalone deployment script.
 ---
 
 Aquadactyl is an open-source game server management panel built on Pterodactyl, featuring bundled Blueprint beta-2026-08 integration, production performance defaults, and managed update tooling.
 
-This guide covers installing Aquadactyl Panel using the automated deployment script (`scripts/panel-install.sh`).
+This guide covers installing Aquadactyl Panel using the standalone deployment script (`deploy.sh` from `Aquadactyl/Installer`).
 
 <Callout type="info">
   Looking for a step-by-step installation without using the script? Check out
   our [Manual Installation](/docs/manual-install/installing-the-panel) guide.
 </Callout>
+
+---
+
+## Quick Start (One-Liner) [#quick-start]
+
+Run the full automated installation with a single command:
+
+```bash title="One-line automated installation"
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- install
+```
+
+The script will automatically verify your host environment, clone the panel, configure dependencies, run migrations, compile production assets, set up the queue worker, and guide you through creating your initial administrator account.
 
 ---
 
@@ -20,40 +32,60 @@ Ensure your host meets the following requirements before proceeding:
 
 | Component            | Minimum / Supported Specification                                                                         |
 | :------------------- | :-------------------------------------------------------------------------------------------------------- |
-| **Operating System** | Ubuntu 22.04 / 24.04 LTS or Debian 11 / 12                                                                |
-| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM _(PHP 8.2 and 8.3 are unsupported)_                 |
+| **Operating System** | **Ubuntu**: `24.04 LTS`, `24.10`, `26.04+ LTS`<br />**Debian**: `12 (Bookworm)`, `13 (Trixie)`            |
+| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM via Ondřej Surý repo _(PHP 8.2 & 8.3 unsupported)_  |
 | **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
-| **Node.js & pnpm**   | **Node.js >= 22.13** and **pnpm 12.10.1** (pinned)                                                        |
+| **Node.js & pnpm**   | **Node.js 24** (via NVM `v0.40.8` with `npm@latest`) and **pnpm 12.10.1** (pinned)                        |
 | **Composer**         | Composer 2                                                                                                |
 | **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
 | **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
 | **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
 
+<Callout type="warn">
+  **Deprecation Notice**: Debian &le; 11 and Ubuntu &le; 22.04 are deprecated
+  and no longer supported. Please upgrade to Ubuntu 24.04+ or Debian 12+ before
+  installing Aquadactyl.
+</Callout>
+
 ---
 
 ## Step 1: Install System Prerequisites
 
-Install PHP 8.5, MariaDB, Redis, Nginx, Node.js, and pnpm:
+You can automatically provision host prerequisites using the deployment script:
+
+```bash title="Automated host setup"
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- setup-host
+```
+
+Alternatively, install PHP 8.5, MariaDB, Redis, Nginx, Node.js 24, and pnpm manually:
 
 ```bash title="Install core packages"
-sudo apt update && sudo apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+sudo apt-get update
+sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
 
-# Add PHP PPA
-sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
-sudo apt update
+# Add Sury PHP repository (universal DebSury archive keyring across Debian & Ubuntu)
+curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+rm -f /tmp/debsuryorg-archive-keyring.deb
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+sudo apt-get update
 
-# Install PHP 8.5 with FPM and extensions
-sudo apt install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
+# Install PHP 8.5 and required extensions
+sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
   php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
-  mariadb-server mariadb-client nginx redis-server git tar unzip rsync util-linux
+  mariadb-server mariadb-client nginx redis-server git tar zip unzip rsync util-linux certbot python3-certbot-nginx
 
 # Install Composer 2
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Node.js 22 & pinned pnpm 12.10.1
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt install -y nodejs
-sudo npm install --global pnpm@12.10.1
+# Install NVM v0.40.8, Node.js 24, and pinned pnpm 12.10.1
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install 24
+nvm use 24
+npm install --global npm@latest
+npm install --global pnpm@12.10.1
 ```
 
 ---
@@ -107,62 +139,44 @@ QUEUE_CONNECTION=redis
 
 ---
 
-## Step 4: Run the Installation Script
+## Step 4: Run the Deployment Script
 
-Run the automated installer script:
+Execute the standalone installer to complete the deployment:
 
-```bash title="Execute panel installer"
-sudo bash scripts/panel-install.sh
+```bash title="Execute standalone installer"
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- install
 ```
 
-### What `panel-install.sh` Performs
+If you downloaded `deploy.sh` locally:
 
-1. **Preflight verification**: Checks required command-line tools, PHP version (8.4/8.5), Node (>= 22.13), and pinned pnpm (12.10.1).
+```bash title="Execute local deployment script"
+sudo bash deploy.sh install
+```
+
+### What `deploy.sh install` Performs
+
+1. **Preflight verification**: Validates supported OS (Debian 12/13, Ubuntu 24/26), PHP version (8.4/8.5), Node (>= 24), and pinned pnpm (12.10.1).
 2. **Dependency installation**: Runs `composer install --no-dev --optimize-autoloader` and `pnpm install --frozen-lockfile`.
-3. **Application secrets**: Automatically generates `APP_KEY` and `HASHIDS_SALT` in `.env` if missing.
+3. **Application secrets**: Automatically generates `APP_KEY` and 32-hex `HASHIDS_SALT` in `.env` if missing.
 4. **Maintenance mode**: Enables maintenance mode (`artisan down --retry=60`) during migration.
-5. **Database migrations**: Executes `artisan migrate --force` and seeds Blueprint's database tables.
-6. **Blueprint initialization**: Sets up bundled Blueprint beta-2026-08 hooks and CLI links without upstream prompts.
+5. **Database migrations & seeders**: Executes `artisan migrate --force`, seeds Blueprint's database tables (`BlueprintSeeder`), and seeds default nests & eggs (`DatabaseSeeder`).
+6. **Blueprint initialization**: Bootstraps bundled Blueprint beta-2026-08 hooks and warms its extension cache (`artisan bp:cache`).
 7. **Production asset building**: Builds frontend assets via `pnpm run build:production`.
-8. **Permissions & caching**: Applies strict security permissions (`root:www-data`, only `storage/` and `bootstrap/cache/` writable by `www-data`), caches config/routes/views, and reloads PHP-FPM.
-9. **Online transition**: Disables maintenance mode (`artisan up`).
+8. **Permissions & caching**: Applies strict security permissions (`root:www-data`, `0750`/`0640`, only `storage/` and `bootstrap/cache/` writable by `www-data`), caches config/routes/views, and reloads PHP-FPM.
+9. **Queue & scheduler**: Deploys `pteroq.service` and the Laravel cron scheduler (`/etc/cron.d/aquadactyl`).
+10. **Online transition**: Guides you through creating your initial administrator account and disables maintenance mode (`artisan up`).
 
 ---
 
-## Step 5: Seed Base Data & Create Admin User
+## Step 5: Web Server & SSL Configuration
 
-For a fresh installation, seed the default nests and create your administrative account:
-
-```bash title="Create administrator"
-cd /var/www/aquadactyl
-sudo -u www-data php artisan db:seed --class=DatabaseSeeder --force
-sudo -u www-data php artisan p:user:make
-```
-
-Follow the prompts to enter your email address, username, name, and password.
-
----
-
-## Step 6: Web Server & Queue Setup
-
-Configure Nginx with SSL and enable the background queue worker:
+Configure Nginx with SSL:
 
 ```bash title="Setup Nginx and SSL"
 sudo cp deploy/nginx/panel.conf /etc/nginx/sites-available/aquadactyl.conf
 sudo ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/
-sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d panel.example.com
 sudo nginx -t && sudo systemctl reload nginx
-```
-
-Enable the background queue worker (`pteroq.service`) and the Laravel scheduler:
-
-```bash title="Start queue and scheduler"
-sudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now pteroq.service
-
-echo "* * * * * www-data cd /var/www/aquadactyl && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" | sudo tee /etc/cron.d/aquadactyl
 ```
 
 Navigate to `https://panel.example.com` to log in to your panel!

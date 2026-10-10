@@ -42,8 +42,7 @@ Aquadactyl enforces a strict permission model: source files are owned by `root:w
 To restore proper permissions without breaking security:
 
 ```bash title="Restore deployment permissions"
-cd /var/www/aquadactyl
-sudo bash -c 'source scripts/deploy/common.sh; preflight; permissions; finish_deployment'
+curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- permissions
 ```
 
 <Callout type="warn">
@@ -93,7 +92,7 @@ If server installations, emails, or user account emails are never sent:
 
 If installing a Blueprint extension fails:
 
-1. Verify that `pnpm@12.10.1` and `node 22` are installed and available in `PATH`.
+1. Verify that `pnpm@12.10.1` and `node 24` are installed and available in `PATH`.
 2. Clean build cache:
    ```bash
    cd /var/www/aquadactyl
