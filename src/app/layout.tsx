@@ -3,6 +3,7 @@ import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "@/styles.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import ScrollToLocation from "@/components/ScrollToLocation";
+import { WebMCP } from "@/components/webmcp";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -77,6 +78,7 @@ export default function RootLayout({
               {children}
             </div>
           </div>
+          <WebMCP />
         </RootProvider>
       </body>
     </html>
