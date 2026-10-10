@@ -24,12 +24,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Aquadactyl | Euphoria Development",
   description:
-    "Aquadactyl is a free, open-source game server panel from Euphoria Development. Built on Pterodactyl, with Blueprint, custom logos, more CAPTCHA providers, player counts, profile pictures, an Egg Library and simpler schedules.",
+    "Aquadactyl is a free, open-source game server panel from Euphoria Development. Built on Pterodactyl, with a charcoal theme, bundled Blueprint, an Egg Library, simpler schedules and managed updates.",
   openGraph: {
     type: "website",
     title: "Aquadactyl — Your panel. Built your way.",
     description:
-      "A Pterodactyl fork with Blueprint, custom branding, player counts, profile pictures, more CAPTCHA providers and simpler schedules.",
+      "A Pterodactyl fork with a charcoal theme, bundled Blueprint, an integrated Egg Library and simpler server schedules.",
     images: ["https://euphoriadevelopment.uk/web-app-manifest-512x512.png"],
   },
   icons: {
