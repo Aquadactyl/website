@@ -4,13 +4,15 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Box,
+  BookOpen,
+  CalendarClock,
   ChevronDown,
   Code2,
   ExternalLink,
   Puzzle,
   RefreshCw,
   Server,
+  Palette,
   ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -19,34 +21,79 @@ import PanelPreview from "./PanelPreview";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   {
-    icon: Server,
-    title: "Pterodactyl Panel",
-    text: "Manage your console, files, backups, schedules and users through the familiar Pterodactyl interface.",
+    icon: Palette,
+    title: "Charcoal & aqua theme",
+    text: "A new default look across the dashboard, login, console and admin area, with dark controls, readable text and muted aqua accents.",
   },
   {
     icon: Puzzle,
-    title: "Blueprint included",
-    text: "The framework, CLI, admin pages and extension hooks are bundled and initialized during installation.",
+    title: "Blueprint built in",
+    text: "Blueprint beta-2026-08 ships with the panel. Its CLI, admin pages and extension hooks are initialized by the installer; themes and addons are installed separately.",
+  },
+  {
+    icon: BookOpen,
+    title: "Integrated Egg Library",
+    text: "Browse eggs.download in the admin area, search and filter the catalogue, preview an egg and import it into an existing or new nest without leaving the panel.",
+  },
+  {
+    icon: CalendarClock,
+    title: "Simpler server schedules",
+    text: "Choose daily, weekly, monthly or interval timings, then add restart, backup or command steps with readable delays. Custom cron remains available for advanced schedules.",
   },
   {
     icon: RefreshCw,
-    title: "Managed updates",
-    text: "Update scripts verify releases and back up your database and panel files before applying changes.",
-  },
-  {
-    icon: Box,
-    title: "Docker containers",
-    text: "Game servers run on separate Wings nodes, each with its own container and resource limits.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Deployment defaults",
-    text: "Redis, OPcache, Nginx templates and restricted filesystem permissions are part of the deployment setup.",
+    title: "Managed installation & updates",
+    text: "Linux scripts build assets, apply migrations and refresh caches. The updater verifies release checksums, backs up the database and panel files, and preserves configuration and extension data.",
   },
   {
     icon: Code2,
-    title: "Open source",
-    text: "MIT licensed and self hosted. Read the source, make changes or contribute to the project on GitHub.",
+    title: "Shared addon libraries",
+    text: "Extension developers can use bundled libraries for icons, searchable selects, forms, validation, charts and animation without installing separate copies.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Prepared deployment defaults",
+    text: "Supplied deployment configuration brings together Redis, PHP OPcache, Laravel caches, Nginx asset caching and restricted filesystem permissions.",
+  },
+];
+
+const comparisons = [
+  {
+    feature: "Default appearance",
+    pterodactyl: "Standard Pterodactyl client and admin styling.",
+    aquadactyl:
+      "Charcoal surfaces and aqua accents across the client and admin area.",
+  },
+  {
+    feature: "Blueprint extensions",
+    pterodactyl: "Blueprint requires a separate installation.",
+    aquadactyl: "Blueprint is bundled and initialized during installation.",
+  },
+  {
+    feature: "Finding and importing eggs",
+    pterodactyl:
+      "Download an egg JSON file separately, then import it into a nest.",
+    aquadactyl:
+      "Search, preview and import from eggs.download directly in the admin area.",
+  },
+  {
+    feature: "Schedule editing",
+    pterodactyl: "Configure timing using cron fields and add scheduled tasks.",
+    aquadactyl:
+      "Use common timing presets and readable step delays, or keep custom cron.",
+  },
+  {
+    feature: "Panel updates",
+    pterodactyl: "Follow the upstream update steps and manage your backups.",
+    aquadactyl:
+      "Use a managed updater with release verification and automatic database and file backups.",
+  },
+  {
+    feature: "Core server management",
+    pterodactyl:
+      "Console, files, backups, schedules, users and Docker servers through Wings.",
+    aquadactyl:
+      "Retains this Pterodactyl foundation alongside the additions above.",
   },
 ];
 
@@ -96,9 +143,9 @@ export default function Home() {
               More room to make it yours.
             </p>
             <p className="mt-4 max-w-96.25 text-sm leading-[1.85] text-[#a0abb6] max-[1050px]:max-w-145 sm:mt-5 sm:text-[15px]">
-              Pterodactyl Panel with Blueprint built in. Manage your game
-              servers, install extensions and build a panel that fits your
-              community.
+              Pterodactyl Panel with a fresh default theme, Blueprint built in,
+              an integrated Egg Library and simpler server schedules. Familiar
+              server management, with more tools ready to use.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-2.5 sm:mt-7.5">
               <Link
@@ -165,18 +212,18 @@ export default function Home() {
         <div className="mb-7 flex flex-col justify-between gap-4 sm:mb-9 md:flex-row md:items-end md:gap-8">
           <div>
             <p className="mb-3 text-[11px] font-medium tracking-widest text-[#8c9aa7] uppercase">
-              The essentials, together
+              Built on Pterodactyl
             </p>
             <h2
               id="features-heading"
               className="text-[27px] leading-tight font-medium tracking-[-0.8px] text-[#e9edf0] sm:text-[29px] md:text-[32px]"
             >
-              What’s included
+              What Aquadactyl adds
             </h2>
           </div>
           <p className="max-w-145 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm md:max-w-105">
-            A familiar foundation, with the tools to keep your panel running and
-            make it your own.
+            These additions extend the standard Pterodactyl experience, from
+            everyday server setup to panel customisation and maintenance.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-4.5 lg:grid-cols-3 lg:gap-x-9 lg:gap-y-6">
@@ -196,9 +243,78 @@ export default function Home() {
           ))}
         </div>
         <p className="mt-7 text-xs leading-[1.8] text-[#8c9aa7]">
-          Use Pterodactyl eggs for Minecraft, Rust, Terraria, Valheim,
-          Counter-Strike and other games.
+          Console access, file management, backups, users and Docker server
+          isolation come from Pterodactyl. Aquadactyl retains that foundation
+          and continues to use Wings for game server nodes.
         </p>
+      </section>
+
+      <section
+        className="mx-auto w-full max-w-296 px-5 pb-11 sm:px-6 sm:pb-14 md:px-8 md:pb-19"
+        aria-labelledby="comparison-heading"
+      >
+        <h2
+          id="comparison-heading"
+          className="text-[27px] leading-tight font-medium tracking-[-0.8px] text-[#e9edf0] sm:text-[29px] md:text-[32px]"
+        >
+          Aquadactyl vs default Pterodactyl
+        </h2>
+        <p
+          id="comparison-description"
+          className="mt-4 max-w-180 text-sm leading-[1.85] text-[#a0abb6]"
+        >
+          A comparison with a standard Pterodactyl installation, before adding
+          third-party themes, extensions or custom deployment tooling.
+        </p>
+        <div
+          className="mt-7 overflow-x-auto rounded-lg border border-[#303b45] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#78d4cc]"
+          role="region"
+          aria-labelledby="comparison-heading"
+          tabIndex={0}
+        >
+          <table
+            className="w-full min-w-160 border-collapse text-left text-[13px] leading-[1.8]"
+            aria-describedby="comparison-description"
+          >
+            <caption className="sr-only">
+              Features in default Pterodactyl and Aquadactyl
+            </caption>
+            <thead className="bg-[#1b232b] text-[#e9edf0]">
+              <tr>
+                <th scope="col" className="w-1/5 px-5 py-4 font-medium">
+                  Feature
+                </th>
+                <th scope="col" className="w-2/5 px-5 py-4 font-medium">
+                  Default Pterodactyl
+                </th>
+                <th
+                  scope="col"
+                  className="w-2/5 px-5 py-4 font-medium text-[#a4e3dc]"
+                >
+                  Aquadactyl
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisons.map(({ feature, pterodactyl, aquadactyl }) => (
+                <tr key={feature} className="border-t border-[#303b45]">
+                  <th
+                    scope="row"
+                    className="px-5 py-4 align-top font-medium text-[#e9edf0]"
+                  >
+                    {feature}
+                  </th>
+                  <td className="px-5 py-4 align-top text-[#a0abb6]">
+                    {pterodactyl}
+                  </td>
+                  <td className="px-5 py-4 align-top text-[#bbc5ce]">
+                    {aquadactyl}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section
