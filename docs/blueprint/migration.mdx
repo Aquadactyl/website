@@ -1,0 +1,130 @@
+---
+title: Migrate an extension from Pterodactyl Blueprint
+description: Move a Blueprint extension to Aquadactyl safely, with a compatibility checklist and migration assistant.
+---
+
+Aquadactyl includes a maintained Blueprint integration, but it is not a drop-in
+replacement for every extension written for an older Pterodactyl panel.
+Extensions run inside the panel's PHP and React application, so review the
+compatibility points below before installing one in production.
+
+<Callout type="info">
+  The [Blueprint migration assistant](/tools/blueprint-migrator) runs entirely
+  in your browser. It does not upload or execute your extension. Use it as a
+  first pass, then review the generated changes.
+</Callout>
+
+## Before you start
+
+1. Make a backup of the panel, database, and the original
+   `identifier.blueprint` package.
+2. Work in a test Aquadactyl installation first.
+3. Read the extension's license and keep its original copyright and license
+   notices.
+4. Confirm that the extension publisher supports modifying and redistributing
+   the package.
+
+Keep the original package in the panel root. Aquadactyl's managed update tooling
+uses the package when rebuilding installed extensions.
+
+## Compatibility checklist
+
+### 1. Update the package metadata
+
+Keep the extension identifier stable. Review its Blueprint manifest and update
+the supported panel/framework versions according to the extension's manifest
+format. Do not claim Aquadactyl compatibility until the extension has been
+installed, rebuilt, and exercised on the target Aquadactyl release.
+
+If the package has install scripts, make them fail loudly. They must not report
+success after a failed dependency install, build, migration, or cache refresh.
+
+### 2. Replace Yarn commands with pnpm
+
+Aquadactyl uses pnpm 12.10.1. Replace extension scripts such as:
+
+```bash
+yarn install
+yarn build
+yarn add package-name
+```
+
+with the equivalent pnpm commands:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm add package-name
+```
+
+An extension should not rewrite the panel's lockfile or download floating
+dependency versions during installation. Commit and test the lockfile that the
+extension expects.
+
+### 3. Use the panel's shared frontend runtime
+
+Aquadactyl uses React 19, React Router 8, Tailwind CSS 4, and Zustand. Import
+shared panel dependencies instead of bundling a second copy of React or adding a
+different router:
+
+| Older import or dependency          | Aquadactyl direction                                  |
+| ----------------------------------- | ----------------------------------------------------- |
+| `react-router-dom`                  | `react-router`                                        |
+| Easy Peasy selectors/actions        | `useAppStore` and `useStoreState` / `useStoreActions` |
+| `styled-components` or `twin.macro` | Existing panel classes and Tailwind                   |
+| `swr`                               | `@tanstack/react-query`                               |
+| `yarn` scripts                      | `pnpm` scripts                                        |
+
+Use `@/api/http` for panel API requests so authentication, headers, timeout, and
+progress handling remain consistent. Validate authorization in every backend
+route; frontend route visibility is not authorization.
+
+### 4. Check PHP and Laravel integration
+
+Target PHP 8.4 or 8.5 and the Laravel version supported by the Aquadactyl
+release. Review service providers, middleware, routes, migrations, config
+publishing, and model changes against the current panel source.
+
+Do not replace Aquadactyl core files with files copied from an upstream
+Pterodactyl release. Add extension changes through Blueprint hooks and keep
+framework integration isolated to the extension.
+
+### 5. Build, install, and verify
+
+Run the extension's own checks before packaging it:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run types
+pnpm run lint
+pnpm run build
+```
+
+Install it in a disposable Aquadactyl instance:
+
+```bash
+sudo blueprint -i myextension
+sudo blueprint -r myextension --yes
+```
+
+Check the panel log and browser console, then test the extension as a normal
+user and as an administrator. Confirm that removing the extension leaves the
+panel usable and understand which database migrations are intentionally
+irreversible.
+
+## Common migration mistakes
+
+- Installing an extension built for a different Blueprint release without
+  reviewing its manifest and hooks.
+- Running `blueprint -upgrade` on Aquadactyl. Update the panel and its bundled
+  framework together instead.
+- Bundling React, React DOM, or a second router into the extension.
+- Trusting a client-side admin check without server-side authorization.
+- Using remote scripts or unpinned package downloads in an install script.
+- Removing the extension without a database backup or migration rollback plan.
+
+<Callout type="warn">
+  A scan result is not a compatibility guarantee. The assistant can identify
+  common patterns, but PHP hooks, manifest semantics, migrations, and runtime
+  behavior still require a manual review.
+</Callout>

@@ -30,12 +30,12 @@ location block. Building locally does not update the hosted website.
 
 ## Published guides
 
-| Page                                              | Covers                                                                                     |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Project website](https://aquadactyl.uk)          | Project overview, interactive sample panel, installation snippets, FAQ and community links |
-| [Installation](https://aquadactyl.uk/docs)        | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |
-| [Updating](https://aquadactyl.uk/docs/updating)   | Reviewed releases, managed updates, backups and recovery                                   |
-| [Blueprint](https://aquadactyl.uk/docs/blueprint) | Bundled framework, extension installation and maintenance                                  |
+| Page                                                        | Covers                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Project website](https://aquadactyl.uk)                    | Project overview, interactive sample panel, installation snippets, FAQ and community links |
+| [Installation](https://aquadactyl.uk/docs)                  | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |
+| [Updating](https://aquadactyl.uk/docs/updating)             | Reviewed releases, managed updates, backups and recovery                                   |
+| [Blueprint](https://aquadactyl.uk/docs/blueprint/migration) | Bundled framework, extension installation, migration and maintenance                       |
 
 The panel preview runs with sample data in the browser. Its power controls,
 console, file previews, backups and settings demonstrate the interface without
@@ -46,7 +46,7 @@ connecting to game server nodes.
 Use the [Aquadactyl panel repository](https://github.com/Aquadactyl/aquadactyl)
 as the source for requirements and commands. Check README.md, BUILDING.md,
 docs/DEPLOYMENT.md, docs/BLUEPRINT.md, docs/BRANDING.md and the deployment scripts
-when updating src/Documentation.tsx. Project copy is in src/App.tsx; repository
+when updating the documentation pages. Project copy is in src/App.tsx; repository
 URLs, branch names and shared commands are in src/config.ts.
 
 New installation examples use /var/www/aquadactyl and
@@ -63,6 +63,7 @@ pnpm format:check
 pnpm build
 ```
 
-Preview /, /docs, /docs/updating and /docs/blueprint after editing navigation or
-content. Check section links, copy buttons and the mobile menu. The shared command
-snippets must match the panel's scripts and current repository identity.
+Preview /, /docs, /docs/panel, /docs/blueprint/migration and
+/tools/blueprint-migrator after editing navigation or content. Check section
+links, copy buttons and the mobile menu. The shared command snippets must match
+the panel's scripts and current repository identity.
