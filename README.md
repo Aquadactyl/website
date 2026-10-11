@@ -30,7 +30,7 @@ location block. Building locally does not update the hosted website.
 
 ## Published guides
 
-| Page                                                        | Covers                                                                                     |
+tylijnh| Page                                                        | Covers                                                                                     |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | [Project website](https://aquadactyl.uk)                    | Project overview, interactive sample panel, installation snippets, FAQ and community links |
 | [Installation](https://aquadactyl.uk/docs)                  | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |

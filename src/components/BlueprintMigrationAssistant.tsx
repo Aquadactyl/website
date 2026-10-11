@@ -73,13 +73,13 @@ export default function BlueprintMigrationAssistant() {
   }
 
   return (
-    <section className="not-prose space-y-5">
-      <div className="rounded-lg border border-[#303b45] bg-[#172027] p-4 sm:p-5">
+    <section className="not-prose space-y-6">
+      <div className="bg-fd-card rounded-xl border p-4 sm:p-5">
         <label
           htmlFor="blueprint-source"
-          className="mb-2 flex items-center gap-2 text-sm font-medium text-[#e9edf0]"
+          className="text-fd-foreground mb-2 flex items-center gap-2 text-sm font-medium"
         >
-          <FileCode2 size={16} className="text-[#78d4cc]" />
+          <FileCode2 className="text-fd-primary size-4" />
           Paste a manifest, install script, or frontend file
         </label>
         <textarea
@@ -89,30 +89,35 @@ export default function BlueprintMigrationAssistant() {
           placeholder={
             'yarn install\\nimport { Link } from "react-router-dom";'
           }
-          className="min-h-52 w-full resize-y rounded-md border border-[#3d4a56] bg-[#0d1217] p-3 font-mono text-xs leading-relaxed text-[#d7dce1] outline-none placeholder:text-[#687887] focus:border-[#78d4cc] focus:ring-1 focus:ring-[#78d4cc]"
+          className="bg-fd-secondary focus-visible:ring-fd-ring placeholder:text-fd-muted-foreground min-h-52 w-full resize-y rounded-lg border p-3 font-mono text-xs leading-relaxed outline-none focus-visible:ring-2"
           spellCheck={false}
         />
-        <p className="mt-2 text-xs text-[#8c9aa7]">
+        <p className="text-fd-muted-foreground mt-2 text-xs">
           Analysis happens locally in this tab. Nothing is sent to Aquadactyl.
         </p>
       </div>
 
       {source && (
         <>
-          <div className="rounded-lg border border-[#303b45] bg-[#172027] p-4 sm:p-5">
-            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-[#e9edf0]">
-              <AlertTriangle size={17} className="text-[#e8c38b]" />
+          <div className="bg-fd-card rounded-xl border p-4 sm:p-5">
+            <h2 className="text-fd-foreground mb-3 flex items-center gap-2 text-base font-semibold">
+              <AlertTriangle className="text-fd-primary size-4" />
               Review {result.matches.length} finding
               {result.matches.length === 1 ? "" : "s"}
             </h2>
             {result.matches.length > 0 ? (
               <ul className="space-y-3">
                 {result.matches.map((finding) => (
-                  <li key={finding.label} className="text-sm text-[#bbc5ce]">
-                    <strong className="text-[#e9edf0]">{finding.label}:</strong>{" "}
+                  <li
+                    key={finding.label}
+                    className="text-fd-muted-foreground text-sm"
+                  >
+                    <strong className="text-fd-foreground">
+                      {finding.label}:
+                    </strong>{" "}
                     {finding.detail}
                     {finding.replacement && (
-                      <span className="ml-1 font-mono text-[#78d4cc]">
+                      <span className="text-fd-primary ml-1 font-mono">
                         Safe replacement: {finding.replacement}
                       </span>
                     )}
@@ -120,29 +125,29 @@ export default function BlueprintMigrationAssistant() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-[#bbc5ce]">
+              <p className="text-fd-muted-foreground text-sm">
                 No common patterns were detected. Continue with the manual
                 checklist.
               </p>
             )}
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-[#303b45] bg-[#0d1217]">
-            <div className="flex items-center justify-between gap-3 border-b border-[#303b45] bg-[#202a33] px-4 py-3">
-              <h2 className="flex items-center gap-2 text-sm font-semibold text-[#e9edf0]">
-                <WandSparkles size={16} className="text-[#78d4cc]" />
+          <div className="bg-fd-card overflow-hidden rounded-xl border">
+            <div className="bg-fd-secondary flex items-center justify-between gap-3 border-b px-4 py-3">
+              <h2 className="text-fd-foreground flex items-center gap-2 text-sm font-semibold">
+                <WandSparkles className="text-fd-primary size-4" />
                 Safe replacements
               </h2>
               <button
                 type="button"
                 onClick={copy}
-                className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-[#bbc5ce] hover:bg-[#303b45] hover:text-white"
+                className="text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent flex items-center gap-1.5 rounded px-2 py-1 text-xs transition-colors"
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? "Copied" : "Copy"}
               </button>
             </div>
-            <pre className="max-h-100 overflow-auto p-4 text-xs leading-relaxed text-[#d7dce1]">
+            <pre className="fd-scroll-container max-h-100 overflow-auto p-4 font-mono text-xs leading-relaxed">
               <code>{result.migrated}</code>
             </pre>
           </div>

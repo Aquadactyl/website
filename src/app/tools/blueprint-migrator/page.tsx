@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+} from "fumadocs-ui/page";
+import { DocsLayout } from "@/components/ai/layout";
+import { source } from "@/lib/source";
 import BlueprintMigrationAssistant from "@/components/BlueprintMigrationAssistant";
 
 export const metadata = {
@@ -12,29 +18,51 @@ export const metadata = {
 
 export default function BlueprintMigratorPage() {
   return (
-    <div className="bg-[#11161b] text-[#e9edf0]">
-      <Header />
-      <main className="mx-auto w-full max-w-220 flex-1 px-5 py-12 sm:px-8 sm:py-16">
+    <DocsLayout
+      tree={source.pageTree}
+      nav={{
+        title: (
+          <span className="flex items-center gap-2 font-semibold">
+            <img
+              src="/brand/aquadactyl-emblem.png"
+              alt="Aquadactyl"
+              width={24}
+              height={24}
+              className="rounded object-contain"
+            />
+            <span>Aquadactyl</span>
+          </span>
+        ),
+        url: "/",
+      }}
+      links={[
+        { text: "Overview", url: "/" },
+        { text: "Features", url: "/#features" },
+        { text: "Extensions", url: "/#blueprint" },
+        {
+          text: "GitHub",
+          url: "https://github.com/Aquadactyl/aquadactyl",
+          external: true,
+        },
+      ]}
+    >
+      <DocsPage>
         <Link
           href="/docs/blueprint/migration"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-[#8c9aa7] hover:text-[#e9edf0]"
+          className="text-fd-muted-foreground hover:text-fd-foreground mb-6 inline-flex items-center gap-2 text-sm transition-colors"
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft className="size-4" />
           Back to migration guide
         </Link>
-        <p className="mb-3 text-sm font-medium text-[#78d4cc]">
-          Blueprint tools
-        </p>
-        <h1 className="mb-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Migration assistant
-        </h1>
-        <p className="mb-8 max-w-170 text-base leading-7 text-[#a0abb6]">
+        <DocsTitle>Blueprint migration assistant</DocsTitle>
+        <DocsDescription>
           Find common Pterodactyl Blueprint patterns that need review for
           Aquadactyl. Only Yarn and React Router DOM replacements are automated.
-        </p>
-        <BlueprintMigrationAssistant />
-      </main>
-      <Footer />
-    </div>
+        </DocsDescription>
+        <DocsBody>
+          <BlueprintMigrationAssistant />
+        </DocsBody>
+      </DocsPage>
+    </DocsLayout>
   );
 }
