@@ -253,30 +253,47 @@ Test and reload Nginx:
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### Update Queue Worker (`pteroq.service`)
+### Migrate Queue Worker (`pteroq.service` &rarr; `aquaq.service`)
 
-Update `/etc/systemd/system/pteroq.service` to point to `/var/www/aquadactyl`:
+Disable the legacy Pterodactyl queue worker and install the new Aquadactyl `aquaq.service`:
 
-```ini title="/etc/systemd/system/pteroq.service"
+```bash title="Switch queue worker to aquaq.service"
+# Stop and disable old Pterodactyl queue worker
+sudo systemctl stop pteroq.service 2>/dev/null || true
+sudo systemctl disable pteroq.service 2>/dev/null || true
+sudo rm -f /etc/systemd/system/pteroq.service
+
+# Install and enable aquaq.service
+sudo cp /var/www/aquadactyl/deploy/systemd/aquaq.service /etc/systemd/system/aquaq.service
+sudo systemctl daemon-reload
+sudo systemctl enable aquaq.service
+```
+
+The production `aquaq.service` unit definition:
+
+```ini title="/etc/systemd/system/aquaq.service"
 [Unit]
-Description=Pterodactyl / Aquadactyl Queue Worker
-After=redis-server.service
+Description=Aquadactyl queue worker
+After=network-online.target mariadb.service redis-server.service
+Wants=network-online.target
 
 [Service]
 User=www-data
 Group=www-data
-Restart=always
-ExecStart=/usr/bin/php /var/www/aquadactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
 WorkingDirectory=/var/www/aquadactyl
+ExecStart=/usr/bin/php artisan queue:work --queue=high,standard,low --sleep=3 --tries=3 --timeout=120 --max-time=3600
+Restart=always
+RestartSec=5
+TimeoutStopSec=180
+KillSignal=SIGTERM
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
 
 [Install]
 WantedBy=multi-user.target
-```
-
-Reload systemd daemon:
-
-```bash title="Reload systemd"
-sudo systemctl daemon-reload
 ```
 
 ### Update Cron Scheduler
@@ -310,7 +327,7 @@ sudo -u www-data php artisan view:cache
 
 # Restart PHP-FPM and queue worker
 sudo systemctl restart php8.5-fpm
-sudo systemctl start pteroq.service
+sudo systemctl start aquaq.service
 
 # Bring the panel online
 sudo -u www-data php artisan up
@@ -322,5 +339,5 @@ sudo -u www-data php artisan up
 
 1. **Log in to Panel**: Open your browser at your panel domain. Log in with your existing administrator credentials.
 2. **Check Nodes & Wings**: Navigate to **Admin -> Nodes**. Your nodes should show green heartbeats. Your game servers will continue running with zero downtime.
-3. **Verify Background Jobs**: Check `sudo systemctl status pteroq.service` to confirm the worker is actively processing queue jobs.
+3. **Verify Background Jobs**: Check `sudo systemctl status aquaq.service` to confirm the worker is actively processing queue jobs.
 4. **Clean up old files (Optional)**: Once you have fully verified the migration, you can archive or remove the old `/var/www/pterodactyl` directory.

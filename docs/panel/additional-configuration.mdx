@@ -94,13 +94,13 @@ curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh
 
 ---
 
-## Background Worker (`pteroq.service`) [#queue]
+## Background Worker (`aquaq.service`) [#queue]
 
-Background tasks like server creation, backups, and email delivery run through the `pteroq.service` worker.
+Background tasks like server creation, backups, and email delivery run through the `aquaq.service` worker.
 
-Aquadactyl includes the production unit definition at `deploy/systemd/pteroq.service`:
+Aquadactyl includes the production unit definition at `deploy/systemd/aquaq.service`:
 
-```ini title="/etc/systemd/system/pteroq.service"
+```ini title="/etc/systemd/system/aquaq.service"
 [Unit]
 Description=Aquadactyl queue worker
 After=network-online.target mariadb.service redis-server.service
@@ -128,9 +128,9 @@ WantedBy=multi-user.target
 Enable and start the service:
 
 ```bash
-sudo cp deploy/systemd/pteroq.service /etc/systemd/system/pteroq.service
+sudo cp deploy/systemd/aquaq.service /etc/systemd/system/aquaq.service
 sudo systemctl daemon-reload
-sudo systemctl enable --now pteroq.service
+sudo systemctl enable --now aquaq.service
 ```
 
 ---
