@@ -24,16 +24,16 @@ rm /etc/nginx/sites-enabled/default
 Create `/etc/nginx/sites-available/aquadactyl.conf`:
 
 ```nginx title="aquadactyl.conf"
+# Ubuntu / Debian: /etc/nginx/sites-available/
+# CentOS / RHEL:   /etc/nginx/conf.d/
 server {
     listen 80;
-    listen [::]:80;
     server_name <domain>;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    listen [::]:443 ssl http2;
     server_name <domain>;
 
     root /var/www/aquadactyl/public;
@@ -42,39 +42,66 @@ server {
     access_log /var/log/nginx/aquadactyl.app-access.log;
     error_log  /var/log/nginx/aquadactyl.app-error.log error;
 
-    # Allow larger uploads and longer requests.
+    # allow larger file uploads and longer script runtimes
     client_max_body_size 100m;
     client_body_timeout 120s;
 
-    sendfile off;
+    sendfile on;
 
+    location ^~ /build/assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        # Location headers replace the server headers, so preserve them here.
+        add_header Strict-Transport-Security "max-age=15768000; preload;";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag none;
+        add_header Content-Security-Policy "frame-ancestors 'self'";
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/css application/javascript image/svg+xml;
+    }
+
+    # strengthen ssl security
     ssl_certificate /etc/letsencrypt/live/<domain>/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/<domain>/privkey.pem;
-    ssl_session_cache shared:SSL:10m;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
 
+    # See the link below for more SSL information:
+    #     https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+    #
+    # ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+    # Add headers to serve security related headers
+    add_header Strict-Transport-Security "max-age=15768000; preload;";
     add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
     add_header X-Robots-Tag none;
     add_header Content-Security-Policy "frame-ancestors 'self'";
-    add_header X-Frame-Options DENY;
-    add_header Referrer-Policy same-origin;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    location ^~ /assets/ {
-        location ~ /\. {
-            deny all;
-        }
+    location = /favicon.ico { rewrite ^ /index.php last; }
+    location ~ ^/favicons/(favicon\.ico|manifest\.json|browserconfig\.xml)$ { rewrite ^ /index.php last; }
 
+    location ^~ /storage/avatars/ {
+        try_files $uri =404;
+    }
+
+    location ^~ /storage/branding/ {
         try_files $uri =404;
     }
 
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # On CentOS / RHEL using TCP socket, use: fastcgi_pass 127.0.0.1:9000;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_index index.php;
         include fastcgi_params;
@@ -114,6 +141,8 @@ rm /etc/nginx/sites-enabled/default
 Create `/etc/nginx/sites-available/aquadactyl.conf`:
 
 ```nginx title="aquadactyl.conf"
+# Ubuntu / Debian: /etc/nginx/sites-available/
+# CentOS / RHEL:   /etc/nginx/conf.d/
 server {
     listen 80;
     listen [::]:80;
@@ -127,15 +156,18 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    location ^~ /assets/ {
-        location ~ /\. {
-            deny all;
-        }
-
+    location ^~ /storage/avatars/ {
         try_files $uri =404;
+        add_header X-Content-Type-Options nosniff;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
+    location ^~ /storage/branding/ {
+        try_files $uri =404;
+        add_header X-Content-Type-Options nosniff;
+    }
+
+    location = /favicon.ico { rewrite ^ /index.php last; access_log off; log_not_found off; }
+    location ~ ^/favicons/(favicon\.ico|manifest\.json|browserconfig\.xml)$ { rewrite ^ /index.php last; }
     location = /robots.txt  { access_log off; log_not_found off; }
 
     access_log off;
@@ -145,10 +177,23 @@ server {
     client_max_body_size 100m;
     client_body_timeout 120s;
 
-    sendfile off;
+    sendfile on;
+
+    # Vite fingerprints these files; updates get new URLs without clearing caches.
+    location ^~ /build/assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header X-Content-Type-Options nosniff;
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/css application/javascript image/svg+xml;
+    }
 
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # On CentOS / RHEL using TCP socket, use: fastcgi_pass 127.0.0.1:9000;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_index index.php;
         include fastcgi_params;
@@ -194,7 +239,7 @@ Create `/etc/apache2/sites-available/aquadactyl.conf`:
 
     RewriteEngine On
     RewriteCond %{HTTPS} !=on
-    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
 </VirtualHost>
 
 <VirtualHost *:443>
@@ -206,19 +251,42 @@ Create `/etc/apache2/sites-available/aquadactyl.conf`:
     php_value upload_max_filesize 100M
     php_value post_max_size 100M
 
+    # Rewrite favicons to front controller
+    RewriteEngine On
+    RewriteRule ^/favicon\.ico$ /index.php [L]
+    RewriteRule ^/favicons/(favicon\.ico|manifest\.json|browserconfig\.xml)$ /index.php [L]
+
     <Directory "/var/www/aquadactyl/public">
-        Require all granted
         AllowOverride all
+        Require all granted
     </Directory>
 
-    <Directory "/var/www/aquadactyl/public/assets">
+    # Vite fingerprinted assets: immutable cache for 1 year
+    <Directory "/var/www/aquadactyl/public/build/assets">
+        AllowOverride None
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set X-Content-Type-Options "nosniff"
+    </Directory>
+
+    # Avatars & branding storage protection
+    <Directory "/var/www/aquadactyl/public/storage/avatars">
         AllowOverride None
         php_admin_flag engine off
-
-        <FilesMatch "^\.">
-            Require all denied
-        </FilesMatch>
+        Header set X-Content-Type-Options "nosniff"
     </Directory>
+
+    <Directory "/var/www/aquadactyl/public/storage/branding">
+        AllowOverride None
+        php_admin_flag engine off
+        Header set X-Content-Type-Options "nosniff"
+    </Directory>
+
+    # Add security headers
+    Header always set Strict-Transport-Security "max-age=15768000; preload;"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Robots-Tag "none"
+    Header always set Content-Security-Policy "frame-ancestors 'self'"
 
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/<domain>/fullchain.pem
@@ -230,7 +298,7 @@ Enable the site and its modules, and restart Apache:
 
 ```bash
 a2ensite aquadactyl.conf
-a2enmod rewrite ssl
+a2enmod rewrite ssl headers expires deflate
 systemctl restart apache2
 ```
 
@@ -256,27 +324,43 @@ Create `/etc/apache2/sites-available/aquadactyl.conf`:
     php_value upload_max_filesize 100M
     php_value post_max_size 100M
 
+    # Rewrite favicons to front controller
+    RewriteEngine On
+    RewriteRule ^/favicon\.ico$ /index.php [L]
+    RewriteRule ^/favicons/(favicon\.ico|manifest\.json|browserconfig\.xml)$ /index.php [L]
+
     <Directory "/var/www/aquadactyl/public">
         AllowOverride all
         Require all granted
     </Directory>
 
-    <Directory "/var/www/aquadactyl/public/assets">
+    # Vite fingerprinted assets: immutable cache for 1 year
+    <Directory "/var/www/aquadactyl/public/build/assets">
+        AllowOverride None
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set X-Content-Type-Options "nosniff"
+    </Directory>
+
+    # Avatars & branding storage protection
+    <Directory "/var/www/aquadactyl/public/storage/avatars">
         AllowOverride None
         php_admin_flag engine off
+        Header set X-Content-Type-Options "nosniff"
+    </Directory>
 
-        <FilesMatch "^\.">
-            Require all denied
-        </FilesMatch>
+    <Directory "/var/www/aquadactyl/public/storage/branding">
+        AllowOverride None
+        php_admin_flag engine off
+        Header set X-Content-Type-Options "nosniff"
     </Directory>
 </VirtualHost>
 ```
 
-Enable the site and the rewrite module, and restart Apache:
+Enable the site and its modules, and restart Apache:
 
 ```bash
 a2ensite aquadactyl.conf
-a2enmod rewrite
+a2enmod rewrite headers expires deflate
 systemctl restart apache2
 ```
 
@@ -299,12 +383,24 @@ Replace the contents of `/etc/caddy/Caddyfile` with:
 <domain> {
     root * /var/www/aquadactyl/public
 
+    encode gzip zstd
+
+    # Rewrite favicons to front controller
+    @favicons path /favicon.ico /favicons/favicon.ico /favicons/manifest.json /favicons/browserconfig.xml
+    rewrite @favicons /index.php
+
+    # Vite fingerprinted assets: immutable cache for 1 year
+    @buildAssets path /build/assets/*
+    header @buildAssets Cache-Control "public, max-age=31536000, immutable"
+    header @buildAssets X-Content-Type-Options "nosniff"
+
+    # Avatars & branding storage
+    @storage path /storage/avatars/* /storage/branding/*
+    header @storage X-Content-Type-Options "nosniff"
+
     file_server
 
-    @assets-dotfiles path_regexp ^/assets/(.*/)?\.
-    respond @assets-dotfiles 403
-
-    @php not path /assets/*
+    @php not path /build/assets/* /storage/avatars/* /storage/branding/*
     php_fastcgi @php unix//run/php/php8.5-fpm.sock {
         root /var/www/aquadactyl/public
         index index.php
@@ -319,12 +415,11 @@ Replace the contents of `/etc/caddy/Caddyfile` with:
         write_timeout 300s
     }
 
-    header Strict-Transport-Security "max-age=16768000; preload;"
+    header Strict-Transport-Security "max-age=15768000; preload;"
     header X-Content-Type-Options "nosniff"
+    header X-XSS-Protection "1; mode=block"
     header X-Robots-Tag "none"
     header Content-Security-Policy "frame-ancestors 'self'"
-    header X-Frame-Options "DENY"
-    header Referrer-Policy "same-origin"
 
     request_body {
         max_size 100m
@@ -367,12 +462,24 @@ Replace the contents of `/etc/caddy/Caddyfile` with:
 <domain>:80 {
     root * /var/www/aquadactyl/public
 
+    encode gzip zstd
+
+    # Rewrite favicons to front controller
+    @favicons path /favicon.ico /favicons/favicon.ico /favicons/manifest.json /favicons/browserconfig.xml
+    rewrite @favicons /index.php
+
+    # Vite fingerprinted assets: immutable cache for 1 year
+    @buildAssets path /build/assets/*
+    header @buildAssets Cache-Control "public, max-age=31536000, immutable"
+    header @buildAssets X-Content-Type-Options "nosniff"
+
+    # Avatars & branding storage
+    @storage path /storage/avatars/* /storage/branding/*
+    header @storage X-Content-Type-Options "nosniff"
+
     file_server
 
-    @assets-dotfiles path_regexp ^/assets/(.*/)?\.
-    respond @assets-dotfiles 403
-
-    @php not path /assets/*
+    @php not path /build/assets/* /storage/avatars/* /storage/branding/*
     php_fastcgi @php unix//run/php/php8.5-fpm.sock {
         root /var/www/aquadactyl/public
         index index.php
