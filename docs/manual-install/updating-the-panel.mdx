@@ -162,7 +162,7 @@ Compile the updated frontend assets:
 
 ```bash title="Build frontend assets"
 cd /var/www/aquadactyl
-sudo pnpm run build:production
+sudo pnpm run build
 ```
 
 ---
@@ -257,7 +257,7 @@ sudo bash deploy.sh update --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
 6. **Locked Dependency Reinstallation**: Runs `composer install` and `pnpm install --frozen-lockfile` using the committed lockfiles.
 7. **Database Migrations & Blueprint Seeder**: Applies any schema changes (`artisan migrate --force`) and seeds Blueprint's database tables (`BlueprintSeeder`).
 8. **Extension Re-application**: Re-initializes Blueprint and executes `bash blueprint.sh -bash -i "$extension"` for every installed extension to regenerate hooks into the new source code.
-9. **Production Asset Compilation**: Compiles frontend assets with `pnpm run build:production`.
+9. **Production Asset Compilation**: Compiles frontend assets with `pnpm run build`.
 10. **Cache Generation & Service Reload**: Refreshes configuration, route, and view caches, reloads PHP-FPM, restarts `pteroq.service`, and brings the panel back online (`artisan up`).
 
 ---

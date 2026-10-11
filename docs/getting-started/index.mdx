@@ -162,7 +162,7 @@ sudo bash deploy.sh install
 4. **Maintenance mode**: Enables maintenance mode (`artisan down --retry=60`) during migration.
 5. **Database migrations & seeders**: Executes `artisan migrate --force`, seeds Blueprint's database tables (`BlueprintSeeder`), and seeds default nests & eggs (`DatabaseSeeder`).
 6. **Blueprint initialization**: Bootstraps bundled Blueprint beta-2026-08 hooks and warms its extension cache (`artisan bp:cache`).
-7. **Production asset building**: Builds frontend assets via `pnpm run build:production`.
+7. **Production asset building**: Builds frontend assets via `pnpm run build`.
 8. **Permissions & caching**: Applies strict security permissions (`root:www-data`, `0750`/`0640`, only `storage/` and `bootstrap/cache/` writable by `www-data`), caches config/routes/views, and reloads PHP-FPM.
 9. **Queue & scheduler**: Deploys `pteroq.service` and the Laravel cron scheduler (`/etc/cron.d/aquadactyl`).
 10. **Online transition**: Guides you through creating your initial administrator account and disables maintenance mode (`artisan up`).
