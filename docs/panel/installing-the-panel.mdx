@@ -20,7 +20,7 @@ Before starting, ensure your server meets the following requirements:
 | :------------------- | :-------------------------------------------------------------------------------------------------------- |
 | **Operating System** | **Ubuntu**: `24.04 LTS`, `24.10`, `26.04+ LTS`<br />**Debian**: `12 (Bookworm)`, `13 (Trixie)`            |
 | **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM via Ondřej Surý repo _(PHP 8.2 & 8.3 unsupported)_  |
-| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
+| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `intl`, `mbstring`, `pdo_mysql`, `posix`, `redis`, `xml`, `zip`                   |
 | **Node.js & pnpm**   | **Node.js 24** (via NVM `v0.40.8` with `npm@latest`) and **pnpm 12.10.1** (pinned)                        |
 | **Composer**         | Composer 2                                                                                                |
 | **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
@@ -52,7 +52,7 @@ sudo apt-get update
 
 # Install PHP 8.5 and required extensions
 sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
-  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
+  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix php8.5-intl php8.5-redis \
   mariadb-server mariadb-client nginx redis-server git tar zip unzip rsync util-linux certbot python3-certbot-nginx
 
 # Install Composer 2
