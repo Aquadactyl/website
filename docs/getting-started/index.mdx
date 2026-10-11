@@ -5,179 +5,64 @@ description: Quickly install Aquadactyl Panel on your Linux server using the sta
 
 Aquadactyl is an open-source game server management panel built on Pterodactyl, featuring bundled Blueprint beta-2026-08 integration, production performance defaults, and managed update tooling.
 
-This guide covers installing Aquadactyl Panel using the standalone deployment script (`deploy.sh` from `Aquadactyl/Installer`).
-
 <Callout type="warn">
-  **Warning**: The automated installation script is currently very unstable. The
-  [Manual Installation](/docs/manual-install/installing-the-panel) is strongly
-  recommended.
+  ## ⚠️ Warning: Automated Script Instability
+
+**The automated installation script is currently experimental and highly unstable.**
+
+Unexpected errors or dependency issues may occur during automated execution. For a stable, predictable, and recommended setup, please use the **[Manual Installation](/docs/getting-started/installing-the-panel)** guide instead.
+
 </Callout>
 
 ---
 
-## Quick Start (One-Liner) [#quick-start]
+## Supported Operating Systems [#supported-os]
 
-Run the full automated installation with a single command:
+The standalone deployment script supports the following Linux distributions:
 
-```bash title="One-line automated installation"
-curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- install
-```
-
-The script will automatically verify your host environment, clone the panel, configure dependencies, run migrations, compile production assets, set up the queue worker, and guide you through creating your initial administrator account.
-
----
-
-## System Requirements [#requirements]
-
-Ensure your host meets the following requirements before proceeding:
-
-| Component            | Minimum / Supported Specification                                                                         |
-| :------------------- | :-------------------------------------------------------------------------------------------------------- |
-| **Operating System** | **Ubuntu**: `24.04 LTS`, `24.10`, `26.04+ LTS`<br />**Debian**: `12 (Bookworm)`, `13 (Trixie)`            |
-| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM via Ondřej Surý repo _(PHP 8.2 & 8.3 unsupported)_  |
-| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `mbstring`, `pdo_mysql`, `posix`, `xml`, `zip`                                    |
-| **Node.js & pnpm**   | **Node.js 24** (via NVM `v0.40.8` with `npm@latest`) and **pnpm 12.10.1** (pinned)                        |
-| **Composer**         | Composer 2                                                                                                |
-| **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
-| **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
-| **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
+| Operating System                            | Version                     | Supported |
+| :------------------------------------------ | :-------------------------- | :-------: |
+| **Ubuntu**                                  | `24.04 LTS (Noble Numbat)`  |    ✅     |
+| **Ubuntu**                                  | `24.10 (Oracular Oriole)`   |    ✅     |
+| **Ubuntu**                                  | `26.04+ LTS`                |    ✅     |
+| **Debian**                                  | `12 (Bookworm)`             |    ✅     |
+| **Debian**                                  | `13 (Trixie)`               |    ✅     |
+| **Ubuntu**                                  | `22.04 LTS and earlier`     |    ❌     |
+| **Debian**                                  | `11 (Bullseye) and earlier` |    ❌     |
+| **RHEL / Rocky Linux / AlmaLinux / CentOS** | Any                         |    ❌     |
 
 <Callout type="warn">
-  **Deprecation Notice**: Debian &le; 11 and Ubuntu &le; 22.04 are deprecated
-  and no longer supported. Please upgrade to Ubuntu 24.04+ or Debian 12+ before
-  installing Aquadactyl.
+  **Deprecation Notice**: Older distributions such as Debian &le; 11 and Ubuntu
+  &le; 22.04 are deprecated and unsupported. Please upgrade to Ubuntu 24.04+ or
+  Debian 12+ before installing Aquadactyl.
 </Callout>
 
 ---
 
-## Step 1: Install System Prerequisites
+## Automated Installation [#installation]
 
-You can automatically provision host prerequisites using the deployment script:
+The installer script handles the entire installation process automatically, including installing packages, configuring MariaDB, setting up environment files, migrating database schemas, compiling frontend assets, configuring Nginx with SSL, and setting up the background queue worker.
 
-```bash title="Automated host setup"
-curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- setup-host
-```
+Run the installer with a single command:
 
-Alternatively, install PHP 8.5, MariaDB, Redis, Nginx, Node.js 24, and pnpm manually:
-
-```bash title="Install core packages"
-sudo apt-get update
-sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
-
-# Add Sury PHP repository (universal DebSury archive keyring across Debian & Ubuntu)
-curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
-sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
-rm -f /tmp/debsuryorg-archive-keyring.deb
-sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-sudo apt-get update
-
-# Install PHP 8.5 and required extensions
-sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
-  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix \
-  mariadb-server mariadb-client nginx redis-server git tar zip unzip rsync util-linux certbot python3-certbot-nginx
-
-# Install Composer 2
-curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-
-# Install NVM v0.40.8, Node.js 24, and pinned pnpm 12.10.1
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install 24
-nvm use 24
-npm install --global npm@latest
-npm install --global pnpm@12.10.1
-```
-
----
-
-## Step 2: Configure Database
-
-Log in to your MariaDB instance:
-
-```bash title="Open database prompt"
-sudo mariadb -u root
-```
-
-Create the database and database user:
-
-```sql
-CREATE DATABASE aquadactyl;
-CREATE USER 'aquadactyl'@'127.0.0.1' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON aquadactyl.* TO 'aquadactyl'@'127.0.0.1' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EXIT;
-```
-
----
-
-## Step 3: Download Panel & Setup Environment
-
-Create the web root directory and fetch the repository:
-
-```bash title="Download panel"
-sudo mkdir -p /var/www/aquadactyl
-cd /var/www/aquadactyl
-sudo git clone https://github.com/Aquadactyl/aquadactyl.git .
-
-sudo cp .env.example .env
-sudo chmod 640 .env
-sudo nano .env
-```
-
-Configure your domain name and database connection in `.env`:
-
-```ini title="/var/www/aquadactyl/.env"
-APP_URL=https://panel.example.com
-DB_HOST=127.0.0.1
-DB_DATABASE=aquadactyl
-DB_USERNAME=aquadactyl
-DB_PASSWORD=your_secure_password
-CACHE_DRIVER=redis
-SESSION_DRIVER=redis
-QUEUE_CONNECTION=redis
-```
-
----
-
-## Step 4: Run the Deployment Script
-
-Execute the standalone installer to complete the deployment:
-
-```bash title="Execute standalone installer"
+```bash title="Run automated installation"
 curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- install
 ```
 
-If you downloaded `deploy.sh` locally:
+Or if `deploy.sh` is already downloaded locally on your server:
 
-```bash title="Execute local deployment script"
+```bash title="Run local deployment script"
 sudo bash deploy.sh install
 ```
 
-### What `deploy.sh install` Performs
-
-1. **Preflight verification**: Validates supported OS (Debian 12/13, Ubuntu 24/26), PHP version (8.4/8.5), Node (>= 24), and pinned pnpm (12.10.1).
-2. **Dependency installation**: Runs `composer install --no-dev --optimize-autoloader` and `pnpm install --frozen-lockfile`.
-3. **Application secrets**: Automatically generates `APP_KEY` and 32-hex `HASHIDS_SALT` in `.env` if missing.
-4. **Maintenance mode**: Enables maintenance mode (`artisan down --retry=60`) during migration.
-5. **Database migrations & seeders**: Executes `artisan migrate --force`, seeds Blueprint's database tables (`BlueprintSeeder`), and seeds default nests & eggs (`DatabaseSeeder`).
-6. **Blueprint initialization**: Bootstraps bundled Blueprint beta-2026-08 hooks and warms its extension cache (`artisan bp:cache`).
-7. **Production asset building**: Builds frontend assets via `pnpm run build`.
-8. **Permissions & caching**: Applies strict security permissions (`root:www-data`, `0750`/`0640`, only `storage/` and `bootstrap/cache/` writable by `www-data`), caches config/routes/views, and reloads PHP-FPM.
-9. **Queue & scheduler**: Deploys `pteroq.service` and the Laravel cron scheduler (`/etc/cron.d/aquadactyl`).
-10. **Online transition**: Guides you through creating your initial administrator account and disables maintenance mode (`artisan up`).
+During installation, follow the interactive prompts to enter your domain name, database credentials, and initial administrator account details.
 
 ---
 
-## Step 5: Web Server & SSL Configuration
+## Next Steps [#next-steps]
 
-Configure Nginx with SSL:
+Once the installation script completes:
 
-```bash title="Setup Nginx and SSL"
-sudo cp deploy/nginx/panel.conf /etc/nginx/sites-available/aquadactyl.conf
-sudo ln -s /etc/nginx/sites-available/aquadactyl.conf /etc/nginx/sites-enabled/
-sudo certbot --nginx -d panel.example.com
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-Navigate to `https://panel.example.com` to log in to your panel!
+1. Open your browser and navigate to your configured domain (e.g. `https://panel.example.com`) to log in with your administrator credentials.
+2. [Install Wings](/docs/wings/installing-wings) to configure your server nodes and start hosting game servers.
+3. Review [Additional Configuration](/docs/getting-started/additional-configuration) to customize Redis, email delivery, or install Blueprint extensions.

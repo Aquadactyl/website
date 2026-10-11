@@ -1,0 +1,326 @@
+---
+title: Migrating from Pterodactyl
+description: Complete step-by-step manual guide for migrating an existing Pterodactyl Panel installation to Aquadactyl Panel.
+---
+
+This guide walks you through migrating an existing [Pterodactyl](https://pterodactyl.io) Panel (v1.x) installation to Aquadactyl Panel.
+
+Because Aquadactyl maintains database compatibility with Pterodactyl while adding bundled Blueprint framework tooling, updated PHP 8.5/8.4 support, and modern frontend compilation, you can migrate your existing servers, users, and node configurations with zero loss of game server data.
+
+<Callout type="info">
+  **Daemon Compatibility**: Running game servers and your existing Wings daemons
+  are completely compatible with Aquadactyl. Wings daemon tokens and
+  configurations do not need to be changed during panel migration.
+</Callout>
+
+---
+
+## Migration Overview [#overview]
+
+Key differences between standard Pterodactyl and Aquadactyl:
+
+| Component                | Pterodactyl                     | Aquadactyl                                                                                    |
+| :----------------------- | :------------------------------ | :-------------------------------------------------------------------------------------------- |
+| **Default Location**     | `/var/www/pterodactyl`          | `/var/www/aquadactyl`                                                                         |
+| **Supported PHP**        | PHP 8.1 / 8.2 / 8.3             | **PHP 8.5** (recommended) or **PHP 8.4**                                                      |
+| **Node.js & Frontend**   | Yarn / Prebuilt release         | **Node.js 24** & pinned **pnpm 12.10.1** (`pnpm run build`)                                   |
+| **Framework Extensions** | None / Manual patching          | Bundled **Blueprint beta-2026-08** integration                                                |
+| **Permissions Model**    | `www-data:www-data` entire tree | Strict least-privilege: `root:www-data` code, only `storage/` and `bootstrap/cache/` writable |
+
+---
+
+## Step 1: Maintenance Mode & Stop Queue Worker [#step-1]
+
+Before touching files or running migrations, place your current Pterodactyl panel into maintenance mode and halt the background queue worker:
+
+```bash title="Enter maintenance mode & stop worker"
+cd /var/www/pterodactyl
+
+# Put Pterodactyl into maintenance mode
+sudo -u www-data php artisan down --retry=60
+
+# Stop the background queue worker
+sudo systemctl stop pteroq.service
+```
+
+---
+
+## Step 2: Create Full Backups [#step-2]
+
+Always take a complete snapshot of your database and existing Pterodactyl directory before making changes:
+
+```bash title="Backup database and panel files"
+# Create backup directory outside the web root
+sudo mkdir -p /var/backups/pterodactyl-migration
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Backup the database (adjust database credentials if needed)
+sudo mysqldump -u root -p --single-transaction --quick --routines pterodactyl > /var/backups/pterodactyl-migration/database-${TIMESTAMP}.sql
+
+# Backup existing Pterodactyl files
+sudo tar -czf /var/backups/pterodactyl-migration/pterodactyl-files-${TIMESTAMP}.tar.gz -C /var/www/pterodactyl .
+```
+
+---
+
+## Step 3: Upgrade System Prerequisites (PHP 8.5 & Node.js 24) [#step-3]
+
+Pterodactyl often runs on older PHP versions (such as PHP 8.1, 8.2, or 8.3). Aquadactyl requires **PHP 8.5** (or 8.4) and **Node.js 24** with **pnpm 12.10.1**.
+
+### Add Sury PHP Repository & Install PHP 8.5
+
+```bash title="Install PHP 8.5 and extensions"
+sudo apt-get update
+sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
+
+# Add Ondřej Surý PHP repository
+curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+rm -f /tmp/debsuryorg-archive-keyring.deb
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+sudo apt-get update
+
+# Install PHP 8.5 and required modules
+sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
+  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix rsync git tar zip unzip
+```
+
+### Install Node.js 24 & Pinned pnpm
+
+```bash title="Install Node.js 24 and pnpm"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+nvm install 24
+nvm use 24
+npm install --global npm@latest
+npm install --global pnpm@12.10.1
+```
+
+---
+
+## Step 4: Download Aquadactyl Panel [#step-4]
+
+Set up the new Aquadactyl directory at `/var/www/aquadactyl`:
+
+```bash title="Download and extract Aquadactyl"
+# Create Aquadactyl directory
+sudo mkdir -p /var/www/aquadactyl
+cd /var/www/aquadactyl
+
+# Download the latest panel release archive (or specify target tag)
+RELEASE_TAG="v0.2.0"
+curl -L -o /tmp/panel.tar.gz "https://github.com/Aquadactyl/aquadactyl/releases/download/${RELEASE_TAG}/panel.tar.gz"
+
+# Extract into /var/www/aquadactyl
+sudo tar -xzf /tmp/panel.tar.gz -C /var/www/aquadactyl
+rm -f /tmp/panel.tar.gz
+```
+
+---
+
+## Step 5: Migrate Configuration (`.env`) & Storage [#step-5]
+
+Copy your existing environment configuration and persistent files (such as custom eggs and server assets) from Pterodactyl into Aquadactyl:
+
+```bash title="Copy environment and storage"
+# Copy existing configuration file
+sudo cp /var/www/pterodactyl/.env /var/www/aquadactyl/.env
+sudo chmod 640 /var/www/aquadactyl/.env
+
+# Migrate uploaded storage (excluding old logs and framework cache)
+sudo rsync -av \
+  --exclude='logs/' \
+  --exclude='framework/cache/' \
+  --exclude='framework/sessions/' \
+  --exclude='framework/views/' \
+  /var/www/pterodactyl/storage/ /var/www/aquadactyl/storage/
+
+# Ensure HASHIDS_SALT is set in .env
+if ! grep -q "^HASHIDS_SALT=" /var/www/aquadactyl/.env || grep -q "^HASHIDS_SALT=$" /var/www/aquadactyl/.env; then
+  echo "HASHIDS_SALT=$(openssl rand -hex 16)" | sudo tee -a /var/www/aquadactyl/.env
+fi
+```
+
+<Callout type="warn">
+  Never replace or overwrite your `APP_KEY` from the original `.env`. The
+  `APP_KEY` encrypts sensitive credentials and API tokens stored in your
+  database.
+</Callout>
+
+---
+
+## Step 6: Install Dependencies [#step-6]
+
+Install PHP Composer dependencies and frontend Node packages:
+
+```bash title="Install PHP and Node packages"
+cd /var/www/aquadactyl
+
+# Clear old cached manifests
+sudo rm -f bootstrap/cache/{config,packages,services,events,routes-v7}.php
+
+# Install Composer PHP packages
+sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction --no-scripts --optimize-autoloader
+
+# Install frontend dependencies with pinned pnpm
+sudo pnpm install --frozen-lockfile
+
+# Discover Laravel packages
+sudo php artisan package:discover --ansi
+```
+
+---
+
+## Step 7: Run Database Migrations & Seeders [#step-7]
+
+Apply database migrations to update your Pterodactyl database schema and seed the bundled Blueprint framework tables:
+
+```bash title="Run migrations and seeders"
+cd /var/www/aquadactyl
+
+# Apply schema migrations
+sudo php artisan migrate --force
+
+# Seed Blueprint database tables
+sudo php artisan db:seed --class=BlueprintSeeder --force
+```
+
+---
+
+## Step 8: Initialize Blueprint & Build Frontend [#step-8]
+
+Initialize the bundled Blueprint integration and compile frontend production assets:
+
+```bash title="Initialize Blueprint and compile frontend"
+cd /var/www/aquadactyl
+
+# Make blueprint executable
+sudo chmod 0750 blueprint.sh
+
+# Initialize Blueprint integration
+sudo BLUEPRINT_ENVIRONMENT=ci bash blueprint.sh
+sudo php artisan bp:cache
+
+# Compile frontend production assets
+sudo pnpm run build
+```
+
+---
+
+## Step 9: Configure File Permissions [#step-9]
+
+Set the strict least-privilege permissions model:
+
+```bash title="Set permissions"
+cd /var/www/aquadactyl
+
+# Source code owned by root:www-data
+sudo chown -R root:www-data /var/www/aquadactyl
+sudo chmod 0750 blueprint.sh artisan
+
+# Writable directories owned by www-data:www-data
+sudo mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo find storage bootstrap/cache -type d -exec chmod 0750 {} +
+sudo find storage bootstrap/cache -type f -exec chmod 0640 {} +
+sudo chmod 0640 .env
+```
+
+---
+
+## Step 10: Update Web Server & Systemd Services [#step-10]
+
+Update your web server configuration, background worker, and cron scheduler to point to the new `/var/www/aquadactyl` path and PHP 8.5.
+
+### Update Nginx Configuration
+
+Edit your Nginx virtual host configuration (e.g. `/etc/nginx/sites-available/pterodactyl.conf` or rename to `aquadactyl.conf`):
+
+1. Update the web root path:
+   ```nginx
+   root /var/www/aquadactyl/public;
+   ```
+2. Update the PHP-FPM socket to PHP 8.5:
+   ```nginx
+   fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+   ```
+
+Test and reload Nginx:
+
+```bash title="Test and reload Nginx"
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Update Queue Worker (`pteroq.service`)
+
+Update `/etc/systemd/system/pteroq.service` to point to `/var/www/aquadactyl`:
+
+```ini title="/etc/systemd/system/pteroq.service"
+[Unit]
+Description=Pterodactyl / Aquadactyl Queue Worker
+After=redis-server.service
+
+[Service]
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/aquadactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+WorkingDirectory=/var/www/aquadactyl
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload systemd daemon:
+
+```bash title="Reload systemd"
+sudo systemctl daemon-reload
+```
+
+### Update Cron Scheduler
+
+Update the cron task to execute `/var/www/aquadactyl/artisan`:
+
+```bash title="Configure cron scheduler"
+# Check if cron is located in /etc/cron.d/
+sudo sed -i 's|/var/www/pterodactyl|/var/www/aquadactyl|g' /etc/cron.d/pterodactyl 2>/dev/null || true
+if [ -f /etc/cron.d/pterodactyl ]; then
+  sudo mv /etc/cron.d/pterodactyl /etc/cron.d/aquadactyl
+fi
+
+# Or if configured in crontab:
+(sudo crontab -u www-data -l 2>/dev/null | sed 's|/var/www/pterodactyl|/var/www/aquadactyl|g') | sudo crontab -u www-data -
+```
+
+---
+
+## Step 11: Warm Caches & Bring Panel Online [#step-11]
+
+Clear and re-cache Laravel settings, restart services, and exit maintenance mode:
+
+```bash title="Warm caches and restart services"
+cd /var/www/aquadactyl
+
+# Warm Laravel caches
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan view:cache
+
+# Restart PHP-FPM and queue worker
+sudo systemctl restart php8.5-fpm
+sudo systemctl start pteroq.service
+
+# Bring the panel online
+sudo -u www-data php artisan up
+```
+
+---
+
+## Step 12: Verify Migration [#step-12]
+
+1. **Log in to Panel**: Open your browser at your panel domain. Log in with your existing administrator credentials.
+2. **Check Nodes & Wings**: Navigate to **Admin -> Nodes**. Your nodes should show green heartbeats. Your game servers will continue running with zero downtime.
+3. **Verify Background Jobs**: Check `sudo systemctl status pteroq.service` to confirm the worker is actively processing queue jobs.
+4. **Clean up old files (Optional)**: Once you have fully verified the migration, you can archive or remove the old `/var/www/pterodactyl` directory.

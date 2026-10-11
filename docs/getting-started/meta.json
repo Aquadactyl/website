@@ -1,4 +1,12 @@
 {
   "title": "Getting Started",
-  "pages": ["index"]
+  "pages": [
+    "index",
+    "installing-the-panel",
+    "migrating-from-pterodactyl",
+    "webserver-configuration",
+    "additional-configuration",
+    "updating-the-panel",
+    "troubleshooting"
+  ]
 }
