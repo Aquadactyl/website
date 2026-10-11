@@ -11,3 +11,5 @@ export const docsLlms = llms(source, {
 
 ${await page.data.getText("processed")}`,
 });
+
+export { getPageImageUrl } from "@/lib/shared";
