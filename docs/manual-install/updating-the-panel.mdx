@@ -1,13 +1,225 @@
 ---
 title: Updating the Panel
-description: How to safely update Aquadactyl Panel and bundled Blueprint with the standalone deployment script.
+description: How to safely update Aquadactyl Panel and bundled Blueprint using manual step-by-step commands or the automated deployment script.
 ---
 
-Aquadactyl includes a managed update routine in the standalone deployment script (`deploy.sh` from `Aquadactyl/Installer`) that verifies release checksums, creates automatic database and file backups outside the web root, preserves configurations and extension databases, reapplies active Blueprint extensions, and safely deploys updates.
+Aquadactyl supports two ways to update your panel and bundled Blueprint: a **step-by-step manual update** executing each command directly from your terminal, or an **automated update** using the standalone deployment script (`deploy.sh` from `Aquadactyl/Installer`).
 
-## Managed Update Script (Recommended) [#automated-update]
+Both approaches preserve existing configurations, extension database state, and user storage, while reapplying active Blueprint extensions and compiling production frontend assets.
 
-Always publish or choose a reviewed release tag of Aquadactyl.
+---
+
+## Manual Update (Step-by-Step) [#manual-update]
+
+Follow these step-by-step instructions to manually update your Aquadactyl Panel installation without running the automated deployment script.
+
+### Step 1: Maintenance Mode & Stop Queue Worker
+
+Place the panel into maintenance mode so users cannot make modifications during the upgrade, and stop the background queue worker so jobs are not processed against changing code or databases:
+
+```bash title="Enter maintenance mode & stop queue worker"
+cd /var/www/aquadactyl
+
+# Put panel into maintenance mode
+sudo -u www-data php artisan down --retry=60
+
+# Stop the background queue worker
+sudo systemctl stop pteroq.service
+```
+
+---
+
+### Step 2: Create Backups
+
+Always take a snapshot of both your database and your current panel directory before making changes:
+
+```bash title="Create database and file backups"
+# Create backup directory outside the web root
+sudo mkdir -p /var/backups/aquadactyl
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Backup the database
+sudo php /var/www/aquadactyl/artisan p:maintenance:backup-database /var/backups/aquadactyl/database-${TIMESTAMP}.sql
+# Or alternatively via mariadb-dump / mysqldump:
+# sudo mariadb-dump -u aquadactyl -p aquadactyl > /var/backups/aquadactyl/database-${TIMESTAMP}.sql
+
+# Backup existing panel files (excluding node_modules and transient caches)
+sudo tar -czf /var/backups/aquadactyl/panel-${TIMESTAMP}.tar.gz \
+  --exclude='./node_modules' \
+  --exclude='./.git' \
+  --exclude='./storage/logs/*.log' \
+  --exclude='./storage/framework/cache/data/*' \
+  -C /var/www/aquadactyl .
+```
+
+---
+
+### Step 3: Download & Extract Release Files
+
+Download the new `panel.tar.gz` release archive and extract it over your existing installation.
+
+<Callout type="info">
+  Make sure to preserve `.env`, `.blueprintrc`, persistent `storage/`, and
+  extension state directories. Synchronizing extracted files via `rsync` with
+  exclude flags ensures your persistent settings and data are kept intact.
+</Callout>
+
+```bash title="Download and extract release"
+# Specify target release tag (e.g. v0.2.0)
+RELEASE_TAG="vRELEASE_TAG"
+
+# Download release archive and checksums
+curl -L -o /tmp/panel.tar.gz "https://github.com/Aquadactyl/aquadactyl/releases/download/${RELEASE_TAG}/panel.tar.gz"
+curl -L -o /tmp/SHA256SUMS "https://github.com/Aquadactyl/aquadactyl/releases/download/${RELEASE_TAG}/SHA256SUMS"
+
+# Verify SHA256 checksum
+cd /tmp && sha256sum --check --ignore-missing SHA256SUMS
+
+# Extract archive to a temporary directory
+mkdir -p /tmp/aquadactyl-update
+tar -xzf /tmp/panel.tar.gz -C /tmp/aquadactyl-update
+
+# Synchronize release files into panel root while preserving data and configuration
+sudo rsync -av --no-owner --no-group \
+  --exclude='.env' \
+  --exclude='.blueprintrc' \
+  --exclude='storage/' \
+  --exclude='bootstrap/cache/' \
+  --exclude='.blueprint/dev/' \
+  --exclude='.blueprint/tmp/' \
+  --exclude='.blueprint/extensions/blueprint/private/db/' \
+  --exclude='.blueprint/extensions/blueprint/private/debug/' \
+  /tmp/aquadactyl-update/ /var/www/aquadactyl/
+
+# Clean up temporary archive files
+rm -rf /tmp/aquadactyl-update /tmp/panel.tar.gz /tmp/SHA256SUMS
+```
+
+---
+
+### Step 4: Update Dependencies
+
+Clear cached manifests, then install the updated PHP packages via Composer and Node dependencies via pinned `pnpm`:
+
+```bash title="Install Composer & Node dependencies"
+cd /var/www/aquadactyl
+
+# Clear stale cached manifests
+sudo rm -f bootstrap/cache/{config,packages,services,events,routes-v7}.php
+
+# Install locked PHP Composer packages
+sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction --no-scripts --optimize-autoloader
+
+# Install locked Node dependencies (using pinned pnpm)
+sudo pnpm install --frozen-lockfile
+
+# Discover Laravel packages
+sudo php artisan package:discover --ansi
+```
+
+---
+
+### Step 5: Database Migrations & Seeders
+
+Apply database schema changes and run the bundled Blueprint database seeders:
+
+```bash title="Run migrations and seeders"
+cd /var/www/aquadactyl
+
+sudo php artisan migrate --force
+sudo php artisan db:seed --class=BlueprintSeeder --force
+```
+
+---
+
+### Step 6: Initialize Blueprint & Reapply Extensions
+
+Re-initialize the bundled Blueprint integration:
+
+```bash title="Initialize Blueprint"
+cd /var/www/aquadactyl
+
+# Ensure blueprint.sh is executable
+sudo chmod 0750 blueprint.sh
+
+# Re-initialize Blueprint
+sudo BLUEPRINT_ENVIRONMENT=ci bash blueprint.sh
+sudo php artisan bp:cache
+```
+
+If you have installed Blueprint extensions (stored in `.blueprint/extensions/blueprint/private/db/installed_extensions`), reapply each extension package to re-inject hooks, views, and routes into the new source code:
+
+```bash title="Reapply Blueprint extensions (if applicable)"
+# For each installed extension, re-run installation to regenerate code hooks:
+sudo bash blueprint.sh -bash -i path/to/myextension.blueprint
+```
+
+---
+
+### Step 7: Build Production Frontend Assets
+
+Compile the updated frontend assets:
+
+```bash title="Build frontend assets"
+cd /var/www/aquadactyl
+sudo pnpm run build:production
+```
+
+---
+
+### Step 8: Configure Permissions & Warm Caches
+
+Apply the strict least-privilege permission structure (`root:www-data` ownership for code, writable only for `storage/` and `bootstrap/cache/`) and warm the Laravel cache:
+
+```bash title="Set permissions and warm caches"
+cd /var/www/aquadactyl
+
+# Set code ownership and script execution permissions
+sudo chown -R root:www-data /var/www/aquadactyl
+sudo chmod 0750 blueprint.sh artisan
+
+# Set permissions for writable directories
+sudo mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo find storage bootstrap/cache -type d -exec chmod 0750 {} +
+sudo find storage bootstrap/cache -type f -exec chmod 0640 {} +
+sudo chmod 0640 .env
+
+# Warm configuration, route, and view caches
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan view:cache
+```
+
+<Callout type="info">
+  You can also restore strict permissions automatically at any time using: `curl
+  -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh |
+  sudo bash -s -- permissions`
+</Callout>
+
+---
+
+### Step 9: Restart Services & Bring Panel Online
+
+Reload PHP-FPM, restart the queue worker, and bring the panel out of maintenance mode:
+
+```bash title="Restart services & exit maintenance mode"
+# Reload PHP-FPM (adjust version if using php8.4-fpm)
+sudo systemctl reload php8.5-fpm
+
+# Start background queue worker
+sudo systemctl start pteroq.service
+sudo -u www-data php /var/www/aquadactyl/artisan queue:restart
+
+# Bring the panel back online
+sudo -u www-data php /var/www/aquadactyl/artisan up
+```
+
+---
+
+## Managed Update Script (Automated) [#automated-update]
+
+If you prefer an automated upgrade, Aquadactyl provides a managed update routine via `deploy.sh` that automates all the steps above, including checksum verification, pre-flight checks, automatic backups, and extension reapplication.
 
 You can execute the update directly using the one-liner:
 
@@ -33,7 +245,7 @@ sudo bash deploy.sh update --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
 
 ---
 
-### What the Update Script Does
+### What the Update Script Automates
 
 1. **Pre-flight & Checksum Verification**: Validates the operating system and SHA256 checksum of `panel.tar.gz` against `SHA256SUMS`, checking for directory traversal or unsafe archive paths.
 2. **Blueprint Extension Validation**: Reads all installed extensions from `.blueprint/extensions/blueprint/private/db/installed_extensions` and ensures every corresponding `myextension.blueprint` package is present in the panel directory before touching any files.
@@ -53,8 +265,8 @@ sudo bash deploy.sh update --archive /tmp/panel.tar.gz YOUR_64_CHARACTER_SHA256
 <Callout type="warn">
   **Do not run `blueprint -upgrade`**: The upstream Blueprint upgrade command is
   intentionally disabled in Aquadactyl because it would overwrite custom panel
-  code and dependency manifests. Always use `deploy.sh update` to update both
-  the panel and bundled Blueprint together.
+  code and dependency manifests. Always use `deploy.sh update` or the manual
+  update steps above to update both the panel and bundled Blueprint together.
 </Callout>
 
 ---
