@@ -38,16 +38,10 @@ Before starting, ensure your server meets the following requirements:
 
 ## Step 1: Install System Packages
 
-You can automatically provision all system prerequisites using the standalone installer script:
-
-```bash title="Automated host setup"
-curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- setup-host
-```
-
-To configure packages manually, update your system and install the required dependencies:
+To configure the needed packages, update your system and install the required dependencies:
 
 ```bash title="Install system packages"
-sudo apt-get update
+sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
 
 # Add Sury PHP repository
