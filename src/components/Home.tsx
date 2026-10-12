@@ -7,53 +7,107 @@ import {
   BookOpen,
   CalendarClock,
   ChevronDown,
+  Clipboard,
   Code2,
   ExternalLink,
+  Gauge,
+  KeyRound,
+  Languages,
+  Mail,
   Puzzle,
   RefreshCw,
   Server,
   Palette,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";
 
-const features: { icon: LucideIcon; title: string; text: string }[] = [
+const features: {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+  href: string;
+}[] = [
   {
     icon: Palette,
-    title: "Charcoal & aqua theme",
-    text: "A new default look across the dashboard, login, console and admin area, with dark controls, readable text and muted aqua accents.",
+    title: "Appearance customiser",
+    text: "Start with a charcoal theme, then set your site name, logo and primary colour. Customise login and client backgrounds, blur and overlays, with desktop and mobile previews.",
+    href: "/docs/panel/features#appearance",
   },
   {
     icon: Puzzle,
     title: "Blueprint built in",
     text: "Blueprint beta-2026-08 ships with the panel. Its CLI, admin pages and extension hooks are initialized by the installer; themes and addons are installed separately.",
+    href: "/docs/panel/additional-configuration#blueprint",
   },
   {
     icon: BookOpen,
     title: "Integrated Egg Library",
     text: "Browse eggs.download in the admin area, search and filter the catalogue, preview an egg and import it into an existing or new nest without leaving the panel.",
+    href: "/docs/panel/features#egg-library",
   },
   {
     icon: CalendarClock,
     title: "Simpler server schedules",
     text: "Choose daily, weekly, monthly or interval timings, then add restart, backup or command steps with readable delays. Custom cron remains available for advanced schedules.",
+    href: "/docs/panel/features#schedules",
+  },
+  {
+    icon: KeyRound,
+    title: "Passkeys & connected accounts",
+    text: "Let existing users link Discord, GitHub, Google or OpenID Connect, or register a passkey. Admins configure sign-in methods; two-factor verification still applies.",
+    href: "/docs/panel/features#account-security",
+  },
+  {
+    icon: Languages,
+    title: "Your preferred language",
+    text: "English, French and German are bundled for the client and admin areas. Choose a language per account or follow browser preferences, with support for additional language packs.",
+    href: "/docs/panel/features#languages",
+  },
+  {
+    icon: Trash2,
+    title: "Recover deleted server files",
+    text: "Optional per-server trash lets users restore deleted files and folders. Admins choose retention from 1 to 365 days; permanent deletion remains available.",
+    href: "/docs/panel/features#file-trash",
+  },
+  {
+    icon: Clipboard,
+    title: "Share console logs",
+    text: "An optional clipboard button uploads console logs with sensitive data redaction and returns a copyable link to the requesting user. Shared logs expire after 24 hours.",
+    href: "/docs/panel/features#console-log-sharing",
+  },
+  {
+    icon: Gauge,
+    title: "Server overview & console tools",
+    text: "See player counts and node country flags, open Console or Files, and use permitted power actions from server cards. Console graphs follow your primary colour; click the UUID to copy it.",
+    href: "/docs/panel/features#server-overview",
+  },
+  {
+    icon: Mail,
+    title: "More mail delivery options",
+    text: "Configure SMTP, Mailgun, Postmark or Amazon SES in admin settings, with service-specific fields, protected credentials and a test email action.",
+    href: "/docs/panel/features#mail",
   },
   {
     icon: RefreshCw,
     title: "Managed installation & updates",
     text: "Linux scripts build assets, apply migrations and refresh caches. The updater verifies release checksums, backs up the database and panel files, and preserves configuration and extension data.",
+    href: "/docs/panel/updating-the-panel",
   },
   {
     icon: Code2,
     title: "Shared addon libraries",
     text: "Extension developers can use bundled libraries for icons, searchable selects, forms, validation, charts and animation without installing separate copies.",
+    href: "/docs/blueprint/migration",
   },
   {
     icon: ShieldCheck,
     title: "Prepared deployment defaults",
     text: "Supplied deployment configuration brings together Redis, PHP OPcache, Laravel caches, Nginx asset caching and restricted filesystem permissions.",
+    href: "/docs/panel/additional-configuration",
   },
 ];
 
@@ -62,7 +116,7 @@ const comparisons = [
     feature: "Default appearance",
     pterodactyl: "Standard Pterodactyl client and admin styling.",
     aquadactyl:
-      "Charcoal surfaces and aqua accents across the client and admin area.",
+      "Charcoal styling plus configurable branding, primary colour, backgrounds and login layouts.",
   },
   {
     feature: "Blueprint extensions",
@@ -143,9 +197,10 @@ export default function Home() {
               More room to make it yours.
             </p>
             <p className="mt-4 max-w-96.25 text-sm leading-[1.85] text-[#a0abb6] max-[1050px]:max-w-145 sm:mt-5 sm:text-[15px]">
-              Pterodactyl Panel with a fresh default theme, Blueprint built in,
-              an integrated Egg Library and simpler server schedules. Familiar
-              server management, with more tools ready to use.
+              A game server panel built on Pterodactyl, with Blueprint included,
+              custom branding, passkeys and connected accounts. Manage servers
+              in your language, recover deleted files and make the panel your
+              own.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-2.5 sm:mt-7.5">
               <Link
@@ -227,25 +282,38 @@ export default function Home() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-4.5 lg:grid-cols-3 lg:gap-x-9 lg:gap-y-6">
-          {features.map(({ icon: Icon, title, text }) => (
+          {features.map(({ icon: Icon, title, text, href }) => (
             <article
               key={title}
               className="border-t border-[#303b45] py-5.5 pb-3 sm:py-6 sm:pb-3"
             >
               <h3 className="flex items-center gap-2.5 text-base font-medium text-[#e9edf0]">
-                <Icon className="shrink-0 text-[#78d4cc]" size={19} />
+                <Icon
+                  className="shrink-0 text-[#78d4cc]"
+                  size={19}
+                  aria-hidden
+                />
                 {title}
               </h3>
               <p className="mt-3 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm">
                 {text}
               </p>
+              <Link
+                href={href}
+                className="mt-3 inline-flex min-h-9 items-center gap-1.5 text-xs text-[#a4e3dc] hover:underline"
+                aria-label={`Learn more about ${title}`}
+              >
+                Learn more <ArrowRight size={13} aria-hidden />
+              </Link>
             </article>
           ))}
         </div>
         <p className="mt-7 text-xs leading-[1.8] text-[#8c9aa7]">
           Console access, file management, backups, users and Docker server
           isolation come from Pterodactyl. Aquadactyl retains that foundation
-          and continues to use Wings for game server nodes.
+          and continues to use Wings for game server nodes. Admins choose which
+          optional tools users see; file trash and console log sharing are
+          disabled by default.
         </p>
       </section>
 

@@ -2,6 +2,7 @@
   "title": "Panel",
   "pages": [
     "index",
+    "features",
     "installing-the-panel",
     "migrating-from-pterodactyl",
     "webserver-configuration",

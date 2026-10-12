@@ -1,0 +1,170 @@
+---
+title: Panel Features
+description: Configure Aquadactyl branding, sign-in methods, languages, server file trash, console log sharing and mail services.
+---
+
+Aquadactyl includes Blueprint and adds tools for branding, account security and
+everyday server management. This guide explains where to find them and how
+administrators control their availability.
+
+Most panel-wide settings use **Admin → Settings**. Set
+`APP_ENVIRONMENT_ONLY=false` to manage database-backed settings there, then reload
+open panel pages after saving. OAuth and passkey settings are stored in the
+database even when other settings use environment-only configuration.
+
+## Appearance and branding [#appearance]
+
+Open **Admin → Settings → Appearance** to configure:
+
+- The site name and logo, including whether the name appears beside the logo.
+- A primary colour for buttons, navigation, links, controls and focus highlights.
+  CPU, memory and outbound network graphs use the same colour.
+- Login and client background images, with adjustable blur and overlay strength.
+- A centred login card or a full-height left or right pane covering half the page.
+- The logo's position relative to the login form.
+
+Desktop and mobile previews update as you edit. On small screens, side panes fill
+the width and an opposite-side logo moves above the form. **Save** applies the
+name, colour, layout and effects; **Discard changes** resets those values.
+Image upload and removal actions save immediately while preserving other edits.
+
+The uploaded logo supplies navigation branding and browser icons. The site name
+also appears in page titles and home-screen shortcut names.
+
+## Passkeys and connected accounts [#account-security]
+
+Open **Admin → Settings → OAuth** to enable passkeys and configure Discord,
+GitHub, Google or generic OpenID Connect. Each OAuth provider needs its client ID,
+secret and the exact callback URL shown in the tab. OpenID Connect also requires
+an HTTPS issuer with discovery and PKCE S256 support. Confirm your administrator
+password to save settings.
+
+Users sign in with their existing password, then open **Account settings →
+Passkeys and connected accounts** to register a passkey or link a provider.
+Changes to sign-in methods require password confirmation. OAuth signs in existing
+linked users; it does not create accounts or link them by matching email addresses.
+Users and administrators keep the same permissions and two-factor verification
+checkpoint after either sign-in method.
+
+Passkeys require HTTPS, except when testing at `localhost`. They are tied to the
+panel hostname. Account sections and login buttons appear only for enabled,
+configured methods; saved credentials and links are retained when a method is
+disabled.
+
+See the [account security reference](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/ACCOUNT-SECURITY.md)
+for callback paths, provider requirements and setup details.
+
+## Languages per account [#languages]
+
+English, French and German are bundled for the client and administration areas.
+Users choose **Account → Language** to save their own preference, or select
+**Automatic (browser language)** to follow their browser's language preferences.
+An account choice does not change the site's default language or other users'
+preferences. Automatic selection uses browser preferences rather than IP location.
+
+Admins set the default language under **Admin → Settings → General**. Additional
+language packs live in `resources/lang/<locale>` and use JSON catalogs with
+optional `locale.json` metadata. Reload translations with
+`php artisan optimize:clear`; adding a pack does not require a JavaScript build.
+For Docker, include the pack in the image source or a managed language volume.
+
+Core interface text has translation catalogs; some detailed forms and third-party
+addon text still use their own English strings. The
+[translation guide](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/TRANSLATIONS.md)
+explains coverage, fallbacks and pack installation. Translation contributions
+are maintained in [panel-translations](https://github.com/Aquadactyl/panel-translations).
+
+## Server file trash [#file-trash]
+
+Enable **Server file trash** under **Admin → Settings → General** to offer
+**Move to trash** and **Permanently delete** when deleting server files or
+directories. Trash is disabled by default.
+
+Open **Trash** from the server's Files page to see original paths and expiry
+dates, restore items or permanently delete them. Restore recreates missing parent
+directories and refuses to overwrite an existing file, folder or symlink.
+Listing requires file read permission, moving or deleting requires file delete
+permission, and restoration also requires file create permission.
+
+Admins choose retention from **1–365 days**, with **7 days** as the default.
+New deletions use the current retention; existing expiry dates are preserved.
+The panel scheduler checks for expired items every 15 minutes and retries when
+Wings is unreachable. Linux deployments need the normal `artisan schedule:run`
+cron entry; the Docker image includes it.
+
+Trash keeps files on the server and counts towards its disk limit. Retain both
+the panel database and Wings data in backups. Files live in the reserved
+`.aquadactyl-trash` directory; server programs and SFTP can still change them.
+Avoid manually modifying that directory.
+
+Disabling trash hides its controls and blocks its API, including restoration.
+Permanent file deletion stays available, and scheduled cleanup continues to
+honour existing expiry dates.
+
+## Console log sharing [#console-log-sharing]
+
+Enable **Console log sharing** under **Admin → Settings → General** to show a
+clipboard button at the right end of the console command input. Sharing is
+disabled by default. Users with console access can upload the current console
+log tail and receive a copyable link to
+[debug.euphoriadevelopment.uk](https://debug.euphoriadevelopment.uk).
+
+The panel redacts common credentials, known secret server variables, IP
+addresses, email addresses and UUIDs before uploading. The returned link appears
+only to the requesting user in the panel; anyone given that link can read the
+paste. Pastes expire after 24 hours. Redaction is best effort, so inspect the
+paste before sharing it.
+
+Disabling sharing hides the button and blocks new uploads. It does not remove
+already-created pastes. Panel application logs can separately be previewed with
+`php artisan p:debug --dry-run` and explicitly uploaded with `php artisan p:debug`.
+
+## Server overview and console tools [#server-overview]
+
+Server cards show resource usage, player counts for supported games and an
+optional node country flag. Console, Files, Start, Restart and Stop shortcuts
+follow the user's existing permissions. Configure game queries under
+**Admin → Servers → Details → Game Player Counts**, and node countries under
+**Admin → Nodes → Settings**. An unreachable query displays **Unavailable**.
+
+On the Console page, click the UUID beneath the server name to copy the full
+identifier. The scroll-to-latest control uses a Lucide down arrow and supports
+mouse and keyboard activation. CPU, memory and outbound network graphs follow
+the configured primary colour.
+
+## Email services [#mail]
+
+Open **Admin → Settings → Mail** to choose SMTP, Mailgun, Postmark or Amazon SES.
+The form shows the selected service's fields and includes a test email action.
+Provider credentials are encrypted in saved settings and are not displayed again.
+Leave a saved secret's field blank to retain it.
+
+The log mailer is available for development and records messages locally without
+sending email. See [Additional Configuration](/docs/panel/additional-configuration#mail)
+for SMTP environment configuration.
+
+## Egg Library [#egg-library]
+
+Open **Admin → Service Management → Egg Library** to search and filter the
+eggs.download catalogue, inspect an egg's settings and import it into an existing
+or new nest. The imported egg can then be selected during server creation.
+
+## Easier schedules [#schedules]
+
+On a server's **Schedules** page, choose daily, weekly, monthly or regular
+interval timing. Add restart, backup or command steps with readable delays.
+Advanced cron remains available for custom timing. See the
+[schedule reference](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/SCHEDULES.md)
+for examples and execution behaviour.
+
+## Administrator feature controls [#feature-controls]
+
+Under **Admin → Settings → General**, admins can enable or disable player counts,
+custom profile pictures, sensitive data blur and server list quick actions.
+Disabled features disappear from the relevant account or server screens; saved
+preferences are retained. Admins can remove a user's uploaded profile picture
+from **Admin → Users → View**.
+
+Aquadactyl and Blueprint telemetry are disabled by default. Normal panel logs
+use warning-level logging with daily rotation and seven-day retention; debug
+logging is opt-in for troubleshooting.

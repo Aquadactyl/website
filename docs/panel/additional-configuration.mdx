@@ -28,9 +28,16 @@ redis-cli ping
 
 ---
 
-## Mail Configuration (SMTP) [#mail]
+## Mail Configuration [#mail]
 
-Aquadactyl needs email configuration to send password resets, account activations, and 2FA recovery tokens.
+Aquadactyl needs email configuration to send password resets and account notifications.
+Under **Admin → Settings → Mail**, choose SMTP, Mailgun, Postmark or Amazon SES,
+enter the selected service's settings and send a test email. Provider credentials
+are encrypted when saved in the panel. Database-backed mail settings require
+`APP_ENVIRONMENT_ONLY=false`.
+
+See [Email services](/docs/panel/features#mail) for the supported options. To
+configure SMTP through the environment instead, use:
 
 ```ini title="/var/www/aquadactyl/.env"
 MAIL_MAILER=smtp
