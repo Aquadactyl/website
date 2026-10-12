@@ -53,15 +53,12 @@ from `.env.example`. Keep API keys in server environment variables.
 
 ## Published guides
 
-| Page                                                                                  | Covers                                                            |
-| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| [Project website](https://aquadactyl.uk)                                              | Feature overview, interactive sample panel and community links    |
-| [Getting started](https://aquadactyl.uk/docs/panel)                                   | Installation choices and initial setup                            |
-| [Panel features](https://aquadactyl.uk/docs/panel/features)                           | Branding, sign-in methods, languages, trash, log sharing and mail |
-| [Manual installation](https://aquadactyl.uk/docs/panel/installing-the-panel)          | Requirements, environment, database, queue and scheduler          |
-| [Additional configuration](https://aquadactyl.uk/docs/panel/additional-configuration) | Redis, SMTP, Blueprint and deployment services                    |
-| [Updating](https://aquadactyl.uk/docs/panel/updating-the-panel)                       | Managed updates, backups and recovery                             |
-| [Blueprint migration](https://aquadactyl.uk/docs/blueprint/migration)                 | Extension compatibility, migration and maintenance                |
+| Page                                                        | Covers                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Project website](https://aquadactyl.uk)                    | Project overview, interactive sample panel, installation snippets, FAQ and community links |
+| [Installation](https://aquadactyl.uk/docs)                  | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |
+| [Updating](https://aquadactyl.uk/docs/updating)             | Reviewed releases, managed updates, backups and recovery                                   |
+| [Blueprint](https://aquadactyl.uk/docs/blueprint/migration) | Bundled framework, extension installation, migration and maintenance                       |
 
 The panel preview runs with sample data in the browser. Its power controls,
 console, file previews, backups and settings demonstrate the interface without
