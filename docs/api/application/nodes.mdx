@@ -1,0 +1,490 @@
+---
+title: Nodes and allocations
+description: 10 source-verified application API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-application-nodes" />
+
+## GET `/api/application/nodes`
+
+Return all the nodes currently available on the Panel.
+
+**Access:** Administrator account; `nodes` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/GetNodesRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `per_page`.
+
+**List query options:** filters declared in `'uuid', 'name', 'fqdn', 'daemon_token_id'`; sorts `'id', 'uuid', 'memory', 'disk'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Application NodeTransformer](/docs/api/responses#application-nodetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$nodes = QueryBuilder::for(Node::query())
+    ->allowedFilters('uuid', 'name', 'fqdn', 'daemon_token_id')
+    ->allowedSorts('id', 'uuid', 'memory', 'disk')
+    ->paginate($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($nodes)
+    ->transformWith($this->getTransformer(NodeTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nodes" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-nodes-deployable" />
+
+## GET `/api/application/nodes/deployable`
+
+Finds any nodes that are available using the given deployment criteria. This works similarly to the server creation process, but allows you to pass the deployment object to this endpoint and get back a list of all Nodes satisfying the requirements.
+
+**Access:** Administrator account; `nodes` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeDeploymentController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/GetDeployableNodesRequest.php)
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field            | Validation                   |
+| ---------------- | ---------------------------- |
+| `page`           | `'integer'`                  |
+| `memory`         | `'required\|integer\|min:0'` |
+| `disk`           | `'required\|integer\|min:0'` |
+| `location_ids`   | `'array'`                    |
+| `location_ids.*` | `'integer'`                  |
+
+**Other controller inputs:** `per_page`.
+
+### Response
+
+Success: **200**. Response attributes: [Application NodeTransformer](/docs/api/responses#application-nodetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$data = $request->validated();
+$nodes = $this->viableNodesService->setLocations($data['location_ids'] ?? [])
+    ->setMemory($data['memory'])
+    ->setDisk($data['disk'])
+    ->handle($request->query('per_page'), $request->query('page'));
+
+return $this->fractal->collection($nodes)
+    ->transformWith($this->getTransformer(NodeTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nodes/deployable" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json" \
+  --data-urlencode "memory=2048" \
+  --data-urlencode "disk=10240"
+```
+
+---
+
+<span id="get-api-application-nodes-node-id" />
+
+## GET `/api/application/nodes/{node:id}`
+
+Return data for a single instance of a node.
+
+**Access:** Administrator account; `nodes` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/GetNodeRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application NodeTransformer](/docs/api/responses#application-nodetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($node)
+    ->transformWith($this->getTransformer(NodeTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nodes/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-nodes-node-id-configuration" />
+
+## GET `/api/application/nodes/{node:id}/configuration`
+
+Returns the configuration information for a node. This allows for automated deployments to remote machines so long as an API key is provided to the machine to make the request with, and the node is known.
+
+**Access:** Administrator account; `nodes` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeConfigurationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/GetNodeConfigurationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return new JsonResponse($node->getConfiguration());
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nodes/RESOURCE_ID/configuration" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-application-nodes" />
+
+## POST `/api/application/nodes`
+
+Create a new node on the Panel. Returns the created node and an HTTP/201 status response on success.
+
+**Access:** Administrator account; `nodes` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/StoreNodeRequest.php)
+
+Model constraints: [Node.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Node.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                                                                                                 |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `public`              | `'boolean'`                                                                                                |
+| `name`                | `'required\|regex:/^([\w .-]{1,100})$/'`                                                                   |
+| `description`         | `'string\|nullable'`                                                                                       |
+| `country_code`        | `'sometimes\|nullable\|string\|size:2'`                                                                    |
+| `query_address`       | `['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*\|[a-fA-F0-9:]+)$/']` |
+| `sftp_domain`         | `['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*\|[a-fA-F0-9:]+)$/']` |
+| `location_id`         | `'required\|exists:locations,id'`                                                                          |
+| `fqdn`                | `'required\|string'`                                                                                       |
+| `scheme`              | `'required'`                                                                                               |
+| `behind_proxy`        | `'boolean'`                                                                                                |
+| `maintenance_mode`    | `'boolean'`                                                                                                |
+| `memory`              | `'required\|numeric\|min:1'`                                                                               |
+| `memory_overallocate` | `'required\|numeric\|min:-1'`                                                                              |
+| `disk`                | `'required\|numeric\|min:1'`                                                                               |
+| `disk_overallocate`   | `'required\|numeric\|min:-1'`                                                                              |
+| `upload_size`         | `'int\|min:1'`                                                                                             |
+| `daemonListen`        | `'required\|numeric\|between:1,65535'`                                                                     |
+| `daemonSFTP`          | `'required\|numeric\|between:1,65535'`                                                                     |
+| `daemonBase`          | `'sometimes\|required\|regex:/^([\/][\d\w.\-\/]+)$/'`                                                      |
+
+### Response
+
+Success: **201**. Response attributes: [Application NodeTransformer](/docs/api/responses#application-nodetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $this->creationService->handle($request->validated());
+
+return $this->fractal->item($node)
+    ->transformWith($this->getTransformer(NodeTransformer::class))
+    ->addMeta([
+        'resource' => route('api.application.nodes.view', [
+            'node' => $node->id,
+        ]),
+    ])
+    ->respond(201);
+```
+
+</details>
+
+---
+
+<span id="patch-api-application-nodes-node-id" />
+
+## PATCH `/api/application/nodes/{node:id}`
+
+Update an existing node on the Panel.
+
+**Access:** Administrator account; `nodes` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/UpdateNodeRequest.php)
+
+Model constraints: [Node.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Node.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                                                                                                 |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `public`              | `'boolean'`                                                                                                |
+| `name`                | `'required\|regex:/^([\w .-]{1,100})$/'`                                                                   |
+| `description`         | `'string\|nullable'`                                                                                       |
+| `country_code`        | `'sometimes\|nullable\|string\|size:2'`                                                                    |
+| `query_address`       | `['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*\|[a-fA-F0-9:]+)$/']` |
+| `sftp_domain`         | `['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*\|[a-fA-F0-9:]+)$/']` |
+| `location_id`         | `'required\|exists:locations,id'`                                                                          |
+| `fqdn`                | `'required\|string'`                                                                                       |
+| `scheme`              | `'required'`                                                                                               |
+| `behind_proxy`        | `'boolean'`                                                                                                |
+| `maintenance_mode`    | `'boolean'`                                                                                                |
+| `memory`              | `'required\|numeric\|min:1'`                                                                               |
+| `memory_overallocate` | `'required\|numeric\|min:-1'`                                                                              |
+| `disk`                | `'required\|numeric\|min:1'`                                                                               |
+| `disk_overallocate`   | `'required\|numeric\|min:-1'`                                                                              |
+| `upload_size`         | `'int\|min:1'`                                                                                             |
+| `daemonListen`        | `'required\|numeric\|between:1,65535'`                                                                     |
+| `daemonSFTP`          | `'required\|numeric\|between:1,65535'`                                                                     |
+| `daemonBase`          | `'sometimes\|required\|regex:/^([\/][\d\w.\-\/]+)$/'`                                                      |
+
+**Other controller inputs:** `reset_secret`.
+
+### Response
+
+Success: **200**. Response attributes: [Application NodeTransformer](/docs/api/responses#application-nodetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $this->updateService->handle(
+    $node,
+    $request->validated(),
+    $request->input('reset_secret') === true
+);
+
+return $this->fractal->item($node)
+    ->transformWith($this->getTransformer(NodeTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-nodes-node-id" />
+
+## DELETE `/api/application/nodes/{node:id}`
+
+Deletes a given node from the Panel as long as there are no servers currently attached to it.
+
+**Access:** Administrator account; `nodes` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nodes/DeleteNodeRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->handle($node);
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="get-api-application-nodes-node-id-allocations" />
+
+## GET `/api/application/nodes/{node:id}/allocations`
+
+Return all the allocations that exist for a given node.
+
+**Access:** Administrator account; `allocations` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Allocations/GetAllocationsRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+**Other controller inputs:** `per_page`.
+
+**List query options:** filters declared in ` AllowedFilter::exact('ip'), AllowedFilter::exact('port'), 'ip_alias', AllowedFilter::callback('server_id', function (Builder $builder, $value) { if (empty($value) \|\| is_bool($value) \|\| !ctype_digit((string) $value)) { return $builder->whereNull('server_id'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Application AllocationTransformer](/docs/api/responses#application-allocationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$allocations = QueryBuilder::for($node->allocations())
+    ->allowedFilters(
+        AllowedFilter::exact('ip'),
+        AllowedFilter::exact('port'),
+        'ip_alias',
+        AllowedFilter::callback('server_id', function (Builder $builder, $value) {
+            if (empty($value) || is_bool($value) || !ctype_digit((string) $value)) {
+                return $builder->whereNull('server_id');
+            }
+
+            return $builder->where('server_id', $value);
+        }),
+    )
+    ->paginate($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($allocations)
+    ->transformWith($this->getTransformer(AllocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nodes/RESOURCE_ID/allocations" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-application-nodes-node-id-allocations" />
+
+## POST `/api/application/nodes/{node:id}/allocations`
+
+Store new allocations for a given node.
+
+**Access:** Administrator account; `allocations` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Allocations/StoreAllocationRequest.php)
+
+**Path parameters:** `node:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                               |
+| --------- | ---------------------------------------- |
+| `ip`      | `'required\|string'`                     |
+| `alias`   | `'sometimes\|nullable\|string\|max:191'` |
+| `ports`   | `'required\|array'`                      |
+| `ports.*` | `'string'`                               |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->assignmentService->handle($node, $request->validated());
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-nodes-node-id-allocations-allocation-id" />
+
+## DELETE `/api/application/nodes/{node:id}/allocations/{allocation:id}`
+
+Delete a specific allocation from the Panel.
+
+**Access:** Administrator account; `allocations` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Allocations/DeleteAllocationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `node:id`, `allocation:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->handle($allocation);
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

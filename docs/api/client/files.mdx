@@ -1,0 +1,649 @@
+---
+title: Files and uploads
+description: 13 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-files-list" />
+
+## GET `/api/client/servers/{server}/files/list`
+
+Returns a listing of files in a given directory.
+
+**Access:** Client API key or authenticated panel session; `file.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/ListFilesRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field       | Validation                      |
+| ----------- | ------------------------------- |
+| `directory` | `'sometimes\|nullable\|string'` |
+
+### Response
+
+Success: **200**. Response attributes: [Client FileObjectTransformer](/docs/api/responses#client-fileobjecttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$contents = $this->fileRepository
+    ->setServer($server)
+    ->getDirectory($request->get('directory') ?? '/');
+
+$contents = array_values(array_filter($contents, fn ($file) => $file['name'] !== \Pterodactyl\Services\Files\TrashPath::DIRECTORY));
+
+return $this->fractal->collection($contents)
+    ->transformWith($this->getTransformer(FileObjectTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/files/list" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server-files-contents" />
+
+## GET `/api/client/servers/{server}/files/contents`
+
+Return the contents of a specified file for the user.
+
+**Access:** Client API key or authenticated panel session; `file.read-content`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/GetFileContentsRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation           |
+| ------ | -------------------- |
+| `file` | `'required\|string'` |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$response = $this->fileRepository->setServer($server)->getContent(
+    $request->get('file'),
+    config('pterodactyl.files.max_edit_size')
+);
+
+Activity::event('server:file.read')->property('file', $request->get('file'))->log();
+
+return new Response($response, Response::HTTP_OK, ['Content-Type' => 'text/plain']);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/files/contents" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --data-urlencode "file=/example.txt"
+```
+
+---
+
+<span id="get-api-client-servers-server-files-download" />
+
+## GET `/api/client/servers/{server}/files/download`
+
+Generates a one-time token with a link that the user can use to download a given file.
+
+**Access:** Client API key or authenticated panel session; `file.read-content`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/GetFileContentsRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation           |
+| ------ | -------------------- |
+| `file` | `'required\|string'` |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$token = $this->jwtService
+    ->setExpiresAt(CarbonImmutable::now()->addMinutes(15))
+    ->setUser($request->user())
+    ->setClaims([
+        'file_path' => rawurldecode($request->get('file')),
+        'server_uuid' => $server->uuid,
+    ])
+    ->setScopes(JwtScope::FileDownload)
+    ->handle($server->node, $request->user()->id . $server->uuid);
+
+Activity::event('server:file.download')->property('file', $request->get('file'))->log();
+
+return [
+    'object' => 'signed_url',
+    'attributes' => [
+        'url' => sprintf(
+            '%s/download/file?token=%s',
+            $server->node->getConnectionAddress(),
+            $token->toString()
+        ),
+    ],
+];
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/files/download" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --data-urlencode "file=/example.txt"
+```
+
+---
+
+<span id="put-api-client-servers-server-files-rename" />
+
+## PUT `/api/client/servers/{server}/files/rename`
+
+Renames a file on the remote machine.
+
+**Access:** Client API key or authenticated panel session; `file.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/RenameFileRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field          | Validation                     |
+| -------------- | ------------------------------ |
+| `root`         | `'required\|nullable\|string'` |
+| `files`        | `'required\|array'`            |
+| `files.*`      | `'array'`                      |
+| `files.*.to`   | `'required\|string'`           |
+| `files.*.from` | `'required\|string'`           |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository
+    ->setServer($server)
+    ->renameFiles($request->input('root'), $request->input('files'));
+
+Activity::event('server:file.rename')
+    ->property('directory', $request->input('root'))
+    ->property('files', $request->input('files'))
+    ->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-copy" />
+
+## POST `/api/client/servers/{server}/files/copy`
+
+Copies a file on the server.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/CopyFileRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation           |
+| ---------- | -------------------- |
+| `location` | `'required\|string'` |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository
+    ->setServer($server)
+    ->copyFile($request->input('location'));
+
+Activity::event('server:file.copy')->property('file', $request->input('location'))->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-write" />
+
+## POST `/api/client/servers/{server}/files/write`
+
+Writes the contents of the specified file to the server.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/WriteFileContentRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation           |
+| ------ | -------------------- |
+| `file` | `'required\|string'` |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository->setServer($server)->putContent($request->get('file'), $request->getContent());
+
+Activity::event('server:file.write')->property('file', $request->get('file'))->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-compress" />
+
+## POST `/api/client/servers/{server}/files/compress`
+
+Calls FileController::compress.
+
+**Access:** Client API key or authenticated panel session; `file.archive`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/CompressFilesRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                      |
+| --------- | ------------------------------- |
+| `root`    | `'sometimes\|nullable\|string'` |
+| `files`   | `'required\|array'`             |
+| `files.*` | `'string'`                      |
+
+### Response
+
+Success: **200**. Response attributes: [Client FileObjectTransformer](/docs/api/responses#client-fileobjecttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$file = $this->fileRepository->setServer($server)->compressFiles(
+    $request->input('root'),
+    $request->input('files')
+);
+
+Activity::event('server:file.compress')
+    ->property('directory', $request->input('root'))
+    ->property('files', $request->input('files'))
+    ->log();
+
+return $this->fractal->item($file)
+    ->transformWith($this->getTransformer(FileObjectTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-decompress" />
+
+## POST `/api/client/servers/{server}/files/decompress`
+
+Calls FileController::decompress.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/DecompressFilesRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation                      |
+| ------ | ------------------------------- |
+| `root` | `'sometimes\|nullable\|string'` |
+| `file` | `'required\|string'`            |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+set_time_limit(300);
+
+$this->fileRepository->setServer($server)->decompressFile(
+    $request->input('root'),
+    $request->input('file')
+);
+
+Activity::event('server:file.decompress')
+    ->property('directory', $request->input('root'))
+    ->property('files', $request->input('file'))
+    ->log();
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-delete" />
+
+## POST `/api/client/servers/{server}/files/delete`
+
+Deletes files or folders for the server in the given root directory.
+
+**Access:** Client API key or authenticated panel session; `file.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/DeleteFileRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                     |
+| --------- | ------------------------------ |
+| `root`    | `'required\|nullable\|string'` |
+| `files`   | `'required\|array'`            |
+| `files.*` | `'string'`                     |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository->setServer($server)->deleteFiles(
+    $request->input('root'),
+    $request->input('files')
+);
+
+Activity::event('server:file.delete')
+    ->property('directory', $request->input('root'))
+    ->property('files', $request->input('files'))
+    ->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-create-folder" />
+
+## POST `/api/client/servers/{server}/files/create-folder`
+
+Creates a new folder on the server.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/CreateFolderRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation                      |
+| ------ | ------------------------------- |
+| `root` | `'sometimes\|nullable\|string'` |
+| `name` | `'required\|string'`            |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository
+    ->setServer($server)
+    ->createDirectory($request->input('name'), $request->input('root', '/'));
+
+Activity::event('server:file.create-directory')
+    ->property('name', $request->input('name'))
+    ->property('directory', $request->input('root'))
+    ->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-chmod" />
+
+## POST `/api/client/servers/{server}/files/chmod`
+
+Updates file permissions for file(s) in the given root directory.
+
+**Access:** Client API key or authenticated panel session; `file.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/ChmodFilesRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field          | Validation                     |
+| -------------- | ------------------------------ |
+| `root`         | `'required\|nullable\|string'` |
+| `files`        | `'required\|array'`            |
+| `files.*.file` | `'required\|string'`           |
+| `files.*.mode` | `'required\|numeric'`          |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository->setServer($server)->chmodFiles(
+    $request->input('root'),
+    $request->input('files')
+);
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-files-pull" />
+
+## POST `/api/client/servers/{server}/files/pull`
+
+Requests that a file be downloaded from a remote location by Wings.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/PullFileRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field        | Validation                |
+| ------------ | ------------------------- |
+| `url`        | `'required\|string\|url'` |
+| `directory`  | `'nullable\|string'`      |
+| `filename`   | `'nullable\|string'`      |
+| `use_header` | `'boolean'`               |
+| `foreground` | `'boolean'`               |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->fileRepository->setServer($server)->pull(
+    $request->input('url'),
+    $request->input('directory'),
+    $request->safe(['filename', 'use_header', 'foreground'])
+);
+
+Activity::event('server:file.pull')
+    ->property('directory', $request->input('directory'))
+    ->property('url', $request->input('url'))
+    ->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="get-api-client-servers-server-files-upload" />
+
+## GET `/api/client/servers/{server}/files/upload`
+
+Returns an url where files can be uploaded to.
+
+**Access:** Client API key or authenticated panel session; `file.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileUploadController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/UploadFileRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return new JsonResponse([
+    'object' => 'signed_url',
+    'attributes' => [
+        'url' => $this->getUploadUrl($server, $request->user()),
+    ],
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/files/upload" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```

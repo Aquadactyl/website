@@ -1,0 +1,169 @@
+---
+title: Develop an Aquadactyl extension
+description: Target the bundled Blueprint framework and use Aquadactyl's shared React, PHP and frontend libraries.
+---
+
+Aquadactyl bundles **Blueprint beta-2026-08**. Extensions compile into the panel's
+React application and can import its installed dependencies directly. Start with
+the complete [Server Pulse extension](/docs/blueprint/example-extension), or read
+the [migration guide](/docs/blueprint/migration) when updating an older addon.
+
+## Target runtime
+
+This guide follows [panel commit
+2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901).
+Use that checkout's manifests and lockfiles as the authority for version support.
+
+| Runtime           | Panel requirement                             |
+| ----------------- | --------------------------------------------- |
+| Node.js           | 24 or later                                   |
+| pnpm              | 12.10.1, pinned by the panel                  |
+| PHP               | 8.4 or 8.5                                    |
+| Laravel           | `^13.35.0` in this snapshot's `composer.json` |
+| React / React DOM | 19                                            |
+| React Router      | 8; import from `react-router`                 |
+| Tailwind CSS      | 4                                             |
+| Frontend bundler  | Vite 8                                        |
+
+These are the **panel's** dependencies. The documentation website has its own
+Next.js toolchain and package-manager version. The panel's older `docs/ADDONS.md`
+still mentions Laravel 12; `composer.json` in the pinned checkout specifies 13.
+
+## Shared library catalogue
+
+Ranges below are declared by the panel's `package.json`; the lockfile pins the
+resolved versions. Import only the pieces your extension needs.
+
+| Package                               | Declared range        | Role                                                               |
+| ------------------------------------- | --------------------- | ------------------------------------------------------------------ |
+| `axios`                               | `^1.20.0`             | Use `@/api/http` for authenticated panel requests.                 |
+| `@tanstack/react-query`               | `^5.104.1`            | Server data, query keys, caching, cancellation and mutations.      |
+| `zustand`                             | `^5.0.15`             | Small UI stores and the panel's application/server state.          |
+| `react-hook-form`                     | `^7.89.0`             | Form state and submission.                                         |
+| `@hookform/resolvers`                 | `^5.9.1`              | Connect a validation schema to React Hook Form.                    |
+| `zod`                                 | `^4.6.5`              | Input and API response validation.                                 |
+| `@base-ui/react`                      | `^1.9.0`              | Accessible unstyled dialog, menu and select primitives.            |
+| `lucide-react`                        | `^1.55.0`             | Named SVG icon imports.                                            |
+| `date-fns`                            | `^4.4.0`              | Dates and durations.                                               |
+| `es-toolkit`                          | `^1.52.0`             | Tree-shakable utility functions.                                   |
+| `motion`                              | `^14.1.0`             | Animations; import from `motion/react` and respect reduced motion. |
+| `uplot`                               | `^1.6.32`             | Time-series canvas charts. Destroy instances on unmount.           |
+| `clsx`                                | `^2.1.1`              | Conditional class names.                                           |
+| `i18next`, `react-i18next`            | `^26.4.3`, `^17.0.16` | Panel translations.                                                |
+| `@tanstack/react-virtual`             | `^3.14.14`            | Large scrollable lists.                                            |
+| CodeMirror 6, `@uiw/react-codemirror` | See manifest          | File editor integration.                                           |
+| `@xterm/xterm` and addons             | See manifest          | Terminal integration; prefer the panel's existing console.         |
+
+Source: [frontend manifest](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/package.json).
+The [Composer manifest](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/composer.json)
+also supplies Laravel/Sanctum, Guzzle, Flysystem, Socialite, WebAuthn, JWT and
+Symfony HTTP Client for backend extensions.
+
+## Imports and state
+
+```tsx
+import http, { httpErrorToHuman } from "@/api/http";
+import { useQuery } from "@tanstack/react-query";
+import { ServerContext } from "@/state/server";
+import { useAppStore } from "@/state";
+import { Dialog } from "@base-ui/react/dialog";
+import { motion, useReducedMotion } from "motion/react";
+import { Settings } from "lucide-react";
+```
+
+`@/` resolves to `resources/scripts`; `@blueprint/` resolves to the panel's
+Blueprint frontend directory. Use `ServerContext.useStoreState` and
+`ServerContext.useStoreActions` for the server page. Application state is available
+through `useAppStore` or the selectors exported from `@/state`.
+
+Reuse the existing QueryClientProvider and include the extension identifier and
+server UUID in query keys. Forward the query's `signal` to Axios. Surface errors,
+disable dependent controls while loading, and avoid polling while the page is
+hidden. The resource endpoint caches readings for 20 seconds.
+
+Prefer the panel's `@/components/elements/Select` for a themed select. It retains
+native option, ref, value and change-event support. Raw Base UI primitives need
+your own styling. Keep extension CSS under an identifier-specific selector to
+avoid changing core controls.
+
+## Package layout and hooks
+
+An extension package is a ZIP named `identifier.blueprint`, with `conf.yml` at
+its root. This minimal manifest adds a React component to the console:
+
+```yaml
+info:
+  name: "Server Pulse"
+  identifier: "serverpulse"
+  description: "A resource monitor for Aquadactyl."
+  version: "1.0.0"
+  target: "beta-2026-08"
+admin:
+  view: "admin.blade.php"
+dashboard:
+  components: "components"
+  css: "dashboard.css"
+```
+
+The `target` is the **Blueprint** version. `dashboard.components` points to a
+directory containing `Components.yml`, with this exact Linux filename:
+
+```yaml
+Server:
+  Terminal:
+    AfterContent: "ServerPulse"
+```
+
+`ServerPulse` points to `components/ServerPulse.tsx`, which must export a default
+React component. Paths in `Components.yml` omit the file extension. This hook is
+`Terminal`, even though the panel labels the page Console.
+
+Other hooks exist for the server list, navigation, files, databases, schedules,
+users, backups, network, startup, settings, authentication and account pages.
+Check the pinned
+[installer's hook mapping](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/scripts/commands/extensions/install.sh)
+instead of guessing a component path. Custom frontend navigation uses Blueprint's
+route registry and permission-aware router.
+
+## Backend routes
+
+Use manifest `requests.app` for the extension's PHP directory, and
+`requests.routers.client`, `.application`, or `.web` for route files. Blueprint
+mounts them under the extension identifier. See the
+[Blueprint API reference](/docs/api/blueprint) for prefixes and middleware.
+
+Backend classes retain the `Pterodactyl\` namespace for compatibility. Validate
+input with the panel's current Laravel APIs, enforce authorization in the route
+or request class, scope nested resources to their owning server, and avoid
+placing secrets in a public asset directory. A Client extension route is not
+automatically scoped to a particular server just because it is called from a
+server page. Add the server binding and server authorization middleware when
+implementing a server-specific route.
+
+## Dependency and build policy
+
+Do not bundle another React, React DOM, router, or QueryClient. Extensions using
+the shared catalogue do not need a separate `package.json` or an install script.
+Old imports from Easy Peasy, SWR, `react-router-dom`, `styled-components`, and
+`twin.macro` should be migrated to the panel's current interfaces.
+
+For a dependency outside the shared catalogue, review and commit changes to
+the **panel's** manifest, lockfile and build-script policy in a tested release.
+Do not make an extension installer run `pnpm add` or rewrite the panel's lockfile.
+Composer additions need the same release-level review and locked dependency policy.
+
+In the panel checkout:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run types
+pnpm run lint
+pnpm run build
+```
+
+Check a package without installing it with `blueprint -check identifier`.
+Install with `blueprint -i identifier`, and remove with
+`blueprint -r identifier --yes` on a disposable panel. The compatibility check
+compiles frontend entries; it does not exercise PHP behavior or a live game node.
+Retain the original package in the panel root for managed updates. Update the
+panel and bundled Blueprint together; do not use the stock `blueprint -upgrade`.

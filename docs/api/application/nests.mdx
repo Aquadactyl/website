@@ -1,0 +1,170 @@
+---
+title: Nests and eggs
+description: 4 source-verified application API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-application-nests" />
+
+## GET `/api/application/nests`
+
+Return all Nests that exist on the Panel.
+
+**Access:** Administrator account; `nests` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nests/GetNestsRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `per_page`.
+
+### Response
+
+Success: **200**. Response attributes: [Application NestTransformer](/docs/api/responses#application-nesttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$nests = $this->repository->paginated($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($nests)
+    ->transformWith($this->getTransformer(NestTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nests" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-nests-nest-id" />
+
+## GET `/api/application/nests/{nest:id}`
+
+Return information about a single Nest model.
+
+**Access:** Administrator account; `nests` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nests/GetNestsRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `nest:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application NestTransformer](/docs/api/responses#application-nesttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($nest)
+    ->transformWith($this->getTransformer(NestTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nests/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-nests-nest-id-eggs" />
+
+## GET `/api/application/nests/{nest:id}/eggs`
+
+Return all eggs that exist for a given nest.
+
+**Access:** Administrator account; `eggs` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nests/Eggs/GetEggsRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `nest:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application EggTransformer](/docs/api/responses#application-eggtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($nest->eggs)
+    ->transformWith($this->getTransformer(EggTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nests/RESOURCE_ID/eggs" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-nests-nest-id-eggs-egg-id" />
+
+## GET `/api/application/nests/{nest:id}/eggs/{egg:id}`
+
+Return a single egg that exists on the specified nest.
+
+**Access:** Administrator account; `eggs` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Nests/Eggs/GetEggRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `nest:id`, `egg:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application EggTransformer](/docs/api/responses#application-eggtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($egg)
+    ->transformWith($this->getTransformer(EggTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/nests/RESOURCE_ID/eggs/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```

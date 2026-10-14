@@ -1,0 +1,62 @@
+---
+title: Blueprint extension API
+description: 1 source-verified blueprint API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+## Extension route prefixes
+
+Blueprint mounts extension route files beneath these prefixes:
+
+| Manifest entry                 | Resulting prefix                           | Middleware                                                                             |
+| ------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `requests.routers.client`      | `/api/client/extensions/{identifier}`      | Client session/key, IP restrictions, 2FA and Client rate limiting.                     |
+| `requests.routers.application` | `/api/application/extensions/{identifier}` | Administrator and API middleware; implement resource ACL checks in your request class. |
+| `requests.routers.web`         | `/extensions/{identifier}`                 | Web session and CSRF middleware; add route-specific authentication/authorization.      |
+
+These prefixes do not automatically authorize a user for a particular server. Add server binding, access, ownership and permission checks for server-specific endpoints. Installed extensions define their own methods and payloads; consult each extension's reference. The built-in endpoint below returns the egg IDs enabled for an extension; `["-1"]` means all eggs. The optional `id` query parameter defaults to `blueprint`.
+
+Source: [Blueprint route provider](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Providers/Blueprint/RouteServiceProvider.php). The [development guide](/docs/blueprint/development) explains manifest layout.
+
+---
+
+<span id="get-api-client-extensions-blueprint-eggs" />
+
+## GET `/api/client/extensions/blueprint/eggs`
+
+Calls ExtensionRouteController::eggs.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/blueprint/client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/BlueprintFramework/Controllers/ExtensionRouteController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/BlueprintFramework/Controllers/ExtensionRouteController.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `id` (default `'blueprint'`).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$id = $request->input('id', 'blueprint');
+$eggs = $this->settings->get('blueprint::extensionconfig_' . $id . '_eggs');
+
+return json_decode($eggs ?: '["-1"]');
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/extensions/blueprint/eggs" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```

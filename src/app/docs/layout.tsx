@@ -23,6 +23,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       }}
       links={[
         {
+          text: "API reference",
+          url: "/docs/api",
+        },
+        {
           text: "Overview",
           url: "/",
         },

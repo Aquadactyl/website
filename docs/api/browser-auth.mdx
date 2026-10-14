@@ -1,0 +1,145 @@
+---
+title: Browser authentication
+description: Password login, two-factor checkpoints, passkey ceremonies, OAuth linking and session-only account security endpoints.
+---
+
+These endpoints serve the panel's browser application. They use the **web
+session**, cookies, and CSRF protection. Passkeys and account linking do not
+accept a bearer API key in place of a browser session. External automation
+should use a [Client or Application API key](/docs/api/authentication).
+
+The tables below describe the pinned panel's
+[auth routes](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/auth.php)
+and [account security routes](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/base.php).
+Sign-in methods must be enabled and configured by an administrator.
+
+## Password and session endpoints
+
+| Method and path               | Input                                                                                           | Result                                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `POST /auth/login`            | `user` (username or email), `password`, plus the configured captcha response when required      | `data.complete: true` and session, or `data.complete: false` and a 2FA `confirmation_token`.    |
+| `POST /auth/login/checkpoint` | `confirmation_token` plus `authentication_code` or `recovery_token`                             | Completes the pending login and establishes the session.                                        |
+| `POST /auth/register`         | `username`, `email`, `password`, `password_confirmation`, plus captcha when required            | Creates an account only when registration is enabled; returns the login response.               |
+| `POST /auth/password`         | `email`, plus configured captcha response                                                       | A JSON `status` message. The response deliberately does not reveal whether an account exists.   |
+| `POST /auth/password/reset`   | Reset `token`, `email`, `password`, `password_confirmation`; new password at least 8 characters | `success`, `redirect_to`, and `send_to_login`; 2FA accounts must log in again.                  |
+| `POST /auth/logout`           | No application-specific input; authenticated session and CSRF                                   | Clears the session using Laravel's authentication flow.                                         |
+| `GET /auth/methods`           | Optional `oauth=checkpoint` after an OAuth redirect                                             | `passkeys_enabled`, public `providers`, pending `confirmation_token`, and any one-time `error`. |
+
+The GET routes `/auth/login`, `/auth/register`, `/auth/password` and
+`/auth/password/reset/{token}` render the React authentication application.
+They are not JSON credential endpoints. Most `/auth` routes are guest-only;
+OAuth callback removes the guest restriction, and logout requires authentication.
+Login and checkpoint have additional failed-login lockout handling.
+
+The 2FA challenge is stored in the same browser session and expires after
+5 minutes. An incomplete login response looks like:
+
+```json
+{
+  "data": { "complete": false, "confirmation_token": "SESSION_BOUND_CHALLENGE" }
+}
+```
+
+Do not treat this as an API token. Submit it through the same session to
+`POST /auth/login/checkpoint`. A complete response contains
+`data.complete: true`, `data.intended`, and `data.user`. OAuth and passkey
+login also pass through this existing checkpoint when the user has 2FA enabled.
+
+Sources: [login response and checkpoint](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Auth/AbstractLoginController.php),
+[checkpoint validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Auth/LoginCheckpointRequest.php),
+[registration](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Auth/RegisterController.php).
+
+## Passkey sign-in
+
+1. `POST /auth/passkeys/options` to obtain WebAuthn request options.
+2. Decode binary option fields, then invoke `navigator.credentials.get` in the
+   browser with those options.
+3. Base64url-encode the credential's binary response fields and send them to
+   `POST /auth/passkeys/login`.
+4. Complete a 2FA checkpoint when `data.complete` is false.
+
+Passkey login validates the following JSON fields:
+
+| Field                        | Constraint                                                      |
+| ---------------------------- | --------------------------------------------------------------- |
+| `id`                         | Required base64url credential ID, string up to 2048 characters. |
+| `response.clientDataJSON`    | Required base64url string, up to 8192 characters.               |
+| `response.authenticatorData` | Required base64url string, up to 8192 characters.               |
+| `response.signature`         | Required base64url string, up to 2048 characters.               |
+| `response.userHandle`        | Required base64url string, up to 256 characters.                |
+
+WebAuthn requires a secure origin (HTTPS, or localhost) and a configured relying
+party origin. Options and completion must share the same session. The service
+checks challenge, ceremony type, origin, credential ownership, user verification
+and authenticator data. Do not create credential payloads by hand or reuse
+challenge responses. Use the panel's existing browser conversion helpers as a
+reference when adding a custom UI.
+
+Source: [PasskeyService rules and ceremonies](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Services/Accounts/PasskeyService.php).
+
+## Account security endpoints
+
+All `/account/security` routes require `auth:web`, the normal account security
+requirements, and the authentication rate limiter. They use `Cache-Control:
+no-store, private` for security listings and WebAuthn options.
+
+| Method and path                           | Input                                   | Success                                                                                |
+| ----------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
+| `GET /account/security`                   | No body                                 | 200 with `passkeys_enabled`, `providers`, `passkeys`, `identities`, `notice`, `error`. |
+| `POST /account/security/passkeys/options` | `current_password`                      | 200 WebAuthn registration options.                                                     |
+| `POST /account/security/passkeys`         | Registration credential fields below    | 204 after registering the credential.                                                  |
+| `DELETE /account/security/passkeys/{id}`  | `current_password`; numeric passkey ID  | 204; only the current user's credential can be removed.                                |
+| `POST /account/security/oauth/{provider}` | `current_password`                      | 200 with `redirect`, the URL to navigate to for account linking.                       |
+| `DELETE /account/security/oauth/{id}`     | `current_password`; numeric identity ID | 204; unlinks the current user's identity.                                              |
+
+Password confirmation accepts a required `current_password` string up to 1024
+characters and verifies it against the authenticated account. A bearer key is
+explicitly insufficient for this confirmation.
+
+To register a passkey, request registration options, call
+`navigator.credentials.create`, then send:
+
+| Field                        | Constraint                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------- |
+| `id`                         | Required base64url credential ID, up to 2048 characters.                                    |
+| `name`                       | Required user-facing credential name, up to 100 characters.                                 |
+| `response.clientDataJSON`    | Required base64url string, up to 8192 characters.                                           |
+| `response.attestationObject` | Required base64url string, up to 131072 characters.                                         |
+| `response.transports`        | Optional array, at most 8 entries: `usb`, `nfc`, `ble`, `internal`, `hybrid`, `smart-card`. |
+
+The security listing returns passkeys with `id`, `name`, `created_at`, and
+`last_used_at`; identities have `id`, `provider`, `display_name`, `created_at`,
+and `last_used_at`. Private credentials and provider secrets are not returned.
+The `notice` and `error` values are consumed from the session on read.
+
+Sources: [account security controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Base/AccountSecurityController.php),
+[password confirmation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Services/Accounts/ConfirmAccountPassword.php).
+
+## OAuth sign-in and linking
+
+Providers are `discord`, `github`, `google`, and `oidc`, subject to administrator
+configuration. `GET /auth/oauth/{provider}` redirects to the provider;
+`GET /auth/oauth/{provider}/callback` is its configured return URL. Preserve
+the browser's session and the provider's state parameters throughout the flow.
+
+Sign-in uses an already-linked provider identity. The callback does not silently
+create or merge accounts based on an email match. Existing users first sign in
+with their password and link a provider through Account settings. For linking,
+POST to `/account/security/oauth/{provider}`, navigate to the returned `redirect`,
+then let the provider callback finish the operation. Success returns to
+`/account`; errors are surfaced through the session notice/error fields.
+
+If OAuth sign-in requires 2FA, the callback redirects to
+`/auth/login?oauth=checkpoint`. The frontend reads
+`GET /auth/methods?oauth=checkpoint` and completes the existing login checkpoint.
+
+Source: [OAuth controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Auth/OAuthController.php).
+
+## Locale responses
+
+`GET /locales/locale.json` serves the frontend translation loader. It accepts
+`locale` and `namespace` values used by the panel's i18next configuration and
+returns translation objects. Follow the
+[locale controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Base/LocaleController.php)
+when writing a translation loader; account language selection uses the
+Client API's `/account/language` endpoint.

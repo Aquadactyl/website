@@ -53,12 +53,14 @@ from `.env.example`. Keep API keys in server environment variables.
 
 ## Published guides
 
-| Page                                                        | Covers                                                                                     |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Project website](https://aquadactyl.uk)                    | Project overview, interactive sample panel, installation snippets, FAQ and community links |
-| [Installation](https://aquadactyl.uk/docs)                  | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |
-| [Updating](https://aquadactyl.uk/docs/updating)             | Reviewed releases, managed updates, backups and recovery                                   |
-| [Blueprint](https://aquadactyl.uk/docs/blueprint/migration) | Bundled framework, extension installation, migration and maintenance                       |
+| Page                                                                        | Covers                                                                                     |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Project website](https://aquadactyl.uk)                                    | Project overview, interactive sample panel, installation snippets, FAQ and community links |
+| [Installation](https://aquadactyl.uk/docs)                                  | Requirements, source checkout, environment, Nginx/TLS, queue, scheduler and Wings          |
+| [Updating](https://aquadactyl.uk/docs/updating)                             | Reviewed releases, managed updates, backups and recovery                                   |
+| [Blueprint](https://aquadactyl.uk/docs/blueprint/migration)                 | Bundled framework, extension installation, migration and maintenance                       |
+| [API reference](https://aquadactyl.uk/docs/api)                             | Client, Application, Wings callback, Blueprint, browser authentication and WebSocket APIs  |
+| [Example extension](https://aquadactyl.uk/docs/blueprint/example-extension) | Downloadable Server Pulse package using the panel's shared libraries                       |
 
 The panel preview runs with sample data in the browser. Its power controls,
 console, file previews, backups and settings demonstrate the interface without
@@ -75,6 +77,29 @@ Homepage feature copy lives in `src/components/Home.tsx`, the sample panel in
 `src/components/PanelPreview.tsx`, and site metadata in `src/app/layout.tsx`.
 Operator guides are MDX files under `docs/`; navigation order is defined by each
 folder's `meta.json`.
+
+The API reference is generated from a reviewed panel checkout, with its commit
+pinned in every generated page and `public/api/reference.json`. To refresh it:
+
+```bash
+node scripts/generate-api-docs.mjs /path/to/aquadactyl
+pnpm exec oxfmt --write docs/api public/api/reference.json
+```
+
+Review the handwritten API guides and extension compatibility when updating the
+snapshot. The generator checks coverage of all three core route files. Its JSON
+output is a route/validation inventory, not an OpenAPI specification.
+
+The editable Blueprint example lives in `examples/serverpulse`. It compiles
+against the panel, so it is excluded from the website's TypeScript project.
+Recreate its downloadable `.blueprint` ZIP, SHA-256 file and full source page with:
+
+```bash
+node scripts/package-example.mjs
+```
+
+Run `blueprint -check serverpulse` in the matching panel checkout, then install,
+exercise and remove it in a disposable panel before releasing modifications.
 
 Document optional tools' defaults and administrator settings accurately. Keep
 extension compatibility notes and distinguish the sample preview from the live
@@ -93,6 +118,7 @@ pnpm types
 pnpm lint
 pnpm format:check
 pnpm build
+node scripts/verify-api-docs.mjs
 ```
 
 Preview `/`, `/docs/panel/features`, `/docs/panel`, `/docs/blueprint/migration`

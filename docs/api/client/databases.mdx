@@ -1,0 +1,175 @@
+---
+title: Server databases
+description: 4 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-databases" />
+
+## GET `/api/client/servers/{server}/databases`
+
+Return all the databases that belong to the given server.
+
+**Access:** Client API key or authenticated panel session; `database.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Databases/GetDatabasesRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client DatabaseTransformer](/docs/api/responses#client-databasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($server->databases)
+    ->transformWith($this->getTransformer(DatabaseTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/databases" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-databases" />
+
+## POST `/api/client/servers/{server}/databases`
+
+Create a new database for the given server and return it.
+
+**Access:** Client API key or authenticated panel session; `database.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Databases/StoreDatabaseRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                                                                                                                                                                                                                                                                                                                                                  |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `database` | `[ 'bail', 'required', 'alpha_dash', 'min:3', 'max:48', function (string $attribute, mixed $value, \Closure $fail) use ($server) { if (Database::query()->where('server_id', $server->id) ->where('database', DatabaseManagementService::generateUniqueDatabaseName($value, $server->id))->exists()) { $fail($this->messages()['database.unique']); } }, ]` |
+| `remote`   | `'required\|string\|regex:/^[\w\-\/.%:]+$/'`                                                                                                                                                                                                                                                                                                                |
+
+### Response
+
+Success: **200**. Response attributes: [Client DatabaseTransformer](/docs/api/responses#client-databasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$database = Activity::event('server:database.create')->transaction(function ($log) use ($request, $server) {
+    if ($server->databases()->lockForUpdate()->count() >= $server->database_limit) {
+        throw new DisplayException('Cannot create additional databases on this server: limit has been reached.');
+    }
+
+    $database = $this->deployDatabaseService->handle($server, $request->validated());
+
+    $log->subject($database)->property('name', $database->database);
+
+    return $database;
+});
+
+return $this->fractal->item($database)
+    ->parseIncludes(['password'])
+    ->transformWith($this->getTransformer(DatabaseTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-databases-database-rotate-password" />
+
+## POST `/api/client/servers/{server}/databases/{database}/rotate-password`
+
+Rotates the password for the given server model and returns a fresh instance to the caller.
+
+**Access:** Client API key or authenticated panel session; `database.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Databases/RotatePasswordRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `database`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client DatabaseTransformer](/docs/api/responses#client-databasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+Activity::event('server:database.rotate-password')
+    ->subject($database)
+    ->property('name', $database->database)
+    ->transaction(fn () => $this->passwordService->handle($database));
+
+return $this->fractal->item($database->refresh())
+    ->parseIncludes(['password'])
+    ->transformWith($this->getTransformer(DatabaseTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-databases-database" />
+
+## DELETE `/api/client/servers/{server}/databases/{database}`
+
+Removes a database from the server.
+
+**Access:** Client API key or authenticated panel session; `database.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Databases/DeleteDatabaseRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `database`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->managementService->delete($database);
+
+Activity::event('server:database.delete')
+    ->subject($database)
+    ->property('name', $database->database)
+    ->log();
+
+return new Response('', Response::HTTP_NO_CONTENT);
+```
+
+</details>

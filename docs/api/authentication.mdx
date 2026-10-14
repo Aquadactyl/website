@@ -1,0 +1,220 @@
+---
+title: Authentication and conventions
+description: API keys, authorization, identifiers, request formats, pagination, validation, rate limits and errors.
+---
+
+All URLs in this reference are relative to your panel, for example
+`https://panel.example.com`. Use HTTPS for deployed integrations.
+
+## API keys
+
+Create a **Client API key** under **Account → API Credentials**. It acts as its
+owner and inherits that user's access to owned servers and servers shared with
+them. Owners, subusers and root administrators can have different permissions.
+The Client API explicitly rejects Application API keys.
+
+Create an **Application API key** in the admin area's Application API section.
+The account must be a root administrator. Set the required resource permissions
+to Read or Read & Write; endpoint request classes enforce these ACLs. The source
+also permits authenticated administrator sessions and administrator account
+tokens on Application endpoints, so an Application key is the recommended way
+to constrain a provisioning integration.
+
+Send the full token exactly as issued:
+
+```bash
+export PANEL_URL="https://panel.example.com"
+export CLIENT_API_KEY="your-client-api-key"
+
+curl --get "${PANEL_URL}/api/client" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+Keep Application keys on your backend. API keys can have allowed-IP restrictions;
+use the address the panel sees after its trusted-proxy configuration. Creating a
+Client key returns its secret in `meta.secret_token`; subsequent listings do not
+return the secret. The source limits accounts to 25 API keys.
+
+Sources: [key type middleware](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Middleware/Api/Client/RequireClientApiKey.php),
+[admin middleware](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Middleware/Api/Application/AuthenticateApplicationUser.php),
+[ACL checks](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+## Panel sessions and CSRF
+
+Inside a Blueprint React component, import `http` from `@/api/http`. It sends
+cookies, JSON headers and `X-Requested-With`, uses a 20-second timeout, and updates
+the panel's progress indicator. Use the panel's existing QueryClient and session.
+
+```tsx
+import http from "@/api/http";
+
+const { data } = await http.get(`/api/client/servers/${uuid}/resources`);
+console.log(data.attributes.resources.memory_bytes);
+```
+
+Stateful requests use Sanctum and the panel's CSRF/session configuration. Browser
+web routes such as `/account/security` require the web session and CSRF token;
+adding a bearer token does not substitute for that session. The rendered panel
+provides its CSRF token in `meta[name="_token"]`. Do not invent a login-to-API-key
+exchange: password, OAuth and passkey login establish browser sessions.
+
+## Identifiers
+
+| Placeholder                                                                                                                       | Value                                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client `{server}`                                                                                                                 | Prefer the full server UUID from `attributes.uuid`; client bindings also support the panel's identifiers. Never substitute an Application numeric ID. |
+| Application `{server:id}`, `{user:id}`, `{node:id}`, `{location:id}`, `{nest:id}`, `{egg:id}`, `{allocation:id}`, `{database:id}` | Numeric database ID. The `:id` is route binding syntax, not part of the URL.                                                                          |
+| `{external_id}`                                                                                                                   | Your integration's external identifier; URL-encode it.                                                                                                |
+| Client `{database}`                                                                                                               | Database identifier returned by the Client API, which uses Hashids binding.                                                                           |
+| Client `{backup}`, `{user}`, trash `{item}`                                                                                       | UUID/identifier returned by the relevant Client endpoint.                                                                                             |
+| Client `{schedule}`, `{task}`, `{allocation}`                                                                                     | ID returned by the corresponding endpoint.                                                                                                            |
+| `{identifier}` in API key deletion                                                                                                | Key identifier from the key list, not the full secret.                                                                                                |
+| Remote `{uuid}`                                                                                                                   | Full server UUID.                                                                                                                                     |
+| Application `{force?}`                                                                                                            | Optional deletion path segment. `/servers/1/force` requests forced deletion.                                                                          |
+
+Nested resources must belong to the server or node in the URL. Server access,
+state checks, and resource ownership checks run before endpoint-specific
+authorization. Inaccessible servers may return 404; suspended, installing,
+transferring or maintenance states can cause 409 responses. Showing an extension
+button only to certain users does not authorize its backend route.
+
+## Requests
+
+Send `Accept: application/json`. For normal write endpoints, send a JSON body
+with `Content-Type: application/json`. Query strings use URL-encoded values.
+
+Two exceptions matter:
+
+- `POST .../files/write?file=/path` takes the **raw file contents** as its body,
+  with `Content-Type: text/plain`.
+- Account avatar upload takes `multipart/form-data` with an `avatar` file.
+  Let the HTTP client construct the multipart boundary.
+
+File uploads and file/backup downloads first request a signed URL from the panel,
+then transfer against that URL. The upload itself goes to Wings. Do not attach
+the panel API key to a signed URL on another host.
+
+## Responses and pagination
+
+Most resource endpoints use a Fractal envelope:
+
+```json
+{
+  "object": "stats",
+  "attributes": {
+    "current_state": "running",
+    "is_suspended": false,
+    "resources": {
+      "memory_bytes": 268435456,
+      "cpu_absolute": 12.5,
+      "disk_bytes": 1073741824,
+      "network_rx_bytes": 1024,
+      "network_tx_bytes": 2048,
+      "uptime": 60000
+    }
+  }
+}
+```
+
+Paginated collections contain `object: "list"`, `data: []`, and
+`meta.pagination` with `total`, `count`, `per_page`, `current_page`, and
+`total_pages`. Follow page numbers until `current_page >= total_pages`.
+Nonpaginated collections omit pagination. Do not assume every endpoint has the
+same envelope: file trash returns plain `data` and `meta`; console sharing returns
+`url` and `expires_in`; browser authentication has its own shapes.
+
+Use `page` and `per_page` where the endpoint supports them. Client server listing
+defaults to 50 per page and caps the requested size at 100. Trash listing uses
+25 items per page and `meta.current_page`, `meta.last_page`, `meta.total`.
+Filter and sort allowlists vary by endpoint; only use declared fields.
+
+```bash
+curl --get "${PANEL_URL}/api/client" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --data-urlencode "page=1" \
+  --data-urlencode "per_page=25" \
+  --data-urlencode "filter[name]=minecraft"
+```
+
+`include=relationship1,relationship2` requests supported relationships on
+Fractal resources. Available and default relationships are listed in the
+[response objects](/docs/api/responses), and can require additional permissions.
+Dates generally use ISO 8601. Resource usage uses bytes, CPU percentage of a
+single core, and uptime in milliseconds; build limits use MiB for memory and
+disk. A 204 response has no JSON body. A 202 response accepts background work
+and does not mean it has finished.
+
+## Validation
+
+Endpoint tables use the actual Laravel rules, including custom PHP validators:
+
+| Rule                                                            | Meaning                                                                                          |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `required`                                                      | Supply a nonempty value.                                                                         |
+| `present`                                                       | Supply the key; it may be empty if its other rules allow it.                                     |
+| `sometimes`                                                     | Validate the value when the key is supplied.                                                     |
+| `nullable`                                                      | Null is permitted.                                                                               |
+| `confirmed`                                                     | Supply a matching `field_confirmation`, such as `password_confirmation`.                         |
+| `required_if`, `required_unless`, `required_with`, `Rule::when` | Requirement depends on other input; read the conditional validation.                             |
+| `exists`, `unique`                                              | Related row must exist, or the value must be unique. Update rules ignore the current row.        |
+| `min`, `max`, `between`                                         | Numeric bounds, string lengths, array lengths, or file size in KiB, according to the field type. |
+
+An update endpoint may still require a full set of fields. Do not assume PATCH
+makes every field optional. Country codes, usernames, language choices, egg
+variables, and deployment allocations have additional runtime validation.
+
+## Rate limits
+
+Both Client and Application APIs default to **256 requests per minute**, keyed
+by the authenticated user's UUID (or IP when no user is resolved). Deployments
+can override these through `APP_API_CLIENT_RATELIMIT` and
+`APP_API_APPLICATION_RATELIMIT`. Separate keys for one user do not create
+independent user limits.
+
+Console sharing additionally permits 3 requests per minute. Moving files to
+trash permits 20 requests per minute. Resource-creation and WebSocket routes
+also apply resource-specific limiters. Auth actions normally allow 10 requests
+per minute per IP; forgot-password requests allow 2. Account email changes have
+an additional maximum of 3 changes per 24 hours.
+
+Respect `Retry-After` when supplied on a 429. Back off reads after transient
+errors, and avoid blindly retrying create, restore, power or delete requests.
+Resource readings are cached for up to 20 seconds; polling faster does not
+produce fresher measurements.
+
+Sources: [rate limits](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/config/http.php),
+[route middleware and limiters](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Providers/RouteServiceProvider.php).
+
+## Errors
+
+API errors normally contain `errors`, an array with a human-readable `detail`
+and, where available, `code`, `status`, or validation metadata. For example:
+
+```json
+{
+  "errors": [
+    {
+      "code": "ValidationException",
+      "status": "422",
+      "detail": "The signal field is required."
+    }
+  ]
+}
+```
+
+| Status | What to check                                                                                              |
+| ------ | ---------------------------------------------------------------------------------------------------------- |
+| 400    | Invalid action, existing 2FA setup, malformed node credentials, or another endpoint-specific precondition. |
+| 401    | Missing or expired authentication.                                                                         |
+| 403    | Key type, IP restriction, resource ACL, server permission, required 2FA or disabled feature.               |
+| 404    | Missing or inaccessible resource, or a nested resource on a different server.                              |
+| 409    | Server state or conflicting resource operation.                                                            |
+| 419    | Browser CSRF/session expired; refresh the browser session.                                                 |
+| 422    | Input validation failed.                                                                                   |
+| 429    | Request or resource rate limit exceeded.                                                                   |
+| 5xx    | Panel, Wings, storage, or upstream dependency failure; inspect the operation before retrying.              |
+
+Use `httpErrorToHuman` from `@/api/http` for errors in an extension. That helper
+also handles non-JSON error bodies and Wings' direct upload error shape.

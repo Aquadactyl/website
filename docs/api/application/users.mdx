@@ -1,0 +1,274 @@
+---
+title: Users
+description: 6 source-verified application API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-application-users" />
+
+## GET `/api/application/users`
+
+Handle request to list all users on the panel. Returns a JSON-API representation of a collection of users including any defined relations passed in the request.
+
+**Access:** Administrator account.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `per_page`.
+
+**List query options:** filters declared in `'email', 'uuid', 'username', 'external_id'`; sorts `'id', 'uuid'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Application UserTransformer](/docs/api/responses#application-usertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$users = QueryBuilder::for(User::query())
+    ->allowedFilters('email', 'uuid', 'username', 'external_id')
+    ->allowedSorts('id', 'uuid')
+    ->paginate($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($users)
+    ->transformWith($this->getTransformer(UserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/users" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-users-user-id" />
+
+## GET `/api/application/users/{user:id}`
+
+Handle a request to view a single user. Includes any relations that were defined in the request.
+
+**Access:** Administrator account.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application UserTransformer](/docs/api/responses#application-usertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(UserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/users/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-users-external-external-id" />
+
+## GET `/api/application/users/external/{external_id}`
+
+Retrieve a specific user from the database using their external ID.
+
+**Access:** Administrator account; `users` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/ExternalUserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetExternalUserRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `external_id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application UserTransformer](/docs/api/responses#application-usertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = User::query()->where('external_id', $external_id)->firstOrFail();
+
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(UserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/users/external/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-application-users" />
+
+## POST `/api/application/users`
+
+Store a new user on the system. Returns the created user and an HTTP/201 header on successful creation.
+
+**Access:** Administrator account; `users` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/StoreUserRequest.php)
+
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field         | Validation                                                         |
+| ------------- | ------------------------------------------------------------------ |
+| `external_id` | `'sometimes\|nullable\|string\|max:191\|unique:users,external_id'` |
+| `email`       | `'required\|email:strict\|between:1,191\|unique:users,email'`      |
+| `username`    | `'required\|between:1,191\|unique:users,username'`                 |
+| `password`    | `'sometimes\|nullable\|string'`                                    |
+| `language`    | `'string'`                                                         |
+| `root_admin`  | `'boolean'`                                                        |
+| `first_name`  | `'required\|string\|between:1,191'`                                |
+| `last_name`   | `'required\|string\|between:1,191'`                                |
+
+### Response
+
+Success: **201**. Response attributes: [Application UserTransformer](/docs/api/responses#application-usertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $this->creationService->handle($request->validated());
+
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(UserTransformer::class))
+    ->addMeta([
+        'resource' => route('api.application.users.view', [
+            'user' => $user->id,
+        ]),
+    ])
+    ->respond(201);
+```
+
+</details>
+
+---
+
+<span id="patch-api-application-users-user-id" />
+
+## PATCH `/api/application/users/{user:id}`
+
+Update an existing user on the system and return the response. Returns the updated user model response on success. Supports handling of token revocation errors when switching a user from an admin to a normal user. Revocation errors are returned under the 'revocation_errors' key in the response meta. If there are no errors this is an empty array.
+
+**Access:** Administrator account; `users` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/UpdateUserRequest.php)
+
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field         | Validation                                                         |
+| ------------- | ------------------------------------------------------------------ |
+| `external_id` | `'sometimes\|nullable\|string\|max:191\|unique:users,external_id'` |
+| `email`       | `'required\|email:strict\|between:1,191\|unique:users,email'`      |
+| `username`    | `'required\|between:1,191\|unique:users,username'`                 |
+| `password`    | `'sometimes\|nullable\|string'`                                    |
+| `language`    | `'string'`                                                         |
+| `root_admin`  | `'boolean'`                                                        |
+| `first_name`  | `'required\|string\|between:1,191'`                                |
+| `last_name`   | `'required\|string\|between:1,191'`                                |
+
+### Response
+
+Success: **200**. Response attributes: [Application UserTransformer](/docs/api/responses#application-usertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->updateService->setUserLevel(User::USER_LEVEL_ADMIN);
+$user = $this->updateService->handle($user, $request->validated());
+
+$response = $this->fractal->item($user)
+    ->transformWith($this->getTransformer(UserTransformer::class));
+
+return $response->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-users-user-id" />
+
+## DELETE `/api/application/users/{user:id}`
+
+Handle a request to delete a user from the Panel. Returns a HTTP/204 response on successful deletion.
+
+**Access:** Administrator account; `users` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/DeleteUserRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->handle($user);
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

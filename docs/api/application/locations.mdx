@@ -1,0 +1,217 @@
+---
+title: Locations
+description: 5 source-verified application API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-application-locations" />
+
+## GET `/api/application/locations`
+
+Return all the locations currently registered on the Panel.
+
+**Access:** Administrator account; `locations` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Locations/GetLocationsRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `per_page`.
+
+**List query options:** filters declared in `'short', 'long'`; sorts `'id'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Application LocationTransformer](/docs/api/responses#application-locationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$locations = QueryBuilder::for(Location::query())
+    ->allowedFilters('short', 'long')
+    ->allowedSorts('id')
+    ->paginate($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($locations)
+    ->transformWith($this->getTransformer(LocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/locations" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-locations-location-id" />
+
+## GET `/api/application/locations/{location:id}`
+
+Return a single location.
+
+**Access:** Administrator account; `locations` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Locations/GetLocationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `location:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application LocationTransformer](/docs/api/responses#application-locationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($location)
+    ->transformWith($this->getTransformer(LocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/locations/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-application-locations" />
+
+## POST `/api/application/locations`
+
+Store a new location on the Panel and return an HTTP/201 response code with the new location attached.
+
+**Access:** Administrator account; `locations` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Locations/StoreLocationRequest.php)
+
+Model constraints: [Location.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Location.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field   | Validation                                                 |
+| ------- | ---------------------------------------------------------- |
+| `long`  | `'string\|nullable\|between:1,191'`                        |
+| `short` | `'required\|string\|between:1,60\|unique:locations,short'` |
+
+### Response
+
+Success: **201**. Response attributes: [Application LocationTransformer](/docs/api/responses#application-locationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$location = $this->creationService->handle($request->validated());
+
+return $this->fractal->item($location)
+    ->transformWith($this->getTransformer(LocationTransformer::class))
+    ->addMeta([
+        'resource' => route('api.application.locations.view', [
+            'location' => $location->id,
+        ]),
+    ])
+    ->respond(201);
+```
+
+</details>
+
+---
+
+<span id="patch-api-application-locations-location-id" />
+
+## PATCH `/api/application/locations/{location:id}`
+
+Update a location on the Panel and return the updated record to the user.
+
+**Access:** Administrator account; `locations` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Locations/UpdateLocationRequest.php)
+
+Model constraints: [Location.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Location.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `location:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field   | Validation                                                 |
+| ------- | ---------------------------------------------------------- |
+| `short` | `'required\|string\|between:1,60\|unique:locations,short'` |
+| `long`  | `'string\|nullable\|between:1,191'`                        |
+
+### Response
+
+Success: **200**. Response attributes: [Application LocationTransformer](/docs/api/responses#application-locationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$location = $this->updateService->handle($location, $request->validated());
+
+return $this->fractal->item($location)
+    ->transformWith($this->getTransformer(LocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-locations-location-id" />
+
+## DELETE `/api/application/locations/{location:id}`
+
+Delete a location from the Panel.
+
+**Access:** Administrator account; `locations` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Locations/DeleteLocationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `location:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->handle($location);
+
+return response('', 204);
+```
+
+</details>

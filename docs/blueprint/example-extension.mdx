@@ -1,0 +1,151 @@
+---
+title: Build Server Pulse
+description: Download a complete Blueprint extension that uses Aquadactyl's shared libraries and authenticated Client API.
+---
+
+**Server Pulse** adds CPU, memory and disk readings below a server's Console
+page. A settings dialog demonstrates validated forms and in-memory preferences.
+It uses the existing `GET /api/client/servers/{server}/resources` endpoint, so the
+package needs no API key, new PHP route, database migration or extra dependencies.
+
+[Download serverpulse.blueprint](/examples/serverpulse.blueprint) ·
+[Complete source](/docs/blueprint/server-pulse-source) ·
+[SHA-256 checksum](/examples/serverpulse.blueprint.sha256)
+
+The package targets Blueprint **beta-2026-08** and the shared interfaces in
+[Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901).
+Use a disposable panel for installation and runtime checks before adapting it
+for production.
+
+## What the example teaches
+
+| Library                          | Used for                                                                      |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| React 19                         | Component lifecycle and the existing `ServerContext`.                         |
+| TanStack Query 5                 | Server-scoped cache, loading/errors, cancellable requests and polling.        |
+| Shared Axios client              | Session authentication, timeout, headers, progress and human-readable errors. |
+| Zod 4                            | Validates both settings and incoming resource responses at runtime.           |
+| React Hook Form and Zod resolver | Form fields, validation errors and submission.                                |
+| Zustand 5                        | In-memory preferences shared by the extension's component.                    |
+| Base UI Dialog                   | Modal focus handling, title, description, close button and portal.            |
+| Lucide                           | Named Activity, Refresh, Settings and Close icons.                            |
+| date-fns                         | Relative time of the last successful sample.                                  |
+| es-toolkit                       | Bounds the memory usage meter between 0 and 100%.                             |
+| Motion                           | Entry transition with reduced-motion support.                                 |
+
+CPU can exceed 100% on multiple cores, so the example does not clamp the CPU
+value. Memory and disk are displayed in MiB. The memory meter is omitted for an
+unlimited memory limit. Preferences are deliberately kept in memory and reset on
+reload; they do not change the server configuration.
+
+## Package contents
+
+```text
+serverpulse.blueprint
+├── conf.yml
+├── admin.blade.php
+├── dashboard.css
+├── components/
+│   ├── Components.yml
+│   └── ServerPulse.tsx
+├── README.md
+└── LICENSE
+```
+
+The archive contains those files directly, without an enclosing `serverpulse`
+folder. `conf.yml` points `dashboard.components` at `components`, and
+`Components.yml` installs the default export at `Server.Terminal.AfterContent`.
+The mandatory admin view explains where to find the component. Namespaced CSS
+styles the component and its portal without relying on Tailwind scanning a
+hidden extension directory.
+
+## Install the example
+
+Place `serverpulse.blueprint` in the panel root. On a Linux test panel:
+
+```bash
+cd /var/www/aquadactyl
+sudo blueprint -check serverpulse
+sudo blueprint -i serverpulse
+```
+
+For the panel's Docker test stack, run these commands from the directory
+containing `compose.yaml`, with the downloaded package in your current directory:
+
+```bash
+docker compose cp serverpulse.blueprint panel:/app/serverpulse.blueprint
+docker compose exec panel blueprint -check serverpulse
+docker compose exec panel blueprint -i serverpulse
+```
+
+Blueprint's install command rebuilds the panel, refreshes caches and restores
+permissions. Open a server's **Console** page and scroll below the console to
+find Server Pulse. Retain the package in the panel root for managed updates.
+
+## How requests work
+
+The default export waits for the panel's server data, then mounts the component
+with the full server UUID. Changing server remounts the component. The query
+uses the panel's existing QueryClientProvider:
+
+```tsx
+const stats = useQuery({
+  queryKey: ["serverpulse", "resources", uuid],
+  queryFn: async ({ signal }) => {
+    const { data } = await http.get<unknown>(
+      `/api/client/servers/${encodeURIComponent(uuid)}/resources`,
+      { signal },
+    );
+    return statsSchema.parse(data).attributes;
+  },
+  staleTime: 20_000,
+  refetchInterval: Number(settings.interval) * 1000,
+  refetchIntervalInBackground: false,
+  refetchOnWindowFocus: false,
+  retry: false,
+});
+```
+
+The HTTP client sends the logged-in user's session. The backend enforces server
+access; the extension does not grant access by rendering a component. A query
+key includes the extension name and server UUID to avoid showing one server's
+reading on another. Axios receives the abort signal. Authorization and node
+errors are displayed rather than retried indefinitely. A failed refresh labels
+any previous sample as the last successful reading.
+
+Polling defaults to 30 seconds and can be changed to 20 or 60 seconds. The API
+caches resource data for 20 seconds; a manual refresh may return the same sample.
+
+## Edit and rebuild
+
+The editable source lives in the website repository under `examples/serverpulse`.
+It compiles against the **panel**, not Next.js. Do not add its imports to the
+website's dependency manifest.
+
+After editing the source, regenerate both the downloadable archive and the source
+reference page from the website root:
+
+```bash
+node scripts/package-example.mjs
+```
+
+Copy the regenerated archive to a disposable panel and run the check/install
+commands again. The package does not download or modify dependency versions.
+
+## Verify and remove
+
+Check that the card loads for a server owner and an authorized subuser. Test
+refresh, a stopped server, an unavailable node, changing servers, empty labels,
+keyboard focus, closing the settings dialog, narrow layouts and reduced motion.
+Confirm it cannot fetch a server the account cannot access.
+
+Remove it with:
+
+```bash
+sudo blueprint -r serverpulse --yes
+```
+
+In Docker, use `docker compose exec panel blueprint -r serverpulse --yes`.
+Removal should remove the hook and CSS; this extension has no migrations or
+durable data to roll back. The example is MIT licensed and includes no Blueprint
+artwork. For a custom backend API, follow [extension development](/docs/blueprint/development).

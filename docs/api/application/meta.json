@@ -1,0 +1,4 @@
+{
+  "title": "Application API",
+  "pages": ["users", "nodes", "locations", "servers", "nests"]
+}

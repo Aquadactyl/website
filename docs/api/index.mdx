@@ -1,0 +1,92 @@
+---
+title: Aquadactyl API
+description: Build integrations with the Client and Application APIs, browser authentication, Blueprint, and Wings callbacks.
+---
+
+Use the **Client API** to control servers as a panel user, or the **Application
+API** to provision users, nodes, allocations, and servers as an administrator.
+Blueprint extensions can use the same Client API through the panel's shared
+HTTP client.
+
+This reference is pinned to [Aquadactyl commit
+2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901).
+It covers **135 operations**: every route in `api-client.php`,
+`api-application.php`, and `api-remote.php`, plus Blueprint's built-in client
+endpoint. Browser authentication and WebSocket protocols have separate guides.
+Installed extensions can register additional endpoints.
+
+## Start here
+
+1. Read [authentication and conventions](/docs/api/authentication) for keys,
+   permissions, identifiers, pagination, validation, and errors.
+2. Follow the [request examples](/docs/api/workflows) to list servers, send power
+   actions, edit files, use trash, create schedules, or provision a server.
+3. Build the [Server Pulse Blueprint extension](/docs/blueprint/example-extension)
+   to use the API inside the panel with its current libraries.
+
+## Choose an API
+
+| API                                              | Base path                                                  | Authentication                                        | Typical use                                                         |
+| ------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| [Client](/docs/api/client/servers)               | `/api/client`                                              | User's Client API key or panel session                | Console, files, backups, schedules, subusers, account settings      |
+| [Application](/docs/api/application/servers)     | `/api/application`                                         | Administrator; Application API key with resource ACLs | Hosting automation and provisioning                                 |
+| [Blueprint](/docs/api/blueprint)                 | `/api/client/extensions` and `/api/application/extensions` | Corresponding panel API middleware                    | Extension-owned endpoints                                           |
+| [Browser authentication](/docs/api/browser-auth) | `/auth` and `/account/security`                            | Guest or authenticated web session, with CSRF         | Passwords, passkeys, OAuth, account linking                         |
+| [Wings callbacks](/docs/api/remote)              | `/api/remote`                                              | Node token                                            | Wings reporting installation, transfer, backup and activity results |
+
+The Wings callback API is hosted by the **panel**. The HTTP and WebSocket servers
+hosted by Wings use separate URLs and credentials.
+
+## Client reference
+
+### Find an endpoint
+
+<ApiEndpointIndex />
+
+- [Servers, resource usage, player counts, commands, power and console sharing](/docs/api/client/servers)
+- [Account, two-factor authentication, avatar, language, privacy, API and SSH keys](/docs/api/client/account)
+- [Permission catalogue](/docs/api/client/permissions)
+- [Files and upload/download URLs](/docs/api/client/files)
+- [File trash and restoration](/docs/api/client/trash)
+- [Databases](/docs/api/client/databases)
+- [Schedules and tasks](/docs/api/client/schedules)
+- [Network allocations](/docs/api/client/network)
+- [Subusers and permissions](/docs/api/client/users)
+- [Backups](/docs/api/client/backups)
+- [Startup variables](/docs/api/client/startup)
+- [Server settings](/docs/api/client/settings)
+
+## Application reference
+
+- [Users and external IDs](/docs/api/application/users)
+- [Nodes, configuration, deployment candidates and allocations](/docs/api/application/nodes)
+- [Locations](/docs/api/application/locations)
+- [Servers, build limits, startup, lifecycle and databases](/docs/api/application/servers)
+- [Nests and eggs](/docs/api/application/nests)
+
+## Source and maintenance
+
+Each operation links to its pinned route, controller, and request class. Field
+tables resolve the request's model rules; expandable implementation excerpts
+retain conditional authorization, responses and service calls. The
+[response object reference](/docs/api/responses) contains all 28 Client and
+Application response transformers, including relationship objects.
+
+Download the [JSON route and validation inventory](/api/reference.json). It records
+the source revision, method, path, validation expressions, success status, and
+documentation URL. This is a source inventory, not an OpenAPI schema.
+
+Maintainers can regenerate these pages from a reviewed panel checkout:
+
+```bash
+node scripts/generate-api-docs.mjs /path/to/aquadactyl
+```
+
+The generator checks route counts and fails on missing handlers. Review the
+handwritten guides and the example extension when the source changes. This
+reference describes the pinned checkout; deployments may have different feature
+flags, custom extensions or a different release. Examples use illustrative IDs
+and response data. They do not send requests to a live panel.
+
+Source excerpts retain the upstream MIT attribution in the
+[included license](/api/AQUADACTYL-LICENSE.md).

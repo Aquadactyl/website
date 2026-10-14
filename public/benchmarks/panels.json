@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 1,
+  "measuredOn": "2026-10-14",
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalCpus": 28,
+    "memoryGiB": 64,
+    "platform": "win32",
+    "osRelease": "10.0.26300",
+    "arch": "x64",
+    "node": "v24.14.0",
+    "gzipLevel": 6
+  },
+  "methodology": {
+    "repetitions": 5,
+    "warmupsPerPanel": 1,
+    "order": [
+      {
+        "family": "aquadactyl",
+        "warmup": true,
+        "buildMs": 1695.1581999999999
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": true,
+        "buildMs": 13319.060500000001
+      },
+      {
+        "family": "aquadactyl",
+        "warmup": false,
+        "buildMs": 1250.5707
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": false,
+        "buildMs": 12886.8166
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": false,
+        "buildMs": 13035.030499999999
+      },
+      {
+        "family": "aquadactyl",
+        "warmup": false,
+        "buildMs": 1230.7264
+      },
+      {
+        "family": "aquadactyl",
+        "warmup": false,
+        "buildMs": 1236.2154
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": false,
+        "buildMs": 12831.1713
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": false,
+        "buildMs": 13247.9464
+      },
+      {
+        "family": "aquadactyl",
+        "warmup": false,
+        "buildMs": 1224.8646999999999
+      },
+      {
+        "family": "aquadactyl",
+        "warmup": false,
+        "buildMs": 1212.4278000000002
+      },
+      {
+        "family": "pterodactyl",
+        "warmup": false,
+        "buildMs": 12852.1102
+      }
+    ],
+    "production": true,
+    "dependenciesInstalledBeforeTiming": true,
+    "addons": 0,
+    "dashboard": "Entry scripts plus dashboard route and their required static imports; deduplicated. CSS is counted separately when emitted as a separate asset.",
+    "compression": "Sum of individually gzipped emitted assets; transfer estimate, not a measured network response.",
+    "build": "Fresh Node process per build; time includes bundler/module/config loading, production compilation and compiler shutdown. Excludes dependency installation and asset analysis. Default project build configuration.",
+    "scope": "Frontend artifact sizes and production build duration. No browser timings, API throughput, PHP memory, Wings/game performance, database or network benchmark."
+  },
+  "panels": {
+    "aquadactyl": {
+      "revision": "2bfd6ae2a30c8152b34b53c53562773a973ae901",
+      "ref": "main",
+      "repository": "Aquadactyl/aquadactyl",
+      "lockfileSha256": "15282bb8c018a86102b2ae4368dcf7cb8167a8397a2126b08563f34397892b86",
+      "toolchain": "Vite ^8.3.4",
+      "buildMs": {
+        "median": 1230.7264,
+        "min": 1212.4278000000002,
+        "max": 1250.5707,
+        "samples": [
+          1250.5707,
+          1230.7264,
+          1236.2154,
+          1224.8646999999999,
+          1212.4278000000002
+        ]
+      },
+      "entry": {
+        "jsBytes": 552122,
+        "jsGzipBytes": 178213,
+        "cssBytes": 126337,
+        "cssGzipBytes": 21213,
+        "totalBytes": 678459,
+        "totalGzipBytes": 199426,
+        "files": [
+          {
+            "file": "assets/index-CBef_AD5.js",
+            "bytes": 351649,
+            "gzipBytes": 110262,
+            "sha256": "68d0e3f061c7640b50c121b93ec07203a2ee6432960ae5e54b3fa728b97aa1d3"
+          },
+          {
+            "file": "assets/index-ByME0HLB.css",
+            "bytes": 126337,
+            "gzipBytes": 21213,
+            "sha256": "7b67029f4961e2574ed5d5307d40efbc722c1a6a5510f639f9bb020da04cf834"
+          },
+          {
+            "file": "assets/jsx-runtime-D3jfb0Ew.js",
+            "bytes": 8901,
+            "gzipBytes": 3382,
+            "sha256": "a2c68294426b0ded53fa2d6c97bb39c4a51f99e5e4b23e7953a2c69298e361f8"
+          },
+          {
+            "file": "assets/Spinner-ugkh3xqA.js",
+            "bytes": 191572,
+            "gzipBytes": 64569,
+            "sha256": "2b8e87a57012f57dc62610f55c358b699d4659c3247eb82322ab90fffc9578f7"
+          }
+        ]
+      },
+      "dashboard": {
+        "jsBytes": 765012,
+        "jsGzipBytes": 254372,
+        "cssBytes": 126337,
+        "cssGzipBytes": 21213,
+        "totalBytes": 891349,
+        "totalGzipBytes": 275585,
+        "files": [
+          {
+            "file": "assets/index-CBef_AD5.js",
+            "bytes": 351649,
+            "gzipBytes": 110262,
+            "sha256": "68d0e3f061c7640b50c121b93ec07203a2ee6432960ae5e54b3fa728b97aa1d3"
+          },
+          {
+            "file": "assets/index-ByME0HLB.css",
+            "bytes": 126337,
+            "gzipBytes": 21213,
+            "sha256": "7b67029f4961e2574ed5d5307d40efbc722c1a6a5510f639f9bb020da04cf834"
+          },
+          {
+            "file": "assets/jsx-runtime-D3jfb0Ew.js",
+            "bytes": 8901,
+            "gzipBytes": 3382,
+            "sha256": "a2c68294426b0ded53fa2d6c97bb39c4a51f99e5e4b23e7953a2c69298e361f8"
+          },
+          {
+            "file": "assets/Spinner-ugkh3xqA.js",
+            "bytes": 191572,
+            "gzipBytes": 64569,
+            "sha256": "2b8e87a57012f57dc62610f55c358b699d4659c3247eb82322ab90fffc9578f7"
+          },
+          {
+            "file": "assets/DashboardRouter-CUwKLlw5.js",
+            "bytes": 16840,
+            "gzipBytes": 5462,
+            "sha256": "cb9f0fc126d536f25e783f67e0769bb35167d8eb729b30acabca046cd854aa71"
+          },
+          {
+            "file": "assets/arrow-right-C0QfZoz8.js",
+            "bytes": 196,
+            "gzipBytes": 179,
+            "sha256": "190ac80530e2652d2722a1ce49e85b4bec112af63bb6d13bf6be0d541a5f8a81"
+          },
+          {
+            "file": "assets/AfterSubNavigation-DY6839XY.js",
+            "bytes": 70429,
+            "gzipBytes": 24382,
+            "sha256": "da135e91c95eff2072c4742618387f8051b54e0fd9b50e5e7aad5717f3528a8b"
+          },
+          {
+            "file": "assets/DialogRoot-DqTIBq6k.js",
+            "bytes": 7957,
+            "gzipBytes": 3051,
+            "sha256": "2c9e3465e28e4861ccec27626998d25be023c3440864d67db23f967de8476556"
+          },
+          {
+            "file": "assets/useScrollLock-Bq5Y4Iau.js",
+            "bytes": 56646,
+            "gzipBytes": 19865,
+            "sha256": "eb543ff8d0f0b4747051cabf12bd081e0c788eaddb03a2cab699a20dc74da690"
+          },
+          {
+            "file": "assets/Label-aAC7J2Aw.js",
+            "bytes": 40927,
+            "gzipBytes": 14775,
+            "sha256": "ae47ac096ec9fade9bee83ae55cb697e7bec8ec43ffb1c5be8119f2bc8833c26"
+          },
+          {
+            "file": "assets/useButton-DMcblznB.js",
+            "bytes": 2433,
+            "gzipBytes": 1126,
+            "sha256": "6cd26c5516b835b99c23c584bf004ae6426bff8cc3fbf021e0554e9f39603c86"
+          },
+          {
+            "file": "assets/useBaseUiId-DARChDa6.js",
+            "bytes": 95,
+            "gzipBytes": 112,
+            "sha256": "f96879c7660ee596bc9dcce9ecff6ed8e220ed9d67ac1c684c741b13a473f423"
+          },
+          {
+            "file": "assets/safePolygon-J6ZB_zzL.js",
+            "bytes": 12402,
+            "gzipBytes": 4431,
+            "sha256": "c95e38b91ce0473ec0d3951920c9e02f5c7fc8afd1e5c03d119292cc49a13baf"
+          },
+          {
+            "file": "assets/usePersistedState-CsWMFIC3.js",
+            "bytes": 2189,
+            "gzipBytes": 944,
+            "sha256": "77ad38681f630511dd29a87fdb803e6105e06236524852e8ab7db68ba3d1a657"
+          },
+          {
+            "file": "assets/folder-TYWdxxCB.js",
+            "bytes": 259,
+            "gzipBytes": 212,
+            "sha256": "69471e4482592e31a618e7b09babc528bbb9f2215535f2bf195852956d61865f"
+          },
+          {
+            "file": "assets/network-P_OZCPKp.js",
+            "bytes": 415,
+            "gzipBytes": 256,
+            "sha256": "ea15467870e9ebf3c1123d9636a95829824135b09b2b8f46eecb7f704d0553e3"
+          },
+          {
+            "file": "assets/refresh-cw-T29vnseR.js",
+            "bytes": 352,
+            "gzipBytes": 247,
+            "sha256": "7c4e5a700d5d8d8f641e7430ba526dbfe4bde305921593d9ec0b8f1469c93822"
+          },
+          {
+            "file": "assets/terminal-BT8gNOaT.js",
+            "bytes": 193,
+            "gzipBytes": 176,
+            "sha256": "b52abc87bde60e46686846dae35af17181c7b01dd7323ba1d764ef968031602e"
+          },
+          {
+            "file": "assets/Pagination-I1w7Zj1w.js",
+            "bytes": 1148,
+            "gzipBytes": 591,
+            "sha256": "f23a16c9fe182f8ad4c4fb21ba185301078a7aed591ad7687498d614dfa49520"
+          },
+          {
+            "file": "assets/chevrons-left-CpZvTZDr.js",
+            "bytes": 205,
+            "gzipBytes": 175,
+            "sha256": "e2be22b4439e7c0671c4f9cee55756c780b6ef33348a751315c9f7a4e62ad82c"
+          },
+          {
+            "file": "assets/chevrons-right-CAVZlnRe.js",
+            "bytes": 204,
+            "gzipBytes": 175,
+            "sha256": "7ecbc5147d781c18d2606a30e4935bf614f1a6bafd3626168d4d06eaeee7581e"
+          }
+        ]
+      },
+      "payloadSamples": [
+        {
+          "dashboardJsBytes": 765012,
+          "dashboardJsGzipBytes": 254371,
+          "dashboardTotalBytes": 891349,
+          "dashboardTotalGzipBytes": 275584
+        },
+        {
+          "dashboardJsBytes": 765012,
+          "dashboardJsGzipBytes": 254354,
+          "dashboardTotalBytes": 891349,
+          "dashboardTotalGzipBytes": 275567
+        },
+        {
+          "dashboardJsBytes": 765012,
+          "dashboardJsGzipBytes": 254378,
+          "dashboardTotalBytes": 891349,
+          "dashboardTotalGzipBytes": 275591
+        },
+        {
+          "dashboardJsBytes": 765012,
+          "dashboardJsGzipBytes": 254365,
+          "dashboardTotalBytes": 891349,
+          "dashboardTotalGzipBytes": 275578
+        },
+        {
+          "dashboardJsBytes": 765012,
+          "dashboardJsGzipBytes": 254372,
+          "dashboardTotalBytes": 891349,
+          "dashboardTotalGzipBytes": 275585
+        }
+      ]
+    },
+    "pterodactyl": {
+      "revision": "e98678c5a1d07a74036660a459d87a4eb7c105c1",
+      "ref": "v1.15.1",
+      "repository": "pterodactyl/panel",
+      "lockfileSha256": "bc3694b037e22369d3702eb635a430adaf7dac46ac5cee37b8be7c81f17962c5",
+      "toolchain": "Webpack ^5.103.0",
+      "buildMs": {
+        "median": 12886.8166,
+        "min": 12831.1713,
+        "max": 13247.9464,
+        "samples": [
+          12886.8166,
+          13035.030499999999,
+          12831.1713,
+          13247.9464,
+          12852.1102
+        ]
+      },
+      "entry": {
+        "jsBytes": 526586,
+        "jsGzipBytes": 162302,
+        "cssBytes": 0,
+        "cssGzipBytes": 0,
+        "totalBytes": 526586,
+        "totalGzipBytes": 162302,
+        "files": [
+          {
+            "file": "bundle.219e8d71.js",
+            "bytes": 526586,
+            "gzipBytes": 162302,
+            "sha256": "ae37947ea60edb58e28d8d0819a91a08f245edd100a0611883b6cdbe97524eb2"
+          }
+        ]
+      },
+      "dashboard": {
+        "jsBytes": 2025060,
+        "jsGzipBytes": 535676,
+        "cssBytes": 0,
+        "cssGzipBytes": 0,
+        "totalBytes": 2025060,
+        "totalGzipBytes": 535676,
+        "files": [
+          {
+            "file": "bundle.219e8d71.js",
+            "bytes": 526586,
+            "gzipBytes": 162302,
+            "sha256": "ae37947ea60edb58e28d8d0819a91a08f245edd100a0611883b6cdbe97524eb2"
+          },
+          {
+            "file": "478.285e5c3a.js",
+            "bytes": 94136,
+            "gzipBytes": 28988,
+            "sha256": "48e448f9f4f6ad0e743e5757856d823c5ed1d19d864e3624684cd2d49d88b62c"
+          },
+          {
+            "file": "972.36bf4c96.js",
+            "bytes": 1120557,
+            "gzipBytes": 280666,
+            "sha256": "723536308a723140a7b0aa33153d1a230a65c68180cb4ffae6eaabbe2bae2170"
+          },
+          {
+            "file": "552.80850632.js",
+            "bytes": 270639,
+            "gzipBytes": 60133,
+            "sha256": "eecfabaa765efbd43f88e1ddf297ec8223902bc1dd05372a7d00e0b503c6555c"
+          },
+          {
+            "file": "dashboard.6060560e.js",
+            "bytes": 13142,
+            "gzipBytes": 3587,
+            "sha256": "7784445e4ec1a748e8c01a82a95d54ec27778b8550309f17a597a2c15c57d9cc"
+          }
+        ]
+      },
+      "payloadSamples": [
+        {
+          "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535676,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535676
+        },
+        {
+          "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535676,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535676
+        },
+        {
+          "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535676,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535676
+        },
+        {
+          "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535675,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535675
+        },
+        {
+          "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535676,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535676
+        }
+      ]
+    }
+  }
+}

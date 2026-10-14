@@ -1,0 +1,127 @@
+.serverpulse {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #37434d;
+  border-radius: 0.5rem;
+  background: #1b232b;
+  color: #e9edf0;
+}
+.serverpulse-header,
+.serverpulse-actions,
+.serverpulse h2,
+.serverpulse-button,
+.serverpulse button,
+.serverpulse-dialog button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.serverpulse-header {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.serverpulse h2,
+.serverpulse-dialog h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.serverpulse-actions {
+  flex-wrap: wrap;
+}
+.serverpulse-button,
+.serverpulse button,
+.serverpulse-dialog button {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #536470;
+  border-radius: 0.375rem;
+  background: #26313b;
+  color: #e9edf0;
+  cursor: pointer;
+}
+.serverpulse button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.serverpulse button:focus-visible,
+.serverpulse-dialog :focus-visible {
+  outline: 2px solid #78d4cc;
+  outline-offset: 3px;
+}
+.serverpulse-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.serverpulse-stats dt,
+.serverpulse-caption {
+  font-size: 0.8rem;
+  color: #b7c3cc;
+}
+.serverpulse-stats dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.serverpulse-meter {
+  height: 0.375rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #37434d;
+}
+.serverpulse-meter span {
+  display: block;
+  height: 100%;
+  background: #78d4cc;
+}
+.serverpulse-caption {
+  margin-top: 0.75rem;
+}
+.serverpulse-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgb(0 0 0 / 65%);
+}
+.serverpulse-dialog {
+  position: fixed;
+  z-index: 1001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border: 1px solid #536470;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background: #1b232b;
+  color: #e9edf0;
+}
+.serverpulse-dialog p {
+  margin: 0.75rem 0;
+}
+.serverpulse-dialog label {
+  display: block;
+  margin: 1rem 0 0.375rem;
+}
+.serverpulse-dialog input,
+.serverpulse-dialog select {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid #536470;
+  border-radius: 0.375rem;
+  background: #11161b;
+  color: #e9edf0;
+}
+.serverpulse-dialog .serverpulse-actions {
+  margin-top: 1.5rem;
+}
+@media (max-width: 480px) {
+  .serverpulse-stats {
+    grid-template-columns: 1fr;
+  }
+}

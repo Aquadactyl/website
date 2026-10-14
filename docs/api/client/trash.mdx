@@ -1,0 +1,251 @@
+---
+title: File trash
+description: 4 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-trash" />
+
+## GET `/api/client/servers/{server}/trash`
+
+Calls FileTrashController::index.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation                                |
+| ------ | ----------------------------------------- |
+| `page` | `'sometimes\|integer\|min:1\|max:100000'` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+$server = $this->route('server');
+if (config('aquadactyl.features.file_trash', false) !== true || !$server instanceof Server) {
+    return false;
+}
+$permission = $this->isMethod('GET') ? Permission::ACTION_FILE_READ : Permission::ACTION_FILE_DELETE;
+
+return $this->user()->can($permission, $server)
+    && (!$this->routeIs('api:client:server.trash.restore') || $this->user()->can(Permission::ACTION_FILE_CREATE, $server));
+```
+
+</details>
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$page = FileTrashItem::where('server_id', $server->id)->orderByDesc('id')->paginate(25);
+foreach ($page as $item) {
+    if (!$item->ready || $item->restore_started_at !== null) {
+        $trash->reconcile($server, $item);
+    }
+}
+if ($page->getCollection()->contains(fn ($item) => !$item->exists)) {
+    $page = FileTrashItem::where('server_id', $server->id)->orderByDesc('id')->paginate(25);
+}
+
+return new JsonResponse([
+    'data' => $page->getCollection()->map(fn ($item) => [
+        'id' => $item->uuid,
+        'name' => basename($item->original_path),
+        'path' => $item->original_path,
+        'is_file' => $item->is_file,
+        'ready' => $item->ready,
+        'deleted_at' => $item->created_at->toIso8601String(),
+        'expires_at' => $item->expires_at->toIso8601String(),
+    ]),
+    'meta' => ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'total' => $page->total()],
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/trash" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-trash" />
+
+## POST `/api/client/servers/{server}/trash`
+
+Calls FileTrashController::store.
+
+**Access:** Client API key or authenticated panel session; `file.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/TrashFilesRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                                                                                                                                                                                                                        |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `root`    | `'required\|string\|max:4096'`                                                                                                                                                                                                    |
+| `files`   | `'required\|array\|min:1\|max:100'`                                                                                                                                                                                               |
+| `files.*` | `['bail', 'required', 'string', 'max:255', 'distinct', function ($attribute, $value, $fail) { if (in_array($value, ['.', '..'], true) \|\| strpbrk($value, "/\\\0") !== false) { $fail('Select files from one directory.'); } }]` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.file_trash', false) === true && parent::authorize();
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$trash->move($server, $request->validated('root'), $request->validated('files'));
+Activity::event('server:file.trash.move')->property('files', $request->validated('files'))->log();
+
+return new JsonResponse([], 204);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-trash-item-restore" />
+
+## POST `/api/client/servers/{server}/trash/{item}/restore`
+
+Calls FileTrashController::restore.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php)
+
+**Path parameters:** `server`, `item`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation                                |
+| ------ | ----------------------------------------- |
+| `page` | `'sometimes\|integer\|min:1\|max:100000'` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+$server = $this->route('server');
+if (config('aquadactyl.features.file_trash', false) !== true || !$server instanceof Server) {
+    return false;
+}
+$permission = $this->isMethod('GET') ? Permission::ACTION_FILE_READ : Permission::ACTION_FILE_DELETE;
+
+return $this->user()->can($permission, $server)
+    && (!$this->routeIs('api:client:server.trash.restore') || $this->user()->can(Permission::ACTION_FILE_CREATE, $server));
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$record = FileTrashItem::where('server_id', $server->id)->where('uuid', $item)->firstOrFail();
+$trash->restore($server, $record);
+Activity::event('server:file.trash.restore')->property('file', $record->original_path)->log();
+
+return new JsonResponse([], 204);
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-trash-item" />
+
+## DELETE `/api/client/servers/{server}/trash/{item}`
+
+Calls FileTrashController::destroy.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php)
+
+**Path parameters:** `server`, `item`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field  | Validation                                |
+| ------ | ----------------------------------------- |
+| `page` | `'sometimes\|integer\|min:1\|max:100000'` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+$server = $this->route('server');
+if (config('aquadactyl.features.file_trash', false) !== true || !$server instanceof Server) {
+    return false;
+}
+$permission = $this->isMethod('GET') ? Permission::ACTION_FILE_READ : Permission::ACTION_FILE_DELETE;
+
+return $this->user()->can($permission, $server)
+    && (!$this->routeIs('api:client:server.trash.restore') || $this->user()->can(Permission::ACTION_FILE_CREATE, $server));
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$record = FileTrashItem::where('server_id', $server->id)->where('uuid', $item)->firstOrFail();
+$trash->purge($server, $record);
+Activity::event('server:file.trash.delete')->property('file', $record->original_path)->log();
+
+return new JsonResponse([], 204);
+```
+
+</details>

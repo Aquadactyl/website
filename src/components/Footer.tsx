@@ -19,7 +19,7 @@ export default function Footer() {
             Euphoria Development
           </a>
           <nav
-            className="flex items-center gap-5.5 text-xs text-[#a0abb6] sm:gap-6"
+            className="flex flex-wrap items-center gap-5.5 text-xs text-[#a0abb6] sm:gap-6"
             aria-label="Footer navigation"
           >
             <Link
@@ -27,6 +27,12 @@ export default function Footer() {
               className="transition-colors hover:text-[#e9edf0]"
             >
               Documentation
+            </Link>
+            <Link
+              href="/docs/api"
+              className="transition-colors hover:text-[#e9edf0]"
+            >
+              API reference
             </Link>
             <a
               href={"https://github.com/Aquadactyl/aquadactyl"}

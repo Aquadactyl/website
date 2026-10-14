@@ -1,0 +1,1045 @@
+---
+title: Response objects
+description: Exact response attributes and relationships from Aquadactyl API transformers.
+---
+
+These are the attribute definitions from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). They sit inside the resource envelope described in [conventions](/docs/api/authentication#responses-and-pagination). PHP expressions describe how values are constructed; conditional relationships and secret fields are not always present. Non-transformer endpoints document their response construction on their own reference page.
+
+## Application AllocationTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/AllocationTransformer.php).
+
+| Attribute  | Value construction                 |
+| ---------- | ---------------------------------- |
+| `id`       | `$allocation->id`                  |
+| `ip`       | `$allocation->ip`                  |
+| `alias`    | `$allocation->ip_alias`            |
+| `port`     | `$allocation->port`                |
+| `notes`    | `$allocation->notes`               |
+| `assigned` | `!is_null($allocation->server_id)` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $allocation->id,
+    'ip' => $allocation->ip,
+    'alias' => $allocation->ip_alias,
+    'port' => $allocation->port,
+    'notes' => $allocation->notes,
+    'assigned' => !is_null($allocation->server_id),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['node', 'server'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application DatabaseHostTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/DatabaseHostTransformer.php).
+
+| Attribute    | Value construction                   |
+| ------------ | ------------------------------------ |
+| `id`         | `$model->id`                         |
+| `name`       | `$model->name`                       |
+| `host`       | `$model->host`                       |
+| `port`       | `$model->port`                       |
+| `username`   | `$model->username`                   |
+| `node`       | `$model->node_id`                    |
+| `created_at` | `$model->created_at->toAtomString()` |
+| `updated_at` | `$model->updated_at->toAtomString()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'name' => $model->name,
+    'host' => $model->host,
+    'port' => $model->port,
+    'username' => $model->username,
+    'node' => $model->node_id,
+    'created_at' => $model->created_at->toAtomString(),
+    'updated_at' => $model->updated_at->toAtomString(),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = [ 'databases', ];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application EggTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/EggTransformer.php).
+
+| Attribute              | Value construction                                                          |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `id`                   | `$model->id`                                                                |
+| `uuid`                 | `$model->uuid`                                                              |
+| `name`                 | `$model->name`                                                              |
+| `nest`                 | `$model->nest_id`                                                           |
+| `author`               | `$model->author`                                                            |
+| `description`          | `$model->description`                                                       |
+| `docker_image`         | `count($model->docker_images) > 0 ? Arr::first($model->docker_images) : ''` |
+| `docker_images`        | `$model->docker_images`                                                     |
+| `config`               | `Nested object`                                                             |
+| `config.files`         | `$files`                                                                    |
+| `config.startup`       | `json_decode($model->config_startup, true)`                                 |
+| `config.stop`          | `$model->config_stop`                                                       |
+| `config.logs`          | `json_decode($model->config_logs, true)`                                    |
+| `config.file_denylist` | `$model->file_denylist`                                                     |
+| `config.extends`       | `$model->config_from`                                                       |
+| `startup`              | `$model->startup`                                                           |
+| `script`               | `Nested object`                                                             |
+| `script.privileged`    | `$model->script_is_privileged`                                              |
+| `script.install`       | `$model->script_install`                                                    |
+| `script.entry`         | `$model->script_entry`                                                      |
+| `script.container`     | `$model->script_container`                                                  |
+| `script.extends`       | `$model->copy_script_from`                                                  |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+$files = json_decode($model->config_files, true, 512, JSON_THROW_ON_ERROR);
+if (empty($files)) {
+    $files = new \stdClass();
+}
+
+return [
+    'id' => $model->id,
+    'uuid' => $model->uuid,
+    'name' => $model->name,
+    'nest' => $model->nest_id,
+    'author' => $model->author,
+    'description' => $model->description,
+
+    'docker_image' => count($model->docker_images) > 0 ? Arr::first($model->docker_images) : '',
+    'docker_images' => $model->docker_images,
+    'config' => [
+        'files' => $files,
+        'startup' => json_decode($model->config_startup, true),
+        'stop' => $model->config_stop,
+        'logs' => json_decode($model->config_logs, true),
+        'file_denylist' => $model->file_denylist,
+        'extends' => $model->config_from,
+    ],
+    'startup' => $model->startup,
+    'script' => [
+        'privileged' => $model->script_is_privileged,
+        'install' => $model->script_install,
+        'entry' => $model->script_entry,
+        'container' => $model->script_container,
+        'extends' => $model->copy_script_from,
+    ],
+    $model->getCreatedAtColumn() => $this->formatTimestamp($model->created_at),
+    $model->getUpdatedAtColumn() => $this->formatTimestamp($model->updated_at),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = [ 'nest', 'servers', 'config', 'script', 'variables', ];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application EggVariableTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/EggVariableTransformer.php).
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return $model->toArray();
+```
+
+</details>
+
+## Application LocationTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/LocationTransformer.php).
+
+| Attribute | Value construction |
+| --------- | ------------------ |
+| `id`      | `$location->id`    |
+| `short`   | `$location->short` |
+| `long`    | `$location->long`  |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $location->id,
+    'short' => $location->short,
+    'long' => $location->long,
+    $location->getUpdatedAtColumn() => $this->formatTimestamp($location->updated_at),
+    $location->getCreatedAtColumn() => $this->formatTimestamp($location->created_at),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['nodes', 'servers'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application NestTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/NestTransformer.php).
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+$response = $model->toArray();
+
+$response[$model->getUpdatedAtColumn()] = $this->formatTimestamp($model->updated_at);
+$response[$model->getCreatedAtColumn()] = $this->formatTimestamp($model->created_at);
+
+return $response;
+```
+
+</details>
+
+Relationships: `$availableIncludes = [ 'eggs', 'servers', ];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application NodeTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/NodeTransformer.php).
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+$response = collect($node->toArray())->mapWithKeys(function ($value, $key) {
+
+    $key = ($key === 'daemonSFTP') ? 'daemonSftp' : $key;
+
+    return [snake_case($key) => $value];
+})->toArray();
+
+$response[$node->getUpdatedAtColumn()] = $this->formatTimestamp($node->updated_at);
+$response[$node->getCreatedAtColumn()] = $this->formatTimestamp($node->created_at);
+
+$resources = $node->servers()->select(['memory', 'disk'])->get();
+
+$response['allocated_resources'] = [
+    'memory' => $resources->sum('memory'),
+    'disk' => $resources->sum('disk'),
+];
+
+return $response;
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['allocations', 'location', 'servers'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application ServerDatabaseTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerDatabaseTransformer.php).
+
+| Attribute         | Value construction                   |
+| ----------------- | ------------------------------------ |
+| `id`              | `$model->id`                         |
+| `server`          | `$model->server_id`                  |
+| `host`            | `$model->database_host_id`           |
+| `database`        | `$model->database`                   |
+| `username`        | `$model->username`                   |
+| `remote`          | `$model->remote`                     |
+| `max_connections` | `$model->max_connections`            |
+| `created_at`      | `$model->created_at->toAtomString()` |
+| `updated_at`      | `$model->updated_at->toAtomString()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'server' => $model->server_id,
+    'host' => $model->database_host_id,
+    'database' => $model->database,
+    'username' => $model->username,
+    'remote' => $model->remote,
+    'max_connections' => $model->max_connections,
+    'created_at' => $model->created_at->toAtomString(),
+    'updated_at' => $model->updated_at->toAtomString(),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['password', 'host'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application ServerTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerTransformer.php).
+
+| Attribute                    | Value construction                           |
+| ---------------------------- | -------------------------------------------- |
+| `id`                         | `$server->getKey()`                          |
+| `external_id`                | `$server->external_id`                       |
+| `uuid`                       | `$server->uuid`                              |
+| `identifier`                 | `$server->identifier`                        |
+| `name`                       | `$server->name`                              |
+| `description`                | `$server->description`                       |
+| `status`                     | `$server->status`                            |
+| `suspended`                  | `$server->isSuspended()`                     |
+| `limits`                     | `Nested object`                              |
+| `limits.memory`              | `$server->memory`                            |
+| `limits.swap`                | `$server->swap`                              |
+| `limits.disk`                | `$server->disk`                              |
+| `limits.io`                  | `$server->io`                                |
+| `limits.cpu`                 | `$server->cpu`                               |
+| `limits.threads`             | `$server->threads`                           |
+| `limits.oom_disabled`        | `$server->oom_disabled`                      |
+| `feature_limits`             | `Nested object`                              |
+| `feature_limits.databases`   | `$server->database_limit`                    |
+| `feature_limits.allocations` | `$server->allocation_limit`                  |
+| `feature_limits.backups`     | `$server->backup_limit`                      |
+| `user`                       | `$server->owner_id`                          |
+| `node`                       | `$server->node_id`                           |
+| `allocation`                 | `$server->allocation_id`                     |
+| `nest`                       | `$server->nest_id`                           |
+| `egg`                        | `$server->egg_id`                            |
+| `container`                  | `Nested object`                              |
+| `container.startup_command`  | `$server->startup`                           |
+| `container.image`            | `$server->image`                             |
+| `container.installed`        | `$server->isInstalled() ? 1 : 0`             |
+| `container.environment`      | `$this->environmentService->handle($server)` |
+| `container.skip_scripts`     | `$server->skip_scripts`                      |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $server->getKey(),
+    'external_id' => $server->external_id,
+    'uuid' => $server->uuid,
+    'identifier' => $server->identifier,
+    'name' => $server->name,
+    'description' => $server->description,
+    'status' => $server->status,
+
+    'suspended' => $server->isSuspended(),
+    'limits' => [
+        'memory' => $server->memory,
+        'swap' => $server->swap,
+        'disk' => $server->disk,
+        'io' => $server->io,
+        'cpu' => $server->cpu,
+        'threads' => $server->threads,
+        'oom_disabled' => $server->oom_disabled,
+    ],
+    'feature_limits' => [
+        'databases' => $server->database_limit,
+        'allocations' => $server->allocation_limit,
+        'backups' => $server->backup_limit,
+    ],
+    'user' => $server->owner_id,
+    'node' => $server->node_id,
+    'allocation' => $server->allocation_id,
+    'nest' => $server->nest_id,
+    'egg' => $server->egg_id,
+    'container' => [
+        'startup_command' => $server->startup,
+        'image' => $server->image,
+
+        'installed' => $server->isInstalled() ? 1 : 0,
+        'environment' => $this->environmentService->handle($server),
+        'skip_scripts' => $server->skip_scripts,
+    ],
+    $server->getUpdatedAtColumn() => $this->formatTimestamp($server->updated_at),
+    $server->getCreatedAtColumn() => $this->formatTimestamp($server->created_at),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = [ 'allocations', 'user', 'subusers', 'nest', 'egg', 'variables', 'location', 'node', 'databases', 'transfer', ];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application ServerVariableTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerVariableTransformer.php).
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return $variable->toArray();
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['parent'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application SubuserTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/SubuserTransformer.php).
+
+| Attribute     | Value construction                             |
+| ------------- | ---------------------------------------------- |
+| `id`          | `$subuser->id`                                 |
+| `user_id`     | `$subuser->user_id`                            |
+| `server_id`   | `$subuser->server_id`                          |
+| `permissions` | `$subuser->permissions`                        |
+| `created_at`  | `$this->formatTimestamp($subuser->created_at)` |
+| `updated_at`  | `$this->formatTimestamp($subuser->updated_at)` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $subuser->id,
+    'user_id' => $subuser->user_id,
+    'server_id' => $subuser->server_id,
+    'permissions' => $subuser->permissions,
+    'created_at' => $this->formatTimestamp($subuser->created_at),
+    'updated_at' => $this->formatTimestamp($subuser->updated_at),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['user', 'server'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Application UserTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/UserTransformer.php).
+
+| Attribute     | Value construction                          |
+| ------------- | ------------------------------------------- |
+| `id`          | `$user->id`                                 |
+| `external_id` | `$user->external_id`                        |
+| `uuid`        | `$user->uuid`                               |
+| `username`    | `$user->username`                           |
+| `email`       | `$user->email`                              |
+| `first_name`  | `$user->name_first`                         |
+| `last_name`   | `$user->name_last`                          |
+| `language`    | `$user->language`                           |
+| `root_admin`  | `(bool) $user->root_admin`                  |
+| `2fa`         | `(bool) $user->use_totp`                    |
+| `created_at`  | `$this->formatTimestamp($user->created_at)` |
+| `updated_at`  | `$this->formatTimestamp($user->updated_at)` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $user->id,
+    'external_id' => $user->external_id,
+    'uuid' => $user->uuid,
+    'username' => $user->username,
+    'email' => $user->email,
+    'first_name' => $user->name_first,
+    'last_name' => $user->name_last,
+    'language' => $user->language,
+    'root_admin' => (bool) $user->root_admin,
+    '2fa' => (bool) $user->use_totp,
+    'created_at' => $this->formatTimestamp($user->created_at),
+    'updated_at' => $this->formatTimestamp($user->updated_at),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['servers'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Client AccountTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/AccountTransformer.php).
+
+| Attribute             | Value construction                  |
+| --------------------- | ----------------------------------- |
+| `id`                  | `$model->id`                        |
+| `admin`               | `$model->root_admin`                |
+| `username`            | `$model->username`                  |
+| `email`               | `$model->email`                     |
+| `first_name`          | `$model->name_first`                |
+| `last_name`           | `$model->name_last`                 |
+| `language`            | `$model->language`                  |
+| `avatar_url`          | `$model->avatar_url`                |
+| `blur_sensitive_data` | `$model->shouldBlurSensitiveData()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'admin' => $model->root_admin,
+    'username' => $model->username,
+    'email' => $model->email,
+    'first_name' => $model->name_first,
+    'last_name' => $model->name_last,
+    'language' => $model->language,
+    'avatar_url' => $model->avatar_url,
+    'blur_sensitive_data' => $model->shouldBlurSensitiveData(),
+];
+```
+
+</details>
+
+## Client ActivityLogTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ActivityLogTransformer.php).
+
+| Attribute                 | Value construction                                    |
+| ------------------------- | ----------------------------------------------------- |
+| `id`                      | `sha1($model->id)`                                    |
+| `batch`                   | `$model->batch`                                       |
+| `event`                   | `$model->event`                                       |
+| `is_api`                  | `!is_null($model->api_key_id)`                        |
+| `ip`                      | `$this->canViewIP($model->actor) ? $model->ip : null` |
+| `description`             | `$model->description`                                 |
+| `properties`              | `$this->properties($model)`                           |
+| `has_additional_metadata` | `$this->hasAdditionalMetadata($model)`                |
+| `timestamp`               | `$model->timestamp->toAtomString()`                   |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+
+    'id' => sha1($model->id),
+    'batch' => $model->batch,
+    'event' => $model->event,
+    'is_api' => !is_null($model->api_key_id),
+    'ip' => $this->canViewIP($model->actor) ? $model->ip : null,
+    'description' => $model->description,
+    'properties' => $this->properties($model),
+    'has_additional_metadata' => $this->hasAdditionalMetadata($model),
+    'timestamp' => $model->timestamp->toAtomString(),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['actor'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Client AllocationTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/AllocationTransformer.php).
+
+| Attribute    | Value construction                             |
+| ------------ | ---------------------------------------------- |
+| `id`         | `$model->id`                                   |
+| `ip`         | `$model->ip`                                   |
+| `ip_alias`   | `$model->ip_alias`                             |
+| `port`       | `$model->port`                                 |
+| `notes`      | `$model->notes`                                |
+| `is_default` | `$model->server->allocation_id === $model->id` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'ip' => $model->ip,
+    'ip_alias' => $model->ip_alias,
+    'port' => $model->port,
+    'notes' => $model->notes,
+    'is_default' => $model->server->allocation_id === $model->id,
+];
+```
+
+</details>
+
+## Client ApiKeyTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ApiKeyTransformer.php).
+
+| Attribute      | Value construction                                                   |
+| -------------- | -------------------------------------------------------------------- |
+| `identifier`   | `$model->identifier`                                                 |
+| `description`  | `$model->memo`                                                       |
+| `allowed_ips`  | `$model->allowed_ips`                                                |
+| `last_used_at` | `$model->last_used_at ? $model->last_used_at->toAtomString() : null` |
+| `created_at`   | `$model->created_at->toAtomString()`                                 |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'identifier' => $model->identifier,
+    'description' => $model->memo,
+    'allowed_ips' => $model->allowed_ips,
+    'last_used_at' => $model->last_used_at ? $model->last_used_at->toAtomString() : null,
+    'created_at' => $model->created_at->toAtomString(),
+];
+```
+
+</details>
+
+## Client BackupTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/BackupTransformer.php).
+
+| Attribute       | Value construction                                                     |
+| --------------- | ---------------------------------------------------------------------- |
+| `uuid`          | `$backup->uuid`                                                        |
+| `is_successful` | `$backup->is_successful`                                               |
+| `is_locked`     | `$backup->is_locked`                                                   |
+| `name`          | `$backup->name`                                                        |
+| `ignored_files` | `$backup->ignored_files`                                               |
+| `checksum`      | `$backup->checksum`                                                    |
+| `bytes`         | `$backup->bytes`                                                       |
+| `created_at`    | `$backup->created_at->toAtomString()`                                  |
+| `completed_at`  | `$backup->completed_at ? $backup->completed_at->toAtomString() : null` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'uuid' => $backup->uuid,
+    'is_successful' => $backup->is_successful,
+    'is_locked' => $backup->is_locked,
+    'name' => $backup->name,
+    'ignored_files' => $backup->ignored_files,
+    'checksum' => $backup->checksum,
+    'bytes' => $backup->bytes,
+    'created_at' => $backup->created_at->toAtomString(),
+    'completed_at' => $backup->completed_at ? $backup->completed_at->toAtomString() : null,
+];
+```
+
+</details>
+
+## Client DatabaseTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/DatabaseTransformer.php).
+
+| Attribute          | Value construction                   |
+| ------------------ | ------------------------------------ |
+| `id`               | `$this->hashids->encode($model->id)` |
+| `host`             | `Nested object`                      |
+| `host.address`     | `$model->getRelation('host')->host`  |
+| `host.port`        | `$model->getRelation('host')->port`  |
+| `name`             | `$model->database`                   |
+| `username`         | `$model->username`                   |
+| `connections_from` | `$model->remote`                     |
+| `max_connections`  | `$model->max_connections`            |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+$model->loadMissing('host');
+
+return [
+    'id' => $this->hashids->encode($model->id),
+    'host' => [
+        'address' => $model->getRelation('host')->host,
+        'port' => $model->getRelation('host')->port,
+    ],
+    'name' => $model->database,
+    'username' => $model->username,
+    'connections_from' => $model->remote,
+    'max_connections' => $model->max_connections,
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['password'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Client EggTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/EggTransformer.php).
+
+| Attribute | Value construction |
+| --------- | ------------------ |
+| `uuid`    | `$egg->uuid`       |
+| `name`    | `$egg->name`       |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'uuid' => $egg->uuid,
+    'name' => $egg->name,
+];
+```
+
+</details>
+
+## Client EggVariableTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/EggVariableTransformer.php).
+
+| Attribute       | Value construction         |
+| --------------- | -------------------------- |
+| `name`          | `$variable->name`          |
+| `description`   | `$variable->description`   |
+| `env_variable`  | `$variable->env_variable`  |
+| `default_value` | `$variable->default_value` |
+| `server_value`  | `$variable->server_value`  |
+| `is_editable`   | `$variable->user_editable` |
+| `rules`         | `$variable->rules`         |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+if (!$variable->user_viewable) {
+    throw new \BadMethodCallException('Cannot transform a hidden egg variable in a client transformer.');
+}
+
+return [
+    'name' => $variable->name,
+    'description' => $variable->description,
+    'env_variable' => $variable->env_variable,
+    'default_value' => $variable->default_value,
+    'server_value' => $variable->server_value,
+    'is_editable' => $variable->user_editable,
+    'rules' => $variable->rules,
+];
+```
+
+</details>
+
+## Client FileObjectTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/FileObjectTransformer.php).
+
+| Attribute     | Value construction                                               |
+| ------------- | ---------------------------------------------------------------- |
+| `name`        | `Arr::get($item, 'name')`                                        |
+| `mode`        | `Arr::get($item, 'mode')`                                        |
+| `mode_bits`   | `Arr::get($item, 'mode_bits')`                                   |
+| `size`        | `Arr::get($item, 'size')`                                        |
+| `is_file`     | `Arr::get($item, 'file', true)`                                  |
+| `is_symlink`  | `Arr::get($item, 'symlink', false)`                              |
+| `mimetype`    | `Arr::get($item, 'mime', 'application/octet-stream')`            |
+| `created_at`  | `Carbon::parse(Arr::get($item, 'created', ''))->toAtomString()`  |
+| `modified_at` | `Carbon::parse(Arr::get($item, 'modified', ''))->toAtomString()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'name' => Arr::get($item, 'name'),
+    'mode' => Arr::get($item, 'mode'),
+    'mode_bits' => Arr::get($item, 'mode_bits'),
+    'size' => Arr::get($item, 'size'),
+    'is_file' => Arr::get($item, 'file', true),
+    'is_symlink' => Arr::get($item, 'symlink', false),
+    'mimetype' => Arr::get($item, 'mime', 'application/octet-stream'),
+    'created_at' => Carbon::parse(Arr::get($item, 'created', ''))->toAtomString(),
+    'modified_at' => Carbon::parse(Arr::get($item, 'modified', ''))->toAtomString(),
+];
+```
+
+</details>
+
+## Client ScheduleTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ScheduleTransformer.php).
+
+| Attribute           | Value construction                     |
+| ------------------- | -------------------------------------- |
+| `id`                | `$model->id`                           |
+| `name`              | `$model->name`                         |
+| `cron`              | `Nested object`                        |
+| `cron.day_of_week`  | `$model->cron_day_of_week`             |
+| `cron.day_of_month` | `$model->cron_day_of_month`            |
+| `cron.month`        | `$model->cron_month`                   |
+| `cron.hour`         | `$model->cron_hour`                    |
+| `cron.minute`       | `$model->cron_minute`                  |
+| `is_active`         | `$model->is_active`                    |
+| `is_processing`     | `$model->is_processing`                |
+| `only_when_online`  | `$model->only_when_online`             |
+| `last_run_at`       | `$model->last_run_at?->toAtomString()` |
+| `next_run_at`       | `$model->next_run_at?->toAtomString()` |
+| `created_at`        | `$model->created_at->toAtomString()`   |
+| `updated_at`        | `$model->updated_at->toAtomString()`   |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'name' => $model->name,
+    'cron' => [
+        'day_of_week' => $model->cron_day_of_week,
+        'day_of_month' => $model->cron_day_of_month,
+        'month' => $model->cron_month,
+        'hour' => $model->cron_hour,
+        'minute' => $model->cron_minute,
+    ],
+    'is_active' => $model->is_active,
+    'is_processing' => $model->is_processing,
+    'only_when_online' => $model->only_when_online,
+    'last_run_at' => $model->last_run_at?->toAtomString(),
+    'next_run_at' => $model->next_run_at?->toAtomString(),
+    'created_at' => $model->created_at->toAtomString(),
+    'updated_at' => $model->updated_at->toAtomString(),
+];
+```
+
+</details>
+
+Relationships: `$availableIncludes = ['tasks'];`; `$defaultIncludes = ['tasks'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Client ServerTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ServerTransformer.php).
+
+| Attribute                    | Value construction                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| `server_owner`               | `$user->id === $server->owner_id`                                                          |
+| `identifier`                 | `$server->identifier`                                                                      |
+| `server_identifier`          | `$server->identifier`                                                                      |
+| `internal_id`                | `$server->id`                                                                              |
+| `uuid`                       | `$server->uuid`                                                                            |
+| `name`                       | `$server->name`                                                                            |
+| `node`                       | `$server->node->name`                                                                      |
+| `node_country`               | `$server->node->country_code`                                                              |
+| `node_country_name`          | `Countries::name($server->node->country_code)`                                             |
+| `user_permissions`           | `Container::getInstance()->make(GetUserPermissionsService::class)->handle($server, $user)` |
+| `game_query_type`            | `Container::getInstance()->make(GameQuerySettingsService::class)->game($server)`           |
+| `is_node_under_maintenance`  | `$server->node->isUnderMaintenance()`                                                      |
+| `sftp_details`               | `Nested object`                                                                            |
+| `sftp_details.ip`            | `$server->node->getSftpDomain()`                                                           |
+| `sftp_details.port`          | `$server->node->daemonSFTP`                                                                |
+| `description`                | `$server->description`                                                                     |
+| `limits`                     | `Nested object`                                                                            |
+| `limits.memory`              | `$server->memory`                                                                          |
+| `limits.swap`                | `$server->swap`                                                                            |
+| `limits.disk`                | `$server->disk`                                                                            |
+| `limits.io`                  | `$server->io`                                                                              |
+| `limits.cpu`                 | `$server->cpu`                                                                             |
+| `limits.threads`             | `$server->threads`                                                                         |
+| `limits.oom_disabled`        | `$server->oom_disabled`                                                                    |
+| `invocation`                 | `$service->handle($server, !$user->can(Permission::ACTION_STARTUP_READ, $server))`         |
+| `docker_image`               | `$server->image`                                                                           |
+| `egg_features`               | `$server->egg->inherit_features`                                                           |
+| `feature_limits`             | `Nested object`                                                                            |
+| `feature_limits.databases`   | `$server->database_limit`                                                                  |
+| `feature_limits.allocations` | `$server->allocation_limit`                                                                |
+| `feature_limits.backups`     | `$server->backup_limit`                                                                    |
+| `status`                     | `$server->status`                                                                          |
+| `is_suspended`               | `$server->isSuspended()`                                                                   |
+| `is_installing`              | `!$server->isInstalled()`                                                                  |
+| `is_transferring`            | `!is_null($server->transfer)`                                                              |
+| `skip_scripts`               | `$server->skip_scripts`                                                                    |
+| `BlueprintFramework`         | `Nested object`                                                                            |
+| `BlueprintFramework.egg_id`  | `$server->egg_id`                                                                          |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+$service = Container::getInstance()->make(StartupCommandService::class);
+
+$user = $this->request->user();
+
+return [
+    'server_owner' => $user->id === $server->owner_id,
+    'identifier' => $server->identifier,
+    'server_identifier' => $server->identifier,
+    'internal_id' => $server->id,
+    'uuid' => $server->uuid,
+    'name' => $server->name,
+    'node' => $server->node->name,
+    'node_country' => $server->node->country_code,
+    'node_country_name' => Countries::name($server->node->country_code),
+    'user_permissions' => Container::getInstance()->make(GetUserPermissionsService::class)->handle($server, $user),
+    'game_query_type' => Container::getInstance()->make(GameQuerySettingsService::class)->game($server),
+    'is_node_under_maintenance' => $server->node->isUnderMaintenance(),
+    'sftp_details' => [
+        'ip' => $server->node->getSftpDomain(),
+        'port' => $server->node->daemonSFTP,
+    ],
+    'description' => $server->description,
+    'limits' => [
+        'memory' => $server->memory,
+        'swap' => $server->swap,
+        'disk' => $server->disk,
+        'io' => $server->io,
+        'cpu' => $server->cpu,
+        'threads' => $server->threads,
+        'oom_disabled' => $server->oom_disabled,
+    ],
+    'invocation' => $service->handle($server, !$user->can(Permission::ACTION_STARTUP_READ, $server)),
+    'docker_image' => $server->image,
+    'egg_features' => $server->egg->inherit_features,
+    'feature_limits' => [
+        'databases' => $server->database_limit,
+        'allocations' => $server->allocation_limit,
+        'backups' => $server->backup_limit,
+    ],
+    'status' => $server->status,
+
+    'is_suspended' => $server->isSuspended(),
+
+    'is_installing' => !$server->isInstalled(),
+    'is_transferring' => !is_null($server->transfer),
+    'skip_scripts' => $server->skip_scripts,
+
+    'BlueprintFramework' => [
+        'egg_id' => $server->egg_id,
+    ],
+];
+```
+
+</details>
+
+Relationships: `$defaultIncludes = ['allocations', 'variables'];`; `$availableIncludes = ['egg', 'subusers'];`. Requested includes are subject to the transformer and the caller's permissions.
+
+## Client StatsTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/StatsTransformer.php).
+
+| Attribute                    | Value construction                                   |
+| ---------------------------- | ---------------------------------------------------- |
+| `current_state`              | `Arr::get($data, 'state', 'stopped')`                |
+| `is_suspended`               | `Arr::get($data, 'is_suspended', false)`             |
+| `resources`                  | `Nested object`                                      |
+| `resources.memory_bytes`     | `Arr::get($data, 'utilization.memory_bytes', 0)`     |
+| `resources.cpu_absolute`     | `Arr::get($data, 'utilization.cpu_absolute', 0)`     |
+| `resources.disk_bytes`       | `Arr::get($data, 'utilization.disk_bytes', 0)`       |
+| `resources.network_rx_bytes` | `Arr::get($data, 'utilization.network.rx_bytes', 0)` |
+| `resources.network_tx_bytes` | `Arr::get($data, 'utilization.network.tx_bytes', 0)` |
+| `resources.uptime`           | `Arr::get($data, 'utilization.uptime', 0)`           |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'current_state' => Arr::get($data, 'state', 'stopped'),
+    'is_suspended' => Arr::get($data, 'is_suspended', false),
+    'resources' => [
+        'memory_bytes' => Arr::get($data, 'utilization.memory_bytes', 0),
+        'cpu_absolute' => Arr::get($data, 'utilization.cpu_absolute', 0),
+        'disk_bytes' => Arr::get($data, 'utilization.disk_bytes', 0),
+        'network_rx_bytes' => Arr::get($data, 'utilization.network.rx_bytes', 0),
+        'network_tx_bytes' => Arr::get($data, 'utilization.network.tx_bytes', 0),
+        'uptime' => Arr::get($data, 'utilization.uptime', 0),
+    ],
+];
+```
+
+</details>
+
+## Client SubuserTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/SubuserTransformer.php).
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return array_merge(
+    $this->makeTransformer(UserTransformer::class)->transform($model->user),
+    ['permissions' => $model->permissions]
+);
+```
+
+</details>
+
+## Client TaskTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/TaskTransformer.php).
+
+| Attribute             | Value construction                   |
+| --------------------- | ------------------------------------ |
+| `id`                  | `$model->id`                         |
+| `sequence_id`         | `$model->sequence_id`                |
+| `action`              | `$model->action`                     |
+| `payload`             | `$model->payload`                    |
+| `time_offset`         | `$model->time_offset`                |
+| `is_queued`           | `$model->is_queued`                  |
+| `continue_on_failure` | `$model->continue_on_failure`        |
+| `created_at`          | `$model->created_at->toAtomString()` |
+| `updated_at`          | `$model->updated_at->toAtomString()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'id' => $model->id,
+    'sequence_id' => $model->sequence_id,
+    'action' => $model->action,
+    'payload' => $model->payload,
+    'time_offset' => $model->time_offset,
+    'is_queued' => $model->is_queued,
+    'continue_on_failure' => $model->continue_on_failure,
+    'created_at' => $model->created_at->toAtomString(),
+    'updated_at' => $model->updated_at->toAtomString(),
+];
+```
+
+</details>
+
+## Client UserSSHKeyTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/UserSSHKeyTransformer.php).
+
+| Attribute     | Value construction                   |
+| ------------- | ------------------------------------ |
+| `name`        | `$model->name`                       |
+| `fingerprint` | `$model->fingerprint`                |
+| `public_key`  | `$model->public_key`                 |
+| `created_at`  | `$model->created_at->toAtomString()` |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'name' => $model->name,
+    'fingerprint' => $model->fingerprint,
+    'public_key' => $model->public_key,
+    'created_at' => $model->created_at->toAtomString(),
+];
+```
+
+</details>
+
+## Client UserTransformer
+
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/UserTransformer.php).
+
+| Attribute     | Value construction                                                                      |
+| ------------- | --------------------------------------------------------------------------------------- |
+| `uuid`        | `$model->uuid`                                                                          |
+| `identifier`  | `$model->identifier`                                                                    |
+| `username`    | `$model->username`                                                                      |
+| `email`       | `$model->email`                                                                         |
+| `image`       | `$model->avatar_url ?? 'https://gravatar.com/avatar/' . md5(Str::lower($model->email))` |
+| `avatar_url`  | `$model->avatar_url`                                                                    |
+| `2fa_enabled` | `$model->use_totp`                                                                      |
+| `created_at`  | `$model->created_at->toAtomString()`                                                    |
+
+<details>
+<summary>Exact transformation and conditional fields</summary>
+
+```php
+return [
+    'uuid' => $model->uuid,
+    'identifier' => $model->identifier,
+    'username' => $model->username,
+    'email' => $model->email,
+    'image' => $model->avatar_url ?? 'https://gravatar.com/avatar/' . md5(Str::lower($model->email)),
+    'avatar_url' => $model->avatar_url,
+    '2fa_enabled' => $model->use_totp,
+    'created_at' => $model->created_at->toAtomString(),
+];
+```
+
+</details>

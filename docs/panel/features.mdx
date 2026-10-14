@@ -1,6 +1,6 @@
 ---
 title: Panel Features
-description: Configure Aquadactyl branding, sign-in methods, languages, server file trash, console log sharing and mail services.
+description: Aquadactyl's additions to Pterodactyl: branding, account security, languages, server tools, extensions, activity filters and operator controls.
 ---
 
 Aquadactyl includes Blueprint and adds tools for branding, account security and
@@ -11,6 +11,11 @@ Most panel-wide settings use **Admin → Settings**. Set
 `APP_ENVIRONMENT_ONLY=false` to manage database-backed settings there, then reload
 open panel pages after saving. OAuth and passkey settings are stored in the
 database even when other settings use environment-only configuration.
+
+The homepage [feature catalogue and comparison](/#features) cover 24 documented
+feature areas against stock Pterodactyl v1.15.1. This guide describes how to use
+the additions. See [frontend benchmarks](/docs/panel/benchmarks) for the measured
+build-time and asset-size comparison, including the pinned source revisions.
 
 ## Appearance and branding [#appearance]
 
@@ -132,6 +137,52 @@ identifier. The scroll-to-latest control uses a Lucide down arrow and supports
 mouse and keyboard activation. CPU, memory and outbound network graphs follow
 the configured primary colour.
 
+## Profile pictures and moderation [#profile-pictures]
+
+When custom profile pictures are enabled, users can upload a JPG, PNG or WebP
+image from Account settings. Administrators control uploads under **Admin →
+Settings → General** and can remove an individual picture under **Admin → Users →
+View user**. Removing a picture deletes the managed upload, restores the default
+avatar and records an administrative activity event.
+
+Disabling the feature hides saved uploads and blocks new uploads. It retains
+saved images for when the feature is enabled again. An administrator can remove
+an uploaded picture even while uploads are disabled.
+
+## Sensitive-data blur [#privacy]
+
+Users can choose to blur marked email addresses, IP addresses, passwords and
+access keys in their account's privacy settings. Hover, focus or tap a marked
+value to reveal it. Administrators can disable this preference panel-wide under
+**Admin → Settings → General**. Saved preferences are retained when disabled.
+
+Blur is a presentation preference for screen sharing and everyday use; existing
+authorization and credential controls still determine who can access a value.
+
+## Optional account registration [#registration]
+
+**Registration is off by default.** Enable it under **Admin → Settings → General**
+when you want new users to create their own accounts. Registration uses the
+configured captcha flow, validates the username and email and requires a confirmed
+password. New accounts are not administrators and do not automatically receive
+game servers. Disable registration to return to administrator/API-created users.
+
+## Account and server activity filters [#activity]
+
+The **Account → Activity** and server **Activity** pages offer grouped event
+filters, an exact event choice, 24-hour/7-day/30-day/90-day ranges, a date filter,
+IP address, source and newest/oldest ordering. Sources include panel, API, SFTP
+and system activity. The controls narrow the existing permission-scoped log;
+they do not grant access to another account's activity.
+
+## Searchable client controls [#controls]
+
+The shared client select control supports searching option labels, grouped
+choices and keyboard navigation while retaining ordinary form values, refs and
+change events. Menus work within dialog focus handling. The admin area keeps
+Select2 controls with the panel's charcoal styling. Addon authors can reuse
+`@/components/elements/Select` rather than implementing another dropdown.
+
 ## Email services [#mail]
 
 Open **Admin → Settings → Mail** to choose SMTP, Mailgun, Postmark or Amazon SES.
@@ -156,6 +207,103 @@ interval timing. Add restart, backup or command steps with readable delays.
 Advanced cron remains available for custom timing. See the
 [schedule reference](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/SCHEDULES.md)
 for examples and execution behaviour.
+
+## Bundled Blueprint [#blueprint]
+
+Blueprint beta-2026-08 is included with its CLI, frontend hooks, admin pages and
+extension routes. Installation initializes the framework; individual extensions
+are separate packages. Place an `identifier.blueprint` archive in the panel root
+and install with `blueprint -i identifier`. Keep the package there so managed
+updates can restore its hooks. Update the panel and framework together rather
+than running the stock Blueprint updater.
+
+The [development guide](/docs/blueprint/development) lists the current shared
+libraries, including React 19, TanStack Query, Zustand, Base UI, Zod, React Hook
+Form, Lucide, date-fns, es-toolkit, Motion and uPlot. The downloadable
+[Server Pulse example](/docs/blueprint/example-extension) demonstrates their use.
+
+## Legacy Blueprint compatibility [#legacy-addons]
+
+Compatibility API v1 adapts common legacy styling, Easy Peasy application hooks,
+React Router 5 interfaces, forms and icon imports while leaving the modern panel
+runtime in place. Check a package before installation:
+
+```bash
+blueprint -check myaddon
+```
+
+The check compiles the frontend in a temporary extraction without installing the
+addon or running its lifecycle scripts. Installation performs this check too.
+Adapters do not cover every private core component, old React API or shell script
+that patches the panel. Compilation still needs runtime and permission testing.
+See the [compatibility reference](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/docs/BLUEPRINT-COMPATIBILITY.md)
+and the [migration guide](/docs/blueprint/migration).
+
+## Managed installation and updates [#managed-updates]
+
+The Linux installer builds assets, applies migrations, initializes Blueprint and
+refreshes caches. Managed updates verify a reviewed release, back up both the
+database and panel files and preserve configuration and extension data. Follow
+the [installation](/docs/panel) and [update](/docs/panel/updating-the-panel) guides
+for service paths, backups and recovery.
+
+## Deployment profiles and asset loading [#deployment]
+
+Supplied profiles configure Redis cache/sessions/queues, PHP OPcache, cached
+Laravel configuration/routes/views, Nginx compression and immutable caching for
+hashed assets. Filesystem permissions and PHP execution rules are included in the
+deployment templates. Upstream Pterodactyl also supports these technologies;
+Aquadactyl supplies a coordinated installation profile.
+
+Account and server screens are loaded at their routes, and the frontend uses
+Vite for production builds. The [benchmark guide](/docs/panel/benchmarks) measures
+the resulting dashboard artifacts and local build duration against the reviewed
+Pterodactyl release. These measurements do not establish backend or game-server
+performance.
+
+## Local development stack [#local-stack]
+
+The panel repository's Docker Compose test stack initializes a panel, MariaDB,
+Redis, Blueprint, a local administrator and a connected Wings node:
+
+```bash
+docker compose up -d --build --wait --wait-timeout 600
+```
+
+This is a development setup with loopback bindings and published local test
+credentials. Use the production deployment guide for public hosting. See the
+[building guide](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/BUILDING.md)
+for local ports, volumes and configuration.
+
+## Telemetry choices [#telemetry]
+
+Aquadactyl and Blueprint telemetry are **off by default on new installations**.
+The upstream Pterodactyl telemetry collector has been removed. Administrators can
+opt in to Aquadactyl's aggregate reporting under **Admin → Settings → Advanced
+Settings → Aquadactyl Telemetry**; Blueprint retains its own opt-in setting.
+Updates preserve existing explicit choices.
+
+The Aquadactyl report contains an anonymous installation UUID, versions,
+infrastructure driver names, Docker availability and aggregate user/server/node
+counts. It excludes names, domains, IP fields, credentials and request contents;
+the receiving service can still observe the connection's source IP. See the
+[source report description](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/README.md#optional-telemetry).
+
+## Panel log diagnostics [#diagnostics]
+
+Normal logs default to warning level with daily rotation and seven-day retention.
+Preview a bounded, redacted log tail before uploading it:
+
+```bash
+php artisan p:debug --dry-run
+php artisan p:debug
+```
+
+The second command explicitly uploads to the configured debug service and prints
+a temporary link. Console sharing is a separate optional feature. Redaction is
+best effort; inspect the preview before distributing a paste. See the
+[diagnostic command](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Console/Commands/DebugCommand.php)
+for file, size and expiry options.
 
 ## Administrator feature controls [#feature-controls]
 

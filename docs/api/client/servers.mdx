@@ -1,0 +1,547 @@
+---
+title: Servers, console and power
+description: 9 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client" />
+
+## GET `/api/client`
+
+Return all the servers available to the client making the API request, including servers the user has access to as a subuser.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/GetServersRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Other controller inputs:** `type`, `per_page` (default `50`).
+
+**List query options:** filters declared in `'uuid', 'name', 'description', 'external_id', AllowedFilter::custom('*', new MultiFieldServerFilter()),`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Client ServerTransformer](/docs/api/responses#client-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+$transformer = $this->getTransformer(ServerTransformer::class);
+
+$builder = QueryBuilder::for(
+    Server::query()->with($this->getIncludesForTransformer($transformer, ['node']))
+)->allowedFilters(
+    'uuid',
+    'name',
+    'description',
+    'external_id',
+    AllowedFilter::custom('*', new MultiFieldServerFilter()),
+);
+
+$type = $request->input('type');
+
+if (in_array($type, ['admin', 'admin-all'])) {
+
+    if (!$user->root_admin) {
+        $builder->whereRaw('1 = 2');
+    } else {
+        $builder = $type === 'admin-all'
+            ? $builder
+            : $builder->whereNotIn('servers.id', $user->accessibleServers()->pluck('id')->all());
+    }
+} elseif ($type === 'owner') {
+    $builder = $builder->where('servers.owner_id', $user->id);
+} else {
+    $builder = $builder->whereIn('servers.id', $user->accessibleServers()->pluck('id')->all());
+}
+
+$servers = $builder->paginate(min($request->query('per_page', 50), 100))->appends($request->query());
+
+return $this->fractal->transformWith($transformer)->collection($servers)->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server" />
+
+## GET `/api/client/servers/{server}`
+
+Transform an individual server into a response that can be consumed by a client using the API.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client ServerTransformer](/docs/api/responses#client-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->addMeta([
+        'is_server_owner' => $request->user()->id === $server->owner_id,
+        'user_permissions' => $this->permissionsService->handle($server, $request->user()),
+    ])
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server-websocket" />
+
+## GET `/api/client/servers/{server}/websocket`
+
+Generates a one-time token that is sent along in every websocket call to the Daemon. This is a signed JWT that the Daemon then uses to verify the user's identity, and allows us to continually renew this token and avoid users maintaining sessions wrongly, as well as ensure that user's only perform actions they're allowed to.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/WebsocketController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+if ($user->cannot(Permission::ACTION_WEBSOCKET_CONNECT, $server)) {
+    throw new HttpForbiddenException('You do not have permission to connect to this server\'s websocket.');
+}
+
+$permissions = $this->permissionsService->handle($server, $user);
+
+$node = $server->node;
+if (!is_null($server->transfer)) {
+
+    if (!in_array('admin.websocket.transfer', $permissions)) {
+        throw new HttpForbiddenException('You do not have permission to view server transfer logs.');
+    }
+
+    if ($server->transfer->archived) {
+        $node = $server->transfer->newNode;
+    }
+}
+
+$token = $this->jwtService
+    ->setExpiresAt(CarbonImmutable::now()->addMinutes(10))
+    ->setUser($request->user())
+    ->setClaims([
+        'server_uuid' => $server->uuid,
+        'permissions' => $permissions,
+    ])
+    ->setScopes(JwtScope::Websocket)
+    ->handle($node, $user->id . $server->uuid);
+
+$socket = str_replace(['https://', 'http://'], ['wss://', 'ws://'], $node->getConnectionAddress());
+
+return new JsonResponse([
+    'data' => [
+        'token' => $token->toString(),
+        'socket' => $socket . sprintf('/api/servers/%s/ws', $server->uuid),
+    ],
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/websocket" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server-resources" />
+
+## GET `/api/client/servers/{server}/resources`
+
+Return the current resource utilization for a server. This value is cached for up to 20 seconds at a time to ensure that repeated requests to this endpoint do not cause a flood of unnecessary API calls.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client StatsTransformer](/docs/api/responses#client-statstransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$key = "resources:$server->uuid";
+$stats = $this->cache->remember($key, Carbon::now()->addSeconds(20), function () use ($server) {
+    return $this->repository->setServer($server)->getDetails();
+});
+
+return $this->fractal->item($stats)
+    ->transformWith($this->getTransformer(StatsTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/resources" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server-query" />
+
+## GET `/api/client/servers/{server}/query`
+
+Calls GameQueryController::\_\_invoke.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/GameQueryController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$target = $settings->target($server);
+$result = ['status' => 'unsupported', 'players' => null, 'max_players' => null, 'checked_at' => null, 'game' => null];
+if ($target) {
+    $key = $settings->key($server, $target);
+    $result = Cache::get($key) ?? array_merge($result, ['status' => 'pending', 'game' => $target['type']]);
+    $age = $result['checked_at'] ? now()->diffInSeconds($result['checked_at'], true) : PHP_INT_MAX;
+    if ($age >= config('game-query.cache_seconds') && Cache::add($key . ':pending', true, 120)) {
+        $job = new QueryGameServerJob($server->id, $key);
+        if (config('queue.default') === 'sync') {
+            dispatch($job)->afterResponse();
+        } else {
+            dispatch($job);
+        }
+    }
+}
+
+return ['object' => 'game_query', 'attributes' => $result];
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/query" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-servers-server-activity" />
+
+## GET `/api/client/servers/{server}/activity`
+
+Returns the activity logs for a server.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ActivityLogRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                | Validation                                                  |
+| -------------------- | ----------------------------------------------------------- |
+| `page`               | `['sometimes', 'integer', 'min:1']`                         |
+| `per_page`           | `['sometimes', 'integer', 'between:1,100']`                 |
+| `filter.event`       | `['sometimes', 'nullable', 'string', 'max:255']`            |
+| `filter.event_exact` | `['sometimes', 'nullable', 'string', 'max:255']`            |
+| `filter.ip`          | `['sometimes', 'nullable', 'ip']`                           |
+| `filter.period`      | `['sometimes', Rule::in(['24h', '7d', '30d', '90d'])]`      |
+| `filter.date`        | `['sometimes', 'nullable', 'date_format:Y-m-d']`            |
+| `filter.source`      | `['sometimes', Rule::in(['web', 'api', 'sftp', 'system'])]` |
+
+**List query options:** filters declared in `...$filters->allowedFilters($request->user())`; sorts `'timestamp'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Client ActivityLogTransformer](/docs/api/responses#client-activitylogtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->authorize(Permission::ACTION_ACTIVITY_READ, $server);
+
+$query = $server->activity()
+    ->whereNotIn('activity_logs.event', ActivityLog::DISABLED_EVENTS)
+    ->when(config('activity.hide_admin_activity'), function (Builder $builder) use ($server) {
+
+        $subusers = $server->subusers()->pluck('user_id')->merge($server->owner_id);
+
+        $builder->select('activity_logs.*')
+            ->leftJoin('users', function (JoinClause $join) {
+                $join->on('users.id', 'activity_logs.actor_id')
+                    ->where('activity_logs.actor_type', (new User())->getMorphClass());
+            })
+            ->where(function (Builder $builder) use ($subusers) {
+                $builder->whereNull('users.id')
+                    ->orWhere('users.root_admin', 0)
+                    ->orWhereIn('users.id', $subusers);
+            });
+    });
+$events = $filters->availableEvents($query->getQuery());
+
+$activity = QueryBuilder::for($query)
+    ->with('actor')
+    ->allowedSorts('timestamp')
+    ->defaultSort('-timestamp')
+    ->orderBy('activity_logs.id', 'desc')
+    ->allowedFilters(...$filters->allowedFilters($request->user()))
+    ->paginate(min($request->query('per_page', 25), 100))
+    ->appends($request->query());
+
+return $this->fractal->collection($activity)
+    ->transformWith($this->getTransformer(ActivityLogTransformer::class))
+    ->addMeta(['available_events' => $events])
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/activity" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-command" />
+
+## POST `/api/client/servers/{server}/command`
+
+Send a command to a running server.
+
+**Access:** Client API key or authenticated panel session; `control.console`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/CommandController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/SendCommandRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                  |
+| --------- | --------------------------- |
+| `command` | `'required\|string\|min:1'` |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+try {
+    $this->repository->setServer($server)->send($request->input('command'));
+} catch (DaemonConnectionException $exception) {
+    $previous = $exception->getPrevious();
+
+    if ($previous instanceof BadResponseException) {
+        if ($previous->getResponse()->getStatusCode() === Response::HTTP_BAD_GATEWAY) {
+            throw new HttpException(Response::HTTP_BAD_GATEWAY, 'Server must be online in order to send commands.', $exception);
+        }
+    }
+
+    throw $exception;
+}
+
+Activity::event('server:console.command')->property('command', $request->input('command'))->log();
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-console-share" />
+
+## POST `/api/client/servers/{server}/console/share`
+
+Calls ConsoleLogShareController::\_\_invoke.
+
+**Access:** Client API key or authenticated panel session; `websocket.connect`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/ShareConsoleLogsRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field     | Validation                                                                                                                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `content` | `['bail', 'required', 'string', 'max:' . self::MAX_BYTES, function ($attribute, $value, $fail) { if (strlen($value) > self::MAX_BYTES) { $fail('Console logs must not exceed 128 KiB.'); } }]` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.console_log_sharing', false) === true && parent::authorize();
+```
+
+</details>
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+try {
+    $url = $debug->upload($redactor->redact($request->validated('content'), $server), 86400);
+} catch (\Throwable) {
+
+    return new JsonResponse(['errors' => [['detail' => 'Unable to share console logs. Please try again later.']]], 503);
+}
+
+return new JsonResponse(['url' => $url, 'expires_in' => 86400]);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-power" />
+
+## POST `/api/client/servers/{server}/power`
+
+Send a power action to a server.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/PowerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/SendPowerRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field    | Validation                                                    |
+| -------- | ------------------------------------------------------------- |
+| `signal` | `'required\|string\|in:' . implode(',', Task::POWER_ACTIONS)` |
+
+<details>
+<summary>Permission selection</summary>
+
+```php
+return Task::permissionForAction(Task::ACTION_POWER, $this->input('signal')) ?? '__invalid';
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->repository->setServer($server)->send(
+    $request->input('signal')
+);
+Cache::forget("resources:$server->uuid");
+if ($target = $queries->target($server)) {
+    Cache::forget($queries->key($server, $target));
+}
+
+Activity::event(strtolower("server:power.{$request->input('signal')}"))->log();
+
+return $this->returnNoContent();
+```
+
+</details>

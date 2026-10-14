@@ -1,0 +1,958 @@
+---
+title: Account, security and API keys
+description: 18 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-account" />
+
+## GET `/api/client/account`
+
+Calls AccountController::index.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php)
+
+### Response
+
+Success: **200**. Response attributes: [Client AccountTransformer](/docs/api/responses#client-accounttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($request->user())
+    ->transformWith($this->getTransformer(AccountTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-account-two-factor" />
+
+## GET `/api/client/account/two-factor`
+
+Returns two-factor token credentials that allow a user to configure it on their account. If two-factor is already enabled this endpoint will return a 400 error.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if ($request->user()->use_totp) {
+    throw new BadRequestHttpException('Two-factor authentication is already enabled on this account.');
+}
+
+return new JsonResponse([
+    'data' => $this->setupService->handle($request->user()),
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/two-factor" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-account-two-factor" />
+
+## POST `/api/client/account/two-factor`
+
+Updates a user's account to have two-factor enabled.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                         |
+| ---------- | ---------------------------------- |
+| `code`     | `['required', 'string', 'size:6']` |
+| `password` | `['required', 'string']`           |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$validator = $this->validation->make($request->all(), [
+    'code' => ['required', 'string', 'size:6'],
+    'password' => ['required', 'string'],
+]);
+
+$data = $validator->validate();
+if (!password_verify($data['password'], $request->user()->password)) {
+    throw new BadRequestHttpException('The password provided was not valid.');
+}
+
+$tokens = $this->toggleTwoFactorService->handle($request->user(), $data['code'], true);
+
+Activity::event('user:two-factor.create')->log();
+
+return new JsonResponse([
+    'object' => 'recovery_tokens',
+    'attributes' => [
+        'tokens' => $tokens,
+    ],
+]);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-account-two-factor-disable" />
+
+## POST `/api/client/account/two-factor/disable`
+
+Disables two-factor authentication on an account if the password provided is valid.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+
+**Other controller inputs:** `password`.
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if (!password_verify($request->input('password') ?? '', $request->user()->password)) {
+    throw new BadRequestHttpException('The password provided was not valid.');
+}
+
+$user = $request->user();
+
+$user->update([
+    'totp_authenticated_at' => Carbon::now(),
+    'use_totp' => false,
+]);
+
+Activity::event('user:two-factor.delete')->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-account-two-factor-regenerate-tokens" />
+
+## POST `/api/client/account/two-factor/regenerate-tokens`
+
+Regenerates recovery tokens for an account if two-factor is enabled and the password provided is valid.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation               |
+| ---------- | ------------------------ |
+| `password` | `['required', 'string']` |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if (!$request->user()->use_totp) {
+    throw new BadRequestHttpException('Two-factor authentication is not enabled on this account.');
+}
+
+$validator = $this->validation->make($request->all(), [
+    'password' => ['required', 'string'],
+]);
+
+$data = $validator->validate();
+if (!password_verify($data['password'], $request->user()->password)) {
+    throw new BadRequestHttpException('The password provided was not valid.');
+}
+
+$tokens = $this->recoveryTokenService->handle($request->user());
+
+Activity::event('user:two-factor.regenerate-tokens')->log();
+
+return new JsonResponse([
+    'object' => 'recovery_tokens',
+    'attributes' => [
+        'tokens' => $tokens,
+    ],
+]);
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-email" />
+
+## PUT `/api/client/account/email`
+
+Update the authenticated user's email address.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateEmailRequest.php)
+
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field   | Validation                                                            |
+| ------- | --------------------------------------------------------------------- |
+| `email` | `['required', 'email:strict', 'between:1,191', 'unique:users,email']` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$hasher = Container::getInstance()->make(Hasher::class);
+
+if (!$hasher->check($this->input('password'), $this->user()->password)) {
+    throw new InvalidPasswordProvidedException(trans('validation.internal.invalid_password'));
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+
+if (RateLimiter::tooManyAttempts($key = "user:update-email:{$user->uuid}", 3)) {
+    throw new TooManyRequestsHttpException(message: 'Your email address has been changed too many times today. Please try again later.');
+}
+
+$original = $user->email;
+if (mb_strtolower($original) !== mb_strtolower($request->validated('email'))) {
+    RateLimiter::hit($key, self::EMAIL_UPDATE_THROTTLE);
+
+    $this->updateService->handle($user, $request->validated());
+
+    Activity::event('user:account.email-changed')
+        ->property(['old' => $original, 'new' => $request->validated('email')])
+        ->log();
+}
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-password" />
+
+## PUT `/api/client/account/password`
+
+Update the authenticated user's password. All existing sessions will be logged out immediately.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdatePasswordRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                                     |
+| ---------- | ---------------------------------------------- |
+| `password` | `['required', 'string', 'confirmed', 'min:8']` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$hasher = Container::getInstance()->make(Hasher::class);
+
+if (!$hasher->check($this->input('current_password'), $this->user()->password)) {
+    throw new InvalidPasswordProvidedException(trans('validation.internal.invalid_password'));
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = Activity::event('user:account.password-changed')->transaction(function () use ($request) {
+    return $this->updateService->handle($request->user(), $request->validated());
+});
+
+$guard = $this->manager->guard();
+
+$guard->setUser($user);
+
+if (method_exists($guard, 'logoutOtherDevices')) { // @phpstan-ignore function.alreadyNarrowedType
+    $guard->logoutOtherDevices($request->input('password'));
+}
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-account-avatar" />
+
+## POST `/api/client/account/avatar`
+
+Calls AccountAvatarController::store.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateAvatarRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field    | Validation                                                                                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `avatar` | `['bail', 'required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:min_width=1,min_height=1,max_width=4096,max_height=4096']` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.custom_profile_pictures', true) && parent::authorize();
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client AccountTransformer](/docs/api/responses#client-accounttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $service->upload($request->user(), $request->file('avatar'));
+Activity::event('user:account.avatar-updated')->log();
+
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(AccountTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-account-avatar" />
+
+## DELETE `/api/client/account/avatar`
+
+Calls AccountAvatarController::destroy.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php)
+
+### Response
+
+Success: **200**. Response attributes: [Client AccountTransformer](/docs/api/responses#client-accounttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $service->remove($request->user());
+Activity::event('user:account.avatar-removed')->log();
+
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(AccountTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-privacy" />
+
+## PUT `/api/client/account/privacy`
+
+Calls AccountPrivacyController::update.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountPrivacyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdatePrivacyRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                |
+| --------------------- | ------------------------- |
+| `blur_sensitive_data` | `['required', 'boolean']` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.privacy_mode', true) && parent::authorize();
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client AccountTransformer](/docs/api/responses#client-accounttransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+$enabled = $request->boolean('blur_sensitive_data');
+if ($user->blur_sensitive_data !== $enabled) {
+    $user->forceFill(['blur_sensitive_data' => $enabled])->save();
+    Activity::event('user:account.privacy-updated')->subject($user)
+        ->property('blur_sensitive_data', $enabled)->log();
+}
+
+return $this->fractal->item($user)
+    ->transformWith($this->getTransformer(AccountTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-language" />
+
+## PUT `/api/client/account/language`
+
+Calls AccountLanguageController::update.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountLanguageController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                                                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `language` | `[ 'required', 'string', Rule::in([ LanguageService::AUTOMATIC, ...array_keys(app(LanguageService::class)->available()), ]), ]` |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+$user->forceFill(['language' => $request->validated('language')])->save();
+
+return [
+    'language' => $user->language,
+    'locale' => $languages->forRequest($request, $user->language),
+];
+```
+
+</details>
+
+---
+
+<span id="get-api-client-account-activity" />
+
+## GET `/api/client/account/activity`
+
+Returns a paginated set of the user's activity logs.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ActivityLogRequest.php)
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                | Validation                                                  |
+| -------------------- | ----------------------------------------------------------- |
+| `page`               | `['sometimes', 'integer', 'min:1']`                         |
+| `per_page`           | `['sometimes', 'integer', 'between:1,100']`                 |
+| `filter.event`       | `['sometimes', 'nullable', 'string', 'max:255']`            |
+| `filter.event_exact` | `['sometimes', 'nullable', 'string', 'max:255']`            |
+| `filter.ip`          | `['sometimes', 'nullable', 'ip']`                           |
+| `filter.period`      | `['sometimes', Rule::in(['24h', '7d', '30d', '90d'])]`      |
+| `filter.date`        | `['sometimes', 'nullable', 'date_format:Y-m-d']`            |
+| `filter.source`      | `['sometimes', Rule::in(['web', 'api', 'sftp', 'system'])]` |
+
+**List query options:** filters declared in `...$filters->allowedFilters($request->user())`; sorts `'timestamp'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Client ActivityLogTransformer](/docs/api/responses#client-activitylogtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$query = $request->user()->activity()
+    ->whereNotIn('activity_logs.event', ActivityLog::DISABLED_EVENTS);
+$events = $filters->availableEvents($query->getQuery());
+
+$activity = QueryBuilder::for($query)
+    ->with('actor')
+    ->allowedFilters(...$filters->allowedFilters($request->user()))
+    ->allowedSorts('timestamp')
+    ->defaultSort('-timestamp')
+    ->orderBy('activity_logs.id', 'desc')
+    ->paginate(min($request->query('per_page', 25), 100))
+    ->appends($request->query());
+
+return $this->fractal->collection($activity)
+    ->transformWith($this->getTransformer(ActivityLogTransformer::class))
+    ->addMeta(['available_events' => $events])
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/activity" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-client-account-api-keys" />
+
+## GET `/api/client/account/api-keys`
+
+Returns all the API keys that exist for the given client.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+### Response
+
+Success: **200**. Response attributes: [Client ApiKeyTransformer](/docs/api/responses#client-apikeytransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($request->user()->apiKeys)
+    ->transformWith($this->getTransformer(ApiKeyTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/api-keys" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-account-api-keys" />
+
+## POST `/api/client/account/api-keys`
+
+Store a new API key for a user's account.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/StoreApiKeyRequest.php)
+
+Model constraints: [ApiKey.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/ApiKey.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field           | Validation                                      |
+| --------------- | ----------------------------------------------- |
+| `description`   | `['required', 'nullable', 'string', 'max:500']` |
+| `allowed_ips`   | `[...['nullable', 'array'], 'max:50']`          |
+| `allowed_ips.*` | `'string'`                                      |
+
+<details>
+<summary>Conditional validation</summary>
+
+```php
+$validator->after(function (Validator $validator) {
+    if (!is_array($ips = $this->input('allowed_ips'))) {
+        return;
+    }
+
+    foreach ($ips as $index => $ip) {
+        $valid = is_string($ip) && Factory::parseRangeString($ip) !== null;
+        $validator->errors()->addIf(!$valid, "allowed_ips.{$index}", '"' . $ip . '" is not a valid IP address or CIDR range.');
+    }
+});
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client ApiKeyTransformer](/docs/api/responses#client-apikeytransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$token = DB::transaction(function () use ($request) {
+    if ($request->user()->apiKeys()->lockForUpdate()->count() >= 25) {
+        throw new DisplayException('You have reached the account limit for number of API keys.');
+    }
+
+    return $request->user()->createToken(
+        $request->input('description'),
+        $request->input('allowed_ips')
+    );
+});
+
+Activity::event('user:api-key.create')
+    ->subject($token->accessToken)
+    ->property('identifier', $token->accessToken->identifier)
+    ->log();
+
+return $this->fractal->item($token->accessToken)
+    ->transformWith($this->getTransformer(ApiKeyTransformer::class))
+    ->addMeta(['secret_token' => $token->plainTextToken])
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-account-api-keys-identifier" />
+
+## DELETE `/api/client/account/api-keys/{identifier}`
+
+Deletes a given API key.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `identifier`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$key = $request->user()->apiKeys()
+    ->where('key_type', ApiKey::TYPE_ACCOUNT)
+    ->where('identifier', $identifier)
+    ->firstOrFail();
+
+Activity::event('user:api-key.delete')
+    ->property('identifier', $key->identifier)
+    ->log();
+
+$key->delete();
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="get-api-client-account-ssh-keys" />
+
+## GET `/api/client/account/ssh-keys`
+
+Returns all the SSH keys that have been configured for the logged-in user account.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+### Response
+
+Success: **200**. Response attributes: [Client UserSSHKeyTransformer](/docs/api/responses#client-usersshkeytransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($request->user()->sshKeys)
+    ->transformWith($this->getTransformer(UserSSHKeyTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/ssh-keys" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-account-ssh-keys" />
+
+## POST `/api/client/account/ssh-keys`
+
+Stores a new SSH key for the authenticated user's account.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field        | Validation                                                     |
+| ------------ | -------------------------------------------------------------- |
+| `name`       | `['required', 'string']`                                       |
+| `public_key` | `['required', 'string', 'max:' . self::PUBLIC_KEY_MAX_LENGTH]` |
+
+<details>
+<summary>Conditional validation</summary>
+
+```php
+$validator->after(function () {
+    $publicKey = $this->input('public_key');
+    if (!is_string($publicKey)) {
+        return;
+    }
+
+    $publicKey = trim($publicKey);
+    if (!UserSSHKey::isSupportedPublicKeyMaterial($publicKey)) {
+        $this->validator->errors()->add('public_key', 'The public key provided is not valid.');
+
+        return;
+    }
+
+    try {
+        $this->key = PublicKeyLoader::loadPublicKey($publicKey);
+    } catch (NoKeyLoadedException $exception) {
+        $this->validator->errors()->add('public_key', 'The public key provided is not valid.');
+
+        return;
+    }
+
+    if ($this->key instanceof DSA) {
+        $this->validator->errors()->add('public_key', 'DSA keys are not supported.');
+    }
+
+    if ($this->key instanceof RSA && $this->key->getLength() < 2048) {
+        $this->validator->errors()->add('public_key', 'RSA keys must be at least 2048 bytes in length.');
+    }
+
+    $fingerprint = $this->key->getFingerprint('sha256');
+    if ($this->user()->sshKeys()->where('fingerprint', $fingerprint)->exists()) {
+        $this->validator->errors()->add('public_key', 'The public key provided already exists on your account.');
+    }
+});
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client UserSSHKeyTransformer](/docs/api/responses#client-usersshkeytransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$model = $request->user()->sshKeys()->create([
+    'name' => $request->input('name'),
+    'public_key' => $request->getPublicKey(),
+    'fingerprint' => $request->getKeyFingerprint(),
+]);
+
+Activity::event('user:ssh-key.create')
+    ->subject($model)
+    ->property('fingerprint', $request->getKeyFingerprint())
+    ->log();
+
+return $this->fractal->item($model)
+    ->transformWith($this->getTransformer(UserSSHKeyTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-account-ssh-keys-remove" />
+
+## POST `/api/client/account/ssh-keys/remove`
+
+Deletes an SSH key from the user's account.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field         | Validation               |
+| ------------- | ------------------------ |
+| `fingerprint` | `['required', 'string']` |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->validate($request, ['fingerprint' => ['required', 'string']]);
+
+$key = $request->user()->sshKeys()
+    ->where('fingerprint', $request->input('fingerprint'))
+    ->first();
+
+if (!is_null($key)) {
+    $key->delete();
+
+    Activity::event('user:ssh-key.delete')
+        ->subject($key)
+        ->property('fingerprint', $key->fingerprint)
+        ->log();
+}
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

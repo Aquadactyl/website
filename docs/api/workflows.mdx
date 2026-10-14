@@ -1,0 +1,301 @@
+---
+title: Request examples
+description: Copyable Client and Application API workflows, including Aquadactyl's additional server tools.
+---
+
+These examples use shell environment variables `PANEL_URL`, `CLIENT_API_KEY`,
+and `APPLICATION_API_KEY`. Replace `SERVER_UUID` and resource IDs with values
+from your panel. JSON values are examples; choose an egg, allocation and image
+that exist on your installation. See [conventions](/docs/api/authentication).
+
+## Power and console
+
+`signal` is one of `start`, `stop`, `restart`, or `kill`. Each action requires
+its matching `control.start`, `control.stop`, or `control.restart` permission;
+`kill` uses `control.stop`. A successful request returns 204.
+
+```bash
+curl --request POST "${PANEL_URL}/api/client/servers/SERVER_UUID/power" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"signal":"start"}'
+```
+
+Send a console command with `{"command":"say Hello from Aquadactyl"}` to
+`POST /api/client/servers/SERVER_UUID/command`. It requires `control.console`
+and returns 204. The WebSocket stream carries output; an HTTP success is not
+the command's execution result. [Endpoint reference](/docs/api/client/servers).
+
+## Resource usage and player counts
+
+`GET /api/client/servers/SERVER_UUID/resources` returns the `stats` response
+shown in [conventions](/docs/api/authentication#responses-and-pagination).
+Resource measurements are cached for 20 seconds.
+
+`GET /api/client/servers/SERVER_UUID/query` returns a separate game-query result:
+
+```json
+{
+  "object": "game_query",
+  "attributes": {
+    "status": "pending",
+    "players": null,
+    "max_players": null,
+    "checked_at": null,
+    "game": "minecraft"
+  }
+}
+```
+
+Results depend on the configured game, query address/port, feature settings,
+node reachability and the `low` queue worker. An unsupported or failed query
+must not be interpreted as zero players. A request may queue a refresh and return
+the existing result; it is not a synchronous game query. See the
+[controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/GameQueryController.php).
+
+## Read and write files
+
+List a directory with `GET .../files/list?directory=/`. Fetch a file with
+`GET .../files/contents?file=/server.properties`; this returns its text, rather
+than a Fractal resource. Reading contents requires `file.read-content`.
+
+Writing uses `file.create` and a raw body, not `{"content":"..."}`:
+
+```bash
+curl --request POST \
+  "${PANEL_URL}/api/client/servers/SERVER_UUID/files/write?file=%2Fexample.txt" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --header "Content-Type: text/plain" \
+  --data-binary 'Hello from an API integration.'
+```
+
+For binary uploads, get `GET .../files/upload`, read `attributes.url`, and POST
+multipart `files` to that signed Wings URL with a URL-encoded `directory` query
+parameter. Use the signed URL as returned; append query parameters with a URL
+builder. Do not add the panel bearer token to the Wings request. File downloads
+use `GET .../files/download?file=/example.txt`, which returns a short-lived
+signed URL. [File reference](/docs/api/client/files).
+
+Common JSON operations beneath `.../files`:
+
+| Method and suffix     | Example body                                                                   |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `PUT /rename`         | `{"root":"/","files":[{"from":"old.txt","to":"new.txt"}]}`                     |
+| `POST /copy`          | `{"location":"/example.txt"}`                                                  |
+| `POST /create-folder` | `{"root":"/","name":"plugins"}`                                                |
+| `POST /compress`      | `{"root":"/","files":["example.txt"]}`                                         |
+| `POST /decompress`    | `{"root":"/","file":"archive.tar.gz"}`                                         |
+| `POST /delete`        | `{"root":"/","files":["example.txt"]}`                                         |
+| `POST /chmod`         | `{"root":"/","files":[{"file":"example.txt","mode":"644"}]}`                   |
+| `POST /pull`          | `{"url":"https://example.com/file.zip","directory":"/","filename":"file.zip"}` |
+
+`/files/delete` permanently deletes files. It does not put them in trash.
+
+## Move to trash and restore
+
+An administrator must enable **Server file trash**. Disabled trash returns 403,
+including for listing and restoring. Moving requires `file.delete`; listing
+requires `file.read`; restoration requires both `file.delete` and `file.create`.
+
+```bash
+curl --request POST "${PANEL_URL}/api/client/servers/SERVER_UUID/trash" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"root":"/logs","files":["latest.log"]}'
+```
+
+Select 1–100 distinct file names from one directory. File names cannot contain
+slashes or be `.` or `..`. The move returns 204. List `GET .../trash?page=1` to
+obtain an item's UUID in `data[].id`, original `path`, `ready`, `deleted_at`
+and `expires_at`. Restore with `POST .../trash/ITEM_UUID/restore`, or permanently
+purge with `DELETE .../trash/ITEM_UUID`; both return 204.
+
+Restoration refuses to overwrite an existing file, directory or symlink. Trash
+continues to count towards disk usage. The reserved `.aquadactyl-trash` directory
+is protected from ordinary file API operations. Retention defaults to 7 days and
+is configurable from 1–365 days; existing items keep their expiry dates.
+[Trash reference](/docs/api/client/trash).
+
+## Share a console log
+
+When **Console log sharing** is enabled, users with `websocket.connect` can call
+`POST .../console/share` with `{"content":"a bounded console log tail"}`.
+The content limit is 128 KiB, and the route allows 3 requests per minute.
+
+```json
+{ "url": "https://debug.euphoriadevelopment.uk/EXAMPLE", "expires_in": 86400 }
+```
+
+The panel redacts the log and uploads it to its configured debug service. The
+result is returned only to the caller, with a 24-hour expiry. Redaction is best
+effort; review a paste before distributing its URL. An upstream upload failure
+returns 503. [Console sharing reference](/docs/api/client/servers).
+
+## Schedules and tasks
+
+Create a schedule with `POST .../schedules`:
+
+```json
+{
+  "name": "Daily restart",
+  "is_active": true,
+  "only_when_online": true,
+  "minute": "0",
+  "hour": "4",
+  "day_of_month": "*",
+  "month": "*",
+  "day_of_week": "*"
+}
+```
+
+Add a task with `POST .../schedules/SCHEDULE_ID/tasks`:
+
+```json
+{
+  "action": "power",
+  "payload": "restart",
+  "time_offset": 0,
+  "continue_on_failure": false
+}
+```
+
+Task actions are `command`, `power`, or `backup`. Power payloads use the same
+signals as the power endpoint. `time_offset` is a delay in seconds, from 0 to 900. A task also requires the underlying command, power or backup permission.
+The simplified schedule editor still uses these cron fields in the API.
+Execute with `POST .../schedules/SCHEDULE_ID/execute`; 202 means queued.
+[Schedules reference](/docs/api/client/schedules).
+
+## Other Client writes
+
+The following paths are relative to `/api/client/servers/SERVER_UUID`:
+
+| Endpoint                                          | Example input / behavior                                                               |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `POST /databases`                                 | `{"database":"my_database","remote":"%"}`; returns a database resource.                |
+| `POST /databases/DATABASE_ID/rotate-password`     | No body; returns the updated database including its permitted password relationship.   |
+| `POST /network/allocations`                       | No body; allocates an available port when automatic allocation is enabled.             |
+| `POST /network/allocations/ALLOCATION_ID`         | `{"notes":"Game port"}`; `notes` must be present and may be null.                      |
+| `POST /network/allocations/ALLOCATION_ID/primary` | No body; changes the primary allocation.                                               |
+| `POST /users`                                     | `{"email":"player@example.com","permissions":["websocket.connect","control.console"]}` |
+| `POST /users/USER_UUID`                           | `{"permissions":["websocket.connect"]}`; replaces the permission list.                 |
+| `POST /backups`                                   | `{"name":"Before update","is_locked":false,"ignored":"cache/*"}`                       |
+| `POST /backups/BACKUP_UUID/lock`                  | No body; toggles locking rather than setting an explicit value.                        |
+| `POST /backups/BACKUP_UUID/restore`               | `{"truncate":false}`; restoration requires `backup.restore`.                           |
+| `PUT /startup/variable`                           | `{"key":"SERVER_JARFILE","value":"server.jar"}`; egg validation also applies.          |
+| `POST /settings/rename`                           | `{"name":"Survival","description":"Community server"}`                                 |
+| `POST /settings/reinstall`                        | No body; 202 accepts reinstalling the server.                                          |
+| `PUT /settings/docker-image`                      | `{"docker_image":"an-image-allowed-by-the-egg"}`                                       |
+
+Backups, databases, subusers and allocations each have their own feature limits
+and permission checks. Read their reference pages before using destructive
+operations or changing another user's permissions.
+
+## Account changes
+
+These paths are relative to `/api/client/account`:
+
+| Endpoint                             | Body                                                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `PUT /email`                         | `{"email":"new@example.com","password":"CURRENT_PASSWORD"}`                                                |
+| `PUT /password`                      | `{"current_password":"CURRENT_PASSWORD","password":"NEW_PASSWORD","password_confirmation":"NEW_PASSWORD"}` |
+| `PUT /language`                      | `{"language":"auto"}`, or an installed language such as `en`, `fr`, `de`.                                  |
+| `PUT /privacy`                       | `{"blur_sensitive_data":true}`; requires the privacy feature.                                              |
+| `POST /api-keys`                     | `{"description":"Automation","allowed_ips":[]}`; copy `meta.secret_token` from this response.              |
+| `POST /ssh-keys`                     | `{"name":"Laptop","public_key":"ssh-ed25519 YOUR_PUBLIC_KEY"}`                                             |
+| `POST /ssh-keys/remove`              | `{"fingerprint":"THE_FINGERPRINT_FROM_THE_KEY_LIST"}`                                                      |
+| `POST /two-factor`                   | `{"code":"123456","password":"CURRENT_PASSWORD"}` after getting setup data with `GET /two-factor`.         |
+| `POST /two-factor/disable`           | `{"password":"CURRENT_PASSWORD"}`                                                                          |
+| `POST /two-factor/regenerate-tokens` | `{"password":"CURRENT_PASSWORD"}`; invalidates the previous recovery tokens.                               |
+
+Upload an avatar with multipart field `avatar`; permitted types are JPG, JPEG,
+PNG and WebP, maximum 2048 KiB and 4096 pixels per side. Avatar, language and
+privacy writes return their own JSON responses; see the
+[account reference](/docs/api/client/account) for shapes and feature checks.
+
+## Provision a server with the Application API
+
+First create or select a user, location, node and unassigned allocation. List
+`/api/application/nests/NEST_ID/eggs?include=variables` to inspect an egg and its
+environment requirements. Use the egg's actual startup string and supported image.
+
+Create a user with `POST /api/application/users`:
+
+```json
+{
+  "email": "player@example.com",
+  "username": "player",
+  "first_name": "Example",
+  "last_name": "Player",
+  "root_admin": false,
+  "language": "en"
+}
+```
+
+Create the server using an Application key with Servers Write permission:
+
+```bash
+curl --request POST "${PANEL_URL}/api/application/servers" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data @server.json
+```
+
+The `server.json` file has this structure:
+
+```json
+{
+  "name": "Community server",
+  "user": 1,
+  "egg": 1,
+  "docker_image": "ghcr.io/pterodactyl/yolks:java_21",
+  "startup": "java -Xms128M -Xmx{{SERVER_MEMORY}}M -jar {{SERVER_JARFILE}}",
+  "environment": { "SERVER_JARFILE": "server.jar" },
+  "limits": { "memory": 2048, "swap": 0, "disk": 10240, "io": 500, "cpu": 100 },
+  "feature_limits": { "databases": 1, "allocations": 1, "backups": 2 },
+  "allocation": { "default": 1 },
+  "start_on_completion": false
+}
+```
+
+This is a template: the selected egg may require additional environment values.
+For automatic placement, use `deploy` instead of a fixed allocation, with
+`locations`, `dedicated_ip`, and `port_range`. The request has conditional rules
+for deployment and allocation availability. A 201 returns a server resource;
+installation proceeds separately through Wings.
+
+Use the returned **numeric** server ID for Application lifecycle endpoints:
+`POST /servers/1/suspend`, `/unsuspend`, or `/reinstall`. These return 204.
+`DELETE /servers/1` removes a server; `/servers/1/force` bypasses daemon failure
+handling. Only use forced deletion after deciding how to handle data still on
+the node. [Application server reference](/docs/api/application/servers).
+
+## Read all pages in JavaScript
+
+This Node.js example uses built-in `fetch`. Run it on your integration's backend:
+
+```js
+const panel = process.env.PANEL_URL;
+const token = process.env.CLIENT_API_KEY;
+if (!panel || !token) throw new Error("Set PANEL_URL and CLIENT_API_KEY.");
+
+const servers = [];
+for (let page = 1; ; page++) {
+  const url = new URL("/api/client", panel);
+  url.searchParams.set("page", String(page));
+  url.searchParams.set("per_page", "50");
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!response.ok) throw new Error(`Panel returned HTTP ${response.status}`);
+  const result = await response.json();
+  servers.push(...result.data);
+  if (!result.meta?.pagination || page >= result.meta.pagination.total_pages)
+    break;
+}
+console.log(servers.map(({ attributes }) => attributes.name));
+```

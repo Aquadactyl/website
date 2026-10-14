@@ -1,0 +1,91 @@
+---
+title: Console WebSocket
+description: Obtain a short-lived token, authenticate with Wings and reuse the panel's existing console connection in extensions.
+---
+
+The panel grants access to a Wings WebSocket. First call
+`GET /api/client/servers/{server}/websocket` with a Client key or panel session.
+The user needs `websocket.connect`; server access and state checks still apply.
+
+```json
+{
+  "data": {
+    "token": "SHORT_LIVED_JWT",
+    "socket": "wss://node.example.com/api/servers/SERVER_UUID/ws"
+  }
+}
+```
+
+Use the returned socket URL. It can point at a different node during a transfer.
+The JWT expires after 10 minutes and contains the server UUID and allowed user
+permissions. It is a Wings credential; never send your panel API key in a
+WebSocket message.
+
+## Wire protocol
+
+Open the socket and authenticate:
+
+```js
+const socket = new WebSocket(socketUrl);
+socket.addEventListener("open", () => {
+  socket.send(JSON.stringify({ event: "auth", args: [token] }));
+});
+socket.addEventListener("message", ({ data }) => {
+  const message = JSON.parse(data);
+  console.log(message.event, message.args);
+});
+```
+
+Messages use `{"event":"event name","args":[...]}`. Wait for `auth success`
+before requesting output. Common events used by the panel include:
+
+| Direction      | Event                             | Use                                                             |
+| -------------- | --------------------------------- | --------------------------------------------------------------- |
+| Client → Wings | `auth`                            | JWT in `args[0]`; also used to refresh the token.               |
+| Client → Wings | `send logs`                       | Request recent console output.                                  |
+| Client → Wings | `send stats`                      | Request resource stats.                                         |
+| Client → Wings | `send command`                    | Console command in `args[0]`; requires console permission.      |
+| Client → Wings | `set state`                       | Power action in `args[0]`; subject to action permissions.       |
+| Wings → Client | `auth success`                    | Authentication completed.                                       |
+| Wings → Client | `console output`                  | Console text.                                                   |
+| Wings → Client | `stats`                           | Resource statistics, sent as a JSON string argument.            |
+| Wings → Client | `status`                          | Server state.                                                   |
+| Wings → Client | `token expiring`, `token expired` | Obtain a new JWT from the panel and send `auth` again.          |
+| Wings → Client | `jwt error`, `daemon error`       | Authentication or daemon failure.                               |
+| Wings → Client | `transfer status`                 | Transfer lifecycle; the panel may reconnect to the target node. |
+
+Refresh tokens through the authenticated panel endpoint, rather than caching
+one indefinitely. Close the connection and remove listeners on unmount or
+logout. Use a bounded reconnect policy and handle permission revocation or
+terminal close codes instead of reconnecting forever.
+
+## Inside a Blueprint extension
+
+Reuse `ServerContext` and the existing socket whenever possible. Attach a
+listener and remove the same listener in the effect cleanup:
+
+```tsx
+import { useEffect } from "react";
+import { ServerContext } from "@/state/server";
+
+export default function ExampleListener() {
+  const socket = ServerContext.useStoreState((state) => state.socket.instance);
+  useEffect(() => {
+    if (!socket) return;
+    const onStatus = (status: string) => console.log("Server state:", status);
+    socket.on("status", onStatus);
+    return () => {
+      socket.off("status", onStatus);
+    };
+  }, [socket]);
+  return null;
+}
+```
+
+Do not call `socket.close()` from this component's cleanup: the connection belongs
+to the surrounding server page. HTTP polling remains useful for simple resource
+cards; the [Server Pulse example](/docs/blueprint/example-extension) demonstrates it.
+
+Sources: [token controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/WebsocketController.php),
+[WebSocket client](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/resources/scripts/plugins/Websocket.ts),
+[connection lifecycle](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/resources/scripts/components/server/WebsocketHandler.tsx).

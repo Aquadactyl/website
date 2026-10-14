@@ -1,155 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  CalendarClock,
-  ChevronDown,
-  Clipboard,
-  Code2,
-  ExternalLink,
-  Gauge,
-  KeyRound,
-  Languages,
-  Mail,
-  Puzzle,
-  RefreshCw,
-  Server,
-  Palette,
-  ShieldCheck,
-  Trash2,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, ExternalLink, Puzzle, Server } from "lucide-react";
+
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";
-
-const features: {
-  icon: LucideIcon;
-  title: string;
-  text: string;
-  href: string;
-}[] = [
-  {
-    icon: Palette,
-    title: "Appearance customiser",
-    text: "Start with a charcoal theme, then set your site name, logo and primary colour. Customise login and client backgrounds, blur and overlays, with desktop and mobile previews.",
-    href: "/docs/panel/features#appearance",
-  },
-  {
-    icon: Puzzle,
-    title: "Blueprint built in",
-    text: "Blueprint beta-2026-08 ships with the panel. Its CLI, admin pages and extension hooks are initialized by the installer; themes and addons are installed separately.",
-    href: "/docs/panel/additional-configuration#blueprint",
-  },
-  {
-    icon: BookOpen,
-    title: "Integrated Egg Library",
-    text: "Browse eggs.download in the admin area, search and filter the catalogue, preview an egg and import it into an existing or new nest without leaving the panel.",
-    href: "/docs/panel/features#egg-library",
-  },
-  {
-    icon: CalendarClock,
-    title: "Simpler server schedules",
-    text: "Choose daily, weekly, monthly or interval timings, then add restart, backup or command steps with readable delays. Custom cron remains available for advanced schedules.",
-    href: "/docs/panel/features#schedules",
-  },
-  {
-    icon: KeyRound,
-    title: "Passkeys & connected accounts",
-    text: "Let existing users link Discord, GitHub, Google or OpenID Connect, or register a passkey. Admins configure sign-in methods; two-factor verification still applies.",
-    href: "/docs/panel/features#account-security",
-  },
-  {
-    icon: Languages,
-    title: "Your preferred language",
-    text: "English, French and German are bundled for the client and admin areas. Choose a language per account or follow browser preferences, with support for additional language packs.",
-    href: "/docs/panel/features#languages",
-  },
-  {
-    icon: Trash2,
-    title: "Recover deleted server files",
-    text: "Optional per-server trash lets users restore deleted files and folders. Admins choose retention from 1 to 365 days; permanent deletion remains available.",
-    href: "/docs/panel/features#file-trash",
-  },
-  {
-    icon: Clipboard,
-    title: "Share console logs",
-    text: "An optional clipboard button uploads console logs with sensitive data redaction and returns a copyable link to the requesting user. Shared logs expire after 24 hours.",
-    href: "/docs/panel/features#console-log-sharing",
-  },
-  {
-    icon: Gauge,
-    title: "Server overview & console tools",
-    text: "See player counts and node country flags, open Console or Files, and use permitted power actions from server cards. Console graphs follow your primary colour; click the UUID to copy it.",
-    href: "/docs/panel/features#server-overview",
-  },
-  {
-    icon: Mail,
-    title: "More mail delivery options",
-    text: "Configure SMTP, Mailgun, Postmark or Amazon SES in admin settings, with service-specific fields, protected credentials and a test email action.",
-    href: "/docs/panel/features#mail",
-  },
-  {
-    icon: RefreshCw,
-    title: "Managed installation & updates",
-    text: "Linux scripts build assets, apply migrations and refresh caches. The updater verifies release checksums, backs up the database and panel files, and preserves configuration and extension data.",
-    href: "/docs/panel/updating-the-panel",
-  },
-  {
-    icon: Code2,
-    title: "Shared addon libraries",
-    text: "Extension developers can use bundled libraries for icons, searchable selects, forms, validation, charts and animation without installing separate copies.",
-    href: "/docs/blueprint/migration",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Prepared deployment defaults",
-    text: "Supplied deployment configuration brings together Redis, PHP OPcache, Laravel caches, Nginx asset caching and restricted filesystem permissions.",
-    href: "/docs/panel/additional-configuration",
-  },
-];
-
-const comparisons = [
-  {
-    feature: "Default appearance",
-    pterodactyl: "Standard Pterodactyl client and admin styling.",
-    aquadactyl:
-      "Charcoal styling plus configurable branding, primary colour, backgrounds and login layouts.",
-  },
-  {
-    feature: "Blueprint extensions",
-    pterodactyl: "Blueprint requires a separate installation.",
-    aquadactyl: "Blueprint is bundled and initialized during installation.",
-  },
-  {
-    feature: "Finding and importing eggs",
-    pterodactyl:
-      "Download an egg JSON file separately, then import it into a nest.",
-    aquadactyl:
-      "Search, preview and import from eggs.download directly in the admin area.",
-  },
-  {
-    feature: "Schedule editing",
-    pterodactyl: "Configure timing using cron fields and add scheduled tasks.",
-    aquadactyl:
-      "Use common timing presets and readable step delays, or keep custom cron.",
-  },
-  {
-    feature: "Panel updates",
-    pterodactyl: "Follow the upstream update steps and manage your backups.",
-    aquadactyl:
-      "Use a managed updater with release verification and automatic database and file backups.",
-  },
-  {
-    feature: "Core server management",
-    pterodactyl:
-      "Console, files, backups, schedules, users and Docker servers through Wings.",
-    aquadactyl:
-      "Retains this Pterodactyl foundation alongside the additions above.",
-  },
-];
+import FeatureComparison from "./FeatureComparison";
+import BenchmarkShowcase from "./BenchmarkShowcase";
 
 const addons = [
   {
@@ -259,131 +116,9 @@ export default function Home() {
         </div>
       </div>
 
-      <section
-        id="features"
-        className="mx-auto w-full max-w-296 px-5 py-11 sm:px-6 sm:py-14 md:px-8 md:py-19"
-        aria-labelledby="features-heading"
-      >
-        <div className="mb-7 flex flex-col justify-between gap-4 sm:mb-9 md:flex-row md:items-end md:gap-8">
-          <div>
-            <p className="mb-3 text-[11px] font-medium tracking-widest text-[#8c9aa7] uppercase">
-              Built on Pterodactyl
-            </p>
-            <h2
-              id="features-heading"
-              className="text-[27px] leading-tight font-medium tracking-[-0.8px] text-[#e9edf0] sm:text-[29px] md:text-[32px]"
-            >
-              What Aquadactyl adds
-            </h2>
-          </div>
-          <p className="max-w-145 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm md:max-w-105">
-            These additions extend the standard Pterodactyl experience, from
-            everyday server setup to panel customisation and maintenance.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-4.5 lg:grid-cols-3 lg:gap-x-9 lg:gap-y-6">
-          {features.map(({ icon: Icon, title, text, href }) => (
-            <article
-              key={title}
-              className="border-t border-[#303b45] py-5.5 pb-3 sm:py-6 sm:pb-3"
-            >
-              <h3 className="flex items-center gap-2.5 text-base font-medium text-[#e9edf0]">
-                <Icon
-                  className="shrink-0 text-[#78d4cc]"
-                  size={19}
-                  aria-hidden
-                />
-                {title}
-              </h3>
-              <p className="mt-3 text-[13px] leading-[1.85] text-[#a0abb6] sm:text-sm">
-                {text}
-              </p>
-              <Link
-                href={href}
-                className="mt-3 inline-flex min-h-9 items-center gap-1.5 text-xs text-[#a4e3dc] hover:underline"
-                aria-label={`Learn more about ${title}`}
-              >
-                Learn more <ArrowRight size={13} aria-hidden />
-              </Link>
-            </article>
-          ))}
-        </div>
-        <p className="mt-7 text-xs leading-[1.8] text-[#8c9aa7]">
-          Console access, file management, backups, users and Docker server
-          isolation come from Pterodactyl. Aquadactyl retains that foundation
-          and continues to use Wings for game server nodes. Admins choose which
-          optional tools users see; file trash and console log sharing are
-          disabled by default.
-        </p>
-      </section>
+      <BenchmarkShowcase />
 
-      <section
-        className="mx-auto w-full max-w-296 px-5 pb-11 sm:px-6 sm:pb-14 md:px-8 md:pb-19"
-        aria-labelledby="comparison-heading"
-      >
-        <h2
-          id="comparison-heading"
-          className="text-[27px] leading-tight font-medium tracking-[-0.8px] text-[#e9edf0] sm:text-[29px] md:text-[32px]"
-        >
-          Aquadactyl vs default Pterodactyl
-        </h2>
-        <p
-          id="comparison-description"
-          className="mt-4 max-w-180 text-sm leading-[1.85] text-[#a0abb6]"
-        >
-          A comparison with a standard Pterodactyl installation, before adding
-          third-party themes, extensions or custom deployment tooling.
-        </p>
-        <div
-          className="mt-7 overflow-x-auto rounded-lg border border-[#303b45] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#78d4cc]"
-          role="region"
-          aria-labelledby="comparison-heading"
-          tabIndex={0}
-        >
-          <table
-            className="w-full min-w-160 border-collapse text-left text-[13px] leading-[1.8]"
-            aria-describedby="comparison-description"
-          >
-            <caption className="sr-only">
-              Features in default Pterodactyl and Aquadactyl
-            </caption>
-            <thead className="bg-[#1b232b] text-[#e9edf0]">
-              <tr>
-                <th scope="col" className="w-1/5 px-5 py-4 font-medium">
-                  Feature
-                </th>
-                <th scope="col" className="w-2/5 px-5 py-4 font-medium">
-                  Default Pterodactyl
-                </th>
-                <th
-                  scope="col"
-                  className="w-2/5 px-5 py-4 font-medium text-[#a4e3dc]"
-                >
-                  Aquadactyl
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparisons.map(({ feature, pterodactyl, aquadactyl }) => (
-                <tr key={feature} className="border-t border-[#303b45]">
-                  <th
-                    scope="row"
-                    className="px-5 py-4 align-top font-medium text-[#e9edf0]"
-                  >
-                    {feature}
-                  </th>
-                  <td className="px-5 py-4 align-top text-[#a0abb6]">
-                    {pterodactyl}
-                  </td>
-                  <td className="px-5 py-4 align-top text-[#bbc5ce]">
-                    {aquadactyl}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <FeatureComparison />
 
       <section
         id="blueprint"
@@ -465,6 +200,12 @@ export default function Home() {
               className="flex min-h-8 items-center gap-1.75 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline"
             >
               Blueprint setup guide <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/docs/blueprint/example-extension"
+              className="flex min-h-8 items-center gap-1.75 text-[13px] text-[#a4e3dc] underline-offset-4 hover:underline"
+            >
+              Build an example extension <ArrowRight size={14} />
             </Link>
           </div>
         </div>

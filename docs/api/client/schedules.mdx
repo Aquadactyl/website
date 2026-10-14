@@ -1,0 +1,677 @@
+---
+title: Schedules and tasks
+description: 9 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-schedules" />
+
+## GET `/api/client/servers/{server}/schedules`
+
+Returns all the schedules belonging to a given server.
+
+**Access:** Client API key or authenticated panel session; `schedule.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$server = $this->route()->parameter('server');
+$schedule = $this->route()->parameter('schedule');
+
+if ($server instanceof Server && $schedule instanceof Schedule) {
+    $task = $this->route()->parameter('task');
+
+    if ($schedule->server_id !== $server->id || ($task instanceof Task && $task->schedule_id !== $schedule->id)) {
+        throw new NotFoundHttpException('The requested resource does not exist on the system.');
+    }
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client ScheduleTransformer](/docs/api/responses#client-scheduletransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$schedules = $server->schedules->loadMissing('tasks');
+
+return $this->fractal->collection($schedules)
+    ->transformWith($this->getTransformer(ScheduleTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/schedules" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-schedules" />
+
+## POST `/api/client/servers/{server}/schedules`
+
+Store a new schedule for a server.
+
+**Access:** Client API key or authenticated panel session; `schedule.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php)
+
+Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field          | Validation                             |
+| -------------- | -------------------------------------- |
+| `name`         | `['required', 'string', 'max:191']`    |
+| `is_active`    | `array_merge(['filled'], ['boolean'])` |
+| `minute`       | `['required', 'string']`               |
+| `hour`         | `['required', 'string']`               |
+| `day_of_month` | `['required', 'string']`               |
+| `day_of_week`  | `['required', 'string']`               |
+
+**Other controller inputs:** `month`, `only_when_online`.
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$server = $this->route()->parameter('server');
+$schedule = $this->route()->parameter('schedule');
+
+if ($server instanceof Server && $schedule instanceof Schedule) {
+    $task = $this->route()->parameter('task');
+
+    if ($schedule->server_id !== $server->id || ($task instanceof Task && $task->schedule_id !== $schedule->id)) {
+        throw new NotFoundHttpException('The requested resource does not exist on the system.');
+    }
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client ScheduleTransformer](/docs/api/responses#client-scheduletransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$model = $this->repository->create([
+    'server_id' => $server->id,
+    'name' => $request->input('name'),
+    'cron_day_of_week' => $request->input('day_of_week'),
+    'cron_month' => $request->input('month'),
+    'cron_day_of_month' => $request->input('day_of_month'),
+    'cron_hour' => $request->input('hour'),
+    'cron_minute' => $request->input('minute'),
+    'is_active' => (bool) $request->input('is_active'),
+    'only_when_online' => (bool) $request->input('only_when_online'),
+    'next_run_at' => $this->getNextRunAt($request),
+]);
+
+Activity::event('server:schedule.create')
+    ->subject($model)
+    ->property('name', $model->name)
+    ->log();
+
+return $this->fractal->item($model)
+    ->transformWith($this->getTransformer(ScheduleTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="get-api-client-servers-server-schedules-schedule" />
+
+## GET `/api/client/servers/{server}/schedules/{schedule}`
+
+Returns a specific schedule for the server.
+
+**Access:** Client API key or authenticated panel session; `schedule.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$server = $this->route()->parameter('server');
+$schedule = $this->route()->parameter('schedule');
+
+if ($server instanceof Server && $schedule instanceof Schedule) {
+    $task = $this->route()->parameter('task');
+
+    if ($schedule->server_id !== $server->id || ($task instanceof Task && $task->schedule_id !== $schedule->id)) {
+        throw new NotFoundHttpException('The requested resource does not exist on the system.');
+    }
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client ScheduleTransformer](/docs/api/responses#client-scheduletransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if ($schedule->server_id !== $server->id) {
+    throw new NotFoundHttpException();
+}
+
+$schedule->loadMissing('tasks');
+
+return $this->fractal->item($schedule)
+    ->transformWith($this->getTransformer(ScheduleTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/schedules/RESOURCE_ID" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-schedules-schedule" />
+
+## POST `/api/client/servers/{server}/schedules/{schedule}`
+
+Updates a given schedule with the new data provided.
+
+**Access:** Client API key or authenticated panel session; `schedule.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/UpdateScheduleRequest.php)
+
+Validation is inherited from [StoreScheduleRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php).
+
+Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field          | Validation                             |
+| -------------- | -------------------------------------- |
+| `name`         | `['required', 'string', 'max:191']`    |
+| `is_active`    | `array_merge(['filled'], ['boolean'])` |
+| `minute`       | `['required', 'string']`               |
+| `hour`         | `['required', 'string']`               |
+| `day_of_month` | `['required', 'string']`               |
+| `day_of_week`  | `['required', 'string']`               |
+
+**Other controller inputs:** `month`, `only_when_online`.
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$server = $this->route()->parameter('server');
+$schedule = $this->route()->parameter('schedule');
+
+if ($server instanceof Server && $schedule instanceof Schedule) {
+    $task = $this->route()->parameter('task');
+
+    if ($schedule->server_id !== $server->id || ($task instanceof Task && $task->schedule_id !== $schedule->id)) {
+        throw new NotFoundHttpException('The requested resource does not exist on the system.');
+    }
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client ScheduleTransformer](/docs/api/responses#client-scheduletransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$active = (bool) $request->input('is_active');
+
+$data = [
+    'name' => $request->input('name'),
+    'cron_day_of_week' => $request->input('day_of_week'),
+    'cron_month' => $request->input('month'),
+    'cron_day_of_month' => $request->input('day_of_month'),
+    'cron_hour' => $request->input('hour'),
+    'cron_minute' => $request->input('minute'),
+    'is_active' => $active,
+    'only_when_online' => (bool) $request->input('only_when_online'),
+    'next_run_at' => $this->getNextRunAt($request),
+];
+
+if ($schedule->is_active !== $active) {
+    $data['is_processing'] = false;
+}
+
+$this->repository->update($schedule->id, $data);
+
+Activity::event('server:schedule.update')
+    ->subject($schedule)
+    ->property(['name' => $schedule->name, 'active' => $active])
+    ->log();
+
+return $this->fractal->item($schedule->refresh())
+    ->transformWith($this->getTransformer(ScheduleTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-schedules-schedule-execute" />
+
+## POST `/api/client/servers/{server}/schedules/{schedule}/execute`
+
+Executes a given schedule immediately rather than waiting on it's normally scheduled time to pass. This does not care about the schedule state. Tasks are not checked against their action permissions here. They cannot be created or modified without that permission, and anyone reaching this endpoint can already run them by re-pointing the cron expression.
+
+**Access:** Client API key or authenticated panel session; `schedule.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/TriggerScheduleRequest.php)
+
+**Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **202**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->service->handle($schedule, true);
+
+Activity::event('server:schedule.execute')->subject($schedule)->property('name', $schedule->name)->log();
+
+return new JsonResponse([], JsonResponse::HTTP_ACCEPTED);
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-schedules-schedule" />
+
+## DELETE `/api/client/servers/{server}/schedules/{schedule}`
+
+Deletes a schedule and it's associated tasks.
+
+**Access:** Client API key or authenticated panel session; `schedule.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/DeleteScheduleRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$server = $this->route()->parameter('server');
+$schedule = $this->route()->parameter('schedule');
+
+if ($server instanceof Server && $schedule instanceof Schedule) {
+    $task = $this->route()->parameter('task');
+
+    if ($schedule->server_id !== $server->id || ($task instanceof Task && $task->schedule_id !== $schedule->id)) {
+        throw new NotFoundHttpException('The requested resource does not exist on the system.');
+    }
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->repository->delete($schedule->id);
+
+Activity::event('server:schedule.delete')->subject($schedule)->property('name', $schedule->name)->log();
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-schedules-schedule-tasks" />
+
+## POST `/api/client/servers/{server}/schedules/{schedule}/tasks`
+
+Create a new task for a given schedule and store it in the database.
+
+**Access:** Client API key or authenticated panel session; `schedule.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
+
+**Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                                                                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `action`              | `'required\|in:command,power,backup'`                                                                                                                    |
+| `payload`             | `[ 'required_unless:action,backup', 'string', 'nullable', Rule::when($this->input('action') === Task::ACTION_POWER, [Rule::in(Task::POWER_ACTIONS)]), ]` |
+| `time_offset`         | `'required\|numeric\|min:0\|max:900'`                                                                                                                    |
+| `sequence_id`         | `'sometimes\|required\|numeric\|min:1'`                                                                                                                  |
+| `continue_on_failure` | `'sometimes\|required\|boolean'`                                                                                                                         |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$permission = Task::permissionForAction((string) $this->input('action'), $this->input('payload'));
+if (is_null($permission)) {
+    return true;
+}
+
+$server = $this->route()->parameter('server');
+
+return $server instanceof Server && $this->user()->can($permission, $server);
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client TaskTransformer](/docs/api/responses#client-tasktransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$limit = config('pterodactyl.client_features.schedules.per_schedule_task_limit', 10);
+if ($schedule->tasks()->count() >= $limit) {
+    throw new ServiceLimitExceededException("Schedules may not have more than $limit tasks associated with them. Creating this task would put this schedule over the limit.");
+}
+
+if ($server->backup_limit === 0 && $request->action === 'backup') {
+    throw new HttpForbiddenException("A backup task cannot be created when the server's backup limit is set to 0.");
+}
+
+$lastTask = $schedule->tasks()->orderByDesc('sequence_id')->first();
+
+$task = $this->connection->transaction(function () use ($request, $schedule, $lastTask) {
+    $sequenceId = ($lastTask->sequence_id ?? 0) + 1;
+    $requestSequenceId = $request->integer('sequence_id', $sequenceId);
+
+    if ($requestSequenceId < 1) {
+        $requestSequenceId = 1;
+    }
+
+    if ($requestSequenceId < $sequenceId) {
+        $schedule->tasks()
+            ->where('sequence_id', '>=', $requestSequenceId)
+            ->increment('sequence_id');
+        $sequenceId = $requestSequenceId;
+    }
+
+    return $this->repository->create([
+        'schedule_id' => $schedule->id,
+        'sequence_id' => $sequenceId,
+        'action' => $request->input('action'),
+        'payload' => $request->input('payload') ?? '',
+        'time_offset' => $request->input('time_offset'),
+        'continue_on_failure' => $request->boolean('continue_on_failure'),
+    ]);
+});
+
+Activity::event('server:task.create')
+    ->subject($schedule, $task)
+    ->property(['name' => $schedule->name, 'action' => $task->action, 'payload' => $task->payload])
+    ->log();
+
+return $this->fractal->item($task)
+    ->transformWith($this->getTransformer(TaskTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-schedules-schedule-tasks-task" />
+
+## POST `/api/client/servers/{server}/schedules/{schedule}/tasks/{task}`
+
+Updates a given task for a server.
+
+**Access:** Client API key or authenticated panel session; `schedule.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
+
+**Path parameters:** `server`, `schedule`, `task`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                                                                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `action`              | `'required\|in:command,power,backup'`                                                                                                                    |
+| `payload`             | `[ 'required_unless:action,backup', 'string', 'nullable', Rule::when($this->input('action') === Task::ACTION_POWER, [Rule::in(Task::POWER_ACTIONS)]), ]` |
+| `time_offset`         | `'required\|numeric\|min:0\|max:900'`                                                                                                                    |
+| `sequence_id`         | `'sometimes\|required\|numeric\|min:1'`                                                                                                                  |
+| `continue_on_failure` | `'sometimes\|required\|boolean'`                                                                                                                         |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$permission = Task::permissionForAction((string) $this->input('action'), $this->input('payload'));
+if (is_null($permission)) {
+    return true;
+}
+
+$server = $this->route()->parameter('server');
+
+return $server instanceof Server && $this->user()->can($permission, $server);
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client TaskTransformer](/docs/api/responses#client-tasktransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if ($schedule->id !== $task->schedule_id || $server->id !== $schedule->server_id) {
+    throw new NotFoundHttpException();
+}
+
+if ($server->backup_limit === 0 && $request->action === 'backup') {
+    throw new HttpForbiddenException("A backup task cannot be created when the server's backup limit is set to 0.");
+}
+
+$this->connection->transaction(function () use ($request, $schedule, $task) {
+    $sequenceId = $request->integer('sequence_id', $task->sequence_id);
+
+    if ($sequenceId < 1) {
+        $sequenceId = 1;
+    }
+
+    if ($sequenceId < $task->sequence_id) {
+        $schedule->tasks()
+            ->where('sequence_id', '>=', $sequenceId)
+            ->where('sequence_id', '<', $task->sequence_id)
+            ->increment('sequence_id');
+    } elseif ($sequenceId > $task->sequence_id) {
+        $schedule->tasks()
+            ->where('sequence_id', '>', $task->sequence_id)
+            ->where('sequence_id', '<=', $sequenceId)
+            ->decrement('sequence_id');
+    }
+
+    $this->repository->update($task->id, [
+        'sequence_id' => $sequenceId,
+        'action' => $request->input('action'),
+        'payload' => $request->input('payload') ?? '',
+        'time_offset' => $request->input('time_offset'),
+        'continue_on_failure' => $request->boolean('continue_on_failure'),
+    ]);
+});
+
+Activity::event('server:task.update')
+    ->subject($schedule, $task)
+    ->property(['name' => $schedule->name, 'action' => $task->action, 'payload' => $task->payload])
+    ->log();
+
+return $this->fractal->item($task->refresh())
+    ->transformWith($this->getTransformer(TaskTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-schedules-schedule-tasks-task" />
+
+## DELETE `/api/client/servers/{server}/schedules/{schedule}/tasks/{task}`
+
+Delete a given task for a schedule. If there are subsequent tasks stored in the database for this schedule their sequence IDs are decremented properly.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `schedule`, `task`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if ($task->schedule_id !== $schedule->id || $schedule->server_id !== $server->id) {
+    throw new NotFoundHttpException();
+}
+
+if (!$request->user()->can(Permission::ACTION_SCHEDULE_UPDATE, $server)) {
+    throw new HttpForbiddenException('You do not have permission to perform this action.');
+}
+
+$schedule->tasks()
+    ->where('sequence_id', '>', $task->sequence_id)
+    ->decrement('sequence_id');
+$task->delete();
+
+Activity::event('server:task.delete')->subject($schedule, $task)->property('name', $schedule->name)->log();
+
+return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+```
+
+</details>

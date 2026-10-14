@@ -1,0 +1,15 @@
+info:
+  name: "Server Pulse"
+  identifier: "serverpulse"
+  description: "A resource monitor demonstrating Aquadactyl's shared addon libraries."
+  version: "1.0.0"
+  target: "beta-2026-08"
+  author: "Aquadactyl documentation"
+  website: "https://aquadactyl.uk/docs/blueprint/example-extension"
+
+admin:
+  view: "admin.blade.php"
+
+dashboard:
+  components: "components"
+  css: "dashboard.css"

@@ -1,0 +1,17 @@
+{
+  "title": "Client API",
+  "pages": [
+    "servers",
+    "permissions",
+    "account",
+    "databases",
+    "trash",
+    "files",
+    "schedules",
+    "network",
+    "users",
+    "backups",
+    "startup",
+    "settings"
+  ]
+}

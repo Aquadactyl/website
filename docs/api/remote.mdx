@@ -1,0 +1,761 @@
+---
+title: Wings callback API
+description: 12 source-verified remote API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first. These endpoints are called by Wings, using node credentials. They are not the API served by Wings itself.
+
+## Node authentication
+
+Wings calls the panel using `Authorization: Bearer TOKEN_ID.TOKEN_SECRET`, matching the node's configured daemon token. This is not a Client or Application API key. The middleware resolves the node and compares its decrypted secret using a constant-time check. Missing credentials return 401, malformed credentials return 400, and a rejected credential returns 403. Scope callbacks to resources belonging to that node.
+
+These are internal Wings-to-panel callbacks. Prefer the Client or Application API for user integrations. A 204 callback result has no response body. See [node authentication middleware](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Middleware/Api/Daemon/DaemonAuthenticate.php).
+
+---
+
+<span id="post-api-remote-sftp-auth" />
+
+## POST `/api/remote/sftp/auth`
+
+Authenticate a set of credentials and return the associated server details for a SFTP connection on the daemon. This supports both public key and password based credentials.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/SftpAuthenticationFormRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                               |
+| ---------- | ---------------------------------------- |
+| `type`     | `['nullable', 'in:password,public_key']` |
+| `username` | `['required', 'string']`                 |
+| `password` | `['required', 'string']`                 |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$connection = $this->parseUsername($request->input('username'));
+if (empty($connection['server'])) {
+    throw new BadRequestHttpException('No valid server identifier was included in the request.');
+}
+
+if ($this->hasTooManyLoginAttempts($request)) {
+    $seconds = $this->limiter()->availableIn($this->throttleKey($request));
+
+    throw new TooManyRequestsHttpException($seconds, "Too many login attempts for this account, please try again in $seconds seconds.");
+}
+
+$user = $this->getUser($request, $connection['username']);
+$server = $this->getServer($request, $connection['server']);
+
+if ($request->input('type') !== 'public_key') {
+    if (!password_verify($request->input('password'), $user->password)) {
+        Activity::event('auth:sftp.fail')->property('method', 'password')->subject($user)->log();
+
+        $this->reject($request);
+    }
+} else {
+    $key = null;
+    $publicKey = trim($request->input('password'));
+
+    if (UserSSHKey::isSupportedPublicKeyMaterial($publicKey)) {
+        try {
+            $key = PublicKeyLoader::loadPublicKey($publicKey);
+        } catch (NoKeyLoadedException) {
+
+        }
+    }
+
+    if (!$key || !$user->sshKeys()->where('fingerprint', $key->getFingerprint('sha256'))->exists()) {
+
+        $this->reject($request, is_null($key));
+    }
+}
+
+$this->validateSftpAccess($user, $server);
+
+return new JsonResponse([
+    'user' => $user->uuid,
+    'server' => $server->uuid,
+    'permissions' => $this->permissions->handle($server, $user),
+]);
+```
+
+</details>
+
+---
+
+<span id="get-api-remote-servers" />
+
+## GET `/api/remote/servers`
+
+Lists all servers with their configurations that are assigned to the requesting node.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+
+**Other controller inputs:** `per_page` (default `50`).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $request->attributes->get('node');
+
+$servers = Server::query()->with('allocations', 'egg', 'mounts', 'variables', 'location')
+    ->where('node_id', $node->id)
+
+    ->paginate((int) $request->input('per_page', 50));
+
+return new ServerConfigurationCollection($servers);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-servers-reset" />
+
+## POST `/api/remote/servers/reset`
+
+Resets the state of all servers on the node to be normal. This is triggered when Wings restarts and is useful for ensuring that any servers on the node do not get incorrectly stuck in installing/restoring from backup states since a Wings reboot would completely stop those processes.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $request->attributes->get('node');
+
+$servers = Server::query()
+    ->with([
+        'activity' => fn ($builder) => $builder
+            ->where('activity_logs.event', 'server:backup.restore-started')
+            ->latest('timestamp'),
+    ])
+    ->where('node_id', $node->id)
+    ->where('status', Server::STATUS_RESTORING_BACKUP)
+    ->get();
+
+$this->connection->transaction(function () use ($node, $servers) {
+
+    foreach ($servers as $server) {
+
+        $activity = $server->activity->first();
+        if (!is_null($activity)) {
+            if ($subject = $activity->subjects->where('subject_type', 'backup')->first()) {
+
+                Activity::event('server:backup.restore-failed')
+                    ->subject($server, $subject->subject)
+                    ->property('name', $subject->subject->name) // @phpstan-ignore property.notFound
+                    ->log();
+            }
+        }
+    }
+
+    Server::query()->where('node_id', $node->id)
+        ->whereIn('status', [Server::STATUS_INSTALLING, Server::STATUS_RESTORING_BACKUP])
+        ->update(['status' => null]);
+});
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-activity" />
+
+## POST `/api/remote/activity`
+
+Calls ActivityProcessingController::\_\_invoke.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/ActivityProcessingController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/ActivityEventRequest.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field              | Validation                          |
+| ------------------ | ----------------------------------- |
+| `data`             | `['required', 'array']`             |
+| `data.*`           | `['array']`                         |
+| `data.*.user`      | `['sometimes', 'nullable', 'uuid']` |
+| `data.*.server`    | `['required', 'uuid']`              |
+| `data.*.event`     | `['required', 'string']`            |
+| `data.*.metadata`  | `['present', 'nullable', 'array']`  |
+| `data.*.ip`        | `['sometimes', 'nullable', 'ip']`   |
+| `data.*.timestamp` | `['required', 'string']`            |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$tz = Carbon::now()->getTimezone();
+
+$node = $request->attributes->get('node');
+
+$servers = $node->servers()->whereIn('uuid', $request->servers())->get()->keyBy('uuid');
+$users = User::query()->whereIn('uuid', $request->users())->get()->keyBy('uuid');
+
+$logs = [];
+foreach ($request->input('data') as $datum) {
+
+    $server = $servers->get($datum['server']);
+    if (is_null($server) || !Str::startsWith($datum['event'], 'server:')) {
+        continue;
+    }
+
+    try {
+        $when = Carbon::createFromFormat(
+            \DateTimeInterface::RFC3339,
+            preg_replace('/(\.\d+)Z$/', 'Z', $datum['timestamp']),
+            'UTC'
+        );
+    } catch (\Exception $exception) {
+        Log::warning($exception, ['timestamp' => $datum['timestamp']]);
+
+        $when = Carbon::now();
+        $datum['metadata'] = array_merge($datum['metadata'] ?? [], ['original_timestamp' => $datum['timestamp']]);
+    }
+
+    $log = [
+        'ip' => empty($datum['ip']) ? '127.0.0.1' : $datum['ip'],
+        'event' => $datum['event'],
+        'properties' => json_encode($datum['metadata'] ?? []),
+
+        'timestamp' => $when->setTimezone($tz),
+    ];
+
+    if ($user = $users->get($datum['user'] ?? null)) {
+        $log['actor_id'] = $user->id;
+        $log['actor_type'] = $user->getMorphClass();
+    }
+
+    if (!isset($logs[$datum['server']])) {
+        $logs[$datum['server']] = [];
+    }
+
+    $logs[$datum['server']][] = $log;
+}
+
+foreach ($logs as $key => $data) {
+    Assert::isInstanceOf($server = $servers->get($key), Server::class);
+
+    $batch = [];
+    foreach ($data as $datum) {
+        $id = ActivityLog::insertGetId($datum);
+        $batch[] = [
+            'activity_log_id' => $id,
+            'subject_id' => $server->id,
+            'subject_type' => $server->getMorphClass(),
+        ];
+    }
+
+    ActivityLogSubject::insert($batch);
+}
+```
+
+</details>
+
+---
+
+<span id="get-api-remote-servers-uuid" />
+
+## GET `/api/remote/servers/{uuid}`
+
+Returns details about the server that allows Wings to self-recover and ensure that the state of the server matches the Panel at all times.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+
+**Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+Assert::isInstanceOf($node = $request->attributes->get('node'), Node::class);
+
+$server = $this->repository->getByUuid($uuid);
+$transfer = $server->transfer;
+
+$valid = $transfer
+    ? $node->id === $transfer->old_node || $node->id === $transfer->new_node
+    : $node->id === $server->node_id;
+
+if (!$valid) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+return new JsonResponse([
+    'settings' => $this->configurationStructureService->handle($server),
+    'process_configuration' => $this->eggConfigurationService->handle($server),
+]);
+```
+
+</details>
+
+---
+
+<span id="get-api-remote-servers-uuid-install" />
+
+## GET `/api/remote/servers/{uuid}/install`
+
+Returns installation information for a server.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php)
+
+**Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->repository->getByUuid($uuid);
+$egg = $server->egg;
+
+if (!$server->node->is($request->attributes->get('node'))) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+return new JsonResponse([
+    'container_image' => $egg->copy_script_container,
+    'entrypoint' => $egg->copy_script_entry,
+    'script' => $egg->copy_script_install,
+]);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-servers-uuid-install" />
+
+## POST `/api/remote/servers/{uuid}/install`
+
+Updates the installation state of a server.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/InstallationDataRequest.php)
+
+**Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field        | Validation             |
+| ------------ | ---------------------- |
+| `successful` | `'present\|boolean'`   |
+| `reinstall`  | `'sometimes\|boolean'` |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->repository->getByUuid($uuid);
+$status = null;
+
+if (!$server->node->is($request->attributes->get('node'))) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+if (!$request->boolean('successful')) {
+    $status = Server::STATUS_INSTALL_FAILED;
+
+    if ($request->boolean('reinstall')) {
+        $status = Server::STATUS_REINSTALL_FAILED;
+    }
+}
+
+if ($server->status === Server::STATUS_SUSPENDED) {
+    $status = Server::STATUS_SUSPENDED;
+}
+
+$this->repository->update($server->id, ['status' => $status, 'installed_at' => CarbonImmutable::now()], true, true);
+
+$isInitialInstall = is_null($server->installed_at);
+if ($request->boolean('successful') && $isInitialInstall && config()->get('pterodactyl.email.send_install_notification', true)) {
+    $this->eventDispatcher->dispatch(new ServerInstalled($server));
+} elseif ($request->boolean('successful') && !$isInitialInstall && config()->get('pterodactyl.email.send_reinstall_notification', true)) {
+    $this->eventDispatcher->dispatch(new ServerInstalled($server));
+}
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-servers-uuid-transfer-failure" />
+
+## POST `/api/remote/servers/{uuid}/transfer/failure`
+
+The daemon notifies us about a transfer failure.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
+
+**Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->repository->getByUuid($uuid);
+$transfer = $server->transfer;
+if (is_null($transfer)) {
+    throw new ConflictHttpException('Server is not being transferred.');
+}
+
+Assert::isInstanceOf($node = $request->attributes->get('node'), Node::class);
+
+if (!$node->is($transfer->newNode) && !$node->is($transfer->oldNode)) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+return $this->processFailedTransfer($transfer);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-servers-uuid-transfer-success" />
+
+## POST `/api/remote/servers/{uuid}/transfer/success`
+
+The daemon notifies us about a transfer success.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
+
+**Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->repository->getByUuid($uuid);
+$transfer = $server->transfer;
+if (is_null($transfer)) {
+    throw new ConflictHttpException('Server is not being transferred.');
+}
+
+Assert::isInstanceOf($node = $request->attributes->get('node'), Node::class);
+
+if (!$node->is($transfer->newNode)) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+$server = $this->connection->transaction(function () use ($server, $transfer) {
+    $allocations = array_merge([$transfer->old_allocation], $transfer->old_additional_allocations);
+
+    Allocation::query()->whereIn('id', $allocations)->update(['server_id' => null]);
+    $server->update([
+        'allocation_id' => $transfer->new_allocation,
+        'node_id' => $transfer->new_node,
+    ]);
+
+    $server = $server->fresh();
+    $server->transfer->update(['successful' => true]);
+
+    return $server;
+});
+
+try {
+    $this->daemonServerRepository
+        ->setServer($server)
+        ->setNode($transfer->oldNode)
+        ->delete();
+} catch (DaemonConnectionException $exception) {
+    Log::warning($exception, ['transfer_id' => $server->transfer->id]);
+}
+
+return new JsonResponse([], Response::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="get-api-remote-backups-backup" />
+
+## GET `/api/remote/backups/{backup}`
+
+Returns the required presigned urls to upload a backup to S3 cloud storage.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php)
+
+**Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
+
+**Other controller inputs:** `size`.
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $request->attributes->get('node');
+
+$size = (int) $request->query('size');
+if (empty($size)) {
+    throw new BadRequestHttpException('A non-empty "size" query parameter must be provided.');
+}
+
+$model = Backup::query()->where('uuid', $backup)->firstOrFail();
+
+$server = $model->server;
+if ($server->node_id !== $node->id) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+if (!is_null($model->completed_at)) {
+    throw new ConflictHttpException('This backup is already in a completed state.');
+}
+
+$adapter = $this->backupManager->adapter();
+if (!$adapter instanceof S3Filesystem) {
+    throw new BadRequestHttpException('The configured backup adapter is not an S3 compatible adapter.');
+}
+
+$path = sprintf('%s/%s.tar.gz', $model->server->uuid, $model->uuid);
+
+$client = $adapter->getClient();
+$expires = CarbonImmutable::now()->addMinutes(config('backups.presigned_url_lifespan', 60));
+
+$params = [
+    'Bucket' => $adapter->getBucket(),
+    'Key' => $path,
+    'ContentType' => 'application/x-gzip',
+];
+
+$storageClass = config('backups.disks.s3.storage_class');
+if (!is_null($storageClass)) {
+    $params['StorageClass'] = $storageClass;
+}
+
+$result = $client->execute($client->getCommand('CreateMultipartUpload', $params));
+
+$params['UploadId'] = $result->get('UploadId');
+
+$maxPartSize = $this->getConfiguredMaxPartSize();
+
+$parts = [];
+for ($i = 0; $i < ($size / $maxPartSize); ++$i) {
+    $parts[] = $client->createPresignedRequest(
+        $client->getCommand('UploadPart', array_merge($params, ['PartNumber' => $i + 1])),
+        $expires
+    )->getUri()->__toString();
+}
+
+$model->update(['upload_id' => $params['UploadId']]);
+
+return new JsonResponse([
+    'parts' => $parts,
+    'part_size' => $maxPartSize,
+]);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-backups-backup" />
+
+## POST `/api/remote/backups/{backup}`
+
+Handles updating the state of a backup.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/ReportBackupCompleteRequest.php)
+
+**Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                 | Validation                                         |
+| --------------------- | -------------------------------------------------- |
+| `successful`          | `'required\|boolean'`                              |
+| `checksum`            | `'nullable\|string\|required_if:successful,true'`  |
+| `checksum_type`       | `'nullable\|string\|required_if:successful,true'`  |
+| `size`                | `'nullable\|numeric\|required_if:successful,true'` |
+| `parts`               | `'nullable\|array'`                                |
+| `parts.*.etag`        | `'required\|string'`                               |
+| `parts.*.part_number` | `'required\|numeric'`                              |
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$node = $request->attributes->get('node');
+
+$model = Backup::query()
+    ->where('uuid', $backup)
+    ->firstOrFail();
+
+$server = $model->server;
+if ($server->node_id !== $node->id) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+if ($model->is_successful) {
+    throw new BadRequestHttpException('Cannot update the status of a backup that is already marked as completed.');
+}
+
+$action = $request->boolean('successful') ? 'server:backup.complete' : 'server:backup.fail';
+$log = Activity::event($action)->subject($model, $model->server)->property('name', $model->name);
+
+$log->transaction(function () use ($model, $request) {
+    $successful = $request->boolean('successful');
+
+    $model->fill([
+        'is_successful' => $successful,
+
+        'is_locked' => $successful ? $model->is_locked : false,
+        'checksum' => $successful ? ($request->input('checksum_type') . ':' . $request->input('checksum')) : null,
+        'bytes' => $successful ? $request->input('size') : 0,
+        'completed_at' => CarbonImmutable::now(),
+    ])->save();
+
+    $adapter = $this->backupManager->adapter();
+    if ($adapter instanceof S3Filesystem) {
+        $this->completeMultipartUpload($model, $adapter, $successful, $request->input('parts'));
+    }
+});
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="post-api-remote-backups-backup-restore" />
+
+## POST `/api/remote/backups/{backup}/restore`
+
+Handles toggling the restoration status of a server. The server status field should be set back to null, even if the restoration failed. This is not an unsolvable state for the server, and the user can keep trying to restore, or just use the reinstall button. The only thing the successful field does is update the entry value for the audit logs table tracking for this restoration.
+
+**Access:** Wings node bearer credentials; internal callback.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php)
+
+**Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$model = Backup::query()->where('uuid', $backup)->firstOrFail();
+
+$node = $request->attributes->get('node');
+if (!$model->server->node->is($node)) {
+    throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+}
+
+$model->server->update(['status' => null]);
+
+Activity::event($request->boolean('successful') ? 'server:backup.restore-complete' : 'server.backup.restore-failed')
+    ->subject($model, $model->server)
+    ->property('name', $model->name)
+    ->log();
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

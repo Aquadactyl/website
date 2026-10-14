@@ -1,0 +1,778 @@
+---
+title: Servers and databases
+description: 17 source-verified application API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-application-servers" />
+
+## GET `/api/application/servers`
+
+Return all the servers that currently exist on the Panel.
+
+**Access:** Administrator account; `servers` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/GetServersRequest.php)
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field    | Validation          |
+| -------- | ------------------- |
+| `search` | `'string\|max:100'` |
+
+**Other controller inputs:** `per_page`.
+
+**List query options:** filters declared in `'uuid', 'name', 'description', 'image', 'external_id'`; sorts `'id', 'uuid'`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$servers = QueryBuilder::for(Server::query())
+    ->allowedFilters('uuid', 'name', 'description', 'image', 'external_id')
+    ->allowedSorts('id', 'uuid')
+    ->paginate($request->query('per_page') ?? 50);
+
+return $this->fractal->collection($servers)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/servers" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-servers-server-id" />
+
+## GET `/api/application/servers/{server:id}`
+
+Show a single server transformed for the application API.
+
+**Access:** Administrator account; `servers` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/GetServerRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/servers/1" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-servers-external-external-id" />
+
+## GET `/api/application/servers/external/{external_id}`
+
+Retrieve a specific server from the database using its external ID.
+
+**Access:** Administrator account; `servers` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ExternalServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/GetExternalServerRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `external_id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = Server::query()->where('external_id', $external_id)->firstOrFail();
+
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/servers/external/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="patch-api-application-servers-server-id-details" />
+
+## PATCH `/api/application/servers/{server:id}/details`
+
+Update the details for a specific server.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/UpdateServerDetailsRequest.php)
+
+Model constraints: [Server.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Server.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field         | Validation                                                               |
+| ------------- | ------------------------------------------------------------------------ |
+| `external_id` | `['sometimes', 'nullable', 'string', 'between:1,191', 'unique:servers']` |
+| `name`        | `['required', 'string', 'min:1', 'max:191']`                             |
+| `user`        | `['required', 'integer', 'exists:users,id']`                             |
+| `description` | `array_merge(['nullable'], ['string'])`                                  |
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$updated = $this->detailsModificationService->returnUpdatedModel()->handle(
+    $server,
+    $request->validated()
+);
+
+return $this->fractal->item($updated)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="patch-api-application-servers-server-id-build" />
+
+## PATCH `/api/application/servers/{server:id}/build`
+
+Update the build details for a specific server.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/UpdateServerBuildConfigurationRequest.php)
+
+Model constraints: [Server.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Server.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                        | Validation                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| `allocation`                 | `['required', 'bail', 'unique:servers', 'exists:allocations,id']`                   |
+| `oom_disabled`               | `['sometimes', 'boolean']`                                                          |
+| `limits`                     | `'sometimes\|array'`                                                                |
+| `limits.memory`              | `$this->requiredToOptional('memory', ['required', 'numeric', 'min:0'], true)`       |
+| `limits.swap`                | `$this->requiredToOptional('swap', ['required', 'numeric', 'min:-1'], true)`        |
+| `limits.io`                  | `$this->requiredToOptional('io', ['required', 'numeric', 'between:10,1000'], true)` |
+| `limits.cpu`                 | `$this->requiredToOptional('cpu', ['required', 'numeric', 'min:0'], true)`          |
+| `limits.threads`             | `$this->requiredToOptional('threads', ['nullable', 'regex:/^[0-9-,]+$/'], true)`    |
+| `limits.disk`                | `$this->requiredToOptional('disk', ['required', 'numeric', 'min:0'], true)`         |
+| `memory`                     | `$this->requiredToOptional('memory', ['required', 'numeric', 'min:0'])`             |
+| `swap`                       | `$this->requiredToOptional('swap', ['required', 'numeric', 'min:-1'])`              |
+| `io`                         | `$this->requiredToOptional('io', ['required', 'numeric', 'between:10,1000'])`       |
+| `cpu`                        | `$this->requiredToOptional('cpu', ['required', 'numeric', 'min:0'])`                |
+| `threads`                    | `$this->requiredToOptional('threads', ['nullable', 'regex:/^[0-9-,]+$/'])`          |
+| `disk`                       | `$this->requiredToOptional('disk', ['required', 'numeric', 'min:0'])`               |
+| `add_allocations`            | `'bail\|array'`                                                                     |
+| `add_allocations.*`          | `'integer'`                                                                         |
+| `remove_allocations`         | `'bail\|array'`                                                                     |
+| `remove_allocations.*`       | `'integer'`                                                                         |
+| `feature_limits`             | `'required\|array'`                                                                 |
+| `feature_limits.databases`   | `['present', 'nullable', 'integer', 'min:0']`                                       |
+| `feature_limits.allocations` | `['sometimes', 'nullable', 'integer', 'min:0']`                                     |
+| `feature_limits.backups`     | `['present', 'nullable', 'integer', 'min:0']`                                       |
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->buildModificationService->handle($server, $request->validated());
+
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="patch-api-application-servers-server-id-startup" />
+
+## PATCH `/api/application/servers/{server:id}/startup`
+
+Update the startup and environment settings for a specific server.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/StartupController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/UpdateServerStartupRequest.php)
+
+Model constraints: [Server.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Server.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field          | Validation                                                        |
+| -------------- | ----------------------------------------------------------------- |
+| `startup`      | `['required', 'string']`                                          |
+| `environment`  | `'present\|array'`                                                |
+| `egg`          | `['required', 'exists:eggs,id']`                                  |
+| `image`        | `['required', 'string', 'max:191', 'regex:/^~?[\w\.\/\-:@ ]*$/']` |
+| `skip_scripts` | `'present\|boolean'`                                              |
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->modificationService
+    ->setUserLevel(User::USER_LEVEL_ADMIN)
+    ->handle($server, $request->validated());
+
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-application-servers" />
+
+## POST `/api/application/servers`
+
+Create a new server on the system.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/StoreServerRequest.php)
+
+Model constraints: [Server.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Server.php) (including runtime rules and uniqueness checks for updates).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field                        | Validation                                                               |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| `external_id`                | `['sometimes', 'nullable', 'string', 'between:1,191', 'unique:servers']` |
+| `name`                       | `['required', 'string', 'min:1', 'max:191']`                             |
+| `description`                | `array_merge(['nullable'], ['string'])`                                  |
+| `user`                       | `['required', 'integer', 'exists:users,id']`                             |
+| `egg`                        | `['required', 'exists:eggs,id']`                                         |
+| `docker_image`               | `['required', 'string', 'max:191', 'regex:/^~?[\w\.\/\-:@ ]*$/']`        |
+| `startup`                    | `['required', 'string']`                                                 |
+| `environment`                | `'present\|array'`                                                       |
+| `skip_scripts`               | `'sometimes\|boolean'`                                                   |
+| `oom_disabled`               | `'sometimes\|boolean'`                                                   |
+| `limits`                     | `'required\|array'`                                                      |
+| `limits.memory`              | `['required', 'numeric', 'min:0']`                                       |
+| `limits.swap`                | `['required', 'numeric', 'min:-1']`                                      |
+| `limits.disk`                | `['required', 'numeric', 'min:0']`                                       |
+| `limits.io`                  | `['required', 'numeric', 'between:10,1000']`                             |
+| `limits.threads`             | `['nullable', 'regex:/^[0-9-,]+$/']`                                     |
+| `limits.cpu`                 | `['required', 'numeric', 'min:0']`                                       |
+| `feature_limits`             | `'required\|array'`                                                      |
+| `feature_limits.databases`   | `['present', 'nullable', 'integer', 'min:0']`                            |
+| `feature_limits.allocations` | `['sometimes', 'nullable', 'integer', 'min:0']`                          |
+| `feature_limits.backups`     | `['present', 'nullable', 'integer', 'min:0']`                            |
+| `allocation.default`         | `''`                                                                     |
+| `allocation.additional.*`    | `''`                                                                     |
+| `deploy`                     | `'sometimes\|required\|array'`                                           |
+| `deploy.locations`           | `'array'`                                                                |
+| `deploy.locations.*`         | `'integer\|min:1'`                                                       |
+| `deploy.dedicated_ip`        | `'required_with:deploy,boolean'`                                         |
+| `deploy.port_range`          | `'array'`                                                                |
+| `deploy.port_range.*`        | `'string'`                                                               |
+| `start_on_completion`        | `'sometimes\|boolean'`                                                   |
+
+<details>
+<summary>Conditional validation</summary>
+
+```php
+$validator->sometimes('allocation.default', [
+    'required', 'integer', 'bail',
+    Rule::exists('allocations', 'id')->where(function ($query) {
+        $query->whereNull('server_id');
+    }),
+], function ($input) {
+    return !$input->deploy;
+});
+
+$validator->sometimes('allocation.additional.*', [
+    'integer',
+    Rule::exists('allocations', 'id')->where(function ($query) {
+        $query->whereNull('server_id');
+    }),
+], function ($input) {
+    return !$input->deploy;
+});
+
+$validator->sometimes('deploy.locations', 'present', function ($input) {
+    return $input->deploy;
+});
+
+$validator->sometimes('deploy.port_range', 'present', function ($input) {
+    return $input->deploy;
+});
+```
+
+</details>
+
+### Response
+
+Success: **201**. Response attributes: [Application ServerTransformer](/docs/api/responses#application-servertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$server = $this->creationService->handle($request->validated(), $request->getDeploymentObject());
+
+return $this->fractal->item($server)
+    ->transformWith($this->getTransformer(ServerTransformer::class))
+    ->respond(201);
+```
+
+</details>
+
+---
+
+<span id="post-api-application-servers-server-id-suspend" />
+
+## POST `/api/application/servers/{server:id}/suspend`
+
+Suspend a server on the Panel.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->suspensionService->toggle($server);
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="post-api-application-servers-server-id-unsuspend" />
+
+## POST `/api/application/servers/{server:id}/unsuspend`
+
+Unsuspend a server on the Panel.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->suspensionService->toggle($server, SuspensionService::ACTION_UNSUSPEND);
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="post-api-application-servers-server-id-reinstall" />
+
+## POST `/api/application/servers/{server:id}/reinstall`
+
+Mark a server as needing to be reinstalled.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->reinstallServerService->handle($server);
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-servers-server-id" />
+
+## DELETE `/api/application/servers/{server:id}`
+
+Deletes a server.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->withForce($force === 'force')->handle($server);
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-servers-server-id-force" />
+
+## DELETE `/api/application/servers/{server:id}/{force?}`
+
+Deletes a server.
+
+**Access:** Administrator account; `servers` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`, `force?`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->deletionService->withForce($force === 'force')->handle($server);
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="get-api-application-servers-server-id-databases" />
+
+## GET `/api/application/servers/{server:id}/databases`
+
+Return a listing of all databases currently available to a single server.
+
+**Access:** Administrator account; `server_databases` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/Databases/GetServerDatabasesRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerDatabaseTransformer](/docs/api/responses#application-serverdatabasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($server->databases)
+    ->transformWith($this->getTransformer(ServerDatabaseTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/servers/1/databases" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="get-api-application-servers-server-id-databases-database-id" />
+
+## GET `/api/application/servers/{server:id}/databases/{database:id}`
+
+Return a single server database.
+
+**Access:** Administrator account; `server_databases` ACL `READ`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/Databases/GetServerDatabaseRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`, `database:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Application ServerDatabaseTransformer](/docs/api/responses#application-serverdatabasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+abort_unless($database->server_id === $server->id, Response::HTTP_NOT_FOUND);
+
+return $this->fractal->item($database)
+    ->transformWith($this->getTransformer(ServerDatabaseTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/application/servers/1/databases/RESOURCE_ID" \
+  --header "Authorization: Bearer ${APPLICATION_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-application-servers-server-id-databases" />
+
+## POST `/api/application/servers/{server:id}/databases`
+
+Create a new database on the Panel for a given server.
+
+**Access:** Administrator account; `server_databases` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/Databases/StoreServerDatabaseRequest.php)
+
+**Path parameters:** `server:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field      | Validation                                                                                                                                                                                                           |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `database` | `[ 'required', 'alpha_dash', 'min:1', 'max:48', Rule::unique('databases')->where(function (Builder $query) use ($server) { $query->where('server_id', $server->id)->where('database', $this->databaseName()); }), ]` |
+| `remote`   | `'required\|string\|regex:/^[0-9%.]{1,15}$/'`                                                                                                                                                                        |
+| `host`     | `'required\|integer\|exists:database_hosts,id'`                                                                                                                                                                      |
+
+### Response
+
+Success: **201**. Response attributes: [Application ServerDatabaseTransformer](/docs/api/responses#application-serverdatabasetransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$database = $this->databaseManagementService->create($server, array_merge($request->validated(), [
+    'database' => $request->databaseName(),
+]));
+
+return $this->fractal->item($database)
+    ->transformWith($this->getTransformer(ServerDatabaseTransformer::class))
+    ->addMeta([
+        'resource' => route('api.application.servers.databases.view', [
+            'server' => $server->id,
+            'database' => $database->id,
+        ]),
+    ])
+    ->respond(Response::HTTP_CREATED);
+```
+
+</details>
+
+---
+
+<span id="post-api-application-servers-server-id-databases-database-id-reset-password" />
+
+## POST `/api/application/servers/{server:id}/databases/{database:id}/reset-password`
+
+Reset the password for a specific server database.
+
+**Access:** Administrator account; `server_databases` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/Databases/ServerDatabaseWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`, `database:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+abort_unless($database->server_id === $server->id, Response::HTTP_NOT_FOUND);
+
+$this->databasePasswordService->handle($database);
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>
+
+---
+
+<span id="delete-api-application-servers-server-id-databases-database-id" />
+
+## DELETE `/api/application/servers/{server:id}/databases/{database:id}`
+
+Handle a request to delete a specific server database from the Panel.
+
+**Access:** Administrator account; `server_databases` ACL `WRITE`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Servers/Databases/ServerDatabaseWriteRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server:id`, `database:id`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+abort_unless($database->server_id === $server->id, Response::HTTP_NOT_FOUND);
+
+$this->databaseManagementService->delete($database);
+
+return response('', 204);
+```
+
+</details>

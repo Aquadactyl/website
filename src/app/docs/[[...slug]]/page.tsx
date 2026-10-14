@@ -15,6 +15,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { SetupCodeBlock } from "@/components/docs/setup-code-block";
 import { SetupPanel } from "@/components/docs/setup-panel";
 import { SetupValue, ShowFor } from "@/components/docs/show-for";
+import { ApiEndpointIndex } from "@/components/docs/api-endpoint-index";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -51,6 +52,7 @@ export default async function Page(props: {
             SetupPanel,
             ShowFor,
             SetupValue,
+            ApiEndpointIndex,
           }}
         />
       </DocsBody>

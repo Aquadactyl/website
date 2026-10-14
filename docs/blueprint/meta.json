@@ -1,4 +1,9 @@
 {
   "title": "Blueprint",
-  "pages": ["migration"]
+  "pages": [
+    "development",
+    "example-extension",
+    "server-pulse-source",
+    "migration"
+  ]
 }

@@ -1,0 +1,388 @@
+---
+title: Subusers
+description: 5 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-users" />
+
+## GET `/api/client/servers/{server}/users`
+
+Return the users associated with this server instance.
+
+**Access:** Client API key or authenticated panel session; `user.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$user = $this->route()->parameter('user');
+
+if ($user instanceof User) {
+    if ($user->uuid === $this->user()->uuid) {
+        return false;
+    }
+}
+
+if ($this->method() === Request::METHOD_POST && $this->has('permissions')) {
+    $this->validatePermissionsCanBeAssigned(
+        $this->input('permissions') ?? []
+    );
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client SubuserTransformer](/docs/api/responses#client-subusertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($server->subusers)
+    ->transformWith($this->getTransformer(SubuserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/users" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-users" />
+
+## POST `/api/client/servers/{server}/users`
+
+Create a new subuser for the given server.
+
+**Access:** Client API key or authenticated panel session; `user.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/StoreSubuserRequest.php)
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field           | Validation                                |
+| --------------- | ----------------------------------------- |
+| `email`         | `'required\|email:strict\|between:1,191'` |
+| `permissions`   | `'required\|array'`                       |
+| `permissions.*` | `'string'`                                |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$user = $this->route()->parameter('user');
+
+if ($user instanceof User) {
+    if ($user->uuid === $this->user()->uuid) {
+        return false;
+    }
+}
+
+if ($this->method() === Request::METHOD_POST && $this->has('permissions')) {
+    $this->validatePermissionsCanBeAssigned(
+        $this->input('permissions') ?? []
+    );
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client SubuserTransformer](/docs/api/responses#client-subusertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$response = $this->creationService->handle(
+    $server,
+    $request->input('email'),
+    $this->getDefaultPermissions($request)
+);
+
+Activity::event('server:subuser.create')
+    ->subject($response->user)
+    ->property(['email' => $request->input('email'), 'permissions' => $this->getDefaultPermissions($request)])
+    ->log();
+
+return $this->fractal->item($response)
+    ->transformWith($this->getTransformer(SubuserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="get-api-client-servers-server-users-user" />
+
+## GET `/api/client/servers/{server}/users/{user}`
+
+Returns a single subuser associated with this server instance.
+
+**Access:** Client API key or authenticated panel session; `user.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$user = $this->route()->parameter('user');
+
+if ($user instanceof User) {
+    if ($user->uuid === $this->user()->uuid) {
+        return false;
+    }
+}
+
+if ($this->method() === Request::METHOD_POST && $this->has('permissions')) {
+    $this->validatePermissionsCanBeAssigned(
+        $this->input('permissions') ?? []
+    );
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client SubuserTransformer](/docs/api/responses#client-subusertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$subuser = $request->attributes->get('subuser');
+
+return $this->fractal->item($subuser)
+    ->transformWith($this->getTransformer(SubuserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/users/RESOURCE_ID" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-users-user" />
+
+## POST `/api/client/servers/{server}/users/{user}`
+
+Update a given subuser in the system for the server.
+
+**Access:** Client API key or authenticated panel session; `user.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/UpdateSubuserRequest.php)
+
+**Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field           | Validation          |
+| --------------- | ------------------- |
+| `permissions`   | `'required\|array'` |
+| `permissions.*` | `'string'`          |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$user = $this->route()->parameter('user');
+
+if ($user instanceof User) {
+    if ($user->uuid === $this->user()->uuid) {
+        return false;
+    }
+}
+
+if ($this->method() === Request::METHOD_POST && $this->has('permissions')) {
+    $this->validatePermissionsCanBeAssigned(
+        $this->input('permissions') ?? []
+    );
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **200**. Response attributes: [Client SubuserTransformer](/docs/api/responses#client-subusertransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$subuser = $request->attributes->get('subuser');
+
+$permissions = $this->getDefaultPermissions($request);
+$current = $subuser->permissions;
+
+sort($permissions);
+sort($current);
+
+$log = Activity::event('server:subuser.update')
+    ->subject($subuser->user)
+    ->property([
+        'email' => $subuser->user->email,
+        'old' => $current,
+        'new' => $permissions,
+        'revoked' => true,
+    ]);
+
+if ($permissions !== $current) {
+    $log->transaction(function () use ($request, $subuser, $server) {
+        $this->repository->update($subuser->id, [
+            'permissions' => $this->getDefaultPermissions($request),
+        ]);
+
+        RevokeSftpAccessJob::dispatch($subuser->user->uuid, $server);
+    });
+}
+
+$log->reset();
+
+return $this->fractal->item($subuser->refresh())
+    ->transformWith($this->getTransformer(SubuserTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-users-user" />
+
+## DELETE `/api/client/servers/{server}/users/{user}`
+
+Removes a subusers from a server's assignment.
+
+**Access:** Client API key or authenticated panel session; `user.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/DeleteSubuserRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+if (!parent::authorize()) {
+    return false;
+}
+
+$user = $this->route()->parameter('user');
+
+if ($user instanceof User) {
+    if ($user->uuid === $this->user()->uuid) {
+        return false;
+    }
+}
+
+if ($this->method() === Request::METHOD_POST && $this->has('permissions')) {
+    $this->validatePermissionsCanBeAssigned(
+        $this->input('permissions') ?? []
+    );
+}
+
+return true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$subuser = $request->attributes->get('subuser');
+
+$log = Activity::event('server:subuser.delete')
+    ->subject($subuser->user)
+    ->property('email', $subuser->user->email)
+    ->property('revoked', true);
+
+$log->transaction(function () use ($server, $subuser) {
+    $subuser->delete();
+
+    RevokeSftpAccessJob::dispatch($subuser->user->uuid, $server);
+});
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

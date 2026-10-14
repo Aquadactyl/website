@@ -1,0 +1,229 @@
+---
+title: Network allocations
+description: 5 source-verified client API operations in Aquadactyl.
+---
+
+Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-servers-server-network-allocations" />
+
+## GET `/api/client/servers/{server}/network/allocations`
+
+Lists all the allocations available to a server and whether they are currently assigned as the primary for this server.
+
+**Access:** Client API key or authenticated panel session; `allocation.read`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Network/GetNetworkRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client AllocationTransformer](/docs/api/responses#client-allocationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return $this->fractal->collection($server->allocations)
+    ->transformWith($this->getTransformer(AllocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/network/allocations" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-servers-server-network-allocations" />
+
+## POST `/api/client/servers/{server}/network/allocations`
+
+Set the notes for the allocation for a server. s.
+
+**Access:** Client API key or authenticated panel session; `allocation.create`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Network/NewAllocationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client AllocationTransformer](/docs/api/responses#client-allocationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$allocation = Activity::event('server:allocation.create')->transaction(function ($log) use ($server) {
+    if ($server->allocations()->lockForUpdate()->count() >= $server->allocation_limit) {
+        throw new DisplayException('Cannot assign additional allocations to this server: limit has been reached.');
+    }
+
+    $allocation = $this->assignableAllocationService->handle($server);
+
+    $log->subject($allocation)->property('allocation', $allocation->toString());
+
+    return $allocation;
+});
+
+return $this->fractal->item($allocation)
+    ->transformWith($this->getTransformer(AllocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-network-allocations-allocation" />
+
+## POST `/api/client/servers/{server}/network/allocations/{allocation}`
+
+Set the primary allocation for a server.
+
+**Access:** Client API key or authenticated panel session; `allocation.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Network/UpdateAllocationRequest.php)
+
+Model constraints: [Allocation.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Allocation.php) (including runtime rules and uniqueness checks for updates).
+
+**Path parameters:** `server`, `allocation`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field   | Validation                                                    |
+| ------- | ------------------------------------------------------------- |
+| `notes` | `array_merge(['nullable', 'string', 'max:256'], ['present'])` |
+
+### Response
+
+Success: **200**. Response attributes: [Client AllocationTransformer](/docs/api/responses#client-allocationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$original = $allocation->notes;
+
+$allocation->forceFill(['notes' => $request->input('notes')])->save();
+
+if ($original !== $allocation->notes) {
+    Activity::event('server:allocation.notes')
+        ->subject($allocation)
+        ->property(['allocation' => $allocation->toString(), 'old' => $original, 'new' => $allocation->notes])
+        ->log();
+}
+
+return $this->fractal->item($allocation)
+    ->transformWith($this->getTransformer(AllocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="post-api-client-servers-server-network-allocations-allocation-primary" />
+
+## POST `/api/client/servers/{server}/network/allocations/{allocation}/primary`
+
+Set the primary allocation for a server.
+
+**Access:** Client API key or authenticated panel session; `allocation.update`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Network/SetPrimaryAllocationRequest.php)
+
+**Path parameters:** `server`, `allocation`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **200**. Response attributes: [Client AllocationTransformer](/docs/api/responses#client-allocationtransformer). Collections use the list envelope described in [conventions](/docs/api/authentication#responses-and-pagination).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$this->serverRepository->update($server->id, ['allocation_id' => $allocation->id]);
+
+Activity::event('server:allocation.primary')
+    ->subject($allocation)
+    ->property('allocation', $allocation->toString())
+    ->log();
+
+return $this->fractal->item($allocation)
+    ->transformWith($this->getTransformer(AllocationTransformer::class))
+    ->toArray();
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-servers-server-network-allocations-allocation" />
+
+## DELETE `/api/client/servers/{server}/network/allocations/{allocation}`
+
+Delete an allocation from a server.
+
+**Access:** Client API key or authenticated panel session; `allocation.delete`.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Network/DeleteAllocationRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`, `allocation`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+if (empty($server->allocation_limit)) {
+    throw new DisplayException('You cannot delete allocations for this server: no allocation limit is set.');
+}
+
+if ($allocation->id === $server->allocation_id) {
+    throw new DisplayException('You cannot delete the primary allocation for this server.');
+}
+
+Allocation::query()->where('id', $allocation->id)->update([
+    'notes' => null,
+    'server_id' => null,
+]);
+
+Activity::event('server:allocation.delete')
+    ->subject($allocation)
+    ->property('allocation', $allocation->toString())
+    ->log();
+
+return new JsonResponse([], JsonResponse::HTTP_NO_CONTENT);
+```
+
+</details>

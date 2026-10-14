@@ -1,0 +1,2057 @@
+{
+  "repository": "Aquadactyl/aquadactyl",
+  "revision": "2bfd6ae2a30c8152b34b53c53562773a973ae901",
+  "routeCount": 135,
+  "operations": [
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ClientController::index",
+      "request": "app/Http/Requests/Api/Client/GetServersRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php",
+      "id": "get-api-client"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/permissions",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ClientController::permissions",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/permissions",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php",
+      "id": "get-api-client-permissions"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountController::index",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "id": "get-api-client-account"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/two-factor",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\TwoFactorController::index",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "id": "get-api-client-account-two-factor"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/two-factor",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\TwoFactorController::store",
+      "request": null,
+      "fields": [
+        ["code", "['required', 'string', 'size:6']"],
+        ["password", "['required', 'string']"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "id": "post-api-client-account-two-factor"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/two-factor/disable",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\TwoFactorController::delete",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "id": "post-api-client-account-two-factor-disable"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/two-factor/regenerate-tokens",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\TwoFactorController::regenerateTokens",
+      "request": null,
+      "fields": [["password", "['required', 'string']"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "id": "post-api-client-account-two-factor-regenerate-tokens"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/email",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountController::updateEmail",
+      "request": "app/Http/Requests/Api/Client/Account/UpdateEmailRequest.php",
+      "fields": [
+        [
+          "email",
+          "['required', 'email:strict', 'between:1,191', 'unique:users,email']"
+        ]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "id": "put-api-client-account-email"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/password",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountController::updatePassword",
+      "request": "app/Http/Requests/Api/Client/Account/UpdatePasswordRequest.php",
+      "fields": [["password", "['required', 'string', 'confirmed', 'min:8']"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "id": "put-api-client-account-password"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/avatar",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountAvatarController::store",
+      "request": "app/Http/Requests/Api/Client/Account/UpdateAvatarRequest.php",
+      "fields": [
+        [
+          "avatar",
+          "['bail', 'required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:min_width=1,min_height=1,max_width=4096,max_height=4096']"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php",
+      "id": "post-api-client-account-avatar"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/account/avatar",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountAvatarController::destroy",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php",
+      "id": "delete-api-client-account-avatar"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/privacy",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountPrivacyController::update",
+      "request": "app/Http/Requests/Api/Client/Account/UpdatePrivacyRequest.php",
+      "fields": [["blur_sensitive_data", "['required', 'boolean']"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountPrivacyController.php",
+      "id": "put-api-client-account-privacy"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/language",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountLanguageController::update",
+      "request": "app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php",
+      "fields": [
+        [
+          "language",
+          "[\n'required',\n'string',\nRule::in([\n    LanguageService::AUTOMATIC,\n    ...array_keys(app(LanguageService::class)->available()),\n]),\n    ]"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountLanguageController.php",
+      "id": "put-api-client-account-language"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/activity",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ActivityLogController::__invoke",
+      "request": "app/Http/Requests/Api/Client/ActivityLogRequest.php",
+      "fields": [
+        ["page", "['sometimes', 'integer', 'min:1']"],
+        ["per_page", "['sometimes', 'integer', 'between:1,100']"],
+        ["filter.event", "['sometimes', 'nullable', 'string', 'max:255']"],
+        [
+          "filter.event_exact",
+          "['sometimes', 'nullable', 'string', 'max:255']"
+        ],
+        ["filter.ip", "['sometimes', 'nullable', 'ip']"],
+        [
+          "filter.period",
+          "['sometimes', Rule::in(['24h', '7d', '30d', '90d'])]"
+        ],
+        ["filter.date", "['sometimes', 'nullable', 'date_format:Y-m-d']"],
+        [
+          "filter.source",
+          "['sometimes', Rule::in(['web', 'api', 'sftp', 'system'])]"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ActivityLogController.php",
+      "id": "get-api-client-account-activity"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/api-keys",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ApiKeyController::index",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "id": "get-api-client-account-api-keys"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/api-keys",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ApiKeyController::store",
+      "request": "app/Http/Requests/Api/Client/Account/StoreApiKeyRequest.php",
+      "fields": [
+        ["description", "['required', 'nullable', 'string', 'max:500']"],
+        ["allowed_ips", "[...['nullable', 'array'], 'max:50']"],
+        ["allowed_ips.*", "'string'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "id": "post-api-client-account-api-keys"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/account/api-keys/{identifier}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ApiKeyController::delete",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "id": "delete-api-client-account-api-keys-identifier"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/ssh-keys",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\SSHKeyController::index",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "id": "get-api-client-account-ssh-keys"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/ssh-keys",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\SSHKeyController::store",
+      "request": "app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php",
+      "fields": [
+        ["name", "['required', 'string']"],
+        [
+          "public_key",
+          "['required', 'string', 'max:' . self::PUBLIC_KEY_MAX_LENGTH]"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "id": "post-api-client-account-ssh-keys"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/ssh-keys/remove",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\SSHKeyController::delete",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [["fingerprint", "['required', 'string']"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "id": "post-api-client-account-ssh-keys-remove"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ServerController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/GetServerRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ServerController.php",
+      "id": "get-api-client-servers-server"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/websocket",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\WebsocketController::__invoke",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/WebsocketController.php",
+      "id": "get-api-client-servers-server-websocket"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/resources",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ResourceUtilizationController::__invoke",
+      "request": "app/Http/Requests/Api/Client/Servers/GetServerRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php",
+      "id": "get-api-client-servers-server-resources"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/query",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\GameQueryController::__invoke",
+      "request": "app/Http/Requests/Api/Client/Servers/GetServerRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/GameQueryController.php",
+      "id": "get-api-client-servers-server-query"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/activity",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ActivityLogController::__invoke",
+      "request": "app/Http/Requests/Api/Client/ActivityLogRequest.php",
+      "fields": [
+        ["page", "['sometimes', 'integer', 'min:1']"],
+        ["per_page", "['sometimes', 'integer', 'between:1,100']"],
+        ["filter.event", "['sometimes', 'nullable', 'string', 'max:255']"],
+        [
+          "filter.event_exact",
+          "['sometimes', 'nullable', 'string', 'max:255']"
+        ],
+        ["filter.ip", "['sometimes', 'nullable', 'ip']"],
+        [
+          "filter.period",
+          "['sometimes', Rule::in(['24h', '7d', '30d', '90d'])]"
+        ],
+        ["filter.date", "['sometimes', 'nullable', 'date_format:Y-m-d']"],
+        [
+          "filter.source",
+          "['sometimes', Rule::in(['web', 'api', 'sftp', 'system'])]"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php",
+      "id": "get-api-client-servers-server-activity"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/command",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\CommandController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/SendCommandRequest.php",
+      "fields": [["command", "'required|string|min:1'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/CommandController.php",
+      "id": "post-api-client-servers-server-command"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/console/share",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ConsoleLogShareController::__invoke",
+      "request": "app/Http/Requests/Api/Client/Servers/ShareConsoleLogsRequest.php",
+      "fields": [
+        [
+          "content",
+          "['bail', 'required', 'string', 'max:' . self::MAX_BYTES, function ($attribute, $value, $fail) {\n    if (strlen($value) > self::MAX_BYTES) {\n$fail('Console logs must not exceed 128 KiB.');\n    }\n}]"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php",
+      "id": "post-api-client-servers-server-console-share"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/power",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\PowerController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/SendPowerRequest.php",
+      "fields": [
+        ["signal", "'required|string|in:' . implode(',', Task::POWER_ACTIONS)"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/PowerController.php",
+      "id": "post-api-client-servers-server-power"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/databases",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\DatabaseController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Databases/GetDatabasesRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/databases",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "id": "get-api-client-servers-server-databases"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/databases",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\DatabaseController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Databases/StoreDatabaseRequest.php",
+      "fields": [
+        [
+          "database",
+          "[\n'bail',\n'required',\n'alpha_dash',\n'min:3',\n'max:48',\n\nfunction (string $attribute, mixed $value, \\Closure $fail) use ($server) {\n    if (Database::query()->where('server_id', $server->id)\n        ->where('database', DatabaseManagementService::generateUniqueDatabaseName($value, $server->id))->exists()) {\n        $fail($this->messages()['database.unique']);\n    }\n},\n    ]"
+        ],
+        ["remote", "'required|string|regex:/^[\\w\\-\\/.%:]+$/'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/databases",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "id": "post-api-client-servers-server-databases"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/databases/{database}/rotate-password",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\DatabaseController::rotatePassword",
+      "request": "app/Http/Requests/Api/Client/Servers/Databases/RotatePasswordRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/databases",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "id": "post-api-client-servers-server-databases-database-rotate-password"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/databases/{database}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\DatabaseController::delete",
+      "request": "app/Http/Requests/Api/Client/Servers/Databases/DeleteDatabaseRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/databases",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "id": "delete-api-client-servers-server-databases-database"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/trash",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileTrashController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php",
+      "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/trash",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "id": "get-api-client-servers-server-trash"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/trash",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileTrashController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/TrashFilesRequest.php",
+      "fields": [
+        ["root", "'required|string|max:4096'"],
+        ["files", "'required|array|min:1|max:100'"],
+        [
+          "files.*",
+          "['bail', 'required', 'string', 'max:255', 'distinct', function ($attribute, $value, $fail) {\nif (in_array($value, ['.', '..'], true) || strpbrk($value, \"/\\\\\\0\") !== false) {\n    $fail('Select files from one directory.');\n}\n    }]"
+        ]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/trash",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "id": "post-api-client-servers-server-trash"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/trash/{item}/restore",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileTrashController::restore",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php",
+      "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/trash",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "id": "post-api-client-servers-server-trash-item-restore"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/trash/{item}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileTrashController::destroy",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/TrashItemRequest.php",
+      "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/trash",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "id": "delete-api-client-servers-server-trash-item"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/files/list",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::directory",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/ListFilesRequest.php",
+      "fields": [["directory", "'sometimes|nullable|string'"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "get-api-client-servers-server-files-list"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/files/contents",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::contents",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/GetFileContentsRequest.php",
+      "fields": [["file", "'required|string'"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "get-api-client-servers-server-files-contents"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/files/download",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::download",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/GetFileContentsRequest.php",
+      "fields": [["file", "'required|string'"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "get-api-client-servers-server-files-download"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/servers/{server}/files/rename",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::rename",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/RenameFileRequest.php",
+      "fields": [
+        ["root", "'required|nullable|string'"],
+        ["files", "'required|array'"],
+        ["files.*", "'array'"],
+        ["files.*.to", "'required|string'"],
+        ["files.*.from", "'required|string'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "put-api-client-servers-server-files-rename"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/copy",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::copy",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/CopyFileRequest.php",
+      "fields": [["location", "'required|string'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-copy"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/write",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::write",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/WriteFileContentRequest.php",
+      "fields": [["file", "'required|string'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-write"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/compress",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::compress",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/CompressFilesRequest.php",
+      "fields": [
+        ["root", "'sometimes|nullable|string'"],
+        ["files", "'required|array'"],
+        ["files.*", "'string'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-compress"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/decompress",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::decompress",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/DecompressFilesRequest.php",
+      "fields": [
+        ["root", "'sometimes|nullable|string'"],
+        ["file", "'required|string'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-decompress"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/delete",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::delete",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/DeleteFileRequest.php",
+      "fields": [
+        ["root", "'required|nullable|string'"],
+        ["files", "'required|array'"],
+        ["files.*", "'string'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-delete"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/create-folder",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::create",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/CreateFolderRequest.php",
+      "fields": [
+        ["root", "'sometimes|nullable|string'"],
+        ["name", "'required|string'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-create-folder"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/chmod",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::chmod",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/ChmodFilesRequest.php",
+      "fields": [
+        ["root", "'required|nullable|string'"],
+        ["files", "'required|array'"],
+        ["files.*.file", "'required|string'"],
+        ["files.*.mode", "'required|numeric'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-chmod"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/files/pull",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileController::pull",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/PullFileRequest.php",
+      "fields": [
+        ["url", "'required|string|url'"],
+        ["directory", "'nullable|string'"],
+        ["filename", "'nullable|string'"],
+        ["use_header", "'boolean'"],
+        ["foreground", "'boolean'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "id": "post-api-client-servers-server-files-pull"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/files/upload",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\FileUploadController::__invoke",
+      "request": "app/Http/Requests/Api/Client/Servers/Files/UploadFileRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/files",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileUploadController.php",
+      "id": "get-api-client-servers-server-files-upload"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/schedules",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "get-api-client-servers-server-schedules"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/schedules",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php",
+      "fields": [
+        ["name", "['required', 'string', 'max:191']"],
+        ["is_active", "array_merge(['filled'], ['boolean'])"],
+        ["minute", "['required', 'string']"],
+        ["hour", "['required', 'string']"],
+        ["day_of_month", "['required', 'string']"],
+        ["day_of_week", "['required', 'string']"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "post-api-client-servers-server-schedules"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/schedules/{schedule}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::view",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "get-api-client-servers-server-schedules-schedule"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/schedules/{schedule}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::update",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/UpdateScheduleRequest.php",
+      "fields": [
+        ["name", "['required', 'string', 'max:191']"],
+        ["is_active", "array_merge(['filled'], ['boolean'])"],
+        ["minute", "['required', 'string']"],
+        ["hour", "['required', 'string']"],
+        ["day_of_month", "['required', 'string']"],
+        ["day_of_week", "['required', 'string']"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "post-api-client-servers-server-schedules-schedule"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/schedules/{schedule}/execute",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::execute",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/TriggerScheduleRequest.php",
+      "fields": [],
+      "successStatus": 202,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "post-api-client-servers-server-schedules-schedule-execute"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/schedules/{schedule}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleController::delete",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/DeleteScheduleRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "id": "delete-api-client-servers-server-schedules-schedule"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/schedules/{schedule}/tasks",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleTaskController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php",
+      "fields": [
+        ["action", "'required|in:command,power,backup'"],
+        [
+          "payload",
+          "[\n'required_unless:action,backup',\n'string',\n'nullable',\nRule::when($this->input('action') === Task::ACTION_POWER, [Rule::in(Task::POWER_ACTIONS)]),\n    ]"
+        ],
+        ["time_offset", "'required|numeric|min:0|max:900'"],
+        ["sequence_id", "'sometimes|required|numeric|min:1'"],
+        ["continue_on_failure", "'sometimes|required|boolean'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "id": "post-api-client-servers-server-schedules-schedule-tasks"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/schedules/{schedule}/tasks/{task}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleTaskController::update",
+      "request": "app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php",
+      "fields": [
+        ["action", "'required|in:command,power,backup'"],
+        [
+          "payload",
+          "[\n'required_unless:action,backup',\n'string',\n'nullable',\nRule::when($this->input('action') === Task::ACTION_POWER, [Rule::in(Task::POWER_ACTIONS)]),\n    ]"
+        ],
+        ["time_offset", "'required|numeric|min:0|max:900'"],
+        ["sequence_id", "'sometimes|required|numeric|min:1'"],
+        ["continue_on_failure", "'sometimes|required|boolean'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "id": "post-api-client-servers-server-schedules-schedule-tasks-task"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/schedules/{schedule}/tasks/{task}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\ScheduleTaskController::delete",
+      "request": "app/Http/Requests/Api/Client/ClientApiRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/schedules",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "id": "delete-api-client-servers-server-schedules-schedule-tasks-task"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/network/allocations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\NetworkAllocationController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Network/GetNetworkRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/network",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "id": "get-api-client-servers-server-network-allocations"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/network/allocations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\NetworkAllocationController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Network/NewAllocationRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/network",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "id": "post-api-client-servers-server-network-allocations"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/network/allocations/{allocation}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\NetworkAllocationController::update",
+      "request": "app/Http/Requests/Api/Client/Servers/Network/UpdateAllocationRequest.php",
+      "fields": [
+        ["notes", "array_merge(['nullable', 'string', 'max:256'], ['present'])"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/network",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "id": "post-api-client-servers-server-network-allocations-allocation"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/network/allocations/{allocation}/primary",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\NetworkAllocationController::setPrimary",
+      "request": "app/Http/Requests/Api/Client/Servers/Network/SetPrimaryAllocationRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/network",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "id": "post-api-client-servers-server-network-allocations-allocation-primary"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/network/allocations/{allocation}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\NetworkAllocationController::delete",
+      "request": "app/Http/Requests/Api/Client/Servers/Network/DeleteAllocationRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/network",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "id": "delete-api-client-servers-server-network-allocations-allocation"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/users",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubuserController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "id": "get-api-client-servers-server-users"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/users",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubuserController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Subusers/StoreSubuserRequest.php",
+      "fields": [
+        ["email", "'required|email:strict|between:1,191'"],
+        ["permissions", "'required|array'"],
+        ["permissions.*", "'string'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "id": "post-api-client-servers-server-users"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/users/{user}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubuserController::view",
+      "request": "app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "id": "get-api-client-servers-server-users-user"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/users/{user}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubuserController::update",
+      "request": "app/Http/Requests/Api/Client/Servers/Subusers/UpdateSubuserRequest.php",
+      "fields": [
+        ["permissions", "'required|array'"],
+        ["permissions.*", "'string'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "id": "post-api-client-servers-server-users-user"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/users/{user}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubuserController::delete",
+      "request": "app/Http/Requests/Api/Client/Servers/Subusers/DeleteSubuserRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "id": "delete-api-client-servers-server-users-user"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/backups",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::index",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "get-api-client-servers-server-backups"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/backups",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Backups/StoreBackupRequest.php",
+      "fields": [
+        ["name", "'nullable|string|max:191'"],
+        ["is_locked", "'nullable|boolean'"],
+        ["ignored", "'nullable|string'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "post-api-client-servers-server-backups"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/backups/{backup}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::view",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "get-api-client-servers-server-backups-backup"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/backups/{backup}/download",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::download",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "get-api-client-servers-server-backups-backup-download"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/backups/{backup}/lock",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::toggleLock",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "post-api-client-servers-server-backups-backup-lock"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/backups/{backup}/restore",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::restore",
+      "request": "app/Http/Requests/Api/Client/Servers/Backups/RestoreBackupRequest.php",
+      "fields": [["truncate", "'required|boolean'"]],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "post-api-client-servers-server-backups-backup-restore"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/backups/{backup}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\BackupController::delete",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/backups",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "id": "delete-api-client-servers-server-backups-backup"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/startup",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\StartupController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Startup/GetStartupRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/startup",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/StartupController.php",
+      "id": "get-api-client-servers-server-startup"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/servers/{server}/startup/variable",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\StartupController::update",
+      "request": "app/Http/Requests/Api/Client/Servers/Startup/UpdateStartupVariableRequest.php",
+      "fields": [
+        ["key", "'required|string'"],
+        ["value", "'present'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/startup",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/StartupController.php",
+      "id": "put-api-client-servers-server-startup-variable"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/settings/rename",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SettingsController::rename",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/RenameServerRequest.php",
+      "fields": [
+        ["name", "Server::getRules()['name']"],
+        ["description", "'string|nullable'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "id": "post-api-client-servers-server-settings-rename"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/settings/reinstall",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SettingsController::reinstall",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/ReinstallServerRequest.php",
+      "fields": [],
+      "successStatus": 202,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "id": "post-api-client-servers-server-settings-reinstall"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/servers/{server}/settings/docker-image",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SettingsController::dockerImage",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/SetDockerImageRequest.php",
+      "fields": [
+        [
+          "docker_image",
+          "['required', 'string', 'max:191', 'regex:/^[\\w#\\.\\/\\- ]*\\|?~?[\\w\\.\\/\\-:@ ]*$/', Rule::in(array_values($server->egg->docker_images))]"
+        ]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "id": "put-api-client-servers-server-settings-docker-image"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/users",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\UserController::index",
+      "request": "app/Http/Requests/Api/Application/Users/GetUsersRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "id": "get-api-application-users"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/users/{user:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\UserController::view",
+      "request": "app/Http/Requests/Api/Application/Users/GetUsersRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "id": "get-api-application-users-user-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/users/external/{external_id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\ExternalUserController::index",
+      "request": "app/Http/Requests/Api/Application/Users/GetExternalUserRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/ExternalUserController.php",
+      "id": "get-api-application-users-external-external-id"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/users",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\UserController::store",
+      "request": "app/Http/Requests/Api/Application/Users/StoreUserRequest.php",
+      "fields": [
+        [
+          "external_id",
+          "'sometimes|nullable|string|max:191|unique:users,external_id'"
+        ],
+        ["email", "'required|email:strict|between:1,191|unique:users,email'"],
+        ["username", "'required|between:1,191|unique:users,username'"],
+        ["password", "'sometimes|nullable|string'"],
+        ["language", "'string'"],
+        ["root_admin", "'boolean'"],
+        ["first_name", "'required|string|between:1,191'"],
+        ["last_name", "'required|string|between:1,191'"]
+      ],
+      "successStatus": 201,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "id": "post-api-application-users"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/users/{user:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\UserController::update",
+      "request": "app/Http/Requests/Api/Application/Users/UpdateUserRequest.php",
+      "fields": [
+        [
+          "external_id",
+          "'sometimes|nullable|string|max:191|unique:users,external_id'"
+        ],
+        ["email", "'required|email:strict|between:1,191|unique:users,email'"],
+        ["username", "'required|between:1,191|unique:users,username'"],
+        ["password", "'sometimes|nullable|string'"],
+        ["language", "'string'"],
+        ["root_admin", "'boolean'"],
+        ["first_name", "'required|string|between:1,191'"],
+        ["last_name", "'required|string|between:1,191'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "id": "patch-api-application-users-user-id"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/users/{user:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Users\\UserController::delete",
+      "request": "app/Http/Requests/Api/Application/Users/DeleteUserRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/users",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "id": "delete-api-application-users-user-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nodes",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeController::index",
+      "request": "app/Http/Requests/Api/Application/Nodes/GetNodesRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "id": "get-api-application-nodes"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nodes/deployable",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeDeploymentController::__invoke",
+      "request": "app/Http/Requests/Api/Application/Nodes/GetDeployableNodesRequest.php",
+      "fields": [
+        ["page", "'integer'"],
+        ["memory", "'required|integer|min:0'"],
+        ["disk", "'required|integer|min:0'"],
+        ["location_ids", "'array'"],
+        ["location_ids.*", "'integer'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeDeploymentController.php",
+      "id": "get-api-application-nodes-deployable"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nodes/{node:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeController::view",
+      "request": "app/Http/Requests/Api/Application/Nodes/GetNodeRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "id": "get-api-application-nodes-node-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nodes/{node:id}/configuration",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeConfigurationController::__invoke",
+      "request": "app/Http/Requests/Api/Application/Nodes/GetNodeConfigurationRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeConfigurationController.php",
+      "id": "get-api-application-nodes-node-id-configuration"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/nodes",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeController::store",
+      "request": "app/Http/Requests/Api/Application/Nodes/StoreNodeRequest.php",
+      "fields": [
+        ["public", "'boolean'"],
+        ["name", "'required|regex:/^([\\w .-]{1,100})$/'"],
+        ["description", "'string|nullable'"],
+        ["country_code", "'sometimes|nullable|string|size:2'"],
+        [
+          "query_address",
+          "['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*|[a-fA-F0-9:]+)$/']"
+        ],
+        [
+          "sftp_domain",
+          "['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*|[a-fA-F0-9:]+)$/']"
+        ],
+        ["location_id", "'required|exists:locations,id'"],
+        ["fqdn", "'required|string'"],
+        ["scheme", "'required'"],
+        ["behind_proxy", "'boolean'"],
+        ["maintenance_mode", "'boolean'"],
+        ["memory", "'required|numeric|min:1'"],
+        ["memory_overallocate", "'required|numeric|min:-1'"],
+        ["disk", "'required|numeric|min:1'"],
+        ["disk_overallocate", "'required|numeric|min:-1'"],
+        ["upload_size", "'int|min:1'"],
+        ["daemonListen", "'required|numeric|between:1,65535'"],
+        ["daemonSFTP", "'required|numeric|between:1,65535'"],
+        ["daemonBase", "'sometimes|required|regex:/^([\\/][\\d\\w.\\-\\/]+)$/'"]
+      ],
+      "successStatus": 201,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "id": "post-api-application-nodes"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/nodes/{node:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeController::update",
+      "request": "app/Http/Requests/Api/Application/Nodes/UpdateNodeRequest.php",
+      "fields": [
+        ["public", "'boolean'"],
+        ["name", "'required|regex:/^([\\w .-]{1,100})$/'"],
+        ["description", "'string|nullable'"],
+        ["country_code", "'sometimes|nullable|string|size:2'"],
+        [
+          "query_address",
+          "['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*|[a-fA-F0-9:]+)$/']"
+        ],
+        [
+          "sftp_domain",
+          "['sometimes', 'nullable', 'string', 'max:253', 'regex:/^(?:[a-zA-Z0-9][a-zA-Z0-9.-]*|[a-fA-F0-9:]+)$/']"
+        ],
+        ["location_id", "'required|exists:locations,id'"],
+        ["fqdn", "'required|string'"],
+        ["scheme", "'required'"],
+        ["behind_proxy", "'boolean'"],
+        ["maintenance_mode", "'boolean'"],
+        ["memory", "'required|numeric|min:1'"],
+        ["memory_overallocate", "'required|numeric|min:-1'"],
+        ["disk", "'required|numeric|min:1'"],
+        ["disk_overallocate", "'required|numeric|min:-1'"],
+        ["upload_size", "'int|min:1'"],
+        ["daemonListen", "'required|numeric|between:1,65535'"],
+        ["daemonSFTP", "'required|numeric|between:1,65535'"],
+        ["daemonBase", "'sometimes|required|regex:/^([\\/][\\d\\w.\\-\\/]+)$/'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "id": "patch-api-application-nodes-node-id"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/nodes/{node:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\NodeController::delete",
+      "request": "app/Http/Requests/Api/Application/Nodes/DeleteNodeRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "id": "delete-api-application-nodes-node-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nodes/{node:id}/allocations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\AllocationController::index",
+      "request": "app/Http/Requests/Api/Application/Allocations/GetAllocationsRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "id": "get-api-application-nodes-node-id-allocations"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/nodes/{node:id}/allocations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\AllocationController::store",
+      "request": "app/Http/Requests/Api/Application/Allocations/StoreAllocationRequest.php",
+      "fields": [
+        ["ip", "'required|string'"],
+        ["alias", "'sometimes|nullable|string|max:191'"],
+        ["ports", "'required|array'"],
+        ["ports.*", "'string'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "id": "post-api-application-nodes-node-id-allocations"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/nodes/{node:id}/allocations/{allocation:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nodes\\AllocationController::delete",
+      "request": "app/Http/Requests/Api/Application/Allocations/DeleteAllocationRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/nodes",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "id": "delete-api-application-nodes-node-id-allocations-allocation-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/locations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Locations\\LocationController::index",
+      "request": "app/Http/Requests/Api/Application/Locations/GetLocationsRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/locations",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "id": "get-api-application-locations"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/locations/{location:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Locations\\LocationController::view",
+      "request": "app/Http/Requests/Api/Application/Locations/GetLocationRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/locations",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "id": "get-api-application-locations-location-id"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/locations",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Locations\\LocationController::store",
+      "request": "app/Http/Requests/Api/Application/Locations/StoreLocationRequest.php",
+      "fields": [
+        ["long", "'string|nullable|between:1,191'"],
+        ["short", "'required|string|between:1,60|unique:locations,short'"]
+      ],
+      "successStatus": 201,
+      "documentation": "/docs/api/application/locations",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "id": "post-api-application-locations"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/locations/{location:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Locations\\LocationController::update",
+      "request": "app/Http/Requests/Api/Application/Locations/UpdateLocationRequest.php",
+      "fields": [
+        ["short", "'required|string|between:1,60|unique:locations,short'"],
+        ["long", "'string|nullable|between:1,191'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/locations",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "id": "patch-api-application-locations-location-id"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/locations/{location:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Locations\\LocationController::delete",
+      "request": "app/Http/Requests/Api/Application/Locations/DeleteLocationRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/locations",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "id": "delete-api-application-locations-location-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/servers",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerController::index",
+      "request": "app/Http/Requests/Api/Application/Servers/GetServersRequest.php",
+      "fields": [["search", "'string|max:100'"]],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "id": "get-api-application-servers"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/servers/{server:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerController::view",
+      "request": "app/Http/Requests/Api/Application/Servers/GetServerRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "id": "get-api-application-servers-server-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/servers/external/{external_id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ExternalServerController::index",
+      "request": "app/Http/Requests/Api/Application/Servers/GetExternalServerRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ExternalServerController.php",
+      "id": "get-api-application-servers-external-external-id"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/servers/{server:id}/details",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerDetailsController::details",
+      "request": "app/Http/Requests/Api/Application/Servers/UpdateServerDetailsRequest.php",
+      "fields": [
+        [
+          "external_id",
+          "['sometimes', 'nullable', 'string', 'between:1,191', 'unique:servers']"
+        ],
+        ["name", "['required', 'string', 'min:1', 'max:191']"],
+        ["user", "['required', 'integer', 'exists:users,id']"],
+        ["description", "array_merge(['nullable'], ['string'])"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
+      "id": "patch-api-application-servers-server-id-details"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/servers/{server:id}/build",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerDetailsController::build",
+      "request": "app/Http/Requests/Api/Application/Servers/UpdateServerBuildConfigurationRequest.php",
+      "fields": [
+        [
+          "allocation",
+          "['required', 'bail', 'unique:servers', 'exists:allocations,id']"
+        ],
+        ["oom_disabled", "['sometimes', 'boolean']"],
+        ["limits", "'sometimes|array'"],
+        [
+          "limits.memory",
+          "$this->requiredToOptional('memory', ['required', 'numeric', 'min:0'], true)"
+        ],
+        [
+          "limits.swap",
+          "$this->requiredToOptional('swap', ['required', 'numeric', 'min:-1'], true)"
+        ],
+        [
+          "limits.io",
+          "$this->requiredToOptional('io', ['required', 'numeric', 'between:10,1000'], true)"
+        ],
+        [
+          "limits.cpu",
+          "$this->requiredToOptional('cpu', ['required', 'numeric', 'min:0'], true)"
+        ],
+        [
+          "limits.threads",
+          "$this->requiredToOptional('threads', ['nullable', 'regex:/^[0-9-,]+$/'], true)"
+        ],
+        [
+          "limits.disk",
+          "$this->requiredToOptional('disk', ['required', 'numeric', 'min:0'], true)"
+        ],
+        [
+          "memory",
+          "$this->requiredToOptional('memory', ['required', 'numeric', 'min:0'])"
+        ],
+        [
+          "swap",
+          "$this->requiredToOptional('swap', ['required', 'numeric', 'min:-1'])"
+        ],
+        [
+          "io",
+          "$this->requiredToOptional('io', ['required', 'numeric', 'between:10,1000'])"
+        ],
+        [
+          "cpu",
+          "$this->requiredToOptional('cpu', ['required', 'numeric', 'min:0'])"
+        ],
+        [
+          "threads",
+          "$this->requiredToOptional('threads', ['nullable', 'regex:/^[0-9-,]+$/'])"
+        ],
+        [
+          "disk",
+          "$this->requiredToOptional('disk', ['required', 'numeric', 'min:0'])"
+        ],
+        ["add_allocations", "'bail|array'"],
+        ["add_allocations.*", "'integer'"],
+        ["remove_allocations", "'bail|array'"],
+        ["remove_allocations.*", "'integer'"],
+        ["feature_limits", "'required|array'"],
+        [
+          "feature_limits.databases",
+          "['present', 'nullable', 'integer', 'min:0']"
+        ],
+        [
+          "feature_limits.allocations",
+          "['sometimes', 'nullable', 'integer', 'min:0']"
+        ],
+        [
+          "feature_limits.backups",
+          "['present', 'nullable', 'integer', 'min:0']"
+        ]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
+      "id": "patch-api-application-servers-server-id-build"
+    },
+    {
+      "family": "application",
+      "method": "PATCH",
+      "path": "/api/application/servers/{server:id}/startup",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\StartupController::index",
+      "request": "app/Http/Requests/Api/Application/Servers/UpdateServerStartupRequest.php",
+      "fields": [
+        ["startup", "['required', 'string']"],
+        ["environment", "'present|array'"],
+        ["egg", "['required', 'exists:eggs,id']"],
+        [
+          "image",
+          "['required', 'string', 'max:191', 'regex:/^~?[\\w\\.\\/\\-:@ ]*$/']"
+        ],
+        ["skip_scripts", "'present|boolean'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/StartupController.php",
+      "id": "patch-api-application-servers-server-id-startup"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerController::store",
+      "request": "app/Http/Requests/Api/Application/Servers/StoreServerRequest.php",
+      "fields": [
+        [
+          "external_id",
+          "['sometimes', 'nullable', 'string', 'between:1,191', 'unique:servers']"
+        ],
+        ["name", "['required', 'string', 'min:1', 'max:191']"],
+        ["description", "array_merge(['nullable'], ['string'])"],
+        ["user", "['required', 'integer', 'exists:users,id']"],
+        ["egg", "['required', 'exists:eggs,id']"],
+        [
+          "docker_image",
+          "['required', 'string', 'max:191', 'regex:/^~?[\\w\\.\\/\\-:@ ]*$/']"
+        ],
+        ["startup", "['required', 'string']"],
+        ["environment", "'present|array'"],
+        ["skip_scripts", "'sometimes|boolean'"],
+        ["oom_disabled", "'sometimes|boolean'"],
+        ["limits", "'required|array'"],
+        ["limits.memory", "['required', 'numeric', 'min:0']"],
+        ["limits.swap", "['required', 'numeric', 'min:-1']"],
+        ["limits.disk", "['required', 'numeric', 'min:0']"],
+        ["limits.io", "['required', 'numeric', 'between:10,1000']"],
+        ["limits.threads", "['nullable', 'regex:/^[0-9-,]+$/']"],
+        ["limits.cpu", "['required', 'numeric', 'min:0']"],
+        ["feature_limits", "'required|array'"],
+        [
+          "feature_limits.databases",
+          "['present', 'nullable', 'integer', 'min:0']"
+        ],
+        [
+          "feature_limits.allocations",
+          "['sometimes', 'nullable', 'integer', 'min:0']"
+        ],
+        [
+          "feature_limits.backups",
+          "['present', 'nullable', 'integer', 'min:0']"
+        ],
+        ["allocation.default", "''"],
+        ["allocation.additional.*", "''"],
+        ["deploy", "'sometimes|required|array'"],
+        ["deploy.locations", "'array'"],
+        ["deploy.locations.*", "'integer|min:1'"],
+        ["deploy.dedicated_ip", "'required_with:deploy,boolean'"],
+        ["deploy.port_range", "'array'"],
+        ["deploy.port_range.*", "'string'"],
+        ["start_on_completion", "'sometimes|boolean'"]
+      ],
+      "successStatus": 201,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "id": "post-api-application-servers"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers/{server:id}/suspend",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerManagementController::suspend",
+      "request": "app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "id": "post-api-application-servers-server-id-suspend"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers/{server:id}/unsuspend",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerManagementController::unsuspend",
+      "request": "app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "id": "post-api-application-servers-server-id-unsuspend"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers/{server:id}/reinstall",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerManagementController::reinstall",
+      "request": "app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "id": "post-api-application-servers-server-id-reinstall"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/servers/{server:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerController::delete",
+      "request": "app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "id": "delete-api-application-servers-server-id"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/servers/{server:id}/{force?}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\ServerController::delete",
+      "request": "app/Http/Requests/Api/Application/Servers/ServerWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "id": "delete-api-application-servers-server-id-force"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/servers/{server:id}/databases",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\DatabaseController::index",
+      "request": "app/Http/Requests/Api/Application/Servers/Databases/GetServerDatabasesRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "id": "get-api-application-servers-server-id-databases"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/servers/{server:id}/databases/{database:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\DatabaseController::view",
+      "request": "app/Http/Requests/Api/Application/Servers/Databases/GetServerDatabaseRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "id": "get-api-application-servers-server-id-databases-database-id"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers/{server:id}/databases",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\DatabaseController::store",
+      "request": "app/Http/Requests/Api/Application/Servers/Databases/StoreServerDatabaseRequest.php",
+      "fields": [
+        [
+          "database",
+          "[\n'required',\n'alpha_dash',\n'min:1',\n'max:48',\nRule::unique('databases')->where(function (Builder $query) use ($server) {\n    $query->where('server_id', $server->id)->where('database', $this->databaseName());\n}),\n    ]"
+        ],
+        ["remote", "'required|string|regex:/^[0-9%.]{1,15}$/'"],
+        ["host", "'required|integer|exists:database_hosts,id'"]
+      ],
+      "successStatus": 201,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "id": "post-api-application-servers-server-id-databases"
+    },
+    {
+      "family": "application",
+      "method": "POST",
+      "path": "/api/application/servers/{server:id}/databases/{database:id}/reset-password",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\DatabaseController::resetPassword",
+      "request": "app/Http/Requests/Api/Application/Servers/Databases/ServerDatabaseWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "id": "post-api-application-servers-server-id-databases-database-id-reset-password"
+    },
+    {
+      "family": "application",
+      "method": "DELETE",
+      "path": "/api/application/servers/{server:id}/databases/{database:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Servers\\DatabaseController::delete",
+      "request": "app/Http/Requests/Api/Application/Servers/Databases/ServerDatabaseWriteRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/application/servers",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "id": "delete-api-application-servers-server-id-databases-database-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nests",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nests\\NestController::index",
+      "request": "app/Http/Requests/Api/Application/Nests/GetNestsRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nests",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php",
+      "id": "get-api-application-nests"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nests/{nest:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nests\\NestController::view",
+      "request": "app/Http/Requests/Api/Application/Nests/GetNestsRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nests",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php",
+      "id": "get-api-application-nests-nest-id"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nests/{nest:id}/eggs",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nests\\EggController::index",
+      "request": "app/Http/Requests/Api/Application/Nests/Eggs/GetEggsRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nests",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php",
+      "id": "get-api-application-nests-nest-id-eggs"
+    },
+    {
+      "family": "application",
+      "method": "GET",
+      "path": "/api/application/nests/{nest:id}/eggs/{egg:id}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Application\\Nests\\EggController::view",
+      "request": "app/Http/Requests/Api/Application/Nests/Eggs/GetEggRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/application/nests",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php",
+      "id": "get-api-application-nests-nest-id-eggs-egg-id"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/sftp/auth",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\SftpAuthenticationController::__invoke",
+      "request": "app/Http/Requests/Api/Remote/SftpAuthenticationFormRequest.php",
+      "fields": [
+        ["type", "['nullable', 'in:password,public_key']"],
+        ["username", "['required', 'string']"],
+        ["password", "['required', 'string']"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php",
+      "id": "post-api-remote-sftp-auth"
+    },
+    {
+      "family": "remote",
+      "method": "GET",
+      "path": "/api/remote/servers",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerDetailsController::list",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "id": "get-api-remote-servers"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/servers/reset",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerDetailsController::resetState",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "id": "post-api-remote-servers-reset"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/activity",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\ActivityProcessingController::__invoke",
+      "request": "app/Http/Requests/Api/Remote/ActivityEventRequest.php",
+      "fields": [
+        ["data", "['required', 'array']"],
+        ["data.*", "['array']"],
+        ["data.*.user", "['sometimes', 'nullable', 'uuid']"],
+        ["data.*.server", "['required', 'uuid']"],
+        ["data.*.event", "['required', 'string']"],
+        ["data.*.metadata", "['present', 'nullable', 'array']"],
+        ["data.*.ip", "['sometimes', 'nullable', 'ip']"],
+        ["data.*.timestamp", "['required', 'string']"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/ActivityProcessingController.php",
+      "id": "post-api-remote-activity"
+    },
+    {
+      "family": "remote",
+      "method": "GET",
+      "path": "/api/remote/servers/{uuid}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerDetailsController::__invoke",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "id": "get-api-remote-servers-uuid"
+    },
+    {
+      "family": "remote",
+      "method": "GET",
+      "path": "/api/remote/servers/{uuid}/install",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerInstallController::index",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
+      "id": "get-api-remote-servers-uuid-install"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/servers/{uuid}/install",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerInstallController::store",
+      "request": "app/Http/Requests/Api/Remote/InstallationDataRequest.php",
+      "fields": [
+        ["successful", "'present|boolean'"],
+        ["reinstall", "'sometimes|boolean'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
+      "id": "post-api-remote-servers-uuid-install"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/servers/{uuid}/transfer/failure",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerTransferController::failure",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
+      "id": "post-api-remote-servers-uuid-transfer-failure"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/servers/{uuid}/transfer/success",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Servers\\ServerTransferController::success",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
+      "id": "post-api-remote-servers-uuid-transfer-success"
+    },
+    {
+      "family": "remote",
+      "method": "GET",
+      "path": "/api/remote/backups/{backup}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Backups\\BackupRemoteUploadController::__invoke",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php",
+      "id": "get-api-remote-backups-backup"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/backups/{backup}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Backups\\BackupStatusController::index",
+      "request": "app/Http/Requests/Api/Remote/ReportBackupCompleteRequest.php",
+      "fields": [
+        ["successful", "'required|boolean'"],
+        ["checksum", "'nullable|string|required_if:successful,true'"],
+        ["checksum_type", "'nullable|string|required_if:successful,true'"],
+        ["size", "'nullable|numeric|required_if:successful,true'"],
+        ["parts", "'nullable|array'"],
+        ["parts.*.etag", "'required|string'"],
+        ["parts.*.part_number", "'required|numeric'"]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
+      "id": "post-api-remote-backups-backup"
+    },
+    {
+      "family": "remote",
+      "method": "POST",
+      "path": "/api/remote/backups/{backup}/restore",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Remote\\Backups\\BackupStatusController::restore",
+      "request": null,
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/remote",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
+      "id": "post-api-remote-backups-backup-restore"
+    },
+    {
+      "family": "blueprint",
+      "method": "GET",
+      "path": "/api/client/extensions/blueprint/eggs",
+      "controller": "Pterodactyl\\BlueprintFramework\\Controllers\\ExtensionRouteController::eggs",
+      "request": "app/BlueprintFramework/Controllers/ExtensionRouteController.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/blueprint",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/BlueprintFramework/Controllers/ExtensionRouteController.php",
+      "id": "get-api-client-extensions-blueprint-eggs"
+    }
+  ]
+}
