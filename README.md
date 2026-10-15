@@ -164,6 +164,26 @@ and mobile layout with:
 node scripts/verify-runtime-showcase.mjs http://localhost:3000
 ```
 
+The Aquadactyl optimization experiment uses two checkouts at the same base
+commit. Its candidate overlays a recorded patch; it writes a separate result
+file so the pinned Pterodactyl comparison stays reproducible. See
+`docs/panel/optimization-benchmarks.mdx` for the patch and full commands:
+
+```bash
+node scripts/prepare-optimization-benchmark.mjs /path/to/baseline /path/to/candidate
+docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
+node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/aquadactyl-optimization.json
+node scripts/write-optimization-guide.mjs
+node scripts/verify-optimization-benchmark.mjs
+docker compose -f WORKDIR/compose.json down --volumes
+```
+
+Collect the optional `scripts/runtime-benchmark/profile-server-list.php` query
+diagnostic after timed measurements. The script is guarded to run only against
+the disposable benchmark fixture; it normalizes the fixture token's last-used
+timestamp before profiling. Preserve per-file hashes and the exact runner source
+with new results.
+
 ```bash
 pnpm exec next typegen
 pnpm types

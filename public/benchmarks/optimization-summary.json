@@ -1,0 +1,31 @@
+{
+  "measuredOn": "2026-10-15",
+  "baseRevision": "a42ce0af63c5174541d5c59afb0f4569a85caf4a",
+  "patchSha256": "9c5822f36eb3c29e1ddedd396c1fca099636cfbc3a3fd1033fba2aeef8769bd0",
+  "metrics": [
+    {
+      "id": "dashboard",
+      "label": "Cold dashboard ready",
+      "before": 570.2500000596046,
+      "after": 176.9000000357628,
+      "unit": "ms",
+      "lowerIsBetter": true
+    },
+    {
+      "id": "servers",
+      "label": "50-server API · concurrency 16",
+      "before": 19.91365678121094,
+      "after": 82.75533373814132,
+      "unit": "req/s",
+      "lowerIsBetter": false
+    },
+    {
+      "id": "memory",
+      "label": "Panel memory under API load",
+      "before": 129.3046875,
+      "after": 127.431640625,
+      "unit": "MiB",
+      "lowerIsBetter": true
+    }
+  ]
+}

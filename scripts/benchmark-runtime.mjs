@@ -18,7 +18,9 @@ const manifest = JSON.parse(
 const exec = promisify(execFile);
 const docker = (...args) =>
   execFileSync("docker", args, { encoding: "utf8", windowsHide: true }).trim();
-const families = ["aquadactyl", "pterodactyl"];
+const families = manifest.families ?? ["aquadactyl", "pterodactyl"];
+const reportPath = process.argv[3] || "public/benchmarks/runtime.json";
+const runnerPath = reportPath.replace(/\.json$/, "-runner.txt");
 const summary = (values) => {
   assert.ok(values.length && values.every(Number.isFinite));
   const sorted = [...values].sort((a, b) => a - b);
@@ -46,6 +48,7 @@ const credentials = Object.fromEntries(
 );
 const report = {
   schemaVersion: 1,
+  comparison: manifest.comparison ?? "Pterodactyl vs Aquadactyl",
   measuredOn: new Date().toISOString().slice(0, 10),
   startedAt: new Date().toISOString(),
   environment: {
@@ -88,11 +91,8 @@ for (const family of families) {
   };
 }
 const save = () => {
-  fs.mkdirSync("public/benchmarks", { recursive: true });
-  fs.writeFileSync(
-    "public/benchmarks/runtime.json",
-    JSON.stringify(report, null, 2) + "\n",
-  );
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
 };
 const endpoints = [
   {
@@ -376,8 +376,10 @@ for (let round = 0; round < 3; round++) {
 async function memorySample(family) {
   const containers = [
     manifest.panels[family].container,
-    `panel-runtime-benchmark-${family}-database-1`,
-    `panel-runtime-benchmark-${family}-cache-1`,
+    manifest.panels[family].databaseContainer ??
+      `panel-runtime-benchmark-${family}-database-1`,
+    manifest.panels[family].cacheContainer ??
+      `panel-runtime-benchmark-${family}-cache-1`,
   ];
   const names = ["panel", "database", "redis"];
   const values = await Promise.all(
@@ -525,9 +527,6 @@ report.completedAt = new Date().toISOString();
 report.harnessSha256 = createHash("sha256")
   .update(fs.readFileSync(new URL(import.meta.url)))
   .digest("hex");
-fs.copyFileSync(
-  new URL(import.meta.url),
-  "public/benchmarks/runtime-runner.txt",
-);
+fs.copyFileSync(new URL(import.meta.url), runnerPath);
 save();
-console.log("Completed: public/benchmarks/runtime.json");
+console.log(`Completed: ${reportPath}`);

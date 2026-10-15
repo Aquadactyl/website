@@ -1,0 +1,100 @@
+---
+title: Aquadactyl performance improvements
+description: Before-and-after measurements for batched server-list queries, API-key usage updates and initial route loading.
+---
+
+Measured **2026-10-15** using two Aquadactyl instances built from the same base commit [a42ce0af63c5](https://github.com/Aquadactyl/aquadactyl/tree/a42ce0af63c5174541d5c59afb0f4569a85caf4a). The candidate contains an uncommitted performance patch, identified by file hashes in the raw report. These results describe that working patch, not a published release.
+
+[Homepage results](/#optimization-benchmarks) · [Full samples](/benchmarks/aquadactyl-optimization.json) · [Performance patch](/benchmarks/aquadactyl-optimization.patch) · [Measured runner](/benchmarks/aquadactyl-optimization-runner.txt)
+
+The earlier [Pterodactyl comparison](/docs/panel/runtime-benchmarks) remains a separate measurement of its pinned revisions. This experiment compares Aquadactyl before and after the changes; it does not combine measurements from different runs into a new Pterodactyl ranking.
+
+## What changed
+
+- The client server list batches eggs, allocations, pending transfers, subusers and variable definitions/overrides for the current page. It reuses the already loaded parent for allocation transformation. Server-specific variable values are matched by server ID and variable ID, with distinct model copies for servers sharing an egg. Hidden variables, allocation-note restrictions and other permission checks remain in place.
+- API-key last-used timestamp saves validate the timestamp without rerunning unchanged key identity and foreign-key validation queries. Creation and changes to any other field retain full validation. Token lookup, expiry/revocation checks, authorization, rate limiting and timestamp persistence remain active.
+- The entry point loads the requested auth, server or dashboard shell before mounting App, displaying the existing spinner while the chunk loads. The first shell then renders without going through an initial lazy/Suspense reveal. Other route chunks remain lazy, and load failures still reach the existing error boundary.
+
+The changes do not replace real API responses with a frontend cache or omit normal response fields to improve timings. The font files and their language coverage are unchanged.
+
+## Controlled setup
+
+Both stacks use the same production Composer lockfile, PHP 8.5.11, four static FPM workers, OPcache settings, nginx gzip configuration, Redis driver and resource limits. Each panel has two CPU quota cores and 1 GiB memory. Each has a separate MariaDB and Redis instance with matching limits.
+
+The dataset is one non-admin user with 50 owned suspended server records, one node, one egg and one allocation per server. No Wings or game servers are contacted by the measured endpoints. The original panel and Wings/Manta test stacks were not used by the tests.
+
+The [runtime methodology](/docs/panel/runtime-benchmarks) defines the same collection procedure used here: ten cold/warm browser samples per variant, three alternating-order API repetitions per endpoint/concurrency, and 30 idle plus 30 loaded memory samples per variant. Warm-ups are discarded. Browser, API and memory phases run separately. Server caches stay warm, including during cold-browser loads.
+
+## Browser timing
+
+| Browser cache | Measurement              | Before median | After median | Before p95 | After p95 |
+| ------------- | ------------------------ | ------------- | ------------ | ---------- | --------- |
+| cold          | Dashboard ready          | 570.3 ms      | 176.9 ms     | 598.6 ms   | 191.5 ms  |
+| cold          | First contentful paint   | 418.0 ms      | 112.0 ms     | 424.0 ms   | 128.0 ms  |
+| cold          | Largest contentful paint | 422.0 ms      | 296.0 ms     | 612.0 ms   | 328.0 ms  |
+| cold          | Window load event        | 68.8 ms       | 66.9 ms      | 73.2 ms    | 71.5 ms   |
+| cold          | HTML time to first byte  | 18.1 ms       | 16.9 ms      | 24.4 ms    | 19.8 ms   |
+| warm          | Dashboard ready          | 610.4 ms      | 190.0 ms     | 661.2 ms   | 193.0 ms  |
+| warm          | First contentful paint   | 422.0 ms      | 112.0 ms     | 436.0 ms   | 120.0 ms  |
+| warm          | Largest contentful paint | 434.0 ms      | 132.0 ms     | 684.0 ms   | 304.0 ms  |
+| warm          | Window load event        | 68.5 ms       | 74.7 ms      | 74.2 ms    | 79.3 ms   |
+| warm          | HTML time to first byte  | 16.3 ms       | 15.5 ms      | 21.9 ms    | 18.8 ms   |
+
+Dashboard ready is the custom milestone when all 50 server names exist in the DOM, observed by animation-frame polling. It is not a standardized Time to Interactive metric. FCP and LCP use browser performance entries; LCP is observed for two seconds after readiness. With ten samples, p95 is the maximum observed value. The same 1440×900 headless Chromium 156.0.8078.4 ran both variants without CPU or network throttling on localhost.
+
+## Authenticated API throughput
+
+| Endpoint | Concurrency | Before      | After       | Before p95 latency | After p95 latency |
+| -------- | ----------- | ----------- | ----------- | ------------------ | ----------------- |
+| account  | 1           | 90.0 req/s  | 103.8 req/s | 13.2 ms            | 11.4 ms           |
+| account  | 8           | 260.0 req/s | 306.0 req/s | 58.8 ms            | 56.1 ms           |
+| account  | 16          | 265.5 req/s | 313.5 req/s | 82.3 ms            | 73.4 ms           |
+| servers  | 1           | 7.6 req/s   | 34.6 req/s  | 143.8 ms           | 32.7 ms           |
+| servers  | 8           | 19.6 req/s  | 85.5 req/s  | 483.2 ms           | 102.3 ms          |
+| servers  | 16          | 19.9 req/s  | 82.8 req/s  | 871.2 ms           | 209.2 ms          |
+
+The account endpoint returns account details; the server-list endpoint returns all 50 server records and their normal relationships. Each 10-second closed-loop window uses persistent HTTP connections, with requests in flight drained before calculating throughput. API limits are set equally to 1,000,000/minute in these disposable stacks. Throughput and p95 columns are medians of three per-window values. All **47,531 measured responses** passed status and JSON checks, with **0 errors**.
+
+The page-size/query regression test checks that SQL query count stays bounded as more servers are returned. The [diagnostic query profile](/benchmarks/optimization-query-profile.json) is collected separately from the timed HTTP tests and excludes application bootstrap queries; its CLI elapsed times are not used as browser or API throughput measurements.
+
+## Memory
+
+| State  | Before panel | After panel | Before panel + DB + Redis | After panel + DB + Redis |
+| ------ | ------------ | ----------- | ------------------------- | ------------------------ |
+| idle   | 124.6 MiB    | 124.8 MiB   | 247.9 MiB                 | 247.8 MiB                |
+| loaded | 129.3 MiB    | 127.4 MiB   | 253.6 MiB                 | 251.0 MiB                |
+
+Values are medians of 30 samples per state. Container working set is cgroup memory.current minus inactive_file. Loaded samples use the 50-server-list API at concurrency 16. The measured memory differences are modest; idle memory is essentially unchanged. Peak samples and raw usage/cache bytes are retained in the full report. This measures short-window steady-state use, not a memory leak or endurance test. Browser retained JavaScript heap after GC is also present in the report and is distinct from container memory and total browser RAM.
+
+## Validation and provenance
+
+The panel checks passed: **1,508 frontend tests with 100% statement, branch, function and line coverage**, **43 focused backend tests (286 assertions)**, TypeScript, frontend lint, scoped format checks, static analysis of the changed PHP files and the production Vite build. Backend regressions cover per-server variable overrides (including empty values), defaults, hidden values, restricted subusers, primary allocations, bounded query counts, API-key timestamp persistence and validation of key edits. The broader API/controller/startup tests passed alongside them.
+
+The common PHP/OS image is sha256:63d23d0b2ce483142f09f4e4578c7a5736cd02a8ef3c4770dff3341e82f2dba1. Both source revisions and Composer lock hashes match. Each variant's image ID and frontend manifest hash, and all candidate file hashes, are in the report. Patch inventory SHA-256: **9c5822f36eb3c29e1ddedd396c1fca099636cfbc3a3fd1033fba2aeef8769bd0**. The raw runner download is the exact source used for this measurement, identified by its SHA-256 in the report.
+
+## Reproduce
+
+Create two separate checkouts at the base commit above. Leave the first clean and apply the performance changes to the second. Install locked dependencies and build frontend assets in each checkout. From the website repository:
+
+```bash
+git -C /path/to/patched-candidate apply /path/to/website/public/benchmarks/aquadactyl-optimization.patch
+node scripts/prepare-optimization-benchmark.mjs /path/to/clean-baseline /path/to/patched-candidate
+```
+
+Use the temporary directory printed by that command as WORKDIR:
+
+```bash
+docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
+node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/aquadactyl-optimization.json
+node scripts/write-optimization-guide.mjs
+node scripts/verify-optimization-benchmark.mjs
+docker compose -f WORKDIR/compose.json down --volumes
+```
+
+Use a host with Docker and the same common aquadactyl:test runtime image available; install Playwright Chromium as described in the runtime guide. Preparation archives the committed base and overlays only the candidate's changed files; its manifest records their hashes. Tests use separate disposable volumes and random local-only credentials. Run the optional query profiler after the timed benchmark, not during it.
+
+## Limits
+
+Single shared Windows/WSL2 workstation; existing unrelated game containers remain running. No CPU pinning, controlled network emulation, TLS, WAN latency, mobile device, endurance test or real-player load. This is a controlled local configuration comparison of pinned distributions, not their default deployment presets or proof of general production capacity.
+
+These observations establish improvements for the tested configuration and data. They do not establish universal production throughput or game performance. Optional features, larger variable/subuser datasets, addons, deployment settings and WAN/mobile conditions may change the outcome.

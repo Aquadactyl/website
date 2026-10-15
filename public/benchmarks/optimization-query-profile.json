@@ -1,0 +1,47 @@
+{
+  "before": {
+    "status": 200,
+    "elapsedMs": 661.7491245269775,
+    "count": 310,
+    "dbMs": 317.49999999999983,
+    "queries": {
+      "select * from `allocations` where `allocations`.`id` in (...)": 51,
+      "select * from `eggs` where `eggs`.`id` = ? and `eggs`.`id` is not null limit 1": 50,
+      "select `egg_variables`.*, `server_variables`.`variable_value` as `server_value` from `egg_variables` left join `server_variables` on `server_variables`.`variable_id` = `egg_variables`.`id` and `server_variables`.`server_id` = ? where `egg_variables`.`egg_id` = ? and `egg_variables`.`egg_id` is not null": 50,
+      "select * from `server_transfers` where `server_transfers`.`server_id` = ? and `server_transfers`.`server_id` is not null and `successful` is null order by `id` desc limit 1": 50,
+      "select * from `allocations` where `allocations`.`server_id` = ? and `allocations`.`server_id` is not null": 50,
+      "select * from `servers` where `servers`.`id` = ? limit 1": 50,
+      "select * from `api_keys` where `identifier` = ? limit 1": 1,
+      "select * from `users` where `users`.`id` = ? limit 1": 1,
+      "select count(*) as `aggregate` from `users` where `id` = ?": 1,
+      "select count(*) as `aggregate` from `api_keys` where `identifier` = ? and `id` <> ?": 1,
+      "update `api_keys` set `last_used_at` = ?, `api_keys`.`updated_at` = ? where `id` = ?": 1,
+      "select `servers`.* from `servers` left join `subusers` on `subusers`.`server_id` = `servers`.`id` where (`servers`.`owner_id` = ? or `subusers`.`user_id` = ?) group by `servers`.`id`": 1,
+      "select count(*) as `aggregate` from `servers` where `servers`.`id` in (...)": 1,
+      "select * from `servers` where `servers`.`id` in (...) limit 50 offset 0": 1,
+      "select * from `nodes` where `nodes`.`id` in (...)": 1
+    }
+  },
+  "after": {
+    "status": 200,
+    "elapsedMs": 169.8460578918457,
+    "count": 14,
+    "dbMs": 15.669999999999998,
+    "queries": {
+      "select * from `api_keys` where `identifier` = ? limit 1": 1,
+      "select * from `users` where `users`.`id` = ? limit 1": 1,
+      "update `api_keys` set `last_used_at` = ?, `api_keys`.`updated_at` = ? where `id` = ?": 1,
+      "select `servers`.* from `servers` left join `subusers` on `subusers`.`server_id` = `servers`.`id` where (`servers`.`owner_id` = ? or `subusers`.`user_id` = ?) group by `servers`.`id`": 1,
+      "select count(*) as `aggregate` from `servers` where `servers`.`id` in (...)": 1,
+      "select * from `servers` where `servers`.`id` in (...) limit 50 offset 0": 1,
+      "select * from `allocations` where `allocations`.`id` in (...)": 1,
+      "select * from `nodes` where `nodes`.`id` in (...)": 1,
+      "select * from `eggs` where `eggs`.`id` in (...)": 1,
+      "select * from `allocations` where `allocations`.`server_id` in (...)": 1,
+      "select * from `server_transfers` where `successful` is null and `server_transfers`.`server_id` in (...) order by `id` desc": 1,
+      "select * from `subusers` where `subusers`.`server_id` in (...)": 1,
+      "select * from `egg_variables` where `egg_id` in (...)": 1,
+      "select * from `server_variables` where `server_id` in (...)": 1
+    }
+  }
+}

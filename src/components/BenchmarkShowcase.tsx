@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import results from "../../public/benchmarks/panels.json";
 import RuntimeBenchmarks from "./RuntimeBenchmarks";
+import OptimizationResults from "./OptimizationResults";
 
 type Metric = "payload" | "javascript" | "build";
 const metrics: { id: Metric; label: string }[] = [
@@ -243,6 +244,7 @@ export default function BenchmarkShowcase() {
           </Link>
         </div>
         <RuntimeBenchmarks />
+        <OptimizationResults />
       </div>
     </section>
   );
