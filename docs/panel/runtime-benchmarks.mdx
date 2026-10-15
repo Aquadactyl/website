@@ -1,0 +1,144 @@
+---
+title: Browser, API and memory benchmarks
+description: Measured browser timing, authenticated API throughput and memory use from matching local Aquadactyl and Pterodactyl stacks.
+---
+
+Measured **2026-10-15**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
+
+[Interactive showcase](/#runtime-benchmarks) · [Raw samples](/benchmarks/runtime.json) · [Chart data](/benchmarks/runtime-summary.json) · [Measured runner source](/benchmarks/runtime-runner.txt)
+
+## Scope and compared versions
+
+| Panel               | Source                                                                                                 | PHP    |
+| ------------------- | ------------------------------------------------------------------------------------------------------ | ------ |
+| Pterodactyl v1.15.1 | [e98678c5a1d0](https://github.com/pterodactyl/panel/tree/e98678c5a1d07a74036660a459d87a4eb7c105c1)     | 8.5.11 |
+| Aquadactyl          | [2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901) | 8.5.11 |
+
+One non-admin user owning 50 suspended server records, one node, one nest, one egg, one allocation per server. No Wings calls or running game containers in the measured stacks.
+
+PHP 8.5, four static FPM workers, OPcache 128 MiB, PHP memory_limit 256 MiB; nginx one worker with gzip level 6; config/route/view caches; one queue worker. Each panel 2 CPU quota cores/1 GiB; each MariaDB 1 core/512 MiB; each Redis 0.5 core/128 MiB. REDIS_CLIENT=phpredis on both. Production mode, debug and telemetry off, no extra addons.
+
+Both applications use their own locked production Composer dependencies and the frontend artifacts from the pinned build comparison. No application source was patched. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
+
+These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
+
+## Browser load time
+
+Headless Chromium, 1440x900, deviceScaleFactor 1, no CPU or network throttling, localhost Docker port forwarding. One warm-up pair discarded; ten measured pairs per panel in alternating order. Cold uses a new context restored from an authenticated session; warm reloads the same page/context. Server/OS caches remain warm. Wait for all 50 server names, then 2 seconds to observe paints. Third-party requests are blocked identically to isolate the local panel; blocked URLs are recorded. FCP/LCP are navigation-to-paint; dashboardReady is measured when all server names exist in DOM, a custom application milestone. Heap is CDP JSHeapUsedSize after an explicit garbage collection; not total browser RAM.
+
+**Cold** means cold browser HTTP cache, with a pre-existing authenticated session. It does not mean a cold PHP process, database or OS cache. **Warm** is the next full-page reload in that context, with HTTP caching available. This measures the dashboard, not login or a client-side route transition. Login is outside all timings.
+
+The dashboard-ready milestone uses animation-frame polling until all 50 fixture server names exist in the DOM, so it includes data fetching and rendering but has roughly one-frame observation granularity. It is not a standardized Time to Interactive or a field Core Web Vitals result. LCP is the latest candidate observed during the two-second settling window, not an unlimited observation of later page activity.
+
+Each distribution renders its own dashboard layout and normal response fields. LCP candidates can therefore be different elements, and these tests compare the whole shipped page rather than an identical UI rewritten with two libraries.
+
+| Browser cache | Measurement              | Pterodactyl median | Aquadactyl median | Pterodactyl p95 | Aquadactyl p95 |
+| ------------- | ------------------------ | ------------------ | ----------------- | --------------- | -------------- |
+| cold          | Dashboard ready          | 334.3 ms           | 618.2 ms          | 889.8 ms        | 697.0 ms       |
+| cold          | First contentful paint   | 172.0 ms           | 428.0 ms          | 364.0 ms        | 484.0 ms       |
+| cold          | Largest contentful paint | 358.0 ms           | 440.0 ms          | 916.0 ms        | 648.0 ms       |
+| cold          | Window load event        | 139.3 ms           | 73.6 ms           | 310.6 ms        | 120.0 ms       |
+| cold          | HTML time to first byte  | 13.6 ms            | 20.3 ms           | 49.8 ms         | 34.0 ms        |
+| warm          | Dashboard ready          | 311.3 ms           | 646.8 ms          | 595.0 ms        | 668.3 ms       |
+| warm          | First contentful paint   | 146.0 ms           | 430.0 ms          | 236.0 ms        | 436.0 ms       |
+| warm          | Largest contentful paint | 330.0 ms           | 430.0 ms          | 616.0 ms        | 436.0 ms       |
+| warm          | Window load event        | 140.6 ms           | 73.4 ms           | 227.1 ms        | 76.0 ms        |
+| warm          | HTML time to first byte  | 11.7 ms            | 16.8 ms           | 21.9 ms         | 17.8 ms        |
+
+There are ten measured samples per panel/cache profile; with this small sample, p95 is the maximum sample. Each panel had one discarded cold/warm pair. No real users or physical mobile devices were measured.
+
+External resource URLs blocked during the measured loads: **none were requested**.
+
+### Resources transferred by the browser
+
+| Browser cache | Pterodactyl median | Aquadactyl median |
+| ------------- | ------------------ | ----------------- |
+| cold          | 570.8 KiB          | 800.3 KiB         |
+| warm          | 2.3 KiB            | 2.2 KiB           |
+
+This sums Resource Timing transferSize values observed by the end of each settling window, including fonts, styles, scripts and API responses, and excluding the main HTML navigation. Warm cache hits can report zero transfer bytes. These browser observations have a wider scope than the build benchmark's JavaScript/CSS-only gzip estimate. Aquadactyl's smaller script/style bundle does not imply less total page transfer or faster dashboard readiness.
+
+The timing APIs follow [Navigation Timing](https://www.w3.org/TR/navigation-timing-2/), [Paint Timing](https://www.w3.org/TR/paint-timing/) and [Largest Contentful Paint](https://www.w3.org/TR/largest-contentful-paint/). Browser collection uses [Playwright CDP sessions](https://playwright.dev/docs/api/class-cdpsession).
+
+## Authenticated API throughput
+
+GET /api/client/account and GET /api/client?per_page=50, valid user API key, HTTP/1.1 persistent connections, uncompressed response bodies, concurrency 1/8/16; 10-second closed-loop windows, three repetitions with alternating panel order. Two-second warm-up before each run. No new requests after the window, in-flight requests drained and included in elapsed time. Validate every HTTP status and JSON result. Rate limits raised to 1,000,000/min on both disposable panels. Successes per actual elapsed second, not offered requests per second or a maximum capacity claim.
+
+The **account** endpoint returns the fixture user's account; **servers** returns all 50 owned server records, including the panel's own server transformers and relationships. The server-list responses contain each distribution's normal fields, so response sizes differ. Neither endpoint contacts Wings. Results are endpoint-specific and do not describe file transfers, server power operations or every panel API.
+
+Throughput is the median of three measured windows. Each p95 below is the median of the three per-window p95 values, not a percentile pooled across all requests. The raw report includes every successful request latency and all run durations, status counts and load-generator event-loop delays.
+
+| Endpoint | Concurrent requests | Pterodactyl throughput | Aquadactyl throughput | Pterodactyl p95 | Aquadactyl p95 | Errors P / A |
+| -------- | ------------------- | ---------------------- | --------------------- | --------------- | -------------- | ------------ |
+| account  | 1                   | 84.3 req/s             | 76.2 req/s            | 14.0 ms         | 15.8 ms        | 0 / 0        |
+| account  | 8                   | 254.1 req/s            | 236.2 req/s           | 58.8 ms         | 62.0 ms        | 0 / 0        |
+| account  | 16                  | 254.8 req/s            | 236.4 req/s           | 82.5 ms         | 85.7 ms        | 0 / 0        |
+| servers  | 1                   | 6.9 req/s              | 6.2 req/s             | 166.0 ms        | 184.0 ms       | 0 / 0        |
+| servers  | 8                   | 17.3 req/s             | 16.7 req/s            | 504.0 ms        | 545.5 ms       | 0 / 0        |
+| servers  | 16                  | 16.1 req/s             | 16.9 req/s            | 1082.6 ms       | 993.3 ms       | 0 / 0        |
+
+Across the 36 measured API windows: **36,116 successful responses**, **0 errors**. Warm-up and memory-load requests are additional and excluded from these totals. The default 256 requests/minute limiter was not being measured; raising its configured cap leaves the normal authentication, authorization and rate-limit middleware active.
+
+## Memory use
+
+cgroup v2 memory.current minus inactive_file, clamped to zero (Docker-style working set). Separately retain raw usage bytes. Ten 1-second-spaced samples per window, three windows each after warm-up, idle and during concurrency-16 server-list load. Each sample records panel, database and Redis, and their sum. Peak is the maximum observed sample, not the kernel high-water mark. No application restarts or forced PHP GC between windows. Browser heap and server working set are different metrics.
+
+The panel container includes nginx, supervisor, the FPM master and its four PHP workers, plus one queue worker. The **stack** column additionally includes that panel's separate MariaDB and Redis containers. It excludes Docker Desktop/WSL overhead, the load generator, browser and unrelated game containers. Library and OPcache pages shared among workers are accounted at container level, rather than adding process RSS values and double-counting shared pages.
+
+| State  | Pterodactyl panel median | Aquadactyl panel median | Pterodactyl sampled panel peak | Aquadactyl sampled panel peak | Pterodactyl stack median | Aquadactyl stack median |
+| ------ | ------------------------ | ----------------------- | ------------------------------ | ----------------------------- | ------------------------ | ----------------------- |
+| idle   | 131.0 MiB                | 124.8 MiB               | 134.6 MiB                      | 128.9 MiB                     | 255.3 MiB                | 247.6 MiB               |
+| loaded | 136.7 MiB                | 129.4 MiB               | 141.4 MiB                      | 131.3 MiB                     | 261.8 MiB                | 253.4 MiB               |
+
+Each state has 30 samples per panel across three windows. Loaded samples use the authenticated 50-server-list endpoint at concurrency 16. The Docker working-set calculation follows [Docker's documented cache subtraction](https://docs.docker.com/reference/cli/docker/container/stats/). These are short steady-state observations, not a leak or long-running capacity test.
+
+Sampling pauses one second between collections; container-exec overhead adds to that interval. The raw report retains each sample timestamp. The helper shell and Docker sampling overhead are present for both panels.
+
+### Browser JavaScript heap
+
+| Browser cache | Pterodactyl retained JS heap | Aquadactyl retained JS heap |
+| ------------- | ---------------------------- | --------------------------- |
+| cold          | 6.6 MiB                      | 7.0 MiB                     |
+| warm          | 6.9 MiB                      | 7.0 MiB                     |
+
+This is the median CDP **JSHeapUsedSize after explicit garbage collection** from the same ten dashboard samples. It excludes DOM/native allocations, images, GPU memory and browser processes; it must not be described as total browser memory.
+
+## Environment and limits
+
+| Setting                | Value                                                                   |
+| ---------------------- | ----------------------------------------------------------------------- |
+| CPU                    | Intel(R) Core(TM) i7-14700KF (28 logical processors)                    |
+| Host memory            | 64 GiB, rounded                                                         |
+| Host OS                | win32 10.0.26300 x64                                                    |
+| Docker engine          | 29.8.1                                                                  |
+| Docker kernel          | 6.18.54.1-microsoft-standard-WSL2                                       |
+| Chromium               | 156.0.8078.4                                                            |
+| Playwright             | 1.64.1                                                                  |
+| Load generator Node.js | v24.14.0                                                                |
+| Common runtime image   | sha256:63d23d0b2ce483142f09f4e4578c7a5736cd02a8ef3c4770dff3341e82f2dba1 |
+
+Single shared Windows/WSL2 workstation; existing unrelated game containers remain running. No CPU pinning, controlled network emulation, TLS, WAN latency, mobile device, endurance test or real-player load. This is a controlled local configuration comparison of pinned distributions, not their default deployment presets or proof of general production capacity.
+
+Browser observations, API windows and memory windows ran in separate phases. Panels were tested sequentially within each phase, alternating which panel ran first by repetition. The measured panel stacks do not run game servers; existing unrelated containers were left untouched. Changing CPU quotas, PHP worker counts, dataset, caching, browser, network or optional features can change the outcome. Differences should be read per metric, without combining them into an overall performance score.
+
+## Reproduce
+
+Use the exact clean source checkouts and production frontend builds from the [build benchmark](/docs/panel/benchmarks#reproduce). Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
+
+```bash
+docker build -t aquadactyl:test /path/to/aquadactyl-bench
+pnpm exec playwright install chromium
+node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench
+```
+
+The preparation script prints a temporary directory. Replace WORKDIR below with that path:
+
+```bash
+docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
+node scripts/benchmark-runtime.mjs WORKDIR
+node scripts/write-runtime-benchmark-guide.mjs
+node scripts/verify-runtime-benchmark.mjs
+docker compose -f WORKDIR/compose.json down --volumes
+```
+
+The generated Compose file binds only to 127.0.0.1:8091 and :8092 and has its own network, volumes and random disposable credentials. Never point this harness at a production database. The raw public report omits credentials and sessions. Keep its Composer lock hashes, image IDs and individual samples with any published comparison. The headline chart imports only the smaller summary, not the per-request latency arrays.

@@ -4,6 +4,7 @@
     "index",
     "features",
     "benchmarks",
+    "runtime-benchmarks",
     "installing-the-panel",
     "migrating-from-pterodactyl",
     "webserver-configuration",

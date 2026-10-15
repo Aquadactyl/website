@@ -30,8 +30,9 @@ description: Reproducible frontend asset and production-build measurements, with
 On ${report.measuredOn}, the reviewed Aquadactyl frontend emitted **${saving(aqua.dashboard.totalGzipBytes, ptero.dashboard.totalGzipBytes)} less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **${seconds(aqua.buildMs.median)}**, compared with **${seconds(ptero.buildMs.median)}** for Pterodactyl, a **${(ptero.buildMs.median / aqua.buildMs.median).toFixed(2)}× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
 
 These are local measurements of built frontend artifacts and build duration.
-They do not measure browser load time, interaction responsiveness, API requests
-per second, PHP memory, database performance, Wings or game-server performance.
+The separate [runtime benchmark](/docs/panel/runtime-benchmarks) measures browser
+load time, authenticated API throughput and memory use. Neither comparison
+measures Wings or game-server performance.
 
 [Interactive showcase](/#benchmarks) · [Raw results and file hashes](/benchmarks/panels.json) · [Build output](/benchmarks/build-logs.txt)
 

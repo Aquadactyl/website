@@ -132,6 +132,38 @@ For documentation-only updates to an existing report, run
 `node scripts/write-benchmark-guide.mjs`. The report's original measurement date
 stays attached to its results.
 
+Runtime measurements use separate disposable Docker stacks with matching data
+and resource limits. They cover real Chromium dashboard loads, two authenticated
+API endpoints at three concurrency levels, and idle/loaded container working set.
+The existing local panel and Wings/Manta stacks are not used by these tests.
+Do not run other benchmarks concurrently. See the [runtime methodology](docs/panel/runtime-benchmarks.mdx)
+for the measured configuration, limitations and full reproduction commands.
+
+```bash
+pnpm exec playwright install chromium
+node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl /path/to/pterodactyl
+# Use the temporary directory printed above as WORKDIR.
+docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
+node scripts/benchmark-runtime.mjs WORKDIR
+node scripts/write-runtime-benchmark-guide.mjs
+node scripts/verify-runtime-benchmark.mjs
+docker compose -f WORKDIR/compose.json down --volumes
+```
+
+Build `aquadactyl:test` from the pinned Aquadactyl checkout first; the harness uses
+it as a common PHP/OS base for both panels. It serves each checkout's own source,
+locked Composer dependencies and prebuilt frontend assets from `/bench`.
+`public/benchmarks/runtime.json` contains all samples; `runtime-summary.json`
+contains only the chart aggregates so raw latency arrays are not bundled into
+the homepage.
+
+With the website running, check the runtime chart controls, methodology links
+and mobile layout with:
+
+```bash
+node scripts/verify-runtime-showcase.mjs http://localhost:3000
+```
+
 ```bash
 pnpm exec next typegen
 pnpm types
@@ -140,9 +172,11 @@ pnpm format:check
 pnpm build
 node scripts/verify-api-docs.mjs
 node scripts/verify-panel-showcase.mjs
+node scripts/verify-runtime-benchmark.mjs
 ```
 
-Preview `/`, `/docs/panel/features`, `/docs/panel/benchmarks`, `/docs/panel`,
+Preview `/`, `/docs/panel/features`, `/docs/panel/benchmarks`,
+`/docs/panel/runtime-benchmarks`, `/docs/panel`,
 `/docs/blueprint/migration` and `/tools/blueprint-migrator` after editing navigation
 or content. Check feature links, section anchors and the mobile menu. Commands
 and feature behaviour must match the panel's current implementation.

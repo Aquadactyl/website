@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import results from "../../public/benchmarks/panels.json";
+import RuntimeBenchmarks from "./RuntimeBenchmarks";
 
 type Metric = "payload" | "javascript" | "build";
 const metrics: { id: Metric; label: string }[] = [
@@ -231,8 +232,8 @@ export default function BenchmarkShowcase() {
             Measured {measuredOn} · {results.environment.cpu} · Node{" "}
             {results.environment.node} · No installed third-party addons. These
             results measure frontend artifacts and build duration. Browser load
-            time, API throughput, memory use and game performance were not
-            benchmarked.
+            time, API throughput and memory use are measured separately below.
+            Game performance is outside this panel benchmark.
           </p>
           <Link
             href="/docs/panel/benchmarks"
@@ -241,6 +242,7 @@ export default function BenchmarkShowcase() {
             Methodology & raw results <ArrowRight size={14} aria-hidden />
           </Link>
         </div>
+        <RuntimeBenchmarks />
       </div>
     </section>
   );

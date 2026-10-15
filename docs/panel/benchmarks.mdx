@@ -6,8 +6,9 @@ description: Reproducible frontend asset and production-build measurements, with
 On 2026-10-14, the reviewed Aquadactyl frontend emitted **48.6% less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **1.231 s**, compared with **12.887 s** for Pterodactyl, a **10.47× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
 
 These are local measurements of built frontend artifacts and build duration.
-They do not measure browser load time, interaction responsiveness, API requests
-per second, PHP memory, database performance, Wings or game-server performance.
+The separate [runtime benchmark](/docs/panel/runtime-benchmarks) measures browser
+load time, authenticated API throughput and memory use. Neither comparison
+measures Wings or game-server performance.
 
 [Interactive showcase](/#benchmarks) · [Raw results and file hashes](/benchmarks/panels.json) · [Build output](/benchmarks/build-logs.txt)
 
