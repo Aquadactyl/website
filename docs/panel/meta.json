@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "features",
+    "benchmarks",
     "installing-the-panel",
     "migrating-from-pterodactyl",
     "webserver-configuration",

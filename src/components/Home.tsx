@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, ChevronDown, ExternalLink, Puzzle, Server } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChevronDown,
+  ExternalLink,
+  Puzzle,
+  Server,
+} from "lucide-react";
 
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";

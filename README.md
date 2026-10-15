@@ -73,8 +73,9 @@ as the source for feature behaviour, requirements and commands. Check `README.md
 `BUILDING.md`, `config/aquadactyl.php`, the relevant guides under `docs/`, and the
 deployment scripts when updating website copy.
 
-Homepage feature copy lives in `src/components/Home.tsx`, the sample panel in
-`src/components/PanelPreview.tsx`, and site metadata in `src/app/layout.tsx`.
+Homepage feature data lives in `src/lib/panel-features.ts`, with its cards and
+comparison table in `src/components/FeatureComparison.tsx`. The sample panel is
+in `src/components/PanelPreview.tsx`, and site metadata in `src/app/layout.tsx`.
 Operator guides are MDX files under `docs/`; navigation order is defined by each
 folder's `meta.json`.
 
@@ -112,6 +113,25 @@ the guides. Keep original upstream credits and license notices.
 
 ## Verify changes
 
+The homepage feature cards and comparison table share `src/lib/panel-features.ts`.
+Its source revisions identify the reviewed stock panels. Benchmark charts read
+`public/benchmarks/panels.json`; the methodology page and build output are linked
+from the showcase. The measurements cover frontend build duration and emitted
+dashboard JS/CSS, including separately emitted CSS for a fairer asset comparison.
+
+With locked dependencies installed in clean panel checkouts, refresh the results:
+
+```bash
+node scripts/benchmark-panels.mjs /path/to/aquadactyl /path/to/pterodactyl
+node scripts/verify-panel-showcase.mjs
+```
+
+The runner uses one warm-up and five measured production builds per panel in
+alternating order. It writes the raw report, build log and benchmark guide.
+For documentation-only updates to an existing report, run
+`node scripts/write-benchmark-guide.mjs`. The report's original measurement date
+stays attached to its results.
+
 ```bash
 pnpm exec next typegen
 pnpm types
@@ -119,9 +139,10 @@ pnpm lint
 pnpm format:check
 pnpm build
 node scripts/verify-api-docs.mjs
+node scripts/verify-panel-showcase.mjs
 ```
 
-Preview `/`, `/docs/panel/features`, `/docs/panel`, `/docs/blueprint/migration`
-and `/tools/blueprint-migrator` after editing navigation or content. Check feature
-links, section anchors and the mobile menu. Commands and feature behaviour must
-match the panel's current implementation.
+Preview `/`, `/docs/panel/features`, `/docs/panel/benchmarks`, `/docs/panel`,
+`/docs/blueprint/migration` and `/tools/blueprint-migrator` after editing navigation
+or content. Check feature links, section anchors and the mobile menu. Commands
+and feature behaviour must match the panel's current implementation.

@@ -1,0 +1,126 @@
+---
+title: Pterodactyl vs Aquadactyl benchmarks
+description: Reproducible frontend asset and production-build measurements, with raw samples, source revisions and methodology.
+---
+
+On 2026-10-14, the reviewed Aquadactyl frontend emitted **48.6% less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **1.231 s**, compared with **12.887 s** for Pterodactyl, a **10.47× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
+
+These are local measurements of built frontend artifacts and build duration.
+They do not measure browser load time, interaction responsiveness, API requests
+per second, PHP memory, database performance, Wings or game-server performance.
+
+[Interactive showcase](/#benchmarks) · [Raw results and file hashes](/benchmarks/panels.json) · [Build output](/benchmarks/build-logs.txt)
+
+## Compared source
+
+| Panel       | Ref          | Exact commit                                                                                           | Toolchain        |
+| ----------- | ------------ | ------------------------------------------------------------------------------------------------------ | ---------------- |
+| Aquadactyl  | main, pinned | [2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901) | Vite ^8.3.4      |
+| Pterodactyl | v1.15.1      | [e98678c5a1d0](https://github.com/pterodactyl/panel/tree/e98678c5a1d07a74036660a459d87a4eb7c105c1)     | Webpack ^5.103.0 |
+
+Pterodactyl v1.15.1 was the latest release returned by the official repository
+when the comparison was prepared. These results apply to these exact commits.
+Both source checkouts had no tracked changes and no installed third-party addons.
+Aquadactyl's bundled Blueprint framework was included as shipped.
+
+The older before/after numbers in Aquadactyl's own performance notes describe a
+different comparison. They were not used as a Pterodactyl baseline here.
+
+## Dashboard assets
+
+| Measurement                     | Pterodactyl                  | Aquadactyl                | Reduction |
+| ------------------------------- | ---------------------------- | ------------------------- | --------- |
+| JavaScript, uncompressed        | 2,025,060 bytes (1977.6 KiB) | 765,012 bytes (747.1 KiB) | 62.2%     |
+| JavaScript, gzip estimate       | 535,676 bytes (523.1 KiB)    | 254,372 bytes (248.4 KiB) | 52.5%     |
+| Separate CSS, uncompressed      | 0 bytes (0.0 KiB)            | 126,337 bytes (123.4 KiB) | —         |
+| Separate CSS, gzip estimate     | 0 bytes (0.0 KiB)            | 21,213 bytes (20.7 KiB)   | —         |
+| JavaScript + CSS, uncompressed  | 2,025,060 bytes (1977.6 KiB) | 891,349 bytes (870.5 KiB) | 56.0%     |
+| JavaScript + CSS, gzip estimate | 535,676 bytes (523.1 KiB)    | 275,585 bytes (269.1 KiB) | 48.6%     |
+
+Pterodactyl's CSS is carried inside its JavaScript through style-loader. Zero
+separate CSS bytes does not mean it has no styles. The headline includes
+JavaScript **and** separately emitted CSS to account for this difference.
+
+For Aquadactyl, the script follows the Vite manifest's entry and dashboard route,
+recursively adding their static imports and CSS. It does not add unrelated
+dynamic routes. For Pterodactyl, it reads Webpack's main entry files and dashboard
+chunk group from the actual compilation. Shared files are counted once.
+
+Each file is gzipped individually at level 6, then the
+sizes are summed. This is a transfer-size estimate, not an HTTP measurement.
+Fonts, images, translations, HTML, API payloads and transport headers are outside
+this asset count. Payload totals come from the final measured build; per-build
+payload samples and every counted filename/SHA-256 are in the raw report.
+
+## Production build time
+
+| Measurement    | Pterodactyl | Aquadactyl |
+| -------------- | ----------- | ---------- |
+| Median of five | 12.887 s    | 1.231 s    |
+| Minimum        | 12.831 s    | 1.212 s    |
+| Maximum        | 13.248 s    | 1.251 s    |
+
+| Measured sample | Pterodactyl | Aquadactyl |
+| --------------- | ----------- | ---------- |
+| 1               | 12.887 s    | 1.251 s    |
+| 2               | 13.035 s    | 1.231 s    |
+| 3               | 12.831 s    | 1.236 s    |
+| 4               | 13.248 s    | 1.225 s    |
+| 5               | 12.852 s    | 1.212 s    |
+
+Each panel had one discarded warm-up and five measured builds. After warm-up,
+run order alternated by round: Aquadactyl/Pterodactyl, then
+Pterodactyl/Aquadactyl. Builds ran sequentially in fresh Node processes with
+production mode and each repository's default production bundler configuration.
+
+Timing includes loading the bundler and its configuration, compiling assets and
+compiler shutdown. It excludes dependency installation, package-manager startup
+and the script's artifact analysis. Upstream's JS/map clean step runs before its
+timer; Vite performs its normal output cleanup during the build. The results
+compare the shipped toolchains, rather than swapping both to the same bundler.
+
+Locked dependencies were installed first, with lifecycle scripts disabled for
+both installs. The build itself ran normally. No package versions or optimization
+settings were changed. This shared development machine was not CPU-isolated;
+background processes and operating-system caches were not controlled. Repeat
+the test on your build host when estimating deployment time.
+
+## Test environment
+
+| Setting                         | Value                                                             |
+| ------------------------------- | ----------------------------------------------------------------- |
+| CPU                             | Intel(R) Core(TM) i7-14700KF                                      |
+| Logical processors              | 28                                                                |
+| RAM reported by OS, rounded     | 64 GiB                                                            |
+| OS                              | win32 10.0.26300 x64                                              |
+| Node.js                         | v24.14.0                                                          |
+| Dependency installs in this run | pnpm 12.10.1 for Aquadactyl; Yarn Classic 1.22.19 for Pterodactyl |
+| Extra installed addons          | 0                                                                 |
+
+## Reproduce
+
+Use clean, separate source checkouts. The benchmark writes generated build
+assets in those checkouts. It does not connect to a running panel or require
+PHP, a database, administrator credentials or a game server.
+
+```bash
+git clone https://github.com/Aquadactyl/aquadactyl.git aquadactyl-bench
+git -C aquadactyl-bench checkout --detach 2bfd6ae2a30c8152b34b53c53562773a973ae901
+git clone --branch v1.15.1 https://github.com/pterodactyl/panel.git pterodactyl-bench
+
+cd aquadactyl-bench
+pnpm install --frozen-lockfile --ignore-scripts
+cd ../pterodactyl-bench
+yarn install --frozen-lockfile --ignore-scripts
+```
+
+From the website repository, using the absolute paths to those checkouts:
+
+```bash
+node scripts/benchmark-panels.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench
+node scripts/verify-panel-showcase.mjs
+```
+
+The script saves the raw JSON, build output and this guide. The homepage reads
+the same JSON so its numbers update together. Preserve the source revisions and
+lockfile hashes when publishing a new comparison.
