@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "features",
+    "panel-comparison",
     "benchmarks",
     "runtime-benchmarks",
     "optimization-benchmarks",

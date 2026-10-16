@@ -9,9 +9,7 @@ const harness = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "runtime-benchmark",
 );
-const buildReport = JSON.parse(
-  fs.readFileSync("public/benchmarks/panels.json", "utf8"),
-);
+const includeWorkingTree = process.argv.includes("--include-working-tree");
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "panel-runtime-benchmark-"));
 const runtimeImage = process.env.BENCHMARK_RUNTIME_IMAGE || "aquadactyl:test";
 const run = (command, args, options = {}) =>
@@ -38,16 +36,30 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
   if (!process.argv[index + 2])
     throw new Error("Provide two clean, previously built source checkouts.");
   const revision = run("git", ["rev-parse", "HEAD"], { cwd: checkout }).trim();
-  if (revision !== buildReport.panels[family].revision)
+  const changed = run("git", ["diff", "--name-only", "HEAD"], { cwd: checkout })
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+  const added = run("git", ["ls-files", "--others", "--exclude-standard"], {
+    cwd: checkout,
+  })
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+  const patchFiles = [...new Set([...changed, ...added])]
+    .sort()
+    .map((file) => ({
+      file,
+      sha256: fs.existsSync(path.join(checkout, file))
+        ? createHash("sha256")
+            .update(fs.readFileSync(path.join(checkout, file)))
+            .digest("hex")
+        : null,
+    }));
+  if (patchFiles.length && !includeWorkingTree)
     throw new Error(
-      `${family}: source revision does not match the published build benchmark.`,
+      `${family}: working tree changes found; explicitly use --include-working-tree to record them.`,
     );
-  if (
-    run("git", ["status", "--porcelain", "--untracked-files=no"], {
-      cwd: checkout,
-    }).trim()
-  )
-    throw new Error(`${family}: tracked changes found.`);
   const context = path.join(work, family);
   const panel = path.join(context, "panel");
   fs.mkdirSync(panel, { recursive: true });
@@ -56,6 +68,28 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
     cwd: checkout,
   });
   run("tar", ["-xf", archive, "-C", panel]);
+  for (const { file, sha256 } of patchFiles) {
+    const target = path.join(panel, file);
+    if (sha256 === null) fs.rmSync(target);
+    else {
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.join(checkout, file), target);
+    }
+  }
+  let sourcePatchSha256;
+  if (patchFiles.length) {
+    const index = path.join(work, `${family}.index`);
+    const options = {
+      cwd: checkout,
+      env: { ...process.env, GIT_INDEX_FILE: index },
+    };
+    run("git", ["read-tree", "HEAD"], options);
+    run("git", ["add", "-A"], options);
+    const patch = run("git", ["diff", "--cached", "--binary", "HEAD"], options);
+    fs.writeFileSync(path.join(work, `${family}-source.patch`), patch);
+    sourcePatchSha256 = createHash("sha256").update(patch).digest("hex");
+    fs.unlinkSync(index);
+  }
   const assets = family === "aquadactyl" ? "public/build" : "public/assets";
   fs.cpSync(path.join(checkout, assets), path.join(panel, assets), {
     recursive: true,
@@ -168,8 +202,22 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
   };
   manifest.panels[family] = {
     revision,
-    repository: buildReport.panels[family].repository,
-    ref: buildReport.panels[family].ref,
+    repository: `https://github.com/${family === "aquadactyl" ? "Aquadactyl/aquadactyl" : "pterodactyl/panel"}`,
+    ref:
+      run("git", ["describe", "--always", "--tags"], { cwd: checkout }).trim() +
+      (patchFiles.length ? " + recorded working-tree changes" : ""),
+    patchFiles,
+    sourcePatchSha256,
+    frontendFiles: fs
+      .readdirSync(path.join(panel, assets), { recursive: true })
+      .filter((file) => fs.statSync(path.join(panel, assets, file)).isFile())
+      .sort()
+      .map((file) => ({
+        file: file.replaceAll("\\", "/"),
+        sha256: createHash("sha256")
+          .update(fs.readFileSync(path.join(panel, assets, file)))
+          .digest("hex"),
+      })),
     port,
     container: services[family].container_name,
     composerLockSha256: createHash("sha256")

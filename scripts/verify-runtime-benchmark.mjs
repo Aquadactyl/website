@@ -2,16 +2,20 @@ import fs from "node:fs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 
+const stem = process.argv[2] || "runtime";
 const raw = JSON.parse(
-  fs.readFileSync("public/benchmarks/runtime.json", "utf8"),
+  fs.readFileSync(`public/benchmarks/${stem}.json`, "utf8"),
 );
 const chart = JSON.parse(
-  fs.readFileSync("public/benchmarks/runtime-summary.json", "utf8"),
+  fs.readFileSync(`public/benchmarks/${stem}-summary.json`, "utf8"),
 );
 const build = JSON.parse(
   fs.readFileSync("public/benchmarks/panels.json", "utf8"),
 );
-const guide = fs.readFileSync("docs/panel/runtime-benchmarks.mdx", "utf8");
+const guide = fs.readFileSync(
+  `docs/panel/${stem === "runtime" ? "runtime-benchmarks" : stem}.mdx`,
+  "utf8",
+);
 const stats = (values) => {
   const sorted = [...values].sort((a, b) => a - b);
   const n = sorted.length;
@@ -27,7 +31,7 @@ const stats = (values) => {
 assert.ok(raw.completedAt && raw.startedAt < raw.completedAt);
 assert.equal(
   createHash("sha256")
-    .update(fs.readFileSync("public/benchmarks/runtime-runner.txt"))
+    .update(fs.readFileSync(`public/benchmarks/${stem}-runner.txt`))
     .digest("hex"),
   raw.harnessSha256,
 );
@@ -37,7 +41,9 @@ assert.equal(raw.memoryRuns.length, 12);
 assert.equal(chart.measuredOn, raw.measuredOn);
 for (const family of ["aquadactyl", "pterodactyl"]) {
   const panel = raw.panels[family];
-  assert.equal(panel.revision, build.panels[family].revision);
+  if (stem === "runtime")
+    assert.equal(panel.revision, build.panels[family].revision);
+  else assert.match(panel.revision, /^[a-f0-9]{40}$/);
   assert.equal(chart.panels[family].revision, panel.revision);
   assert.match(panel.composerLockSha256, /^[a-f0-9]{64}$/);
   assert.match(panel.imageId, /^sha256:[a-f0-9]{64}$/);
@@ -154,8 +160,8 @@ assert.ok(
   guide.includes("docker compose -f WORKDIR/compose.json down --volumes"),
 );
 for (const href of [
-  "/benchmarks/runtime.json",
-  "/benchmarks/runtime-summary.json",
+  `/benchmarks/${stem}.json`,
+  `/benchmarks/${stem}-summary.json`,
 ])
   assert.ok(guide.includes(href));
 console.log(

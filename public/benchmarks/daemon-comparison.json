@@ -1,0 +1,2588 @@
+{
+  "schemaVersion": 1,
+  "measuredOn": "2026-10-15",
+  "startedAt": "2026-10-15T16:27:23.008Z",
+  "completedAt": "2026-10-15T16:32:37.024Z",
+  "timestampBasis": "First result-file creation and last result-file update",
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "memoryGiB": 64,
+    "os": "win32 10.0.26300 x64",
+    "docker": "29.8.1",
+    "runnerCompiler": "Go 1.26.9"
+  },
+  "source": {
+    "manta": {
+      "revision": "747bc4393daf5d95fdf61d76382f5e23749cffe9",
+      "files": [
+        {
+          "file": "Dockerfile",
+          "sha256": "57455c291063735f1f781bdb557a82e5ced315577cf3a44e4b9aca7c2f6bc5c7"
+        },
+        {
+          "file": "cmd/configure.go",
+          "sha256": "9ca428ce16f0f386c13243b3113fc3053b187150a466bfdd711f9fdde3a056f2"
+        },
+        {
+          "file": "cmd/diagnostics.go",
+          "sha256": "8db3d424f94b340e54d5b9fd54969091117295690c6d7bc9edac3364daff2436"
+        },
+        {
+          "file": "cmd/root.go",
+          "sha256": "b3acac541b344965aff10dd1a8f33a15c3e579f3fde131b6c9c40618741c1a0d"
+        },
+        {
+          "file": "config/config.go",
+          "sha256": "d3670bf279fb204b944066340f0e04727ba5a4b64beb1c4cbdb5d2ba04042874"
+        },
+        {
+          "file": "config/config_docker.go",
+          "sha256": "49e69ea3d393dfcf9044ac0e0daf5bd7c3b8ba9587ba23e6725eb930d4a8482a"
+        },
+        {
+          "file": "docker/local.Dockerfile",
+          "sha256": "dc3fbbe2ac53066e5f24fe8744ddb9d74bc343a469429b5ab206ef848e2d1106"
+        },
+        {
+          "file": "environment/allocations.go",
+          "sha256": "ec6e5761608b71cbb5d353918b10ad29badadc68125c40c01f5c95e21dc628ff"
+        },
+        {
+          "file": "environment/config.go",
+          "sha256": "0c0a017e6f0af2ec46fbbba51a8003f77a386efa3386bcf6fb1c18dbbce2dbfb"
+        },
+        {
+          "file": "environment/docker.go",
+          "sha256": "bb1220089945c16afa388f29041b4e0a14b14f89845e10e9475d53f54c07551c"
+        },
+        {
+          "file": "environment/docker/api.go",
+          "sha256": "e154d3c2cc9de33570a063c9cf12a30770b64dc1fc4eba2273344a7ac06ff1f3"
+        },
+        {
+          "file": "environment/docker/cgroup_burst.go",
+          "sha256": "e85a2ec2524627de207152409b907a8d1244263a19504dc41acb4885f98c40e9"
+        },
+        {
+          "file": "environment/docker/container.go",
+          "sha256": "cdeb826b483d2cc0d005fe9fbf3e7fe40590be8a157b9446768548f6a7a68ce7"
+        },
+        {
+          "file": "environment/docker/environment.go",
+          "sha256": "341a041a908901171cf3eb223ca1158062b5878aa2a8a48102db5955ac4ce9ff"
+        },
+        {
+          "file": "environment/docker/power.go",
+          "sha256": "442266767e67f66b79c664ce165bb3c4922a1d8d8a33b88d2b7f8d7f5a869bc4"
+        },
+        {
+          "file": "environment/docker/stats.go",
+          "sha256": "4fcb6a4e84f0826ee5e157e0e5a662be838853ffb3aa1afa93db6baaed0a9f0e"
+        },
+        {
+          "file": "environment/environment.go",
+          "sha256": "444c377087cd7b1c67f17e009ac4c79ffd28c64647ddc67e5cae0be102c103df"
+        },
+        {
+          "file": "environment/settings.go",
+          "sha256": "d7459a0c079853a6512c3f44fdff6df3b924184755f478f894aeadb717b5bae5"
+        },
+        {
+          "file": "environment/stats.go",
+          "sha256": "f5cc78e868a9b7898994562861798e5fafa60faa80288f6dd0e16a5f66d1dee0"
+        },
+        {
+          "file": "events/events.go",
+          "sha256": "12d925d9d0d1d8e4bb4c3acf33896c61596e53cc59b287a9d0ccd50b8667217a"
+        },
+        {
+          "file": "go.mod",
+          "sha256": "3f373a8a4a0f62112e5542d22cce730f9a88805f9beec40703c517ded91cc026"
+        },
+        {
+          "file": "go.sum",
+          "sha256": "d50c55b0b0a1ddc4704df37a3ea4cff3fe3a2ebf50916d5dc567960214491e4c"
+        },
+        {
+          "file": "internal/cron/activity_cron.go",
+          "sha256": "3a4f0318ff13a5e254840891280423cf29094cf3e9fd00b84324b31cd7b7aaf8"
+        },
+        {
+          "file": "internal/cron/cron.go",
+          "sha256": "e48438b31c40d7d54a857b45628d93b70572ea54d4bb937727f929d09d22ee09"
+        },
+        {
+          "file": "internal/cron/delivery.go",
+          "sha256": "2ff63fe9d8a63d42961560c335e02eefdb0515ca814d02d0dae7dd0311fe7d0a"
+        },
+        {
+          "file": "internal/cron/sftp_cron.go",
+          "sha256": "49af87f9d67a3001400169fe57ec4feef5366a2f90c73a2abaa3c4275e994ffd"
+        },
+        {
+          "file": "internal/database/database.go",
+          "sha256": "516d348ec77d6c9febc7e82c6311ea164caa9c40fc06328a15a4a9d3eeb8d5e3"
+        },
+        {
+          "file": "internal/models/activity.go",
+          "sha256": "2f0e1168e4d8344da7b95ae2f7c3d32e17fe5251d0294e3b466349378a36e843"
+        },
+        {
+          "file": "internal/models/models.go",
+          "sha256": "6ed47d809d56dffb92b2c87f20440ac3788f0919333b3af45ea06d489c360b04"
+        },
+        {
+          "file": "internal/network/address.go",
+          "sha256": "9f63e0f374da347978c289890a06d502b6b6f1c330b500a6861b002fd14c2be9"
+        },
+        {
+          "file": "internal/network/allowlist.go",
+          "sha256": "776de6bd911620929f7b72ae71385ef1afdb3022a8f5ac4fd9fea68a3eceac67"
+        },
+        {
+          "file": "internal/network/limit_listener.go",
+          "sha256": "7e7e70f27dd03f26c23990c564bfa1f088f2ba384b367ed18293d1aa52b11734"
+        },
+        {
+          "file": "internal/progress/progress.go",
+          "sha256": "b0a1b12dabad0b22976149fee4edd1a330a3444bfaf2d6e1d9dfe980f660849d"
+        },
+        {
+          "file": "internal/ufs/doc.go",
+          "sha256": "af58f8866c9746756b2e669886cf0010f08c30ee759a4cb22b6bb35bd9922e9a"
+        },
+        {
+          "file": "internal/ufs/error.go",
+          "sha256": "8cf238ad58c2f9e92f4653b7f6ed145a7296f19a529600475cfda12beec1ea6c"
+        },
+        {
+          "file": "internal/ufs/file.go",
+          "sha256": "8da4c0bda2189e6c9fd8be88d033ce2a4f3f08515983b7ec4d86b70aa7120ae3"
+        },
+        {
+          "file": "internal/ufs/file_posix.go",
+          "sha256": "e546332738ca8422a09f85102b4fa4cf90b09f3e5dbece25504183188715d278"
+        },
+        {
+          "file": "internal/ufs/filesystem.go",
+          "sha256": "1d9ef14fd87330b076f9c42edfacab53f078fedad26be312a82cd436dd0d0170"
+        },
+        {
+          "file": "internal/ufs/fs_quota.go",
+          "sha256": "7bd517336546eae783e5bc2e053d715a8d180bee331f0b840c46a0567aafa6cd"
+        },
+        {
+          "file": "internal/ufs/fs_unix.go",
+          "sha256": "6ed1a852bc082a0f73ff06b8f03f7e5196b2ff991d6b870d7a5dffd75de24e64"
+        },
+        {
+          "file": "internal/ufs/mkdir_unix.go",
+          "sha256": "c242e2d4612b82d2ec947ca43d68b34e640fe4e35f913010c67200b119245ee5"
+        },
+        {
+          "file": "internal/ufs/path_unix.go",
+          "sha256": "dc55661b2b01e7da426576907258126a42b48ad1ea1fe42624adae601db0711f"
+        },
+        {
+          "file": "internal/ufs/quota_writer.go",
+          "sha256": "5d6ff61e80a84a1bd3e3b6c846ab79e80623b29d6c7741bf7e6e8aa1c599b210"
+        },
+        {
+          "file": "internal/ufs/removeall_unix.go",
+          "sha256": "a26e2264bb50fa77b67c2f2460d37e52e0bc2959f64e2329957b6a79c721241a"
+        },
+        {
+          "file": "internal/ufs/stat_unix.go",
+          "sha256": "afc37669da096efcaf84694f9c395da2bee40973a29d9e567427f0708a5820af"
+        },
+        {
+          "file": "internal/ufs/walk.go",
+          "sha256": "35dfd0398c152cf201bc5bb4d5ef16bf1223008ee18759cce82c14b8905794ff"
+        },
+        {
+          "file": "internal/ufs/walk_unix.go",
+          "sha256": "910702b214182025571ae7ca23e9d3609c36fab26dc4f97de69b54477320acb7"
+        },
+        {
+          "file": "loggers/cli/cli.go",
+          "sha256": "1c131c49989afcaaf2e2d2f65dac587da27bbd228472cca50f702b048139e515"
+        },
+        {
+          "file": "parser/helpers.go",
+          "sha256": "fa9aabf05c9290974c249518e0e822b6f6bac8dcbdb982f4e72f3907df90e4fb"
+        },
+        {
+          "file": "parser/parser.go",
+          "sha256": "fc336cfdadcca49d673e7dbad665d137420ffa6790963f98434e9858b6abdf79"
+        },
+        {
+          "file": "remote/errors.go",
+          "sha256": "e12b98ffaca4effdae2c28348e8f237d67f8609b3bf4476b3867a9935e8eaf3d"
+        },
+        {
+          "file": "remote/http.go",
+          "sha256": "285178316096cdfa69278a2b08e806f8026d5e5c4f8eefcec95c724b6dbe8323"
+        },
+        {
+          "file": "remote/servers.go",
+          "sha256": "4a2f4f7b255cc3ab3e00564b30791a88cb2dd61464f25cb7b66912cb67ca9ac1"
+        },
+        {
+          "file": "remote/types.go",
+          "sha256": "75cb78fc19d479699d3419401ee64707c74dcc52e0716e809a9a5a699dbd96d1"
+        },
+        {
+          "file": "router/downloader/downloader.go",
+          "sha256": "220b7e9df33ebf473c853677f28db162ac594739c1f7a47e8386c851c9ccbbf9"
+        },
+        {
+          "file": "router/middleware.go",
+          "sha256": "cd1b16a5b72d7c4e27b1ede41702a4df0baadc95b542b7a5e3c0cc547b5f2fe9"
+        },
+        {
+          "file": "router/middleware/json.go",
+          "sha256": "afb5a48555f649df1ac1738bb061ba81b8b12e17d1ae81254d391da8cc5adbb1"
+        },
+        {
+          "file": "router/middleware/middleware.go",
+          "sha256": "c0cdc7c810b642c89b805da29e530d092bb0908571e1ee1fb694ecc2956a1c78"
+        },
+        {
+          "file": "router/middleware/request_error.go",
+          "sha256": "ef8ca19f2a3064d333b5300852bf6a14eb07793184c3a2b66acf08f2dc2bd53c"
+        },
+        {
+          "file": "router/router.go",
+          "sha256": "afb24b46b320d82b3ff1794bd34550586182402dbffa7e8ed10b31079713936d"
+        },
+        {
+          "file": "router/router_download.go",
+          "sha256": "18a1c2274b18137c13fc0a473c2799c273a645b37c2d7438bc2669ba59f45b5d"
+        },
+        {
+          "file": "router/router_server.go",
+          "sha256": "3c838bb3784b2eb515fbda0a170dc9dc55fc01fa6a94689d826fea3440e2de53"
+        },
+        {
+          "file": "router/router_server_backup.go",
+          "sha256": "d69f263c9c9429ed3a428bd8ef92d4416d9c538c038f2e95071273f19e17c41a"
+        },
+        {
+          "file": "router/router_server_files.go",
+          "sha256": "1b5dbc9ff2f25dbac83f34eb25987846f5bd742c8752daa06e7d0b49576c1cd1"
+        },
+        {
+          "file": "router/router_server_transfer.go",
+          "sha256": "1c65ec0de422d714e26aa5e504f038c1a1e4d68dfaff0cee625d6ca9c14e5e5a"
+        },
+        {
+          "file": "router/router_server_ws.go",
+          "sha256": "a5170eb169e745b86ad94f79fc7506012185413ea07a9b1fb0e5d5b5cc9a6c21"
+        },
+        {
+          "file": "router/router_system.go",
+          "sha256": "3f12edd115daa32685366ba6ef1d8d0e7ed156570566c62bd44058bb711a6133"
+        },
+        {
+          "file": "router/router_transfer.go",
+          "sha256": "ee3b78aeda766909cb76941669f047b1e0bdf380f4d5bc0030a63343347b5fbf"
+        },
+        {
+          "file": "router/tokens/backup.go",
+          "sha256": "b1438199676f3419ec5b5101f652208b5f85499102936ae3fef65471bfbbd327"
+        },
+        {
+          "file": "router/tokens/file.go",
+          "sha256": "bd149edb6cfd3d97c4345d7d94aaa70a263567fa0e6af9172291541cbe187650"
+        },
+        {
+          "file": "router/tokens/parser.go",
+          "sha256": "9792a79b764e611664f5adffbba3aedccb6b18a3d2b194190cfb92587732e256"
+        },
+        {
+          "file": "router/tokens/token.go",
+          "sha256": "85bfec9efc2b455284ca72e70303d74388a5cf2a1f796fa015d011c0aee652e8"
+        },
+        {
+          "file": "router/tokens/token_store.go",
+          "sha256": "1a49bc5ea6d65e41479a8676aeefd5eec2ec6d000035e6654c1a1f3690ca9b4f"
+        },
+        {
+          "file": "router/tokens/transfer.go",
+          "sha256": "06726086cc63cc53213099ca5e161991abd8c174f1d88b1f6a5fbf5601411a69"
+        },
+        {
+          "file": "router/tokens/upload.go",
+          "sha256": "7d50519e975185d407f7ae632ac33455ce350448085b02085f1b8a6bb8c2e36d"
+        },
+        {
+          "file": "router/tokens/websocket.go",
+          "sha256": "f9b29eda45d569cb42e1a815c242300017a984a85c370b4a66536dae25aa5036"
+        },
+        {
+          "file": "router/websocket/limiter.go",
+          "sha256": "fa591e9259649d8035af297ad7536e839c033e9d8cac6a94dcb6d99f12670389"
+        },
+        {
+          "file": "router/websocket/listeners.go",
+          "sha256": "90e5deb9d454ac14d403c1d8a4a7168ba20e3d7f29589981918b2893bb4489a1"
+        },
+        {
+          "file": "router/websocket/message.go",
+          "sha256": "324654dd9c134cbfcbcec4105e67557dff3b0bd2eb5dffeaae2d8a9db555b819"
+        },
+        {
+          "file": "router/websocket/websocket.go",
+          "sha256": "978fe1570c005a54eb26bcbca85ae45e1089fb79be1edf68581275eb0ddc2ea3"
+        },
+        {
+          "file": "server/activity.go",
+          "sha256": "c13ed7a8505a9c646058657a737cdc1f5538a75779f037ff14d42a0955c03cce"
+        },
+        {
+          "file": "server/backup.go",
+          "sha256": "407ae08a0dd662bf4ca1781e818d8cf5ee931f61378e0d8d34631fcca4736826"
+        },
+        {
+          "file": "server/backup/backup.go",
+          "sha256": "fa949bf7146f07ab33a29a31cb0bebaecf4e18a2a526bbb1c13e1e4821df809c"
+        },
+        {
+          "file": "server/backup/backup_local.go",
+          "sha256": "bbbb5305a98bbbb01d2b76e08da4e0664317d1dbed3c16d7a60b69ef5e47ef96"
+        },
+        {
+          "file": "server/backup/backup_s3.go",
+          "sha256": "e256c6d7b195cb2ce91b1bbedecbc5471b1e8ad0bcaf97b5b558c8f137d02c95"
+        },
+        {
+          "file": "server/config_parser.go",
+          "sha256": "8dc052cb868bda20f5ac9df5133dffa9ea0b98b130882175488288231376551f"
+        },
+        {
+          "file": "server/configuration.go",
+          "sha256": "b9ddb11f29331bc52df72dac3b692682224a56768400f58113013a2308ad608e"
+        },
+        {
+          "file": "server/connections.go",
+          "sha256": "218c3bf412ff0246e7481bfe8dd91e15103cf9fe9e6c6755d619a2906ff3c877"
+        },
+        {
+          "file": "server/console.go",
+          "sha256": "7748b4991f2e5b83f30715c7b058bd15d06f19c04503a2e17362f7b92f3d0348"
+        },
+        {
+          "file": "server/crash.go",
+          "sha256": "f793e86553111de6506b63fe97fa8ef60766dd48db2f403b9e4cb2e8e326c630"
+        },
+        {
+          "file": "server/errors.go",
+          "sha256": "b70655f3817b43987ff77f15e5ac1fb66f7f9690a84621695d658bb6f934522e"
+        },
+        {
+          "file": "server/events.go",
+          "sha256": "9fa913c1d7db607132926bcf0d9af38515b32a8d94f6c8890375d0f8d614249e"
+        },
+        {
+          "file": "server/filesystem/archive.go",
+          "sha256": "6f6b14582540112b812c09d48d137ffd7e0eda6da6533e82cc5080b4006cc4a4"
+        },
+        {
+          "file": "server/filesystem/compress.go",
+          "sha256": "5827f699261a84f56d9d3749993f79e50b91db41c6c3c37a3823567b53983a50"
+        },
+        {
+          "file": "server/filesystem/disk_space.go",
+          "sha256": "2d0fbdb25c85221cb04c6feed04f3453f5b4243ee774595b852c98a74357c0db"
+        },
+        {
+          "file": "server/filesystem/errors.go",
+          "sha256": "03f61a9cd89bd479c801b36aab2315fdb0dc4645140c79a16dbfbc4d5db53e4f"
+        },
+        {
+          "file": "server/filesystem/filesystem.go",
+          "sha256": "a9e6313f15d7739bd8856d04e5cd1cf008ed4ba590375a08f0dc157626da05bf"
+        },
+        {
+          "file": "server/filesystem/ignore.go",
+          "sha256": "b693d1f87c888645540677250f0a6fe1baa5b4b751794c86c472d96046c0f99a"
+        },
+        {
+          "file": "server/filesystem/mime.go",
+          "sha256": "a6fc9d4a5db95be88c637625f45cab70239b1f8e1cb6ee73946439881bde2b6a"
+        },
+        {
+          "file": "server/filesystem/path.go",
+          "sha256": "41e816b9c88cda6286e7cf556775c79ae2185a66c0955c41e9044cd8249ad430"
+        },
+        {
+          "file": "server/filesystem/quota_file.go",
+          "sha256": "2aaa4a3bec167e9ee5df988f867262ea1c726a0f2e48d3873bc18f74848c9720"
+        },
+        {
+          "file": "server/filesystem/stat.go",
+          "sha256": "cde56fde7a5ca4cd27889439e63731fa65c73d0b4703a9ab65aa2c500ae4766e"
+        },
+        {
+          "file": "server/filesystem/stat_linux.go",
+          "sha256": "98a3e72ab79df854f5b6f1e10d561913f76aa448121b581c0a5241bfe9fb943a"
+        },
+        {
+          "file": "server/install.go",
+          "sha256": "6d251c05ae4a252bf5a6ddcfeb49df512f4146d1bf4aeb8974fed4d959ff5a73"
+        },
+        {
+          "file": "server/installer/errors.go",
+          "sha256": "904926cb551c0959e1fb72523093741c7742eaeb9ba281bc9739ff236e794a49"
+        },
+        {
+          "file": "server/installer/installer.go",
+          "sha256": "f717098b17c114f063de5026ff521fb6733bc3930c58e851785a89ecf4ec60d7"
+        },
+        {
+          "file": "server/listeners.go",
+          "sha256": "7f1ccdab46990f07185aac0ce244e3753a6f335fa05c6b091aca9088dab6c42c"
+        },
+        {
+          "file": "server/manager.go",
+          "sha256": "f44296866da9a2947a423d39e49c2a96e36901f9cae79f98b7fa6436f28652d2"
+        },
+        {
+          "file": "server/mounts.go",
+          "sha256": "2d8baa95f7e96a3e1f2e3bf061e10ac0c73205864d0e9912f23d7e0dd7853f7d"
+        },
+        {
+          "file": "server/power.go",
+          "sha256": "71bb8f53596c96f5e559a7258536a4b2d346c29b8f34eddd5a2038e67728da27"
+        },
+        {
+          "file": "server/resources.go",
+          "sha256": "27fda0cc23a726bb9bf953bca2c3d0dbd48590670e0bf679c0b36b435ca905c3"
+        },
+        {
+          "file": "server/server.go",
+          "sha256": "52c46d29bd2855b5411f159172361374ef05db1e946462d0ac426dc05c06e633"
+        },
+        {
+          "file": "server/transfer/archive.go",
+          "sha256": "b81535593eb9c825133d2ab995b66a640332a5c85402463cc9b5a085b0ba33a5"
+        },
+        {
+          "file": "server/transfer/doc.go",
+          "sha256": "273bde59393c70e5d1e9efb9725495eb8d6eaee73aafe3d2d08530f3773f44e4"
+        },
+        {
+          "file": "server/transfer/manager.go",
+          "sha256": "a44f28bb1470dd73d5422ae4a8ea17420dd2a326fe5b3cb81721733ea7faa721"
+        },
+        {
+          "file": "server/transfer/source.go",
+          "sha256": "853d28cfeda72bf063519e106a1598347a20348f79ac883da7e227b7cd0214b2"
+        },
+        {
+          "file": "server/transfer/transfer.go",
+          "sha256": "4c3729bb30bb0caaac5aa6007f42aaf996db2d15f2336ac131d927ebb3bdff7e"
+        },
+        {
+          "file": "server/update.go",
+          "sha256": "bedef9ae44dc38e26a06ccafe68ebcb6884b39a2ed7ab9b46e3f5de12380aed7"
+        },
+        {
+          "file": "server/websockets.go",
+          "sha256": "5e271550eba45cf3ef50a4427f91b24947439771f8e919c6df0daef63c1faf3e"
+        },
+        {
+          "file": "sftp/event.go",
+          "sha256": "47bd5ccc97b470a5efe0da337919149f6d158d915a5dc5b6d284f938ce7ec150"
+        },
+        {
+          "file": "sftp/handler.go",
+          "sha256": "e139bf69532339edc0684467f10448595124e47b21667eb2a3de0d8051716719"
+        },
+        {
+          "file": "sftp/server.go",
+          "sha256": "9283e2899cb19d708c8da014a8ef3daf9da42781701cff7480af297909b4ef45"
+        },
+        {
+          "file": "sftp/utils.go",
+          "sha256": "3807ee87bf94ec6e9d93458faacdd39a8989c05c7a8958b7789b8331b9e3f9ad"
+        },
+        {
+          "file": "system/const.go",
+          "sha256": "2414b82369173ea802513b09a94ff13672fae969fbb13f5aa2ba2a66b60935b7"
+        },
+        {
+          "file": "system/context_bag.go",
+          "sha256": "6b4267c878c270dddbaa84873e1cfcfec4b2bdebd1f09b68f8ba71566e786adc"
+        },
+        {
+          "file": "system/locker.go",
+          "sha256": "9fdf6b6368bd8e6c46066a9b4a8ea437f1163aa589517fd48d8156206630a424"
+        },
+        {
+          "file": "system/rate.go",
+          "sha256": "d8187cfa871b20b2eff9fb496ffb52f4c073612c2070d9d0f5fea5a561828fbe"
+        },
+        {
+          "file": "system/sink_pool.go",
+          "sha256": "ad9e02a807d8c0f7e962c83004e63b4d2e10eb04cf3088065ff53b8e427c68f0"
+        },
+        {
+          "file": "system/system.go",
+          "sha256": "97c6b08d724d45d21fe3ce77b4a4eb083a03b0acacff00ce7382ed33a6ba779d"
+        },
+        {
+          "file": "system/url.go",
+          "sha256": "b23f332afd3774374073a2cc176db361ab5037c5bc9e3b2719d61ebc0f190c88"
+        },
+        {
+          "file": "system/utils.go",
+          "sha256": "e95230255e37e30138cbb2f30d5539b48d5a7dca3ca78a8a84f225e7572f9c28"
+        },
+        {
+          "file": "wings.go",
+          "sha256": "9ea920c3d73b1be771eda4a93c60ef54f1fff98374de94af35272231bb930953"
+        }
+      ],
+      "patchSha256": "a201e5e06513bf9d304299b8171410989dc158a745f2fcf1b7cdb47fda2fac79",
+      "imageId": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+      "imageCreatedAt": "2026-10-15T16:19:56.281580596Z",
+      "binarySha256": "8f2516afd6a9d8f745587c2e2eb65b8d20f9b6c75bdf09fd0aeac9c8d73fcd29"
+    },
+    "wings": {
+      "release": "v1.13.4",
+      "url": "https://github.com/pterodactyl/wings/releases/tag/v1.13.4",
+      "officialImage": "ghcr.io/pterodactyl/wings:v1.13.4",
+      "imageId": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+      "imageCreatedAt": "2026-10-15T16:18:22.584089823Z",
+      "binarySha256": "15d0d87856e79244a0f7686dde716e892bf3e03a95ce71c5aa9be1a391906ba5"
+    }
+  },
+  "games": [
+    {
+      "variant": "wings",
+      "game": "paper",
+      "imageId": "sha256:9c5a71199f182db5e26f7f8a8ebb57ba0df183d3e28ca43d88dc16b7f6a195b5",
+      "cpuQuota": 200000,
+      "cpuPeriod": 100000,
+      "memoryLimit": 1852204646,
+      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb"
+    },
+    {
+      "variant": "wings",
+      "game": "bedrock",
+      "imageId": "sha256:3a31e5b23e671dfa8c0f3487003cc6dc6e2f44b5fac1212e194e0954eac8bd71",
+      "cpuQuota": 200000,
+      "cpuPeriod": 100000,
+      "memoryLimit": 617401549,
+      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207"
+    },
+    {
+      "variant": "manta",
+      "game": "paper",
+      "imageId": "sha256:9c5a71199f182db5e26f7f8a8ebb57ba0df183d3e28ca43d88dc16b7f6a195b5",
+      "cpuQuota": 200000,
+      "cpuPeriod": 100000,
+      "memoryLimit": 1852204646,
+      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb"
+    },
+    {
+      "variant": "manta",
+      "game": "bedrock",
+      "imageId": "sha256:3a31e5b23e671dfa8c0f3487003cc6dc6e2f44b5fac1212e194e0954eac8bd71",
+      "cpuQuota": 200000,
+      "cpuPeriod": 100000,
+      "memoryLimit": 617401549,
+      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207"
+    }
+  ],
+  "harnessSha256": "a67e42e30c4b4ffff3e33f41bf08842c3ce9696d862ccd20261e28f93ffaaa36",
+  "phases": {
+    "lifecycle": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 7,
+            "uuid": "fe109884-f53a-45de-9c33-e17677b52fd4",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "serv_7yijrbhvhjc55hbt4f3hpnjp2q",
+            "port": 27015
+          },
+          {
+            "id": 8,
+            "uuid": "ea47b10b-e5d1-480f-86f1-79a410cae5b2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_5jd3cc7f2fea7bxrpgsbbsxfwi",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.3-manta-local"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 9,
+            "uuid": "924cba47-6fd7-4739-b397-f912a262b8f5",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "serv_sjglur3p25dttm4x7ejkeyvy6u",
+            "port": 27115
+          },
+          {
+            "id": 10,
+            "uuid": "551f5acf-7955-4ac5-9190-af251a9cf991",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_kupvvt3zkvfmlemqv4srvhhzse",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.4"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "cold": true,
+        "game": "bedrock",
+        "round": 0,
+        "start_ms": 2323.845,
+        "stop_ms": 1010.413,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "bedrock",
+        "round": 0,
+        "start_ms": 2223.577,
+        "stop_ms": 1213.231,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 1,
+        "start_ms": 2223.131,
+        "stop_ms": 1010.228,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 1,
+        "start_ms": 2222.375,
+        "stop_ms": 1212.855,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 2,
+        "start_ms": 2323.814,
+        "stop_ms": 1211.749,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 2,
+        "start_ms": 2224.734,
+        "stop_ms": 1010.306,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 3,
+        "start_ms": 2226.905,
+        "stop_ms": 1211.828,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 3,
+        "start_ms": 2221.976,
+        "stop_ms": 1212.726,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "paper",
+        "round": 0,
+        "start_ms": 10206.448,
+        "stop_ms": 909.369,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "paper",
+        "round": 0,
+        "start_ms": 9801.532,
+        "stop_ms": 910.125,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 1,
+        "start_ms": 9599.269,
+        "stop_ms": 909.695,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 1,
+        "start_ms": 9593.543,
+        "stop_ms": 909.398,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 2,
+        "start_ms": 9695.354,
+        "stop_ms": 909.374,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 2,
+        "start_ms": 9493.987,
+        "stop_ms": 909.477,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 3,
+        "start_ms": 9797.122,
+        "stop_ms": 909.445,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 3,
+        "start_ms": 9493.571,
+        "stop_ms": 908.85,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      }
+    ],
+    "performance": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 7,
+            "uuid": "fe109884-f53a-45de-9c33-e17677b52fd4",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "serv_7yijrbhvhjc55hbt4f3hpnjp2q",
+            "port": 27015
+          },
+          {
+            "id": 8,
+            "uuid": "ea47b10b-e5d1-480f-86f1-79a410cae5b2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_5jd3cc7f2fea7bxrpgsbbsxfwi",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.3-manta-local"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 9,
+            "uuid": "924cba47-6fd7-4739-b397-f912a262b8f5",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "serv_sjglur3p25dttm4x7ejkeyvy6u",
+            "port": 27115
+          },
+          {
+            "id": 10,
+            "uuid": "551f5acf-7955-4ac5-9190-af251a9cf991",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_kupvvt3zkvfmlemqv4srvhhzse",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.4"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.2259299999999998,
+        "n": 400,
+        "p50_ms": 0.214,
+        "p95_ms": 0.323,
+        "p99_ms": 0.405,
+        "requests_per_second": 4410.4423352802605,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.3387974999999999,
+        "n": 400,
+        "p50_ms": 0.22,
+        "p95_ms": 1.218,
+        "p99_ms": 1.876,
+        "requests_per_second": 45648.583056569776,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 3.7727725000000003,
+        "n": 400,
+        "p50_ms": 0.586,
+        "p95_ms": 39.63,
+        "p99_ms": 40.396,
+        "requests_per_second": 8390.698792918267,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.313290000000002,
+        "n": 400,
+        "p50_ms": 7.17,
+        "p95_ms": 8.701,
+        "p99_ms": 9.561,
+        "requests_per_second": 136.7151063087729,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 61.16345249999999,
+        "n": 400,
+        "p50_ms": 52.299,
+        "p95_ms": 138.943,
+        "p99_ms": 190.39,
+        "requests_per_second": 258.2921790216248,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 129.33393750000005,
+        "n": 400,
+        "p50_ms": 112.548,
+        "p95_ms": 282.363,
+        "p99_ms": 430.095,
+        "requests_per_second": 240.0360220618092,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 14.228399999999999,
+        "n": 5,
+        "p50_ms": 13.6,
+        "p95_ms": 15.798,
+        "p99_ms": 15.798,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.449800000000002,
+        "n": 5,
+        "p50_ms": 12.707,
+        "p95_ms": 13.896,
+        "p99_ms": 13.896,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 118.72200000000001,
+        "n": 5,
+        "p50_ms": 119.203,
+        "p95_ms": 120.854,
+        "p99_ms": 120.854,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 61.53339999999999,
+        "n": 5,
+        "p50_ms": 59.38,
+        "p95_ms": 66.384,
+        "p99_ms": 66.384,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.201,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 16.103,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 18.545,
+        "extract_ms": 62.369,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 8.242581875000024,
+        "n": 1600,
+        "p50_ms": 8.102,
+        "p95_ms": 10.911,
+        "p99_ms": 11.129,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.22228750000000003,
+        "n": 400,
+        "p50_ms": 0.211,
+        "p95_ms": 0.334,
+        "p99_ms": 0.37,
+        "requests_per_second": 4484.0641907689505,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.43347999999999987,
+        "n": 400,
+        "p50_ms": 0.267,
+        "p95_ms": 1.516,
+        "p99_ms": 2.831,
+        "requests_per_second": 35854.08784556282,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.8426049999999999,
+        "n": 400,
+        "p50_ms": 0.621,
+        "p95_ms": 2.457,
+        "p99_ms": 3.72,
+        "requests_per_second": 35830.95064976294,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 9.619454999999999,
+        "n": 400,
+        "p50_ms": 9.508,
+        "p95_ms": 11.114,
+        "p99_ms": 12.187,
+        "requests_per_second": 103.94320056027776,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 100.82901249999999,
+        "n": 400,
+        "p50_ms": 88.148,
+        "p95_ms": 214.617,
+        "p99_ms": 274.641,
+        "requests_per_second": 157.24302230147634,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 188.90642749999998,
+        "n": 400,
+        "p50_ms": 161.16,
+        "p95_ms": 443.1,
+        "p99_ms": 596.748,
+        "requests_per_second": 166.10254084311882,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 43.882999999999996,
+        "n": 5,
+        "p50_ms": 44.769,
+        "p95_ms": 45.462,
+        "p99_ms": 45.462,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 29.0908,
+        "n": 5,
+        "p50_ms": 28.634,
+        "p95_ms": 30.568,
+        "p99_ms": 30.568,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 137.4658,
+        "n": 5,
+        "p50_ms": 137.557,
+        "p95_ms": 141.481,
+        "p99_ms": 141.481,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 58.014799999999994,
+        "n": 5,
+        "p50_ms": 58.016,
+        "p95_ms": 60.931,
+        "p99_ms": 60.931,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.69,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 16.319,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 18.51,
+        "extract_ms": 63.254,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.639525624999997,
+        "n": 1600,
+        "p50_ms": 9.862,
+        "p95_ms": 13.171,
+        "p99_ms": 14.121,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.25092999999999993,
+        "n": 400,
+        "p50_ms": 0.245,
+        "p95_ms": 0.369,
+        "p99_ms": 0.431,
+        "requests_per_second": 3973.208811909646,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.2539925,
+        "n": 400,
+        "p50_ms": 0.225,
+        "p95_ms": 0.515,
+        "p99_ms": 0.748,
+        "requests_per_second": 59880.400875331696,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.7360975000000006,
+        "n": 400,
+        "p50_ms": 0.549,
+        "p95_ms": 2.076,
+        "p99_ms": 2.964,
+        "requests_per_second": 41278.66868037772,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 9.460875,
+        "n": 400,
+        "p50_ms": 9.38,
+        "p95_ms": 10.742,
+        "p99_ms": 11.682,
+        "requests_per_second": 105.68415305460589,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 92.01938249999995,
+        "n": 400,
+        "p50_ms": 83.52,
+        "p95_ms": 185.602,
+        "p99_ms": 233.568,
+        "requests_per_second": 171.62963984238777,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 190.17034500000005,
+        "n": 400,
+        "p50_ms": 158.793,
+        "p95_ms": 430.931,
+        "p99_ms": 612.596,
+        "requests_per_second": 164.1855224161673,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 14.843799999999998,
+        "n": 5,
+        "p50_ms": 14.209,
+        "p95_ms": 15.346,
+        "p99_ms": 15.346,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 30.2534,
+        "n": 5,
+        "p50_ms": 28.363,
+        "p95_ms": 32.752,
+        "p99_ms": 32.752,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 108.0522,
+        "n": 5,
+        "p50_ms": 109.084,
+        "p95_ms": 111.156,
+        "p99_ms": 111.156,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 60.452999999999996,
+        "n": 5,
+        "p50_ms": 61.186,
+        "p95_ms": 62.766,
+        "p99_ms": 62.766,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 6.241,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 15.939,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 20.368,
+        "extract_ms": 59.615,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.945531249999988,
+        "n": 1600,
+        "p50_ms": 10.137,
+        "p95_ms": 12.907,
+        "p99_ms": 13.142,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.2108425000000002,
+        "n": 400,
+        "p50_ms": 0.194,
+        "p95_ms": 0.337,
+        "p99_ms": 0.42,
+        "requests_per_second": 4727.0275148690425,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.2574100000000001,
+        "n": 400,
+        "p50_ms": 0.22,
+        "p95_ms": 0.585,
+        "p99_ms": 0.713,
+        "requests_per_second": 59788.900340124106,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.6933800000000001,
+        "n": 400,
+        "p50_ms": 0.556,
+        "p95_ms": 1.809,
+        "p99_ms": 2.668,
+        "requests_per_second": 43011.77942097113,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.281180000000001,
+        "n": 400,
+        "p50_ms": 7.139,
+        "p95_ms": 8.529,
+        "p99_ms": 9.22,
+        "requests_per_second": 137.31858134598568,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 61.39943250000003,
+        "n": 400,
+        "p50_ms": 52.822,
+        "p95_ms": 138.296,
+        "p99_ms": 187.519,
+        "requests_per_second": 256.95294894467213,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 124.3540025,
+        "n": 400,
+        "p50_ms": 105.742,
+        "p95_ms": 279.839,
+        "p99_ms": 383.209,
+        "requests_per_second": 249.11540784633056,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.288599999999999,
+        "n": 5,
+        "p50_ms": 13.225,
+        "p95_ms": 13.341,
+        "p99_ms": 13.341,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 12.9342,
+        "n": 5,
+        "p50_ms": 11.899,
+        "p95_ms": 14.691,
+        "p99_ms": 14.691,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 125.7634,
+        "n": 5,
+        "p50_ms": 127.029,
+        "p95_ms": 127.081,
+        "p99_ms": 127.081,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 71.6596,
+        "n": 5,
+        "p50_ms": 71.292,
+        "p95_ms": 75.017,
+        "p99_ms": 75.017,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.506,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 16.346,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 22.182,
+        "extract_ms": 73.41,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.269627500000018,
+        "n": 1600,
+        "p50_ms": 9.246,
+        "p95_ms": 11.658,
+        "p99_ms": 11.829,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.21770000000000028,
+        "n": 400,
+        "p50_ms": 0.207,
+        "p95_ms": 0.322,
+        "p99_ms": 0.375,
+        "requests_per_second": 4578.65248151289,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.3259974999999999,
+        "n": 400,
+        "p50_ms": 0.249,
+        "p95_ms": 0.796,
+        "p99_ms": 1.32,
+        "requests_per_second": 47467.237222858086,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.6856974999999995,
+        "n": 400,
+        "p50_ms": 0.549,
+        "p95_ms": 1.708,
+        "p99_ms": 2.358,
+        "requests_per_second": 44164.271214997745,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.3694575000000055,
+        "n": 400,
+        "p50_ms": 7.276,
+        "p95_ms": 8.719,
+        "p99_ms": 9.696,
+        "requests_per_second": 135.67481328604333,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 60.85653500000002,
+        "n": 400,
+        "p50_ms": 53.251,
+        "p95_ms": 130.961,
+        "p99_ms": 171.94,
+        "requests_per_second": 259.79027307911707,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 127.64385250000005,
+        "n": 400,
+        "p50_ms": 109.397,
+        "p95_ms": 304.688,
+        "p99_ms": 403.234,
+        "requests_per_second": 244.2047200940822,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 12.806799999999999,
+        "n": 5,
+        "p50_ms": 13.272,
+        "p95_ms": 13.764,
+        "p99_ms": 13.764,
+        "round": 2,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.7172,
+        "n": 5,
+        "p50_ms": 11.529,
+        "p95_ms": 16.493,
+        "p99_ms": 16.493,
+        "round": 2,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 120.8184,
+        "n": 5,
+        "p50_ms": 125.839,
+        "p95_ms": 126.378,
+        "p99_ms": 126.378,
+        "round": 2,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 62.5418,
+        "n": 5,
+        "p50_ms": 64.345,
+        "p95_ms": 64.65,
+        "p99_ms": 64.65,
+        "round": 2,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.646,
+        "round": 2,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 16.955,
+        "round": 2,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 20.832,
+        "extract_ms": 60.099,
+        "round": 2,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.298564999999966,
+        "n": 1600,
+        "p50_ms": 9.284,
+        "p95_ms": 11.521,
+        "p99_ms": 11.772,
+        "received_messages": 1600,
+        "round": 2,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.21495249999999996,
+        "n": 400,
+        "p50_ms": 0.196,
+        "p95_ms": 0.331,
+        "p99_ms": 0.391,
+        "requests_per_second": 4637.609377292537,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.35783000000000004,
+        "n": 400,
+        "p50_ms": 0.275,
+        "p95_ms": 0.962,
+        "p99_ms": 1.279,
+        "requests_per_second": 43154.4244397315,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.7259274999999998,
+        "n": 400,
+        "p50_ms": 0.485,
+        "p95_ms": 2.237,
+        "p99_ms": 3.56,
+        "requests_per_second": 42080.66590128949,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 10.155335,
+        "n": 400,
+        "p50_ms": 9.904,
+        "p95_ms": 12.629,
+        "p99_ms": 14.728,
+        "requests_per_second": 98.45845974729842,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 90.36195999999994,
+        "n": 400,
+        "p50_ms": 85.567,
+        "p95_ms": 173.655,
+        "p99_ms": 213.859,
+        "requests_per_second": 175.33039487539833,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 180.61124500000005,
+        "n": 400,
+        "p50_ms": 151.735,
+        "p95_ms": 417.197,
+        "p99_ms": 624.253,
+        "requests_per_second": 173.5978005148259,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 12.9278,
+        "n": 5,
+        "p50_ms": 13.514,
+        "p95_ms": 13.715,
+        "p99_ms": 13.715,
+        "round": 2,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 31.5314,
+        "n": 5,
+        "p50_ms": 30.379,
+        "p95_ms": 32.054,
+        "p99_ms": 32.054,
+        "round": 2,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 124.59639999999999,
+        "n": 5,
+        "p50_ms": 118.96,
+        "p95_ms": 134.821,
+        "p99_ms": 134.821,
+        "round": 2,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 61.6112,
+        "n": 5,
+        "p50_ms": 57.623,
+        "p95_ms": 58.669,
+        "p99_ms": 58.669,
+        "round": 2,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 6.814,
+        "round": 2,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 16.585,
+        "round": 2,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 17.943,
+        "extract_ms": 64.201,
+        "round": 2,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 10.151458124999998,
+        "n": 1600,
+        "p50_ms": 9.356,
+        "p95_ms": 14.695,
+        "p99_ms": 14.921,
+        "received_messages": 1600,
+        "round": 2,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      }
+    ],
+    "resources": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 7,
+            "uuid": "fe109884-f53a-45de-9c33-e17677b52fd4",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "serv_7yijrbhvhjc55hbt4f3hpnjp2q",
+            "port": 27015
+          },
+          {
+            "id": 8,
+            "uuid": "ea47b10b-e5d1-480f-86f1-79a410cae5b2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_5jd3cc7f2fea7bxrpgsbbsxfwi",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.3-manta-local"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 9,
+            "uuid": "924cba47-6fd7-4739-b397-f912a262b8f5",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "serv_sjglur3p25dttm4x7ejkeyvy6u",
+            "port": 27115
+          },
+          {
+            "id": 10,
+            "uuid": "551f5acf-7955-4ac5-9190-af251a9cf991",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_kupvvt3zkvfmlemqv4srvhhzse",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.4"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 0.42119359688816094,
+        "cpu_core_seconds": 0.127854,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 61.43411458333333,
+        "peak_working_mib": 62.25390625,
+        "pids": 10,
+        "role": "daemon",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 2.8741569256578634,
+        "cpu_core_seconds": 0.872455,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 732.3385416666666,
+        "peak_working_mib": 735.83203125,
+        "pids": 45,
+        "role": "paper",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 2.698793014090368,
+        "cpu_core_seconds": 0.819223,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 186.09036458333333,
+        "peak_working_mib": 186.53125,
+        "pids": 18,
+        "role": "bedrock",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 0.4169076702096723,
+        "cpu_core_seconds": 0.126553,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 62.42604166666667,
+        "peak_working_mib": 63.140625,
+        "pids": 10,
+        "role": "daemon",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 2.992423465056592,
+        "cpu_core_seconds": 0.908355,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 725.9239583333333,
+        "peak_working_mib": 730.90625,
+        "pids": 44,
+        "role": "paper",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 2.649529564782051,
+        "cpu_core_seconds": 0.804269,
+        "duration_s": 30.355162316,
+        "mean_working_mib": 185.95807291666668,
+        "peak_working_mib": 186.18359375,
+        "pids": 18,
+        "role": "bedrock",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 2.48466,
+        "n": 50,
+        "p50_ms": 1.296,
+        "p95_ms": 2.156,
+        "p99_ms": 3.635,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.38319999999999993,
+        "n": 50,
+        "p50_ms": 0.36,
+        "p95_ms": 0.509,
+        "p99_ms": 0.574,
+        "status": "1.26.52",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "logs": "{\"data\":[\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-005\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-002\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-007\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-008\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-009\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-010\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-011\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-012\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-013\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-014\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-015\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-016\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-017\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-018\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-019\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-020\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-021\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-022\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-023\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-024\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-025\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-026\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-027\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-028\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-029\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-030\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-031\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-032\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-033\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-034\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-035\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-036\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-037\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-038\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-039\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-040\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-041\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-042\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-044\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-043\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-045\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-046\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-047\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-048\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-049\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-050\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-051\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-052\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-054\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-053\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-055\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-056\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-057\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-058\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-059\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-060\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-061\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-062\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-063\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-064\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-065\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-066\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-067\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-068\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-069\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-070\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-071\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-072\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-073\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-074\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-075\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-076\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-077\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-078\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-079\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-080\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-081\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-083\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-082\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-084\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-085\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-086\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-087\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-088\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-089\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-090\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-091\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-092\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-093\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-094\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-095\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-096\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-097\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-098\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-099\",\"tps\",\"mspt\",\"[17:31:55 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[17:31:55 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:31:55 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m15.5\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "manta"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 2.67462,
+        "n": 50,
+        "p50_ms": 1.439,
+        "p95_ms": 2.4,
+        "p99_ms": 2.455,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.51058,
+        "n": 50,
+        "p50_ms": 0.505,
+        "p95_ms": 0.615,
+        "p99_ms": 0.675,
+        "status": "1.26.52",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "logs": "{\"data\":[\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-005\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-006\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-007\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-008\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-009\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-010\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-011\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-012\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-013\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-014\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-015\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-016\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-017\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-018\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-019\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-020\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-021\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-022\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-023\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-024\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-025\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-026\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-027\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-028\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-029\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-030\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-031\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-032\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-033\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-034\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-035\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-036\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-037\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-038\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-039\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-040\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-041\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-042\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-043\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-044\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-045\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-046\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-047\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-048\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-049\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-051\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-050\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-052\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-053\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-054\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-055\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-056\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-057\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-058\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-059\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-060\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-061\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-062\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-063\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-064\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-065\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-066\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-067\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-068\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-069\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-070\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-071\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-072\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-073\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-074\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-075\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-076\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-077\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-078\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-079\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-080\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-082\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-081\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-083\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-085\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-084\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-087\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-088\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-086\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-089\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-090\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-091\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-092\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-093\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-095\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-094\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-096\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-097\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-098\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-099\",\"tps\",\"mspt\",\"[17:31:56 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[17:31:56 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:31:56 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.9\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.9\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m13.4\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 1.5904500382138205,
+        "cpu_core_seconds": 0.483274,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 51.459895833333334,
+        "peak_working_mib": 65.8203125,
+        "pids": 10,
+        "role": "daemon",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 15.106017282650742,
+        "cpu_core_seconds": 4.590113,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 750.0171875,
+        "peak_working_mib": 751.37890625,
+        "pids": 43,
+        "role": "paper",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 11.877335318298599,
+        "cpu_core_seconds": 3.609046,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 253.734375,
+        "peak_working_mib": 257.83203125,
+        "pids": 18,
+        "role": "bedrock",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 1.6660407940329487,
+        "cpu_core_seconds": 0.506243,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 50.36770833333333,
+        "peak_working_mib": 63.6171875,
+        "pids": 10,
+        "role": "daemon",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 14.00460181856774,
+        "cpu_core_seconds": 4.255437,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 747.071875,
+        "peak_working_mib": 748.81640625,
+        "pids": 43,
+        "role": "paper",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 11.742197384291856,
+        "cpu_core_seconds": 3.567983,
+        "duration_s": 30.385990656,
+        "mean_working_mib": 253.39427083333334,
+        "peak_working_mib": 257.8359375,
+        "pids": 18,
+        "role": "bedrock",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 1.17986,
+        "n": 50,
+        "p50_ms": 1.126,
+        "p95_ms": 1.482,
+        "p99_ms": 2.068,
+        "status": "Paper 26.3",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.40044000000000013,
+        "n": 50,
+        "p50_ms": 0.388,
+        "p95_ms": 0.558,
+        "p99_ms": 0.658,
+        "status": "1.26.52",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "logs": "{\"data\":[\"[17:32:18 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:18 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"[17:32:27 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[17:32:27 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:32:27 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m10.3\\u001b[93m, \\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m11.1\\u001b[93m, \\u001b[92m1.4\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m684.0\\u001b[0m\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
+        "test": "paper_ticks_command_load",
+        "type": "game_console",
+        "variant": "manta"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 1.1502800000000004,
+        "n": 50,
+        "p50_ms": 1.041,
+        "p95_ms": 1.714,
+        "p99_ms": 2.063,
+        "status": "Paper 26.3",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.39791999999999994,
+        "n": 50,
+        "p50_ms": 0.369,
+        "p95_ms": 0.555,
+        "p99_ms": 0.633,
+        "status": "1.26.52",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "logs": "{\"data\":[\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"[17:32:28 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[17:32:28 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:32:28 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.3\\u001b[37m/\\u001b[92m10.2\\u001b[93m, \\u001b[92m1.2\\u001b[37m/\\u001b[92m0.3\\u001b[37m/\\u001b[92m10.4\\u001b[93m, \\u001b[92m1.4\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m630.1\\u001b[0m\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\"]}",
+        "test": "paper_ticks_command_load",
+        "type": "game_console",
+        "variant": "wings"
+      }
+    ],
+    "security": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 7,
+            "uuid": "fe109884-f53a-45de-9c33-e17677b52fd4",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "serv_7yijrbhvhjc55hbt4f3hpnjp2q",
+            "port": 27015
+          },
+          {
+            "id": 8,
+            "uuid": "ea47b10b-e5d1-480f-86f1-79a410cae5b2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_5jd3cc7f2fea7bxrpgsbbsxfwi",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.3-manta-local"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 9,
+            "uuid": "924cba47-6fd7-4739-b397-f912a262b8f5",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "serv_sjglur3p25dttm4x7ejkeyvy6u",
+            "port": 27115
+          },
+          {
+            "id": 10,
+            "uuid": "551f5acf-7955-4ac5-9190-af251a9cf991",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_kupvvt3zkvfmlemqv4srvhhzse",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.4"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "pass": true,
+        "status": 401,
+        "test": "unauthenticated_api",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "pass": true,
+        "status": 413,
+        "test": "oversized_json_known",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "pass": true,
+        "status": 413,
+        "test": "oversized_json_chunked",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "pass": true,
+        "status": 400,
+        "test": "multiple_json_documents",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": true,
+        "event": "auth success",
+        "pass": true,
+        "test": "valid_websocket_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "future_issued_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "future_not_before_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "expired_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "missing_expiry_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "bytes": 9437184,
+        "pass": true,
+        "read_status": 200,
+        "test": "raw_stream_above_json_limit",
+        "type": "check",
+        "variant": "manta",
+        "write_status": 204
+      },
+      {
+        "first_status": 200,
+        "pass": true,
+        "replay_status": 404,
+        "test": "one_time_file_token",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "pass": true,
+        "status": 500,
+        "synthetic_marker_leaked": false,
+        "test": "invalid_upload_token_log_redaction",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "file_status": 500,
+        "loopback_content_retrieved": false,
+        "pass": true,
+        "response": "{\"identifier\":\"45089d53-17d3-4618-b2dc-7bbfef2bbe2b\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
+        "status": 400,
+        "test": "ssrf_loopback_blocked",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "creation_rejected": false,
+        "outside_file_opened": false,
+        "pass": true,
+        "test": "sftp_symlink_containment",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": true,
+        "pass": true,
+        "test": "full_uuid_sftp",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "accepted": true,
+        "pass": true,
+        "test": "modern_identifier_sftp",
+        "type": "check",
+        "variant": "manta"
+      },
+      {
+        "pass": true,
+        "status": 401,
+        "test": "unauthenticated_api",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "pass": false,
+        "status": 204,
+        "test": "oversized_json_known",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "pass": false,
+        "status": 204,
+        "test": "oversized_json_chunked",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "pass": false,
+        "status": 204,
+        "test": "multiple_json_documents",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": true,
+        "event": "auth success",
+        "pass": true,
+        "test": "valid_websocket_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": true,
+        "event": "auth success",
+        "pass": false,
+        "test": "future_issued_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": true,
+        "event": "auth success",
+        "pass": false,
+        "test": "future_not_before_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "expired_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": false,
+        "event": "jwt error",
+        "pass": true,
+        "test": "missing_expiry_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "bytes": 9437184,
+        "pass": true,
+        "read_status": 200,
+        "test": "raw_stream_above_json_limit",
+        "type": "check",
+        "variant": "wings",
+        "write_status": 204
+      },
+      {
+        "first_status": 200,
+        "pass": true,
+        "replay_status": 404,
+        "test": "one_time_file_token",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "pass": false,
+        "status": 500,
+        "synthetic_marker_leaked": true,
+        "test": "invalid_upload_token_log_redaction",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "file_status": 500,
+        "loopback_content_retrieved": false,
+        "pass": true,
+        "response": "{\"identifier\":\"cfb5ab1b-4ac5-4dab-b6f6-0935a1d4c3ef\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
+        "status": 400,
+        "test": "ssrf_loopback_blocked",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "creation_rejected": false,
+        "outside_file_opened": false,
+        "pass": true,
+        "test": "sftp_symlink_containment",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": false,
+        "pass": false,
+        "test": "full_uuid_sftp",
+        "type": "check",
+        "variant": "wings"
+      },
+      {
+        "accepted": false,
+        "pass": false,
+        "test": "modern_identifier_sftp",
+        "type": "check",
+        "variant": "wings"
+      }
+    ]
+  }
+}

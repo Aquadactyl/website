@@ -13,7 +13,7 @@ import {
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import PanelPreview from "./PanelPreview";
 import FeatureComparison from "./FeatureComparison";
-import BenchmarkShowcase from "./BenchmarkShowcase";
+import BenchmarkShowcase from "./BenchmarkComparison";
 
 const addons = [
   {

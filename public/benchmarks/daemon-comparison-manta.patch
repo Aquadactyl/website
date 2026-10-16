@@ -1,0 +1,1574 @@
+diff --git a/config/config.go b/config/config.go
+index ffae4d7..722e39e 100644
+--- a/config/config.go
++++ b/config/config.go
+@@ -549,6 +549,14 @@ func Get() *Configuration {
+ 	return &c
+ }
+ 
++// GetToken reads the current resolved credentials without copying the entire
++// configuration on every authenticated request. It observes token rotation.
++func GetToken() Token {
++	mu.RLock()
++	defer mu.RUnlock()
++	return _config.Token
++}
++
+ // Update performs an in-situ update of the global configuration object using
+ // a thread-safe mutex lock. This is the correct way to make modifications to
+ // the global configuration.
+diff --git a/docker/local.Dockerfile b/docker/local.Dockerfile
+new file mode 100644
+index 0000000..e3561e9
+--- /dev/null
++++ b/docker/local.Dockerfile
+@@ -0,0 +1,6 @@
++ARG MANTA_BASE_IMAGE=manta:local-test
++
++FROM busybox:1.37.0-musl AS probe
++
++FROM ${MANTA_BASE_IMAGE}
++COPY --from=probe /bin/busybox /usr/local/bin/busybox
+diff --git a/environment/docker/stats.go b/environment/docker/stats.go
+index 7a98439..a2dd15d 100644
+--- a/environment/docker/stats.go
++++ b/environment/docker/stats.go
+@@ -13,6 +13,42 @@ import (
+ 	"github.com/pterodactyl/wings/environment"
+ )
+ 
++// Decode only counters used by resource reporting. Docker's full response also
++// materializes large memory-counter maps and block-I/O arrays on every sample.
++type resourceStats struct {
++	Read        time.Time                           `json:"read"`
++	PreRead     time.Time                           `json:"preread"`
++	CPUStats    container.CPUStats                  `json:"cpu_stats"`
++	PreCPUStats container.CPUStats                  `json:"precpu_stats"`
++	MemoryStats resourceMemoryStats                 `json:"memory_stats"`
++	Networks    map[string]environment.NetworkStats `json:"networks"`
++}
++
++type resourceMemoryStats struct {
++	Usage uint64 `json:"usage"`
++	Limit uint64 `json:"limit"`
++	Stats struct {
++		TotalInactiveFile optionalResourceCounter `json:"total_inactive_file"`
++		InactiveFile      uint64                  `json:"inactive_file"`
++	} `json:"stats"`
++}
++
++// Presence matters: a v1 cache value of zero takes precedence over the v2
++// counter. Accept null as zero, matching the SDK's map[string]uint64 decoder.
++type optionalResourceCounter struct {
++	value   uint64
++	present bool
++}
++
++func (v *optionalResourceCounter) UnmarshalJSON(raw []byte) error {
++	var value uint64
++	if err := json.Unmarshal(raw, &value); err != nil {
++		return err
++	}
++	v.value, v.present = value, true
++	return nil
++}
++
+ // Uptime returns the current uptime of the container in milliseconds. If the
+ // container is not currently running this will return 0.
+ func (e *Environment) Uptime(ctx context.Context) (int64, error) {
+@@ -57,8 +93,8 @@ func (e *Environment) pollResources(ctx context.Context) error {
+ 		case <-ctx.Done():
+ 			return ctx.Err()
+ 		default:
+-			var v container.StatsResponse
+-			if err := dec.Decode(&v); err != nil {
++			st, err := decodeResourceStats(dec, uptime)
++			if err != nil {
+ 				if err != io.EOF && !errors.Is(err, context.Canceled) {
+ 					e.log().WithField("error", err).Warn("error while processing Docker stats output for container")
+ 				} else {
+@@ -73,28 +109,32 @@ func (e *Environment) pollResources(ctx context.Context) error {
+ 				return nil
+ 			}
+ 
+-			if !v.PreRead.IsZero() {
+-				uptime = uptime + v.Read.Sub(v.PreRead).Milliseconds()
+-			}
+-
+-			st := environment.Stats{
+-				Uptime:      uptime,
+-				Memory:      calculateDockerMemory(v.MemoryStats),
+-				MemoryLimit: v.MemoryStats.Limit,
+-				CpuAbsolute: calculateDockerAbsoluteCpu(v.PreCPUStats, v.CPUStats),
+-				Network:     environment.NetworkStats{},
+-			}
+-
+-			for _, nw := range v.Networks {
+-				st.Network.RxBytes += nw.RxBytes
+-				st.Network.TxBytes += nw.TxBytes
+-			}
+-
++			uptime = st.Uptime
+ 			e.Events().Publish(environment.ResourceEvent, st)
+ 		}
+ 	}
+ }
+ 
++func decodeResourceStats(dec *json.Decoder, uptime int64) (environment.Stats, error) {
++	var v resourceStats
++	if err := dec.Decode(&v); err != nil {
++		return environment.Stats{}, err
++	}
++	if !v.PreRead.IsZero() {
++		uptime += v.Read.Sub(v.PreRead).Milliseconds()
++	}
++	st := environment.Stats{
++		Uptime: uptime, Memory: calculateDockerMemory(v.MemoryStats),
++		MemoryLimit: v.MemoryStats.Limit,
++		CpuAbsolute: calculateDockerAbsoluteCpu(v.PreCPUStats, v.CPUStats),
++	}
++	for _, nw := range v.Networks {
++		st.Network.RxBytes += nw.RxBytes
++		st.Network.TxBytes += nw.TxBytes
++	}
++	return st, nil
++}
++
+ // The "docker stats" CLI call does not return the same value as the [container.MemoryStats].Usage
+ // value which can be rather confusing to people trying to compare panel usage to
+ // their stats output.
+@@ -103,12 +143,12 @@ func (e *Environment) pollResources(ctx context.Context) error {
+ // bothering me about it. It should also reflect a slightly more correct memory value anyways.
+ //
+ // @see https://github.com/docker/cli/blob/96e1d1d6/cli/command/container/stats_helpers.go#L227-L249
+-func calculateDockerMemory(stats container.MemoryStats) uint64 {
+-	if v, ok := stats.Stats["total_inactive_file"]; ok && v < stats.Usage {
+-		return stats.Usage - v
++func calculateDockerMemory(stats resourceMemoryStats) uint64 {
++	if v := stats.Stats.TotalInactiveFile; v.present && v.value < stats.Usage {
++		return stats.Usage - v.value
+ 	}
+ 
+-	if v := stats.Stats["inactive_file"]; v < stats.Usage {
++	if v := stats.Stats.InactiveFile; v < stats.Usage {
+ 		return stats.Usage - v
+ 	}
+ 
+diff --git a/remote/http.go b/remote/http.go
+index 852db52..f8eb58f 100644
+--- a/remote/http.go
++++ b/remote/http.go
+@@ -59,6 +59,23 @@ func New(base string, opts ...ClientOption) Client {
+ 	for _, opt := range opts {
+ 		opt(&c)
+ 	}
++	// Keep caller-provided transports and timeouts, but never forward node
++	// credentials or SFTP request bodies to another origin via a redirect.
++	httpClient := *c.httpClient
++	checkRedirect := httpClient.CheckRedirect
++	httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
++		if len(via) > 0 && (req.URL.Scheme != via[0].URL.Scheme || !strings.EqualFold(req.URL.Host, via[0].URL.Host)) {
++			return http.ErrUseLastResponse
++		}
++		if checkRedirect != nil {
++			return checkRedirect(req, via)
++		}
++		if len(via) >= 10 {
++			return errors.New("remote: stopped after 10 redirects")
++		}
++		return nil
++	}
++	c.httpClient = &httpClient
+ 	return &c
+ }
+ 
+@@ -154,16 +171,13 @@ func (c *client) requestOnce(ctx context.Context, method, path string, body io.R
+ func (c *client) request(ctx context.Context, method, path string, body *bytes.Buffer, opts ...func(r *http.Request)) (*Response, error) {
+ 	var res *Response
+ 	err := backoff.Retry(func() error {
+-		var b bytes.Buffer
++		var b io.Reader
+ 		if body != nil {
+-			// We have to create a copy of the body, otherwise attempting this request again will
+-			// send no data if there was initially a body since the "requestOnce" method will read
+-			// the whole buffer, thus leaving it empty at the end.
+-			if _, err := b.Write(body.Bytes()); err != nil {
+-				return backoff.Permanent(errors.Wrap(err, "http: failed to copy body buffer"))
+-			}
++			// Each attempt needs its own cursor, but can share the immutable
++			// bytes rather than allocating another copy of the entire body.
++			b = bytes.NewReader(body.Bytes())
+ 		}
+-		r, err := c.requestOnce(ctx, method, path, &b, opts...)
++		r, err := c.requestOnce(ctx, method, path, b, opts...)
+ 		if err != nil {
+ 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+ 				return backoff.Permanent(err)
+@@ -174,10 +188,9 @@ func (c *client) request(ctx context.Context, method, path string, body *bytes.B
+ 		if r.HasError() {
+ 			// Close the request body after returning the error to free up resources.
+ 			defer r.Body.Close()
+-			// Don't keep attempting to access this endpoint if the response is a 4XX
+-			// level error which indicates a client mistake. Only retry when the error
+-			// is due to a server issue (5XX error).
+-			if r.StatusCode >= 400 && r.StatusCode < 500 {
++			// Only retry server failures (5XX). Redirects refused by the
++			// security policy and client errors will not improve with retries.
++			if r.StatusCode < 500 {
+ 				return backoff.Permanent(r.Error())
+ 			}
+ 			return r.Error()
+@@ -233,6 +246,12 @@ type Response struct {
+ 	*http.Response
+ }
+ 
++// MaxResponseSize bounds decompressed Panel API responses, including chunked
++// bodies. File downloads and backup streams use separate clients.
++const MaxResponseSize int64 = 16 << 20
++
++var ErrResponseTooLarge = errors.Sentinel("remote: Panel API response exceeds the 16 MiB limit")
++
+ // HasError determines if the API call encountered an error. If no request has
+ // been made the response will be false. This function will evaluate to true if
+ // the response code is anything 300 or higher.
+@@ -245,17 +264,28 @@ func (r *Response) HasError() bool {
+ }
+ 
+ // Reads the body from the response and returns it, then replaces it on the response
+-// so that it can be read again later. This does not close the response body, so any
+-// functions calling this should be sure to manually defer a Body.Close() call.
++// so that it can be read again later. The original body is always closed, and
++// truncated or oversized responses are rejected rather than partially decoded.
+ func (r *Response) Read() ([]byte, error) {
+-	var b []byte
+ 	if r.Response == nil {
+ 		return nil, errors.New("remote: attempting to read missing response")
+ 	}
+-	if r.Response.Body != nil {
+-		b, _ = io.ReadAll(r.Response.Body)
++	if r.Body == nil {
++		return nil, nil
++	}
++	body := r.Body
++	defer body.Close()
++	if r.ContentLength > MaxResponseSize {
++		return nil, ErrResponseTooLarge
++	}
++	b, err := io.ReadAll(io.LimitReader(body, MaxResponseSize+1))
++	if err != nil {
++		return nil, errors.Wrap(err, "remote: could not read response")
++	}
++	if int64(len(b)) > MaxResponseSize {
++		return nil, ErrResponseTooLarge
+ 	}
+-	r.Response.Body = io.NopCloser(bytes.NewBuffer(b))
++	r.Body = io.NopCloser(bytes.NewReader(b))
+ 	return b, nil
+ }
+ 
+@@ -319,7 +349,7 @@ func debugLogRequest(req *http.Request) {
+ 
+ 	log.WithFields(log.Fields{
+ 		"method":   req.Method,
+-		"endpoint": req.URL.String(),
++		"endpoint": system.LogURL(req.URL.String()),
+ 		"headers":  headers,
+ 	}).Debug("making request to external HTTP endpoint")
+ }
+diff --git a/remote/servers.go b/remote/servers.go
+index 922d2c7..a7c81d6 100644
+--- a/remote/servers.go
++++ b/remote/servers.go
+@@ -31,7 +31,12 @@ func (c *client) GetServers(ctx context.Context, limit int) ([]RawServerData, er
+ 	var mu sync.Mutex
+ 	if meta.LastPage > 1 {
+ 		g, ctx := errgroup.WithContext(ctx)
++		// Bound connections and goroutines when loading a large node.
++		g.SetLimit(4)
+ 		for page := meta.CurrentPage + 1; page <= meta.LastPage; page++ {
++			if ctx.Err() != nil {
++				break
++			}
+ 			page := page
+ 			g.Go(func() error {
+ 				ps, _, err := c.getServersPaged(ctx, int(page), limit)
+@@ -48,6 +53,9 @@ func (c *client) GetServers(ctx context.Context, limit int) ([]RawServerData, er
+ 			return nil, err
+ 		}
+ 	}
++	if err := ctx.Err(); err != nil {
++		return nil, err
++	}
+ 
+ 	return servers, nil
+ }
+diff --git a/router/downloader/downloader.go b/router/downloader/downloader.go
+index 1662625..3dc6d48 100644
+--- a/router/downloader/downloader.go
++++ b/router/downloader/downloader.go
+@@ -149,7 +149,9 @@ type Download struct {
+ 	req        DownloadRequest
+ 	server     *server.Server
+ 	progress   float64
+-	cancelFunc *context.CancelFunc
++	cancelFunc context.CancelFunc
++	cancelled  bool
++	started    bool
+ }
+ 
+ // New starts a new tracked download which allows for cancellation later on by calling
+@@ -166,8 +168,8 @@ func New(s *server.Server, r DownloadRequest) *Download {
+ 
+ // ByServer returns all the tracked downloads for a given server instance.
+ func ByServer(sid string) []*Download {
+-	instance.mu.Lock()
+-	defer instance.mu.Unlock()
++	instance.mu.RLock()
++	defer instance.mu.RUnlock()
+ 	var downloads []*Download
+ 	if v, ok := instance.serverCache[sid]; ok {
+ 		for _, id := range v {
+@@ -199,7 +201,15 @@ func (dl *Download) MarshalJSON() ([]byte, error) {
+ // completed the download will be removed from the cache.
+ func (dl *Download) Execute() error {
+ 	ctx, cancel := context.WithTimeout(context.Background(), time.Hour*12)
+-	dl.cancelFunc = &cancel
++	dl.mu.Lock()
++	if dl.cancelled || dl.started {
++		dl.mu.Unlock()
++		cancel()
++		return context.Canceled
++	}
++	dl.started = true
++	dl.cancelFunc = cancel
++	dl.mu.Unlock()
+ 	defer dl.Cancel()
+ 
+ 	// At this point we have verified the destination is not within the local network, so we can
+@@ -227,6 +237,7 @@ func (dl *Download) Execute() error {
+ 		return errors.New("downloader: request is missing ContentLength")
+ 	}
+ 
++	var filename string
+ 	if dl.req.UseHeader {
+ 		if contentDisposition := res.Header.Get("Content-Disposition"); contentDisposition != "" {
+ 			_, params, err := mime.ParseMediaType(contentDisposition)
+@@ -238,19 +249,22 @@ func (dl *Download) Execute() error {
+ 			// directory that was asked for.
+ 			if v, ok := params["filename"]; ok {
+ 				if name := filepath.Base(filepath.Clean("/" + v)); name != "/" && name != "." {
+-					dl.path = name
++					filename = name
+ 				}
+ 			}
+ 		}
+ 	}
+-	if dl.path == "" {
++	if filename == "" {
+ 		if dl.req.FileName != "" {
+-			dl.path = dl.req.FileName
++			filename = dl.req.FileName
+ 		} else {
+ 			parts := strings.Split(dl.req.URL.Path, "/")
+-			dl.path = parts[len(parts)-1]
++			filename = parts[len(parts)-1]
+ 		}
+ 	}
++	dl.mu.Lock()
++	dl.path = filename
++	dl.mu.Unlock()
+ 
+ 	p := dl.Path()
+ 	if err := dl.server.Filesystem().IsIgnored(p); err != nil {
+@@ -270,8 +284,12 @@ func (dl *Download) Execute() error {
+ // Cancel cancels a running download and frees up the associated resources. If a file is being
+ // written a partial file will remain present on the disk.
+ func (dl *Download) Cancel() {
+-	if dl.cancelFunc != nil {
+-		(*dl.cancelFunc)()
++	dl.mu.Lock()
++	dl.cancelled = true
++	cancel := dl.cancelFunc
++	dl.mu.Unlock()
++	if cancel != nil {
++		cancel()
+ 	}
+ 	instance.remove(dl.Identifier)
+ }
+@@ -290,6 +308,8 @@ func (dl *Download) Progress() float64 {
+ }
+ 
+ func (dl *Download) Path() string {
++	dl.mu.RLock()
++	defer dl.mu.RUnlock()
+ 	return filepath.Join(dl.req.Directory, dl.path)
+ }
+ 
+@@ -355,7 +375,11 @@ func (d *Downloader) remove(dlID string) {
+ 				out = append(out, k)
+ 			}
+ 		}
+-		d.serverCache[sID] = out
++		if len(out) == 0 {
++			delete(d.serverCache, sID)
++		} else {
++			d.serverCache[sID] = out
++		}
+ 	}
+ }
+ 
+diff --git a/router/middleware/json.go b/router/middleware/json.go
+new file mode 100644
+index 0000000..49007ce
+--- /dev/null
++++ b/router/middleware/json.go
+@@ -0,0 +1,47 @@
++package middleware
++
++import (
++	"encoding/json"
++	"errors"
++	"io"
++	"net/http"
++
++	"github.com/gin-gonic/gin"
++	"github.com/gin-gonic/gin/binding"
++)
++
++// MaxJSONRequestSize bounds control requests without limiting streamed files,
++// uploads, or transfers, which do not use BindJSON.
++const MaxJSONRequestSize int64 = 4 << 20
++
++// BindJSON decodes one bounded JSON document and applies Gin's validation.
++// It aborts with 413 for oversized bodies and 400 for invalid input.
++func BindJSON(c *gin.Context, v any) error {
++	var err error
++	if c.Request.ContentLength > MaxJSONRequestSize {
++		err = &http.MaxBytesError{Limit: MaxJSONRequestSize}
++	} else {
++		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxJSONRequestSize)
++		dec := json.NewDecoder(c.Request.Body)
++		err = dec.Decode(v)
++		if err == nil {
++			// Require EOF, including after whitespace, so an oversized suffix or
++			// a second document cannot bypass the limit.
++			var extra json.RawMessage
++			if err = dec.Decode(&extra); err == io.EOF {
++				err = binding.Validator.ValidateStruct(v)
++			} else if err == nil {
++				err = errors.New("request body must contain a single JSON document")
++			}
++		}
++	}
++	if err != nil {
++		var limitErr *http.MaxBytesError
++		if errors.As(err, &limitErr) {
++			c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, gin.H{"error": "The JSON request body exceeds the 4 MiB limit."})
++		} else {
++			_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypeBind)
++		}
++	}
++	return err
++}
+diff --git a/router/middleware/middleware.go b/router/middleware/middleware.go
+index 608b648..8d133eb 100644
+--- a/router/middleware/middleware.go
++++ b/router/middleware/middleware.go
+@@ -29,7 +29,6 @@ func AttachRequestID() gin.HandlerFunc {
+ 	return func(c *gin.Context) {
+ 		id := uuid.New().String()
+ 		c.Set("request_id", id)
+-		c.Set("logger", log.WithField("request_id", id))
+ 		c.Header("X-Request-Id", id)
+ 		c.Next()
+ 	}
+@@ -139,23 +138,25 @@ func SetAccessControlHeaders() gin.HandlerFunc {
+ 
+ // ServerExists will ensure that the requested server exists in this setup.
+ // Returns a 404 if we cannot locate it. If the server is found it is set into
+-// the request context, and the logger for the context is also updated to include
+-// the server ID in the fields list.
++// the request context. Its logger includes the server ID when first needed;
++// an existing context logger is updated immediately.
+ func ServerExists() gin.HandlerFunc {
+ 	return func(c *gin.Context) {
+ 		var s *server.Server
+ 		if c.Param("server") != "" {
+ 			manager := ExtractManager(c)
+-			s = manager.Find(func(s *server.Server) bool {
+-				return c.Param("server") == s.ID()
+-			})
++			s, _ = manager.Get(c.Param("server"))
+ 		}
+ 		if s == nil {
+ 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "The requested resource does not exist on this instance."})
+ 			return
+ 		}
+-		c.Set("logger", ExtractLogger(c).WithField("server_id", s.ID()))
+ 		c.Set("server", s)
++		// Most successful requests never log. Preserve a logger supplied by
++		// earlier middleware; otherwise ExtractLogger attaches fields lazily.
++		if _, ok := c.Get("logger"); ok {
++			c.Set("logger", ExtractLogger(c).WithField("server_id", s.ID()))
++		}
+ 		c.Next()
+ 	}
+ }
+@@ -166,11 +167,9 @@ func ServerExists() gin.HandlerFunc {
+ // request is using a properly signed global token.
+ func RequireAuthorization() gin.HandlerFunc {
+ 	return func(c *gin.Context) {
+-		// We don't put this value outside this function since the node's authentication
+-		// token can be changed on the fly and the config.Get() call returns a copy, so
+-		// if it is rotated this value will never properly get updated.
+-		auth := strings.SplitN(c.GetHeader("Authorization"), " ", 2)
+-		if len(auth) != 2 || auth[0] != "Bearer" {
++		// Read credentials for each request so token rotation takes effect immediately.
++		scheme, token, ok := strings.Cut(c.GetHeader("Authorization"), " ")
++		if !ok || scheme != "Bearer" {
+ 			c.Header("WWW-Authenticate", "Bearer")
+ 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "The required authorization heads were not present in the request."})
+ 			return
+@@ -179,7 +178,7 @@ func RequireAuthorization() gin.HandlerFunc {
+ 		// All requests to Wings must be authorized with the authentication token present in
+ 		// the Wings configuration file. Remeber, all requests to Wings come from the Panel
+ 		// backend, or using a signed JWT for temporary authentication.
+-		if subtle.ConstantTimeCompare([]byte(auth[1]), []byte(config.Get().Token.Token)) != 1 {
++		if subtle.ConstantTimeCompare([]byte(token), []byte(config.GetToken().Token)) != 1 {
+ 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You are not authorized to access this endpoint."})
+ 			return
+ 		}
+@@ -213,12 +212,23 @@ func RemoteDownloadEnabled() gin.HandlerFunc {
+ // ExtractLogger pulls the logger out of the request context and returns it. By
+ // default this will include the request ID, but may also include the server ID
+ // if that middleware has been used in the chain by the time it is called.
++// It is constructed only on first use, then cached for the request. Callers
++// passing it to background tasks retain an independent log entry, not a context.
+ func ExtractLogger(c *gin.Context) *log.Entry {
+-	v, ok := c.Get("logger")
++	if v, ok := c.Get("logger"); ok {
++		return v.(*log.Entry)
++	}
++	id, ok := c.Get("request_id")
+ 	if !ok {
+ 		panic("middleware/middleware: cannot extract logger: not present in request context")
+ 	}
+-	return v.(*log.Entry)
++	fields := log.Fields{"request_id": id}
++	if v, ok := c.Get("server"); ok {
++		fields["server_id"] = v.(*server.Server).ID()
++	}
++	entry := log.WithFields(fields)
++	c.Set("logger", entry)
++	return entry
+ }
+ 
+ // ExtractServer will return the server from the gin.Context or panic if it is
+diff --git a/router/middleware/request_error.go b/router/middleware/request_error.go
+index 94eaed8..7cd69df 100644
+--- a/router/middleware/request_error.go
++++ b/router/middleware/request_error.go
+@@ -13,6 +13,7 @@ import (
+ 	"github.com/pterodactyl/wings/internal/ufs"
+ 	"github.com/pterodactyl/wings/server"
+ 	"github.com/pterodactyl/wings/server/filesystem"
++	"github.com/pterodactyl/wings/system"
+ )
+ 
+ // RequestError is a custom error type returned when something goes wrong with
+@@ -53,7 +54,7 @@ func (re *RequestError) Abort(c *gin.Context, status int) {
+ 
+ 	// Generate the base logger instance, attaching the unique request ID and
+ 	// the URL that was requested.
+-	event := log.WithField("request_id", reqId).WithField("url", c.Request.URL.String())
++	event := log.WithField("request_id", reqId).WithField("url", system.LogURL(c.Request.URL.String()))
+ 	// If there is a server present in the gin.Context stack go ahead and pull it
+ 	// and attach that server UUID to the logs as well so that we can see what specific
+ 	// server triggered this error.
+diff --git a/router/router.go b/router/router.go
+index 73f1db1..826c31d 100644
+--- a/router/router.go
++++ b/router/router.go
+@@ -3,7 +3,6 @@ package router
+ import (
+ 	"crypto/tls"
+ 	"net/http"
+-	"regexp"
+ 	"time"
+ 
+ 	"emperror.dev/errors"
+@@ -14,10 +13,9 @@ import (
+ 	"github.com/pterodactyl/wings/remote"
+ 	"github.com/pterodactyl/wings/router/middleware"
+ 	wserver "github.com/pterodactyl/wings/server"
++	"github.com/pterodactyl/wings/system"
+ )
+ 
+-var tokenRegex = regexp.MustCompile(`([?|&]token=)([^&]+)($|&)`)
+-
+ // Timeouts for the HTTP server.
+ var (
+ 	// ReadHeaderTimeout is the time a client has to send the request headers.
+@@ -72,16 +70,25 @@ func Configure(m *wserver.Manager, client remote.Client) *gin.Engine {
+ 	// lifecycle and quickly seeing what was called leading to the logs. However, it isn't feasible to mix
+ 	// this output in production and still get meaningful logs from it since they'll likely just be a huge
+ 	// spamfest.
+-	router.Use(gin.LoggerWithFormatter(func(params gin.LogFormatterParams) string {
++	accessLogger := gin.LoggerWithFormatter(func(params gin.LogFormatterParams) string {
+ 		log.WithFields(log.Fields{
+ 			"client_ip":  params.ClientIP,
+ 			"status":     params.StatusCode,
+ 			"latency":    params.Latency,
+ 			"request_id": params.Keys["request_id"],
+-		}).Debugf("%s %s", params.Method, tokenRegex.ReplaceAllString(params.Path, "$1***$3"))
++		}).Debugf("%s %s", params.Method, system.LogURL(params.Path))
+ 
+ 		return ""
+-	}))
++	})
++	router.Use(func(c *gin.Context) {
++		// Avoid timing, IP parsing, URL parsing, and log-field allocation when
++		// debug output is disabled. Custom log implementations keep the full path.
++		if logger, ok := log.Log.(*log.Logger); ok && logger.Level > log.DebugLevel {
++			c.Next()
++			return
++		}
++		accessLogger(c)
++	})
+ 
+ 	// These routes use signed URLs to validate access to the resource being requested.
+ 	router.GET("/download/backup", getDownloadBackup)
+@@ -100,7 +107,7 @@ func Configure(m *wserver.Manager, client remote.Client) *gin.Engine {
+ 
+ 	// All the routes beyond this mount will use an authorization middleware
+ 	// and will not be accessible without the correct Authorization header provided.
+-	protected := router.Use(middleware.RequireAuthorization())
++	protected := router.Group("", middleware.RequireAuthorization())
+ 	protected.POST("/api/update", postUpdateConfiguration)
+ 	protected.GET("/api/system", getSystemInformation)
+ 	protected.GET("/api/servers", getAllServers)
+@@ -110,8 +117,7 @@ func Configure(m *wserver.Manager, client remote.Client) *gin.Engine {
+ 
+ 	// These are server specific routes, and require that the request be authorized, and
+ 	// that the server exist on the Daemon.
+-	server := router.Group("/api/servers/:server")
+-	server.Use(middleware.RequireAuthorization(), middleware.ServerExists())
++	server := protected.Group("/api/servers/:server", middleware.ServerExists())
+ 	{
+ 		server.GET("", getServer)
+ 		server.DELETE("", deleteServer)
+diff --git a/router/router_server.go b/router/router_server.go
+index ec1f772..121e0c6 100644
+--- a/router/router_server.go
++++ b/router/router_server.go
+@@ -58,7 +58,7 @@ func postServerPower(c *gin.Context) {
+ 		WaitSeconds int                `json:"wait_seconds"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -122,7 +122,7 @@ func postServerCommands(c *gin.Context) {
+ 		Commands []string `json:"commands"`
+ 	}
+ 	// BindJSON sends 400 if the request fails, all we need to do is return
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -253,7 +253,7 @@ func postServerDenyWSTokens(c *gin.Context) {
+ 		JTIs []string `json:"jtis"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+diff --git a/router/router_server_backup.go b/router/router_server_backup.go
+index 53185a3..bc1ec7e 100644
+--- a/router/router_server_backup.go
++++ b/router/router_server_backup.go
+@@ -42,7 +42,7 @@ func postServerBackup(c *gin.Context) {
+ 		Uuid    string             `json:"uuid"`
+ 		Ignore  string             `json:"ignore"`
+ 	}
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 	backupUuid, ok := parseBackupUuid(c, data.Uuid)
+@@ -101,7 +101,7 @@ func postServerRestoreBackup(c *gin.Context) {
+ 		// is only present when the given adapter type is s3.
+ 		DownloadUrl string `json:"download_url"`
+ 	}
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 	backupUuid, ok := parseBackupUuid(c, c.Param("backup"))
+diff --git a/router/router_server_files.go b/router/router_server_files.go
+index 3e99aad..a037e4b 100644
+--- a/router/router_server_files.go
++++ b/router/router_server_files.go
+@@ -1,7 +1,6 @@
+ package router
+ 
+ import (
+-	"bufio"
+ 	"context"
+ 	"io"
+ 	"net/http"
+@@ -11,6 +10,7 @@ import (
+ 	"path/filepath"
+ 	"strconv"
+ 	"strings"
++	"sync"
+ 
+ 	"emperror.dev/errors"
+ 	"github.com/apex/log"
+@@ -24,8 +24,13 @@ import (
+ 	"github.com/pterodactyl/wings/router/tokens"
+ 	"github.com/pterodactyl/wings/server"
+ 	"github.com/pterodactyl/wings/server/filesystem"
++	"github.com/pterodactyl/wings/system"
+ )
+ 
++// Streaming files through Gin's writer retains its byte accounting and response
++// behavior. A reusable buffer avoids 4 KiB read/write cycles for large files.
++var fileReadBuffers = sync.Pool{New: func() any { return new([64 << 10]byte) }}
++
+ // getServerFileContents returns the contents of a file on the server.
+ func getServerFileContents(c *gin.Context) {
+ 	s := middleware.ExtractServer(c)
+@@ -64,7 +69,9 @@ func getServerFileContents(c *gin.Context) {
+ 	//
+ 	// @see https://github.com/pterodactyl/panel/issues/3131
+ 	r := io.LimitReader(f, st.Size())
+-	if _, err = bufio.NewReader(r).WriteTo(c.Writer); err != nil {
++	buf := fileReadBuffers.Get().(*[64 << 10]byte)
++	defer fileReadBuffers.Put(buf)
++	if _, err = io.CopyBuffer(c.Writer, r, buf[:]); err != nil {
+ 		// Pretty sure this will unleash chaos on the response, but its a risk we can
+ 		// take since a panic will at least be recovered and this should be incredibly
+ 		// rare?
+@@ -80,7 +87,11 @@ func getServerListDirectory(c *gin.Context) {
+ 	if stats, err := s.Filesystem().ListDirectory(dir); err != nil {
+ 		middleware.CaptureAndAbort(c, err)
+ 	} else {
+-		c.JSON(http.StatusOK, stats)
++		out := make([]filesystem.StatResponse, len(stats))
++		for i := range stats {
++			out[i] = stats[i].ToAPIResponse()
++		}
++		c.JSON(http.StatusOK, out)
+ 	}
+ }
+ 
+@@ -89,6 +100,8 @@ type renameFile struct {
+ 	From string `json:"from"`
+ }
+ 
++const fileBatchConcurrency = 8
++
+ // Renames (or moves) files for a server.
+ func putServerRenameFiles(c *gin.Context) {
+ 	s := ExtractServer(c)
+@@ -98,7 +111,7 @@ func putServerRenameFiles(c *gin.Context) {
+ 		Files []renameFile `json:"files"`
+ 	}
+ 	// BindJSON sends 400 if the request fails, all we need to do is return
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -110,8 +123,12 @@ func putServerRenameFiles(c *gin.Context) {
+ 	}
+ 
+ 	g, ctx := errgroup.WithContext(c.Request.Context())
++	g.SetLimit(fileBatchConcurrency)
+ 	// Loop over the array of files passed in and perform the move or rename action against each.
+ 	for _, p := range data.Files {
++		if ctx.Err() != nil {
++			break
++		}
+ 		pf := path.Join(data.Root, p.From)
+ 		pt := path.Join(data.Root, p.To)
+ 
+@@ -142,7 +159,11 @@ func putServerRenameFiles(c *gin.Context) {
+ 		})
+ 	}
+ 
+-	if err := g.Wait(); err != nil {
++	err := g.Wait()
++	if err == nil {
++		err = c.Request.Context().Err()
++	}
++	if err != nil {
+ 		if errors.Is(err, os.ErrExist) {
+ 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+ 				"error": "Cannot move or rename file, destination already exists.",
+@@ -165,7 +186,7 @@ func postServerCopyFile(c *gin.Context) {
+ 		Location string `json:"location"`
+ 	}
+ 	// BindJSON sends 400 if the request fails, all we need to do is return
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -190,7 +211,7 @@ func postServerDeleteFiles(c *gin.Context) {
+ 		Files []string `json:"files"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -201,11 +222,15 @@ func postServerDeleteFiles(c *gin.Context) {
+ 		return
+ 	}
+ 
+-	g, ctx := errgroup.WithContext(context.Background())
++	g, ctx := errgroup.WithContext(c.Request.Context())
++	g.SetLimit(fileBatchConcurrency)
+ 
+ 	// Loop over the array of files passed in and delete them. If any of the file deletions
+ 	// fail just abort the process entirely.
+ 	for _, p := range data.Files {
++		if ctx.Err() != nil {
++			break
++		}
+ 		pi := path.Join(data.Root, p)
+ 
+ 		g.Go(func() error {
+@@ -218,7 +243,11 @@ func postServerDeleteFiles(c *gin.Context) {
+ 		})
+ 	}
+ 
+-	if err := g.Wait(); err != nil {
++	err := g.Wait()
++	if err == nil {
++		err = c.Request.Context().Err()
++	}
++	if err != nil {
+ 		middleware.CaptureAndAbort(c, err)
+ 		return
+ 	}
+@@ -284,7 +313,7 @@ func postServerPullRemoteFile(c *gin.Context) {
+ 		UseHeader  bool   `json:"use_header"`
+ 		Foreground bool   `json:"foreground"`
+ 	}
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -325,7 +354,7 @@ func postServerPullRemoteFile(c *gin.Context) {
+ 	})
+ 
+ 	download := func() error {
+-		s.Log().WithField("download_id", dl.Identifier).WithField("url", u.String()).Info("starting pull of remote file to disk")
++		s.Log().WithField("download_id", dl.Identifier).WithField("url", system.LogURL(u.String())).Info("starting pull of remote file to disk")
+ 		if err := dl.Execute(); err != nil {
+ 			if !downloader.IsDownloadError(err) {
+ 				s.Log().WithField("download_id", dl.Identifier).WithField("error", err).Error("failed to pull remote file")
+@@ -392,7 +421,7 @@ func postServerCreateDirectory(c *gin.Context) {
+ 		Path string `json:"path"`
+ 	}
+ 	// BindJSON sends 400 if the request fails, all we need to do is return
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -419,7 +448,7 @@ func postServerCompressFiles(c *gin.Context) {
+ 		Files    []string `json:"files"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -457,7 +486,7 @@ func postServerDecompressFiles(c *gin.Context) {
+ 		RootPath string `json:"root"`
+ 		File     string `json:"file"`
+ 	}
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+@@ -508,7 +537,7 @@ func postServerChmodFile(c *gin.Context) {
+ 		Files []chmodFile `json:"files"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		log.Debug(err.Error())
+ 		return
+ 	}
+@@ -520,10 +549,14 @@ func postServerChmodFile(c *gin.Context) {
+ 		return
+ 	}
+ 
+-	g, ctx := errgroup.WithContext(context.Background())
++	g, ctx := errgroup.WithContext(c.Request.Context())
++	g.SetLimit(fileBatchConcurrency)
+ 
+ 	// Loop over the array of files passed in and perform the move or rename action against each.
+ 	for _, p := range data.Files {
++		if ctx.Err() != nil {
++			break
++		}
+ 		g.Go(func() error {
+ 			select {
+ 			case <-ctx.Done():
+@@ -549,7 +582,11 @@ func postServerChmodFile(c *gin.Context) {
+ 		})
+ 	}
+ 
+-	if err := g.Wait(); err != nil {
++	err := g.Wait()
++	if err == nil {
++		err = c.Request.Context().Err()
++	}
++	if err != nil {
+ 		if errors.Is(err, errInvalidFileMode) {
+ 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+ 				"error": "Invalid file mode.",
+diff --git a/router/router_server_transfer.go b/router/router_server_transfer.go
+index ef48e84..f7e6634 100644
+--- a/router/router_server_transfer.go
++++ b/router/router_server_transfer.go
+@@ -26,7 +26,7 @@ type serverTransferRequest struct {
+ // postServerTransfer handles the start of a transfer for a server.
+ func postServerTransfer(c *gin.Context) {
+ 	var data serverTransferRequest
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+diff --git a/router/router_system.go b/router/router_system.go
+index 5df3a41..ab45143 100644
+--- a/router/router_system.go
++++ b/router/router_system.go
+@@ -61,7 +61,7 @@ func postCreateServer(c *gin.Context) {
+ 	manager := middleware.ExtractManager(c)
+ 
+ 	details := installer.ServerDetails{}
+-	if err := c.BindJSON(&details); err != nil {
++	if err := middleware.BindJSON(c, &details); err != nil {
+ 		return
+ 	}
+ 
+@@ -144,7 +144,7 @@ func postUpdateConfiguration(c *gin.Context) {
+ 
+ 	// Values missing from the request keep their current value.
+ 	update := cfg.PanelConfiguration()
+-	if err := c.BindJSON(&update); err != nil {
++	if err := middleware.BindJSON(c, &update); err != nil {
+ 		return
+ 	}
+ 
+@@ -195,7 +195,7 @@ func postDeauthorizeUser(c *gin.Context) {
+ 		Servers []string `json:"servers"`
+ 	}
+ 
+-	if err := c.BindJSON(&data); err != nil {
++	if err := middleware.BindJSON(c, &data); err != nil {
+ 		return
+ 	}
+ 
+diff --git a/router/tokens/backup.go b/router/tokens/backup.go
+index 269cf12..fab7eba 100644
+--- a/router/tokens/backup.go
++++ b/router/tokens/backup.go
+@@ -24,7 +24,7 @@ func (p *BackupPayload) GetPayload() *jwt.Payload {
+ // return false. This allows us to use this JWT as a one-time token that
+ // validates all of the request.
+ func (p *BackupPayload) IsUniqueRequest() bool {
+-	return getTokenStore().IsValidToken(p.UniqueId)
++	return p.ExpirationTime != nil && getTokenStore().IsValidUntil(p.UniqueId, p.ExpirationTime.Time)
+ }
+ 
+ // Denylisted returns true if this token was issued before the user's access to
+diff --git a/router/tokens/file.go b/router/tokens/file.go
+index ffc19f7..8c8da70 100644
+--- a/router/tokens/file.go
++++ b/router/tokens/file.go
+@@ -24,7 +24,7 @@ func (p *FilePayload) GetPayload() *jwt.Payload {
+ // return false. This allows us to use this JWT as a one-time token that
+ // validates all of the request.
+ func (p *FilePayload) IsUniqueRequest() bool {
+-	return getTokenStore().IsValidToken(p.UniqueId)
++	return p.ExpirationTime != nil && getTokenStore().IsValidUntil(p.UniqueId, p.ExpirationTime.Time)
+ }
+ 
+ // Denylisted returns true if this token was issued before the user's access to
+diff --git a/router/tokens/parser.go b/router/tokens/parser.go
+index ad6ca64..5c02b12 100644
+--- a/router/tokens/parser.go
++++ b/router/tokens/parser.go
+@@ -12,15 +12,27 @@ type TokenData interface {
+ 	GetPayload() *jwt.Payload
+ }
+ 
++// Allow small differences between the Panel and node clocks for issuance and
++// not-before claims. Expiry remains strict, including at the expiry boundary.
++const tokenClockSkew = 30 * time.Second
++
+ // Validates the provided JWT against the known secret for the Daemon and returns the
+ // parsed data. This function DOES NOT validate that the token is valid for the connected
+ // server, nor does it ensure that the user providing the token is able to actually do things.
+ //
+ // This simply returns a parsed token.
+ func ParseToken(token []byte, data TokenData) error {
++	now := time.Now()
+ 	verifyOptions := jwt.ValidatePayload(
+ 		data.GetPayload(),
+-		jwt.ExpirationTimeValidator(time.Now()),
++		func(p *jwt.Payload) error {
++			if p.ExpirationTime == nil || !now.Before(p.ExpirationTime.Time) {
++				return jwt.ErrExpValidation
++			}
++			return nil
++		},
++		jwt.NotBeforeValidator(now.Add(tokenClockSkew)),
++		jwt.IssuedAtValidator(now.Add(tokenClockSkew)),
+ 	)
+ 
+ 	_, err := jwt.Verify(token, config.GetJwtAlgorithm(), &data, verifyOptions)
+diff --git a/router/tokens/token_store.go b/router/tokens/token_store.go
+index 3651965..41da62e 100644
+--- a/router/tokens/token_store.go
++++ b/router/tokens/token_store.go
+@@ -32,13 +32,23 @@ func getTokenStore() *TokenStore {
+ 
+ // Checks if a token is valid or not.
+ func (t *TokenStore) IsValidToken(token string) bool {
++	return t.IsValidUntil(token, time.Now().Add(time.Hour))
++}
++
++// IsValidUntil consumes a token once and retains it until its signed expiry.
++// A fixed cache lifetime would allow a longer-lived token to be replayed.
++func (t *TokenStore) IsValidUntil(token string, expiresAt time.Time) bool {
+ 	t.Lock()
+ 	defer t.Unlock()
++	ttl := time.Until(expiresAt)
++	if token == "" || ttl <= 0 {
++		return false
++	}
+ 
+ 	_, exists := t.cache.Get(token)
+ 
+ 	if !exists {
+-		t.cache.Set(token, "", time.Minute*60)
++		t.cache.Set(token, "", ttl)
+ 	}
+ 
+ 	return !exists
+diff --git a/router/tokens/upload.go b/router/tokens/upload.go
+index 3c42993..abbc4e9 100644
+--- a/router/tokens/upload.go
++++ b/router/tokens/upload.go
+@@ -23,7 +23,7 @@ func (p *UploadPayload) GetPayload() *jwt.Payload {
+ // return false. This allows us to use this JWT as a one-time token that
+ // validates all of the request.
+ func (p *UploadPayload) IsUniqueRequest() bool {
+-	return getTokenStore().IsValidToken(p.UniqueId)
++	return p.ExpirationTime != nil && getTokenStore().IsValidUntil(p.UniqueId, p.ExpirationTime.Time)
+ }
+ 
+ // Denylisted returns true if this token was issued before the user's access to
+diff --git a/router/websocket/listeners.go b/router/websocket/listeners.go
+index 6431e17..3db207e 100644
+--- a/router/websocket/listeners.go
++++ b/router/websocket/listeners.go
+@@ -2,13 +2,11 @@ package websocket
+ 
+ import (
+ 	"context"
+-	"encoding/json"
+ 	"sync"
+ 	"time"
+ 
+ 	"emperror.dev/errors"
+ 
+-	"github.com/pterodactyl/wings/events"
+ 	"github.com/pterodactyl/wings/system"
+ 
+ 	"github.com/pterodactyl/wings/server"
+@@ -112,28 +110,13 @@ func (h *Handler) listenForServerEvents(ctx context.Context) error {
+ 			}
+ 			onError(server.InstallOutputEvent, sendErr)
+ 		case b := <-eventChan:
+-			var e events.Event
+-			if err := events.DecodeTo(b, &e); err != nil {
++			message, decodeErr := decodeEventMessage(b)
++			if decodeErr != nil {
+ 				continue
+ 			}
+-			var sendErr error
+-			message := Message{Event: Event(e.Topic)}
+-			if str, ok := e.Data.(string); ok {
+-				message.Args = []string{str}
+-			} else if b, ok := e.Data.([]byte); ok {
+-				message.Args = []string{string(b)}
+-			} else {
+-				b, sendErr = json.Marshal(e.Data)
+-				if sendErr == nil {
+-					message.Args = []string{string(b)}
+-				}
+-			}
+-
++			sendErr := h.SendJson(message)
+ 			if sendErr == nil {
+-				sendErr = h.SendJson(message)
+-				if sendErr == nil {
+-					continue
+-				}
++				continue
+ 			}
+ 			onError(string(message.Event), sendErr)
+ 		}
+diff --git a/router/websocket/message.go b/router/websocket/message.go
+index 8c2f876..52fa106 100644
+--- a/router/websocket/message.go
++++ b/router/websocket/message.go
+@@ -1,5 +1,13 @@
+ package websocket
+ 
++import (
++	"bytes"
++	"encoding/json"
++	"unicode/utf8"
++
++	"github.com/pterodactyl/wings/events"
++)
++
+ type Event string
+ 
+ const (
+@@ -24,3 +32,36 @@ type Message struct {
+ 	// should either omit the field or pass an empty value as it is ignored.
+ 	Args []string `json:"args,omitempty"`
+ }
++
++// decodeEventMessage converts a bus event to the Panel's string-argument format.
++func decodeEventMessage(data []byte) (Message, error) {
++	e := struct {
++		Topic string
++		Data  eventArgument
++	}{Data: "null"}
++	if err := events.DecodeTo(data, &e); err != nil {
++		return Message{}, err
++	}
++	return Message{Event: Event(e.Topic), Args: []string{string(e.Data)}}, nil
++}
++
++// eventArgument owns the string argument the Panel expects. The envelope's JSON
++// decoder validates the input before calling UnmarshalJSON. Non-string payloads
++// are already JSON: retain those bytes without constructing a generic object
++// tree or rounding integer counters through float64 for every viewer.
++type eventArgument string
++
++func (a *eventArgument) UnmarshalJSON(data []byte) error {
++	if len(data) > 0 && data[0] == '"' {
++		// Ordinary state strings can be unquoted directly. Escaped or invalid
++		// UTF-8 strings still need JSON's escape/replacement handling.
++		if bytes.IndexByte(data, '\\') < 0 && utf8.Valid(data) {
++			*a = eventArgument(data[1 : len(data)-1])
++		} else {
++			return json.Unmarshal(data, (*string)(a))
++		}
++	} else {
++		*a = eventArgument(data)
++	}
++	return nil
++}
+diff --git a/router/websocket/websocket.go b/router/websocket/websocket.go
+index e053b19..ed163df 100644
+--- a/router/websocket/websocket.go
++++ b/router/websocket/websocket.go
+@@ -68,7 +68,9 @@ func IsJwtError(err error) bool {
+ 		errors.Is(err, ErrJwtNoConnectPerm) ||
+ 		errors.Is(err, ErrJwtUuidMismatch) ||
+ 		errors.Is(err, ErrJwtOnDenylist) ||
+-		errors.Is(err, jwt.ErrExpValidation)
++		errors.Is(err, jwt.ErrExpValidation) ||
++		errors.Is(err, jwt.ErrNbfValidation) ||
++		errors.Is(err, jwt.ErrIatValidation)
+ }
+ 
+ // NewTokenPayload parses a JWT into a websocket token payload.
+diff --git a/server/filesystem/filesystem.go b/server/filesystem/filesystem.go
+index 4096869..8bfa48c 100644
+--- a/server/filesystem/filesystem.go
++++ b/server/filesystem/filesystem.go
+@@ -559,7 +559,7 @@ func (fs *Filesystem) ListDirectory(p string) ([]Stat, error) {
+ 			if err != nil {
+ 				return Stat{}, err
+ 			}
+-			m, err = mimetype.DetectReader(f)
++			m, err = detectFileMIME(f)
+ 			if err != nil {
+ 				log.Error(err.Error())
+ 			}
+@@ -576,28 +576,15 @@ func (fs *Filesystem) ListDirectory(p string) ([]Stat, error) {
+ 		return nil, err
+ 	}
+ 
+-	// Sort entries alphabetically.
+-	slices.SortStableFunc(out, func(a, b Stat) int {
+-		switch {
+-		case a.Name() == b.Name():
+-			return 0
+-		case a.Name() > b.Name():
+-			return 1
+-		default:
+-			return -1
+-		}
+-	})
+-
+-	// Sort folders before other file types.
+-	slices.SortStableFunc(out, func(a, b Stat) int {
+-		switch {
+-		case a.IsDir() && b.IsDir():
+-			return 0
+-		case a.IsDir():
+-			return -1
+-		default:
++	// Put folders first and sort each group alphabetically in one pass.
++	slices.SortFunc(out, func(a, b Stat) int {
++		if a.IsDir() != b.IsDir() {
++			if a.IsDir() {
++				return -1
++			}
+ 			return 1
+ 		}
++		return strings.Compare(a.Name(), b.Name())
+ 	})
+ 
+ 	return out, nil
+diff --git a/server/filesystem/mime.go b/server/filesystem/mime.go
+new file mode 100644
+index 0000000..d019bb1
+--- /dev/null
++++ b/server/filesystem/mime.go
+@@ -0,0 +1,24 @@
++package filesystem
++
++import (
++	"io"
++	"sync"
++
++	"github.com/gabriel-vasile/mimetype"
++)
++
++// Keep the detector's existing 4 KiB content probe. Reuse only scratch storage,
++// never MIME results: container processes can change files between requests.
++const mimeProbeBytes = 4096
++
++var mimeProbePool = sync.Pool{New: func() any { return new([mimeProbeBytes]byte) }}
++
++func detectFileMIME(r io.Reader) (*mimetype.MIME, error) {
++	buf := mimeProbePool.Get().(*[mimeProbeBytes]byte)
++	defer mimeProbePool.Put(buf)
++	n, err := io.ReadFull(r, buf[:])
++	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
++		return nil, err
++	}
++	return mimetype.Detect(buf[:n]), nil
++}
+diff --git a/server/filesystem/stat.go b/server/filesystem/stat.go
+index 94cab60..42ce2c3 100644
+--- a/server/filesystem/stat.go
++++ b/server/filesystem/stat.go
+@@ -16,19 +16,25 @@ type Stat struct {
+ 	Mimetype string
+ }
+ 
+-func (s *Stat) MarshalJSON() ([]byte, error) {
+-	return json.Marshal(struct {
+-		Name      string `json:"name"`
+-		Created   string `json:"created"`
+-		Modified  string `json:"modified"`
+-		Mode      string `json:"mode"`
+-		ModeBits  string `json:"mode_bits"`
+-		Size      int64  `json:"size"`
+-		Directory bool   `json:"directory"`
+-		File      bool   `json:"file"`
+-		Symlink   bool   `json:"symlink"`
+-		Mime      string `json:"mime"`
+-	}{
++// StatResponse is the existing Wings file-metadata wire format. A directory
++// response can encode a slice of these directly, without encoding and then
++// validating/compacting a separate JSON document for every entry.
++type StatResponse struct {
++	Name      string `json:"name"`
++	Created   string `json:"created"`
++	Modified  string `json:"modified"`
++	Mode      string `json:"mode"`
++	ModeBits  string `json:"mode_bits"`
++	Size      int64  `json:"size"`
++	Directory bool   `json:"directory"`
++	File      bool   `json:"file"`
++	Symlink   bool   `json:"symlink"`
++	Mime      string `json:"mime"`
++}
++
++// ToAPIResponse returns metadata without changing its filesystem representation.
++func (s *Stat) ToAPIResponse() StatResponse {
++	return StatResponse{
+ 		Name:     s.Name(),
+ 		Created:  s.CTime().Format(time.RFC3339),
+ 		Modified: s.ModTime().Format(time.RFC3339),
+@@ -40,7 +46,11 @@ func (s *Stat) MarshalJSON() ([]byte, error) {
+ 		File:      !s.IsDir(),
+ 		Symlink:   s.Mode().Type()&ufs.ModeSymlink != 0,
+ 		Mime:      s.Mimetype,
+-	})
++	}
++}
++
++func (s *Stat) MarshalJSON() ([]byte, error) {
++	return json.Marshal(s.ToAPIResponse())
+ }
+ 
+ func statFromFile(f ufs.File) (Stat, error) {
+@@ -50,7 +60,7 @@ func statFromFile(f ufs.File) (Stat, error) {
+ 	}
+ 	var m *mimetype.MIME
+ 	if !s.IsDir() {
+-		m, err = mimetype.DetectReader(f)
++		m, err = detectFileMIME(f)
+ 		if err != nil {
+ 			return Stat{}, err
+ 		}
+diff --git a/server/listeners.go b/server/listeners.go
+index e1f4180..b5296e0 100644
+--- a/server/listeners.go
++++ b/server/listeners.go
+@@ -139,7 +139,9 @@ var stripAnsiRegex = regexp.MustCompile("[\u001B\u009B][[\\]()#;?]*(?:(?:(?:[a-z
+ // Custom listener for console output events that will check if the given line
+ // of output matches one that should mark the server as started or not.
+ func (s *Server) onConsoleOutput(data []byte) {
+-	if s.Environment.State() != environment.ProcessStartingState && !s.IsRunning() {
++	// Startup markers are the only console content inspected here. Once running,
++	// avoid copying each line or waiting for process-configuration locks.
++	if s.Environment.State() != environment.ProcessStartingState {
+ 		return
+ 	}
+ 
+diff --git a/server/manager.go b/server/manager.go
+index 17d6716..807a3e9 100644
+--- a/server/manager.go
++++ b/server/manager.go
+@@ -7,6 +7,7 @@ import (
+ 	"os"
+ 	"path/filepath"
+ 	"runtime"
++	"slices"
+ 	"sync"
+ 	"time"
+ 
+@@ -25,6 +26,9 @@ type Manager struct {
+ 	mu      sync.RWMutex
+ 	client  remote.Client
+ 	servers []*Server
++	// UUIDs are immutable after initialization. Keep ordered iteration in
++	// servers, and index point lookups under the same lock.
++	byUUID map[string]*Server
+ }
+ 
+ // NewManager returns a new server manager instance. This will boot up all the
+@@ -73,45 +77,67 @@ func (m *Manager) Keys() []string {
+ // is passed through.
+ func (m *Manager) Put(s []*Server) {
+ 	m.mu.Lock()
+-	m.servers = s
++	m.servers = slices.Clone(s)
++	m.reindexLocked()
+ 	m.mu.Unlock()
+ }
+ 
+-// All returns all the items in the collection.
++// All returns a snapshot of the collection. Callers cannot mutate its backing
++// slice and desynchronize the UUID index.
+ func (m *Manager) All() []*Server {
+ 	m.mu.RLock()
+ 	defer m.mu.RUnlock()
+-	return m.servers
++	return slices.Clone(m.servers)
+ }
+ 
+ // Add adds an item to the collection store.
+ func (m *Manager) Add(s *Server) {
+ 	m.mu.Lock()
+-	m.servers = append(m.servers, s)
++	m.addLocked(s.ID(), s)
+ 	m.mu.Unlock()
+ }
+ 
++func (m *Manager) addLocked(id string, s *Server) {
++	if m.byUUID == nil {
++		m.byUUID = make(map[string]*Server)
++	}
++	// Preserve the first-match behavior if Add/Put contain duplicate UUIDs.
++	if _, exists := m.byUUID[id]; !exists {
++		m.byUUID[id] = s
++	}
++	m.servers = append(m.servers, s)
++}
++
++func (m *Manager) reindexLocked() {
++	m.byUUID = make(map[string]*Server, len(m.servers))
++	for _, s := range m.servers {
++		id := s.ID()
++		if _, exists := m.byUUID[id]; !exists {
++			m.byUUID[id] = s
++		}
++	}
++}
++
+ // AddIfMissing adds an item to the collection store unless a server with the
+ // same ID is already present, returning false if it was not added.
+ func (m *Manager) AddIfMissing(s *Server) bool {
+ 	m.mu.Lock()
+ 	defer m.mu.Unlock()
+-	for _, v := range m.servers {
+-		if v.ID() == s.ID() {
+-			return false
+-		}
++	id := s.ID()
++	if _, exists := m.byUUID[id]; exists {
++		return false
+ 	}
+-	m.servers = append(m.servers, s)
++	m.addLocked(id, s)
+ 	return true
+ }
+ 
+ // Get returns a single server instance and a boolean value indicating if it was
+ // found in the global collection or not.
+ func (m *Manager) Get(uuid string) (*Server, bool) {
+-	match := m.Find(func(server *Server) bool {
+-		return server.ID() == uuid
+-	})
+-	return match, match != nil
++	m.mu.RLock()
++	defer m.mu.RUnlock()
++	s, ok := m.byUUID[uuid]
++	return s, ok
+ }
+ 
+ // Filter returns only those items matching the filter criteria.
+@@ -151,6 +177,7 @@ func (m *Manager) Remove(filter func(match *Server) bool) {
+ 		}
+ 	}
+ 	m.servers = r
++	m.reindexLocked()
+ }
+ 
+ // PersistStates writes the current environment states to the disk for each
+diff --git a/sftp/server.go b/sftp/server.go
+index b6e866e..afdbe65 100644
+--- a/sftp/server.go
++++ b/sftp/server.go
+@@ -31,7 +31,7 @@ import (
+ // Usernames all follow the same format, so don't even bother hitting the API if the username is not
+ // at least in the expected format. This is very basic protection against random bots finding the SFTP
+ // server and sending a flood of usernames.
+-var validUsernameRegexp = regexp.MustCompile(`^(?i)(.+)\.([a-z0-9]{8})$`)
++var validUsernameRegexp = regexp.MustCompile(`^(?i)(.+)\.([a-z0-9]{8}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|serv_[a-z2-7]{26})$`)
+ 
+ // connectionLimits are the limits applied to connections.
+ type connectionLimits struct {
+diff --git a/system/sink_pool.go b/system/sink_pool.go
+index 3d42527..34d6292 100644
+--- a/system/sink_pool.go
++++ b/system/sink_pool.go
+@@ -90,21 +90,31 @@ func (p *SinkPool) Destroy() {
+ // There is a potential for data to be lost when passing it through this
+ // function, but only in instances where the channel buffer is full and the
+ // channel is not drained fast enough, in which case dropping messages is most
+-// likely the best option anyways. This uses waitgroups to allow every channel
+-// to attempt its send concurrently thus making the total blocking time of this
+-// function "O(1)" instead of "O(n)".
++// likely the best option anyways. Ready receivers are sent to directly without
++// allocations. Only blocked receivers need a goroutine and a timeout; those
++// waits run concurrently so a slow receiver does not delay ready receivers.
+ func (p *SinkPool) Push(data []byte) {
+ 	p.mu.RLock()
+ 	defer p.mu.RUnlock()
+ 
+-	var wg sync.WaitGroup
+-	wg.Add(len(p.sinks))
++	var wg *sync.WaitGroup
+ 	for _, c := range p.sinks {
+-		go func(c chan []byte) {
+-			defer wg.Done()
++		select {
++		case c <- data:
++			continue
++		default:
++		}
++		if wg == nil {
++			wg = &sync.WaitGroup{}
++		}
++		wg.Add(1)
++		go func(c chan []byte, pending *sync.WaitGroup) {
++			defer pending.Done()
++			timer := time.NewTimer(10 * time.Millisecond)
++			defer timer.Stop()
+ 			select {
+ 			case c <- data:
+-			case <-time.After(10 * time.Millisecond):
++			case <-timer.C:
+ 				// If we cannot send the message to the channel within 10ms,
+ 				// then try to drop the oldest message from the channel, then
+ 				// send our message.
+@@ -121,7 +131,9 @@ func (p *SinkPool) Push(data []byte) {
+ 					// read from c.
+ 				}
+ 			}
+-		}(c)
++		}(c, wg)
++	}
++	if wg != nil {
++		wg.Wait()
+ 	}
+-	wg.Wait()
+ }
+diff --git a/system/url.go b/system/url.go
+new file mode 100644
+index 0000000..618fbce
+--- /dev/null
++++ b/system/url.go
+@@ -0,0 +1,18 @@
++package system
++
++import "net/url"
++
++// LogURL keeps a URL's destination and path while removing credentials,
++// signed query strings, and fragments before it is logged.
++func LogURL(raw string) string {
++	u, err := url.Parse(raw)
++	if err != nil {
++		return "(invalid URL)"
++	}
++	u.User = nil
++	u.RawQuery = ""
++	u.ForceQuery = false
++	u.Fragment = ""
++	u.RawFragment = ""
++	return u.String()
++}

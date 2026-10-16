@@ -1,0 +1,1303 @@
+
+===== benchmarks/runner/events.go =====
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"math"
+	"sync"
+	"time"
+
+	"github.com/pterodactyl/wings/environment"
+)
+
+// Check unsolicited stats events: "send stats" replies take a different path
+// and would not exercise the optimized bus-to-WebSocket conversion.
+func (h *harness) eventStreams() {
+	h.startAll()
+	for _, variant := range []string{"manta", "wings"} {
+		n := h.Nodes[variant]
+		for _, s := range n.Servers {
+			var api struct {
+				Utilization map[string]json.RawMessage `json:"utilization"`
+			}
+			must(json.Unmarshal(h.api(n, "GET", "/api/servers/"+s.UUID, nil), &api))
+			if len(api.Utilization) != 7 {
+				panic("unexpected API resource schema")
+			}
+			var wg sync.WaitGroup
+			for viewer := range 16 {
+				c, event := h.socket(n, s, h.token(n, s, "websocket", nil))
+				if event != "auth success" {
+					_ = c.Close()
+					panic("event stream authentication failed")
+				}
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					defer c.Close()
+					must(c.SetReadDeadline(time.Now().Add(15 * time.Second)))
+					var first, last environment.Stats
+					for sample := range 3 {
+						var message struct {
+							Event string   `json:"event"`
+							Args  []string `json:"args"`
+						}
+						for {
+							must(c.ReadJSON(&message))
+							if message.Event == "stats" {
+								break
+							}
+						}
+						if len(message.Args) != 1 {
+							panic("stats event must carry one string argument")
+						}
+						data := []byte(message.Args[0])
+						var keys map[string]json.RawMessage
+						must(json.Unmarshal(data, &keys))
+						if len(keys) != len(api.Utilization) {
+							panic("stats event schema differs from API")
+						}
+						for key := range api.Utilization {
+							if _, ok := keys[key]; !ok {
+								panic("stats event is missing resource field " + key)
+							}
+						}
+						var usage struct {
+							environment.Stats
+							State string `json:"state"`
+							Disk  int64  `json:"disk_bytes"`
+						}
+						must(json.Unmarshal(data, &usage))
+						if usage.State != "running" || usage.Memory == 0 || usage.MemoryLimit < usage.Memory || usage.Uptime <= 0 || usage.Disk <= 0 || math.IsNaN(usage.CpuAbsolute) || math.IsInf(usage.CpuAbsolute, 0) || usage.CpuAbsolute < 0 {
+							panic(fmt.Sprintf("invalid streamed resource values for %s %s server %d: state=%s memory=%d limit=%d uptime=%d disk=%d cpu=%v", variant, s.Kind, s.ID, usage.State, usage.Memory, usage.MemoryLimit, usage.Uptime, usage.Disk, usage.CpuAbsolute))
+						}
+						if sample == 0 {
+							first = usage.Stats
+						} else if usage.Uptime < last.Uptime || usage.Network.RxBytes < last.Network.RxBytes || usage.Network.TxBytes < last.Network.TxBytes {
+							panic("streamed resource counters regressed")
+						}
+						last = usage.Stats
+					}
+					if last.Uptime <= first.Uptime {
+						panic("streamed uptime did not advance")
+					}
+					h.add(map[string]any{"type": "check", "test": "automatic_stats_16_viewers", "variant": variant, "server_id": s.ID, "game": s.Kind, "viewer": viewer, "samples": 3, "first_uptime": first.Uptime, "last_uptime": last.Uptime, "last_stats": last, "pass": true})
+				}()
+			}
+			wg.Wait()
+			fmt.Printf("Validated %s %s automatic stats for 16 viewers\n", variant, s.Kind)
+		}
+	}
+}
+
+
+===== benchmarks/runner/main.go =====
+// Command runner benchmarks only the four explicitly provisioned local servers.
+package main
+
+import (
+	"archive/tar"
+	"bytes"
+	"context"
+	"debug/buildinfo"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
+)
+
+type server struct {
+	ID         int    `json:"id"`
+	UUID       string `json:"uuid"`
+	Name       string `json:"name"`
+	Kind       string `json:"kind"`
+	Identifier string `json:"identifier"`
+	Port       int    `json:"port"`
+}
+type node struct {
+	ID        int      `json:"id"`
+	Name      string   `json:"name"`
+	Container string   `json:"container"`
+	Base      string   `json:"base"`
+	Token     string   `json:"token"`
+	SFTPPort  int      `json:"sftp_port"`
+	DataRoot  string   `json:"data_root"`
+	Servers   []server `json:"servers"`
+}
+type manifest struct {
+	Nodes       map[string]node `json:"nodes"`
+	PanelOrigin string          `json:"panel_origin"`
+	SFTP        struct {
+		Username, Password string
+		UserUUID           string `json:"user_uuid"`
+	} `json:"sftp"`
+}
+type harness struct {
+	manifest
+	http   *http.Client
+	docker *http.Client
+	rows   []map[string]any
+	output string
+	mu     sync.Mutex
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+func main() {
+	phase := flag.String("phase", "lifecycle", "lifecycle, performance, security, resources, or events")
+	config := flag.String("manifest", "/private/manifest.json", "private manifest")
+	output := flag.String("output", "/results", "artifact directory")
+	flag.Parse()
+	h := &harness{output: filepath.Join(*output, *phase+".json")}
+	b, err := os.ReadFile(*config)
+	must(err)
+	must(json.Unmarshal(b, &h.manifest))
+	if len(h.Nodes) != 2 {
+		panic("expected exactly two benchmark nodes")
+	}
+	for key, n := range h.Nodes {
+		if (key != "manta" && key != "wings") || len(n.Servers) != 2 {
+			panic("unexpected benchmark topology")
+		}
+		for _, s := range n.Servers {
+			if !strings.HasPrefix(s.Name, "Benchmark ") {
+				panic("refusing to benchmark an unrelated server")
+			}
+		}
+	}
+	h.http = &http.Client{Timeout: 90 * time.Second, Transport: &http.Transport{MaxIdleConns: 128, MaxIdleConnsPerHost: 64}}
+	h.docker = &http.Client{Timeout: 15 * time.Second, Transport: &http.Transport{DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, "unix", "/var/run/docker.sock")
+	}}}
+	defer func() {
+		if p := recover(); p != nil {
+			h.add(map[string]any{"type": "fatal", "error": fmt.Sprint(p)})
+			panic(p)
+		}
+	}()
+	h.metadata()
+	switch *phase {
+	case "lifecycle":
+		h.lifecycle()
+	case "performance":
+		h.performance()
+	case "security":
+		h.security()
+	case "resources":
+		h.resources()
+	case "events":
+		h.eventStreams()
+	default:
+		panic("unknown phase")
+	}
+	fmt.Printf("Completed %s: %s\n", *phase, h.output)
+}
+func (h *harness) add(row map[string]any) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.rows = append(h.rows, row)
+	b, err := json.MarshalIndent(h.rows, "", "  ")
+	must(err)
+	must(os.WriteFile(h.output, b, 0o600))
+	if name, ok := row["test"]; ok {
+		fmt.Printf("%s %v\n", name, row["variant"])
+	}
+}
+func (h *harness) request(n node, method, path string, body []byte, chunked, auth bool) (int, []byte, error) {
+	r, err := http.NewRequest(method, n.Base+path, bytes.NewReader(body))
+	if err != nil {
+		return 0, nil, err
+	}
+	if chunked {
+		r.ContentLength = -1
+		r.TransferEncoding = []string{"chunked"}
+	}
+	if auth {
+		r.Header.Set("Authorization", "Bearer "+n.Token)
+	}
+	r.Header.Set("Content-Type", "application/json")
+	res, err := h.http.Do(r)
+	if err != nil {
+		return 0, nil, fmt.Errorf("%s %s failed (%T)", method, strings.Split(path, "?")[0], err)
+	}
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	return res.StatusCode, b, err
+}
+func (h *harness) api(n node, method, path string, v any) []byte {
+	var b []byte
+	if v != nil {
+		var err error
+		b, err = json.Marshal(v)
+		must(err)
+	}
+	status, out, err := h.request(n, method, path, b, false, true)
+	must(err)
+	if status < 200 || status >= 300 {
+		panic(fmt.Sprintf("%s %s: status %d: %.160s", method, path, status, out))
+	}
+	return out
+}
+func (h *harness) dk(path string) []byte {
+	res, err := h.docker.Get("http://docker" + path)
+	must(err)
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	must(err)
+	if res.StatusCode != 200 {
+		panic(fmt.Sprintf("Docker %s: status %d", path, res.StatusCode))
+	}
+	return b
+}
+func (h *harness) metadata() {
+	for k, n := range h.Nodes {
+		var ins struct {
+			Image      string
+			Config     struct{ Env []string }
+			HostConfig struct{ NanoCpus, Memory, MemorySwap int64 }
+		}
+		must(json.Unmarshal(h.dk("/containers/"+n.Container+"/json"), &ins))
+		tr := tar.NewReader(bytes.NewReader(h.dk("/containers/" + n.Container + "/archive?path=/usr/bin/wings")))
+		_, err := tr.Next()
+		must(err)
+		bin, err := io.ReadAll(tr)
+		must(err)
+		info, err := buildinfo.Read(bytes.NewReader(bin))
+		must(err)
+		gomax := "default"
+		for _, e := range ins.Config.Env {
+			if strings.HasPrefix(e, "GOMAXPROCS=") {
+				gomax = strings.TrimPrefix(e, "GOMAXPROCS=")
+			}
+		}
+		var system any
+		must(json.Unmarshal(h.api(n, "GET", "/api/system", nil), &system))
+		h.add(map[string]any{"type": "metadata", "variant": k, "image_id": ins.Image, "go_version": info.GoVersion, "gomaxprocs": gomax, "cpu_limit": float64(ins.HostConfig.NanoCpus) / 1e9, "memory_limit": ins.HostConfig.Memory, "system": system, "servers": n.Servers})
+	}
+}
+func (h *harness) find(n node, kind string) server {
+	for _, s := range n.Servers {
+		if s.Kind == kind {
+			return s
+		}
+	}
+	panic("missing game")
+}
+func (h *harness) state(n node, s server) string {
+	var data struct{ State string }
+	must(json.Unmarshal(h.api(n, "GET", "/api/servers/"+s.UUID, nil), &data))
+	return data.State
+}
+func (h *harness) power(n node, s server, action string) time.Duration {
+	start := time.Now()
+	h.api(n, "POST", "/api/servers/"+s.UUID+"/power", map[string]any{"action": action, "wait_seconds": 30})
+	want := "running"
+	if action == "stop" {
+		want = "offline"
+	}
+	for time.Since(start) < 120*time.Second {
+		if h.state(n, s) == want {
+			return time.Since(start)
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	panic(fmt.Sprintf("%s %s timed out", s.Name, action))
+}
+func (h *harness) commands(n node, s server, commands ...string) {
+	h.api(n, "POST", "/api/servers/"+s.UUID+"/commands", map[string]any{"commands": commands})
+}
+func (h *harness) startAll() {
+	for _, variant := range []string{"manta", "wings"} {
+		n := h.Nodes[variant]
+		for _, s := range n.Servers {
+			if h.state(n, s) != "running" {
+				h.power(n, s, "start")
+			}
+		}
+	}
+}
+func (h *harness) lifecycle() {
+	for _, kind := range []string{"bedrock", "paper"} {
+		for round := 0; round < 4; round++ {
+			order := []string{"manta", "wings"}
+			if round%2 == 1 {
+				order = []string{"wings", "manta"}
+			}
+			for _, k := range order {
+				n := h.Nodes[k]
+				s := h.find(n, kind)
+				if h.state(n, s) != "offline" {
+					h.power(n, s, "stop")
+				}
+				started := h.power(n, s, "start")
+				time.Sleep(2 * time.Second)
+				stopped := h.power(n, s, "stop")
+				h.add(map[string]any{"type": "measurement", "test": "lifecycle", "variant": k, "game": kind, "round": round, "cold": round == 0, "start_ms": float64(started.Microseconds()) / 1000, "stop_ms": float64(stopped.Microseconds()) / 1000})
+			}
+		}
+	}
+	h.startAll()
+}
+func (h *harness) sftp(n node, s server) (*sftp.Client, *ssh.Client) {
+	sc, c, err := h.sftpSuffix(n, s.UUID[:8])
+	must(err)
+	return sc, c
+}
+
+func (h *harness) sftpSuffix(n node, suffix string) (*sftp.Client, *ssh.Client, error) {
+	u, _ := url.Parse(n.Base)
+	c, err := ssh.Dial("tcp", net.JoinHostPort(u.Hostname(), fmt.Sprint(n.SFTPPort)), &ssh.ClientConfig{
+		User: h.SFTP.Username + "." + suffix, Auth: []ssh.AuthMethod{ssh.Password(h.SFTP.Password)}, Timeout: 10 * time.Second,
+		//nolint:gosec // Disposable local test nodes; no production credentials or SSH hosts.
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	sc, err := sftp.NewClient(c)
+	if err != nil {
+		_ = c.Close()
+		return nil, nil, err
+	}
+	return sc, c, nil
+}
+func distribution(v []float64) map[string]any {
+	sort.Float64s(v)
+	if len(v) == 0 {
+		return map[string]any{}
+	}
+	sum := 0.0
+	for _, x := range v {
+		sum += x
+	}
+	return map[string]any{"n": len(v), "mean_ms": sum / float64(len(v)), "p50_ms": v[(len(v)-1)/2], "p95_ms": v[int(float64(len(v)-1)*.95)], "p99_ms": v[int(float64(len(v)-1)*.99)]}
+}
+
+
+===== benchmarks/runner/performance.go =====
+package main
+
+import (
+	"bytes"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/url"
+	"sync"
+	"sync/atomic"
+	"time"
+)
+
+func (h *harness) performance() {
+	h.startAll()
+	payload := make([]byte, 16<<20)
+	_, err := rand.Read(payload)
+	must(err)
+	expectedHash := sha256.Sum256(payload)
+	for _, k := range []string{"manta", "wings"} {
+		n := h.Nodes[k]
+		s := h.find(n, "paper")
+		sc, c := h.sftp(n, s)
+		must(sc.MkdirAll("bench/fixtures"))
+		for i := 0; i < 1000; i++ {
+			f, err := sc.Create(fmt.Sprintf("bench/fixtures/f%04d.txt", i))
+			must(err)
+			_, err = f.Write(bytes.Repeat([]byte("x"), 256))
+			must(err)
+			must(f.Close())
+		}
+		must(sc.Close())
+		must(c.Close())
+	}
+	for round := 0; round < 3; round++ {
+		order := []string{"manta", "wings"}
+		if round%2 == 1 {
+			order = []string{"wings", "manta"}
+		}
+		for _, k := range order {
+			n := h.Nodes[k]
+			s := h.find(n, "paper")
+			base := "/api/servers/" + s.UUID
+			for _, route := range []struct{ name, path string }{{"api_status", base}, {"directory_1000", base + "/files/list-directory?directory=/bench/fixtures"}} {
+				for _, workers := range []int{1, 16, 32} {
+					h.api(n, "GET", route.path, nil)
+					var next atomic.Int64
+					var failed atomic.Int64
+					lat := make([]float64, 400)
+					start := time.Now()
+					var wg sync.WaitGroup
+					for worker := 0; worker < workers; worker++ {
+						wg.Add(1)
+						go func() {
+							defer wg.Done()
+							for {
+								idx := int(next.Add(1) - 1)
+								if idx >= len(lat) {
+									return
+								}
+								t := time.Now()
+								status, _, err := h.request(n, "GET", route.path, nil, false, true)
+								lat[idx] = float64(time.Since(t).Microseconds()) / 1000
+								if err != nil || status != 200 {
+									failed.Add(1)
+								}
+							}
+						}()
+					}
+					wg.Wait()
+					row := distribution(lat)
+					row["type"] = "measurement"
+					row["test"] = route.name
+					row["variant"] = k
+					row["round"] = round
+					row["concurrency"] = workers
+					row["errors"] = failed.Load()
+					row["requests_per_second"] = float64(len(lat)) / time.Since(start).Seconds()
+					h.add(row)
+				}
+			}
+			for _, operation := range []string{"http_write_16m", "http_read_16m", "sftp_write_16m", "sftp_read_16m"} {
+				lat := []float64{}
+				sc, c := h.sftp(n, s)
+				for iteration := 0; iteration < 5; iteration++ {
+					start := time.Now()
+					var retrieved []byte
+					switch operation {
+					case "http_write_16m":
+						status, _, err := h.request(n, "POST", base+"/files/write?file=/bench/payload.bin", payload, false, true)
+						must(err)
+						if status != 204 {
+							panic(fmt.Sprintf("raw write status %d", status))
+						}
+					case "http_read_16m":
+						status, b, err := h.request(n, "GET", base+"/files/contents?file=/bench/payload.bin", nil, false, true)
+						must(err)
+						if status != 200 {
+							panic("HTTP content mismatch")
+						}
+						retrieved = b
+					case "sftp_write_16m":
+						f, err := sc.Create("bench/sftp.bin")
+						must(err)
+						_, err = io.Copy(f, bytes.NewReader(payload))
+						must(err)
+						must(f.Close())
+					case "sftp_read_16m":
+						f, err := sc.Open("bench/sftp.bin")
+						must(err)
+						b, err := io.ReadAll(f)
+						must(err)
+						must(f.Close())
+						retrieved = b
+					}
+					lat = append(lat, float64(time.Since(start).Microseconds())/1000)
+					if retrieved != nil && sha256.Sum256(retrieved) != expectedHash {
+						panic("transferred content mismatch")
+					}
+				}
+				must(sc.Close())
+				must(c.Close())
+				row := distribution(lat)
+				row["type"] = "measurement"
+				row["test"] = operation
+				row["variant"] = k
+				row["round"] = round
+				row["bytes"] = len(payload)
+				row["verified"] = true
+				h.add(row)
+			}
+			for _, operation := range []string{"chmod_1000", "rename_1000"} {
+				files := []any{}
+				for i := 0; i < 1000; i++ {
+					p := fmt.Sprintf("fixtures/f%04d.txt", i)
+					if operation == "chmod_1000" {
+						files = append(files, map[string]string{"file": p, "mode": "0644"})
+					} else {
+						files = append(files, map[string]string{"from": p, "to": p + ".moved"})
+					}
+				}
+				method, path := "POST", "chmod"
+				if operation == "rename_1000" {
+					method, path = "PUT", "rename"
+				}
+				start := time.Now()
+				h.api(n, method, base+"/files/"+path, map[string]any{"root": "/bench", "files": files})
+				elapsed := time.Since(start)
+				h.add(map[string]any{"type": "measurement", "test": operation, "variant": k, "round": round, "duration_ms": float64(elapsed.Microseconds()) / 1000})
+				if operation == "rename_1000" {
+					back := []any{}
+					for i := 0; i < 1000; i++ {
+						p := fmt.Sprintf("fixtures/f%04d.txt", i)
+						back = append(back, map[string]string{"from": p + ".moved", "to": p})
+					}
+					h.api(n, "PUT", base+"/files/rename", map[string]any{"root": "/bench", "files": back})
+				}
+			}
+			start := time.Now()
+			archive := h.api(n, "POST", base+"/files/compress", map[string]any{"root": "/bench", "files": []string{"payload.bin", "fixtures"}})
+			compressTime := time.Since(start)
+			var stat struct {
+				Name string `json:"name"`
+			}
+			must(json.Unmarshal(archive, &stat))
+			if stat.Name == "" {
+				panic("archive name missing")
+			}
+			start = time.Now()
+			h.api(n, "POST", base+"/files/decompress", map[string]string{"root": "/bench", "file": stat.Name})
+			extractTime := time.Since(start)
+			b := h.api(n, "GET", base+"/files/contents?file="+url.QueryEscape("/bench/payload.bin"), nil)
+			if sha256.Sum256(b) != expectedHash {
+				panic("archive restore content mismatch")
+			}
+			h.add(map[string]any{"type": "measurement", "test": "archive_16m_1000_files", "variant": k, "round": round, "compress_ms": float64(compressTime.Microseconds()) / 1000, "extract_ms": float64(extractTime.Microseconds()) / 1000, "verified": true})
+			h.api(n, "POST", base+"/files/delete", map[string]any{"root": "/bench", "files": []string{stat.Name}})
+			h.websocketLoad(k, n, s, round)
+		}
+	}
+}
+
+
+===== benchmarks/runner/resources.go =====
+package main
+
+import (
+	"encoding/binary"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+)
+
+type snapshot struct {
+	CPU     uint64
+	Working uint64
+	PIDs    uint64
+}
+
+func (h *harness) stats(container string) snapshot {
+	var data struct {
+		CPUStats struct {
+			CPUUsage struct {
+				Total uint64 `json:"total_usage"`
+			} `json:"cpu_usage"`
+		} `json:"cpu_stats"`
+		MemoryStats struct {
+			Usage uint64            `json:"usage"`
+			Stats map[string]uint64 `json:"stats"`
+		} `json:"memory_stats"`
+		PidsStats struct {
+			Current uint64 `json:"current"`
+		} `json:"pids_stats"`
+	}
+	must(json.Unmarshal(h.dk("/containers/"+container+"/stats?stream=false&one-shot=true"), &data))
+	working := data.MemoryStats.Usage
+	cache := data.MemoryStats.Stats["inactive_file"]
+	if cache < working {
+		working -= cache
+	}
+	return snapshot{data.CPUStats.CPUUsage.Total, working, data.PidsStats.Current}
+}
+func (h *harness) resources() {
+	h.startAll()
+	time.Sleep(5 * time.Second)
+	for _, load := range []bool{false, true} {
+		label := "idle"
+		if load {
+			label = "command_load"
+		}
+		stop := make(chan struct{})
+		var wg sync.WaitGroup
+		if load {
+			for _, variant := range []string{"manta", "wings"} {
+				n := h.Nodes[variant]
+				p := h.find(n, "paper")
+				b := h.find(n, "bedrock")
+				h.commands(n, p, "forceload add -32 -32 32 32", "gamerule randomTickSpeed 0")
+				h.commands(n, b, "tickingarea add circle 8 64 8 2 benchmark true")
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					ticker := time.NewTicker(200 * time.Millisecond)
+					defer ticker.Stop()
+					i := 0
+					for {
+						select {
+						case <-stop:
+							return
+						case <-ticker.C:
+							block := "stone"
+							if i%2 == 1 {
+								block = "air"
+							}
+							h.commands(n, p, "fill 0 64 0 15 79 15 "+block+" replace")
+							h.commands(n, b, "fill 0 64 0 15 79 15 "+block+" replace")
+							i++
+						}
+					}
+				}()
+			}
+		}
+		containers := map[string]map[string]string{}
+		before := map[string]snapshot{}
+		samples := map[string][]float64{}
+		peaks := map[string]uint64{}
+		for k, n := range h.Nodes {
+			containers[k] = map[string]string{"daemon": n.Container}
+			for _, s := range n.Servers {
+				containers[k][s.Kind] = s.UUID
+			}
+			for _, id := range containers[k] {
+				before[id] = h.stats(id)
+			}
+		}
+		started := time.Now()
+		for i := 0; i < 15; i++ {
+			for _, group := range containers {
+				for _, id := range group {
+					st := h.stats(id)
+					samples[id] = append(samples[id], float64(st.Working)/(1<<20))
+					if st.Working > peaks[id] {
+						peaks[id] = st.Working
+					}
+				}
+			}
+			time.Sleep(2 * time.Second)
+		}
+		elapsed := time.Since(started)
+		for variant, group := range containers {
+			for role, id := range group {
+				after := h.stats(id)
+				cpu := float64(after.CPU-before[id].CPU) / 1e9
+				sum := 0.0
+				for _, v := range samples[id] {
+					sum += v
+				}
+				h.add(map[string]any{"type": "measurement", "test": "resources_" + label, "variant": variant, "role": role, "duration_s": elapsed.Seconds(), "cpu_core_seconds": cpu, "cpu_core_percent": cpu / elapsed.Seconds() * 100, "mean_working_mib": sum / float64(len(samples[id])), "peak_working_mib": float64(peaks[id]) / (1 << 20), "pids": after.PIDs})
+			}
+		}
+		for variant, n := range h.Nodes {
+			for _, s := range n.Servers {
+				lat := []float64{}
+				var status string
+				for i := 0; i < 50; i++ {
+					start := time.Now()
+					var err error
+					if s.Kind == "paper" {
+						status, err = javaPing(s.UUID, s.Port)
+					} else {
+						status, err = bedrockPing(s.UUID, s.Port)
+					}
+					if err != nil {
+						panic(fmt.Sprintf("%s game query: %v", s.Name, err))
+					}
+					lat = append(lat, float64(time.Since(start).Microseconds())/1000)
+				}
+				row := distribution(lat)
+				row["type"] = "measurement"
+				row["test"] = "game_query_during_" + label
+				row["variant"] = variant
+				row["game"] = s.Kind
+				row["status"] = status
+				h.add(row)
+			}
+			p := h.find(n, "paper")
+			h.commands(n, p, "tps", "mspt")
+			time.Sleep(500 * time.Millisecond)
+			raw := string(h.api(n, "GET", "/api/servers/"+p.UUID+"/logs?size=100", nil))
+			re := regexp.MustCompile(`\x1b\[[0-9;]*m`)
+			h.add(map[string]any{"type": "game_console", "test": "paper_ticks_" + label, "variant": variant, "logs": re.ReplaceAllString(raw, "")})
+		}
+		close(stop)
+		wg.Wait()
+		if load {
+			for _, n := range h.Nodes {
+				h.commands(n, h.find(n, "paper"), "forceload remove all")
+				h.commands(n, h.find(n, "bedrock"), "tickingarea remove benchmark")
+			}
+		}
+	}
+}
+func varint(v int32) []byte {
+	b := []byte{}
+	u := uint32(v)
+	for {
+		c := byte(u & 127)
+		u >>= 7
+		if u != 0 {
+			c |= 128
+		}
+		b = append(b, c)
+		if u == 0 {
+			return b
+		}
+	}
+}
+func readVar(r io.Reader) (int, error) {
+	value := 0
+	for i := 0; i < 5; i++ {
+		b := []byte{0}
+		if _, err := io.ReadFull(r, b); err != nil {
+			return 0, err
+		}
+		value |= int(b[0]&127) << (7 * i)
+		if b[0]&128 == 0 {
+			return value, nil
+		}
+	}
+	return 0, fmt.Errorf("bad varint")
+}
+func javaPing(host string, port int) (string, error) {
+	c, err := net.DialTimeout("tcp", net.JoinHostPort(host, fmt.Sprint(port)), 3*time.Second)
+	if err != nil {
+		return "", err
+	}
+	defer c.Close()
+	must(c.SetDeadline(time.Now().Add(5 * time.Second)))
+	b := append([]byte{0}, varint(-1)...)
+	b = append(b, varint(int32(len(host)))...)
+	b = append(b, host...)
+	b = binary.BigEndian.AppendUint16(b, uint16(port))
+	b = append(b, 1)
+	b = append(varint(int32(len(b))), b...)
+	b = append(b, 1, 0)
+	if _, err = c.Write(b); err != nil {
+		return "", err
+	}
+	n, err := readVar(c)
+	if err != nil {
+		return "", err
+	}
+	if n < 2 || n > 1<<20 {
+		return "", fmt.Errorf("bad packet length")
+	}
+	p := make([]byte, n)
+	if _, err = io.ReadFull(c, p); err != nil {
+		return "", err
+	}
+	offset := 1
+	for p[offset]&128 != 0 {
+		offset++
+	}
+	offset++
+	var data struct {
+		Version struct {
+			Name string `json:"name"`
+		}
+	}
+	err = json.Unmarshal(p[offset:], &data)
+	return data.Version.Name, err
+}
+func bedrockPing(host string, port int) (string, error) {
+	c, err := net.DialTimeout("udp", net.JoinHostPort(host, fmt.Sprint(port)), 3*time.Second)
+	if err != nil {
+		return "", err
+	}
+	defer c.Close()
+	must(c.SetDeadline(time.Now().Add(3 * time.Second)))
+	b := []byte{1}
+	b = binary.BigEndian.AppendUint64(b, uint64(time.Now().UnixMilli()))
+	b = append(b, []byte{0, 255, 255, 0, 254, 254, 254, 254, 253, 253, 253, 253, 18, 52, 86, 120}...)
+	b = binary.BigEndian.AppendUint64(b, 42)
+	if _, err = c.Write(b); err != nil {
+		return "", err
+	}
+	out := make([]byte, 2048)
+	n, err := c.Read(out)
+	if err != nil {
+		return "", err
+	}
+	if n < 35 || out[0] != 0x1c {
+		return "", fmt.Errorf("bad RakNet pong")
+	}
+	status := strings.Split(string(out[35:n]), ";")
+	if len(status) > 3 {
+		return status[3], nil
+	}
+	return string(out[35:n]), nil
+}
+
+
+===== benchmarks/runner/security.go =====
+package main
+
+import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+func (h *harness) token(n node, s server, scope string, modify func(map[string]any)) string {
+	claims := map[string]any{"iat": time.Now().Unix() - 1, "nbf": time.Now().Unix() - 5, "exp": time.Now().Add(time.Hour).Unix(), "jti": "benchmark", "scope": scope, "server_uuid": s.UUID, "user_uuid": h.SFTP.UserUUID, "unique_id": fmt.Sprintf("benchmark-%d", time.Now().UnixNano()), "permissions": []string{"websocket.connect", "control.console"}}
+	if modify != nil {
+		modify(claims)
+	}
+	b, err := json.Marshal(claims)
+	must(err)
+	enc := base64.RawURLEncoding
+	message := enc.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`)) + "." + enc.EncodeToString(b)
+	mac := hmac.New(sha256.New, []byte(n.Token))
+	_, err = mac.Write([]byte(message))
+	must(err)
+	return message + "." + enc.EncodeToString(mac.Sum(nil))
+}
+func (h *harness) socket(n node, s server, token string) (*websocket.Conn, string) {
+	address := strings.Replace(n.Base, "http://", "ws://", 1) + "/api/servers/" + s.UUID + "/ws"
+	c, _, err := websocket.DefaultDialer.Dial(address, http.Header{"Origin": []string{h.PanelOrigin}})
+	must(err)
+	must(c.SetReadDeadline(time.Now().Add(5 * time.Second)))
+	must(c.WriteJSON(map[string]any{"event": "auth", "args": []string{token}}))
+	for i := 0; i < 10; i++ {
+		var v struct {
+			Event string `json:"event"`
+		}
+		if err := c.ReadJSON(&v); err != nil {
+			return c, "closed"
+		}
+		if v.Event == "auth success" || v.Event == "jwt error" || v.Event == "daemon error" {
+			return c, v.Event
+		}
+	}
+	return c, "no authentication result"
+}
+func (h *harness) websocketLoad(variant string, n node, s server, round int) {
+	prefix := fmt.Sprintf("BENCHWS-%d-", time.Now().UnixNano())
+	commands := []string{}
+	for i := 0; i < 100; i++ {
+		commands = append(commands, fmt.Sprintf("say %s%03d", prefix, i))
+	}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	lat := []float64{}
+	ready := make(chan struct{})
+	var started time.Time
+	for i := 0; i < 16; i++ {
+		c, event := h.socket(n, s, h.token(n, s, "websocket", nil))
+		if event != "auth success" {
+			panic("valid websocket authentication failed: " + event)
+		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer c.Close()
+			<-ready
+			must(c.SetReadDeadline(time.Now().Add(12 * time.Second)))
+			received := map[string]bool{}
+			for len(received) < 100 {
+				_, b, err := c.ReadMessage()
+				if err != nil {
+					return
+				}
+				p := strings.Index(string(b), prefix)
+				if p < 0 || len(b) < p+len(prefix)+3 {
+					continue
+				}
+				id := string(b[p+len(prefix) : p+len(prefix)+3])
+				if !received[id] {
+					received[id] = true
+					mu.Lock()
+					lat = append(lat, float64(time.Since(started).Microseconds())/1000)
+					mu.Unlock()
+				}
+			}
+		}()
+	}
+	started = time.Now()
+	close(ready)
+	h.commands(n, s, commands...)
+	wg.Wait()
+	row := distribution(lat)
+	row["type"] = "measurement"
+	row["test"] = "websocket_16_subscribers_100_lines"
+	row["variant"] = variant
+	row["round"] = round
+	row["expected_messages"] = 1600
+	row["received_messages"] = len(lat)
+	h.add(row)
+}
+func (h *harness) security() {
+	h.startAll()
+	for _, variant := range []string{"manta", "wings"} {
+		n := h.Nodes[variant]
+		s := h.find(n, "paper")
+		{
+			sc, c := h.sftp(n, s)
+			must(sc.MkdirAll("bench"))
+			must(sc.Close())
+			must(c.Close())
+		}
+		base := "/api/servers/" + s.UUID
+		status, _, err := h.request(n, "GET", "/api/system", nil, false, false)
+		must(err)
+		h.add(map[string]any{"type": "check", "test": "unauthenticated_api", "variant": variant, "status": status, "pass": status == 401})
+		for _, test := range []struct {
+			name    string
+			body    []byte
+			chunked bool
+			want    int
+		}{
+			{"oversized_json_known", append([]byte(`{"name":"oversize","path":"/bench"}`), bytes.Repeat([]byte(" "), 4<<20)...), false, 413},
+			{"oversized_json_chunked", append([]byte(`{"name":"oversize-chunked","path":"/bench"}`), bytes.Repeat([]byte(" "), 4<<20)...), true, 413},
+			{"multiple_json_documents", []byte(`{"name":"multiple-json","path":"/bench"} {}`), false, 400},
+		} {
+			status, _, err := h.request(n, "POST", base+"/files/create-directory", test.body, test.chunked, true)
+			must(err)
+			h.add(map[string]any{"type": "check", "test": test.name, "variant": variant, "status": status, "pass": status == test.want})
+		}
+		for _, test := range []struct {
+			name   string
+			modify func(map[string]any)
+			accept bool
+		}{
+			{"valid_websocket_token", nil, true},
+			{"future_issued_token", func(c map[string]any) { c["iat"] = time.Now().Add(2 * time.Minute).Unix() }, false},
+			{"future_not_before_token", func(c map[string]any) { c["nbf"] = time.Now().Add(2 * time.Minute).Unix() }, false},
+			{"expired_token", func(c map[string]any) { c["exp"] = time.Now().Add(-time.Minute).Unix() }, false},
+			{"missing_expiry_token", func(c map[string]any) { delete(c, "exp") }, false},
+		} {
+			c, event := h.socket(n, s, h.token(n, s, "websocket", test.modify))
+			must(c.Close())
+			accepted := event == "auth success"
+			h.add(map[string]any{"type": "check", "test": test.name, "variant": variant, "event": event, "accepted": accepted, "pass": accepted == test.accept})
+		}
+		payload := bytes.Repeat([]byte("manta-stream-test-"), 524288)
+		status, _, err = h.request(n, "POST", base+"/files/write?file=/bench/stream-security.bin", payload, false, true)
+		must(err)
+		readStatus, b, err := h.request(n, "GET", base+"/files/contents?file=/bench/stream-security.bin", nil, false, true)
+		must(err)
+		h.add(map[string]any{"type": "check", "test": "raw_stream_above_json_limit", "variant": variant, "bytes": len(payload), "write_status": status, "read_status": readStatus, "pass": status == 204 && readStatus == 200 && bytes.Equal(b, payload)})
+		token := h.token(n, s, "file-download", func(c map[string]any) {
+			c["file_path"] = "bench/stream-security.bin"
+			c["exp"] = time.Now().Add(3 * time.Hour).Unix()
+		})
+		first, _, err := h.request(n, "GET", "/download/file?token="+url.QueryEscape(token), nil, false, false)
+		must(err)
+		second, _, err := h.request(n, "GET", "/download/file?token="+url.QueryEscape(token), nil, false, false)
+		must(err)
+		h.add(map[string]any{"type": "check", "test": "one_time_file_token", "variant": variant, "first_status": first, "replay_status": second, "pass": first == 200 && second == 404})
+		marker := fmt.Sprintf("synthetic-secret-benchmark-%s-%d", variant, time.Now().UnixNano())
+		status, _, err = h.request(n, "POST", "/upload/file?token="+marker, nil, false, false)
+		must(err)
+		logs := h.dk("/containers/" + n.Container + "/logs?stdout=true&stderr=true&tail=150")
+		leaked := bytes.Contains(logs, []byte(marker))
+		h.add(map[string]any{"type": "check", "test": "invalid_upload_token_log_redaction", "variant": variant, "status": status, "synthetic_marker_leaked": leaked, "pass": !leaked})
+		h.api(n, "POST", base+"/files/delete", map[string]any{"root": "/bench", "files": []string{"ssrf.txt"}})
+		status, b, err = h.request(n, "POST", base+"/files/pull", []byte(`{"root":"/bench","url":"http://127.0.0.1:19090/sentinel.txt","file_name":"ssrf.txt","foreground":true}`), false, true)
+		must(err)
+		readStatus, contents, err := h.request(n, "GET", base+"/files/contents?file=/bench/ssrf.txt", nil, false, true)
+		must(err)
+		retrieved := readStatus == 200 && strings.TrimSpace(string(contents)) == "controlled-loopback-benchmark"
+		h.add(map[string]any{"type": "check", "test": "ssrf_loopback_blocked", "variant": variant, "status": status, "pass": !retrieved, "response": string(b), "loopback_content_retrieved": retrieved, "file_status": readStatus})
+		sc, c := h.sftp(n, s)
+		must(sc.MkdirAll("bench"))
+		linkErr := sc.Symlink("/etc/passwd", "bench/escape-link")
+		opened := false
+		if linkErr == nil {
+			f, err := sc.Open("bench/escape-link")
+			if err == nil {
+				opened = true
+				_ = f.Close()
+			}
+			_ = sc.Remove("bench/escape-link")
+		}
+		must(sc.Close())
+		must(c.Close())
+		h.add(map[string]any{"type": "check", "test": "sftp_symlink_containment", "variant": variant, "creation_rejected": linkErr != nil, "outside_file_opened": opened, "pass": !opened})
+		for _, format := range []struct{ name, suffix string }{{"full_uuid_sftp", s.UUID}, {"modern_identifier_sftp", s.Identifier}} {
+			sc, c, err := h.sftpSuffix(n, format.suffix)
+			accepted := err == nil
+			if accepted {
+				must(sc.Close())
+				must(c.Close())
+			}
+			h.add(map[string]any{"type": "check", "test": format.name, "variant": variant, "accepted": accepted, "pass": accepted})
+		}
+	}
+}
+
+
+===== benchmarks/Run-Benchmark.ps1 =====
+param(
+    [ValidateSet('lifecycle','performance','resources','security','events')]
+    [string[]]$Phases = @('lifecycle','performance','resources','security'),
+    [string]$PanelContainer = 'aquadactyl-test-panel-1',
+    [string]$OutputDirectory = (Join-Path $PSScriptRoot 'results')
+)
+$ErrorActionPreference='Stop'
+$workspacePath=Split-Path -Parent $PSScriptRoot
+$resultsPath=[IO.Path]::GetFullPath($OutputDirectory)
+$privatePath=Join-Path ([IO.Path]::GetTempPath()) ('manta-benchmark-'+[guid]::NewGuid().ToString('N')+'.json')
+$containerId=$null
+$probePids=@{}
+
+function Invoke-BenchmarkDocker {
+    & docker @args
+    if ($LASTEXITCODE -ne 0) { throw "Docker command failed: $LASTEXITCODE" }
+}
+function Stop-LoopbackProbes {
+    foreach ($entry in $probePids.GetEnumerator()) {
+        # Only stop a listener started by this invocation, after checking its command line.
+        $stopProbe='if /usr/local/bin/busybox grep -q /tmp/manta-benchmark-probe "/proc/$1/cmdline" 2>/dev/null; then /usr/local/bin/busybox kill "$1"; fi'
+        & docker exec $entry.Key /usr/local/bin/busybox sh -c $stopProbe sh $entry.Value 2>$null | Out-Null
+        & docker exec $entry.Key /usr/local/bin/busybox rm -f /tmp/manta-benchmark-probe/pid 2>$null | Out-Null
+    }
+    $probePids.Clear()
+}
+try {
+    Invoke-BenchmarkDocker cp (Join-Path $PSScriptRoot 'provision.php') "${PanelContainer}:/tmp/manta-benchmark-provision.php"
+    $raw=Invoke-BenchmarkDocker exec -w /app $PanelContainer php /tmp/manta-benchmark-provision.php manifest
+    [IO.File]::WriteAllText($privatePath,($raw -join "`n"),[Text.UTF8Encoding]::new($false))
+    $raw=$null
+    New-Item -ItemType Directory -Path $resultsPath -Force | Out-Null
+    Invoke-BenchmarkDocker run --rm --mount "type=bind,source=$workspacePath,target=/workspace" `
+        --mount 'type=volume,source=manta-go-mod,target=/go/pkg/mod' `
+        --mount 'type=volume,source=manta-go-build,target=/root/.cache/go-build' `
+        -w /workspace golang:1.26.9-bookworm go build -o /workspace/build/manta-benchmark ./benchmarks/runner
+    foreach ($phase in $Phases) {
+        if ($phase -eq 'security') {
+            $probe=@'
+/usr/local/bin/busybox mkdir -p /tmp/manta-benchmark-probe
+printf 'controlled-loopback-benchmark\n' > /tmp/manta-benchmark-probe/sentinel.txt
+/usr/local/bin/busybox httpd -f -p 127.0.0.1:19090 -h /tmp/manta-benchmark-probe &
+printf '%s' "$!" > /tmp/manta-benchmark-probe/pid
+'@
+            foreach ($daemon in @('manta-test','wings-benchmark')) {
+                Invoke-BenchmarkDocker exec $daemon /usr/local/bin/busybox sh -c $probe
+                $probePid=Invoke-BenchmarkDocker exec $daemon /usr/local/bin/busybox cat /tmp/manta-benchmark-probe/pid
+                if ($probePid -notmatch '^\d+$') { throw 'Invalid loopback probe process ID' }
+                $probePids[$daemon]=$probePid
+                $sentinel=Invoke-BenchmarkDocker exec $daemon /usr/local/bin/busybox wget -q -O - http://127.0.0.1:19090/sentinel.txt
+                if ($sentinel.Trim() -ne 'controlled-loopback-benchmark') { throw 'Loopback probe not ready' }
+            }
+        }
+        $containerId=Invoke-BenchmarkDocker create --name "manta-benchmark-$phase" --cpus 4 --memory 1g `
+            --network aquadactyl-test_default `
+            --mount "type=bind,source=$workspacePath\build\manta-benchmark,target=/runner,readonly" `
+            --mount "type=bind,source=$privatePath,target=/private/manifest.json,readonly" `
+            --mount "type=bind,source=$resultsPath,target=/results" `
+            --mount 'type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock' `
+            --entrypoint /runner golang:1.26.9-bookworm -phase $phase
+        if ($phase -eq 'resources') {
+            Invoke-BenchmarkDocker network connect manta-test_servers $containerId
+            Invoke-BenchmarkDocker network connect manta-benchmark-wings_servers $containerId
+        }
+        Invoke-BenchmarkDocker start -a $containerId
+        $exitCode=Invoke-BenchmarkDocker inspect --format '{{.State.ExitCode}}' $containerId
+        if ($exitCode -ne '0') { throw "Benchmark phase $phase failed with exit code $exitCode" }
+        Invoke-BenchmarkDocker rm $containerId | Out-Null
+        $containerId=$null
+        if ($phase -eq 'security') { Stop-LoopbackProbes }
+    }
+    Write-Output "Benchmark artifacts saved in $resultsPath."
+}
+finally {
+    if ($containerId -and $containerId -match '^[a-f0-9]{64}$') {
+        & docker rm --force $containerId 2>$null | Out-Null
+    }
+    if ('security' -in $Phases) { Stop-LoopbackProbes }
+    if (Test-Path -LiteralPath $privatePath) { Remove-Item -LiteralPath $privatePath -Force }
+}
+
+
+===== benchmarks/provision.php =====
+<?php
+
+use Pterodactyl\Models\{Allocation,Egg,Location,Node,Server,User};
+use Pterodactyl\Services\{Nodes\NodeCreationService,Eggs\EggCreationService,Servers\ServerCreationService};
+
+require '/app/vendor/autoload.php';
+$app = require '/app/bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+if (!$app->environment('local') || getenv('AQUADACTYL_LOCAL_SETUP') !== 'true') {
+    throw new RuntimeException('Benchmark provisioning is restricted to the local test Panel.');
+}
+$action = $argv[1] ?? 'manifest';
+$root = '/var/lib/docker/volumes/manta-benchmark-wings_data/_data';
+if ($action === 'node') {
+    $node = Node::query()->where('name','Benchmark Wings')->first();
+    if (!$node) {
+        $node = $app->make(NodeCreationService::class)->handle([
+            'name'=>'Benchmark Wings','description'=>'Stock Pterodactyl Wings v1.13.3 comparison node.',
+            'location_id'=>Location::query()->where('short','local')->firstOrFail()->id,
+            'fqdn'=>'wings-benchmark.localhost','scheme'=>'http','behind_proxy'=>false,'public'=>false,
+            'memory'=>4096,'disk'=>16384,'memory_overallocate'=>0,'disk_overallocate'=>0,
+            'daemonListen'=>8084,'daemonSFTP'=>2024,'daemonBase'=>$root.'/volumes','upload_size'=>100,
+        ]);
+    }
+    if ($node->fqdn !== 'wings-benchmark.localhost' || $node->daemonBase !== $root.'/volumes') {
+        throw new RuntimeException('Benchmark Wings name is already used by an unrelated node.');
+    }
+    foreach(range(27115,27119) as $port) Allocation::query()->firstOrCreate([
+        'node_id'=>$node->id,'ip'=>'127.0.0.1','port'=>$port,
+    ],['ip_alias'=>'localhost']);
+    $config=$node->getConfiguration();
+    $config['remote']='http://panel';
+    $config['allowed_origins']=['http://localhost:8081','http://127.0.0.1:8081'];
+    $config['ignore_panel_config_updates']=true;
+    $config['system']=array_replace_recursive($config['system'],[
+        'root_directory'=>$root,'log_directory'=>$root.'/logs','archive_directory'=>$root.'/archives',
+        'backup_directory'=>$root.'/backups','tmp_directory'=>$root.'/tmp','timezone'=>'Europe/London',
+        'machine_id'=>['directory'=>$root.'/machine-id'],'passwd'=>['directory'=>$root.'/etc'],
+    ]);
+    $config['docker']['network']=['name'=>'manta-benchmark-wings_servers','network_mode'=>'manta-benchmark-wings_servers',
+        'interface'=>'127.0.0.1','interfaces'=>['v4'=>['subnet'=>getenv('BENCH_SUBNET'),'gateway'=>getenv('BENCH_GATEWAY')]]];
+    echo Symfony\Component\Yaml\Yaml::dump($config,8,2,Symfony\Component\Yaml\Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+    exit;
+}
+if ($action === 'servers') {
+    $owner=User::query()->where('username','repgraphics')->first() ?? User::query()->where('root_admin',true)->firstOrFail();
+    $eggs=[];
+    foreach(['paper'=>2,'bedrock'=>17] as $kind=>$sourceId) {
+        $source=Egg::query()->findOrFail($sourceId);
+        $name='Manta Benchmark '.ucfirst($kind);
+        $egg=Egg::query()->where('name',$name)->first();
+        if (!$egg) {
+            $script=file_get_contents('/tmp/manta-benchmark-install-'.$kind.'.sh');
+            $egg=$app->make(EggCreationService::class)->handle([
+                'nest_id'=>$source->nest_id,'name'=>$name,'description'=>'Local reproducible benchmark using cached game binaries.',
+                'docker_images'=>$source->docker_images,'startup'=>$source->startup,'config_from'=>$sourceId,
+                'script_install'=>$script,'script_container'=>'ghcr.io/pterodactyl/installers:alpine','script_entry'=>'ash',
+                'script_is_privileged'=>false,'features'=>$source->features,
+            ]);
+            foreach($source->variables as $variable) {
+                $copy=$variable->replicate(); $copy->egg_id=$egg->id; $copy->save();
+            }
+        }
+        $eggs[$kind]=$egg;
+    }
+    foreach(['manta'=>'Local Manta','wings'=>'Benchmark Wings'] as $variant=>$nodeName) {
+        $node=Node::query()->where('name',$nodeName)->firstOrFail();
+        foreach($eggs as $kind=>$egg) {
+            $external='manta-benchmark-'.$variant.'-'.$kind;
+            $server=Server::query()->where('external_id',$external)->first();
+            if ($server) {
+                if ($server->node_id!==$node->id || $server->egg_id!==$egg->id) throw new RuntimeException('Conflicting benchmark server.');
+                continue;
+            }
+            $port=($variant==='manta'?27015:27115)+($kind==='bedrock'?1:0);
+            $allocation=Allocation::query()->where('node_id',$node->id)->where('port',$port)->whereNull('server_id')->firstOrFail();
+            $env=$egg->variables->pluck('default_value','env_variable')->all();
+            if ($kind==='paper') { $env['MINECRAFT_VERSION']='26.3'; $env['SERVER_JARFILE']='server.jar'; }
+            $data=[
+                'external_id'=>$external,'name'=>'Benchmark '.ucfirst($variant).' '.ucfirst($kind),
+                'description'=>'Dedicated matching Paper/Bedrock test server. No production data.',
+                'owner_id'=>$owner->id,'node_id'=>$node->id,'allocation_id'=>$allocation->id,'egg_id'=>$egg->id,
+                'memory'=>$kind==='paper'?1536:512,'swap'=>0,'disk'=>2048,'io'=>500,'cpu'=>200,
+                'oom_disabled'=>false,'startup'=>$egg->startup,'image'=>$kind==='paper'?'ghcr.io/pterodactyl/yolks:java_25':'ghcr.io/ptero-eggs/yolks:debian',
+                'environment'=>$env,'database_limit'=>0,'allocation_limit'=>2,'backup_limit'=>2,'start_on_completion'=>false,
+            ];
+            if ($kind==='bedrock') $data['allocation_additional']=[Allocation::query()->where('node_id',$node->id)->where('port',$port+1)->whereNull('server_id')->firstOrFail()->id];
+            $server=$app->make(ServerCreationService::class)->handle($data);
+            fwrite(STDERR,"Created {$server->name} ({$server->uuid}).\n");
+        }
+    }
+}
+$manifest=['nodes'=>[],'panel_origin'=>'http://localhost:8081'];
+$admin=User::query()->where('username',getenv('AQUADACTYL_ADMIN_USERNAME')?:'admin')->firstOrFail();
+$password=getenv('AQUADACTYL_ADMIN_PASSWORD');
+if (!$password || !Illuminate\Support\Facades\Hash::check($password,$admin->password)) throw new RuntimeException('Local SFTP test credentials do not match the configured administrator.');
+$manifest['sftp']=['username'=>$admin->username,'password'=>$password,'user_uuid'=>$admin->uuid];
+foreach(['manta'=>'Local Manta','wings'=>'Benchmark Wings'] as $variant=>$name) {
+    $node=Node::query()->where('name',$name)->firstOrFail();
+    $servers=Server::query()->where('node_id',$node->id)->where('external_id','like','manta-benchmark-%')->get();
+    $manifest['nodes'][$variant]=[
+        'id'=>$node->id,'name'=>$name,'container'=>$variant==='manta'?'manta-test':'wings-benchmark',
+        'base'=>$variant==='manta'?'http://manta-test:8083':'http://wings-benchmark:8084',
+        'sftp_port'=>$node->daemonSFTP,'token'=>$node->getDecryptedKey(),'data_root'=>dirname($node->daemonBase),
+        'servers'=>$servers->map(fn($s)=>['id'=>$s->id,'uuid'=>$s->uuid,'name'=>$s->name,
+            'kind'=>str_ends_with($s->external_id,'paper')?'paper':'bedrock','identifier'=>$s->identifier,'port'=>$s->allocation->port,'status'=>$s->status])->all(),
+    ];
+}
+// Credentials are captured privately by the host script and mounted read-only
+// into the isolated runner. Never log the manifest or retain it in reports.
+echo json_encode($manifest,JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES);
+
+
+===== benchmarks/compose.yaml =====
+name: manta-benchmark
+services:
+  wings-benchmark:
+    image: manta-benchmark:wings
+    container_name: wings-benchmark
+    restart: unless-stopped
+    cpus: 2
+    mem_limit: 1g
+    memswap_limit: 1g
+    environment:
+      TZ: Europe/London
+      GOMAXPROCS: "2"
+      WINGS_UID: "988"
+      WINGS_GID: "988"
+    ports:
+      - 127.0.0.1:8084:8084
+      - 127.0.0.1:2024:2024
+    networks:
+      panel:
+        aliases: [wings-benchmark.localhost]
+      servers:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - config:/etc/pterodactyl
+      - data:/var/lib/docker/volumes/manta-benchmark-wings_data/_data
+    healthcheck:
+      test: [CMD, /usr/local/bin/busybox, nc, -z, 127.0.0.1, "8084"]
+      interval: 5s
+      start_period: 10s
+      retries: 12
+volumes:
+  config:
+    external: true
+    name: manta-benchmark-wings_config
+  data:
+    external: true
+    name: manta-benchmark-wings_data
+networks:
+  panel:
+    external: true
+    name: aquadactyl-test_default
+  servers:
+    external: true
+    name: manta-benchmark-wings_servers
+
+
+===== benchmarks/compose.manta.yaml =====
+services:
+  manta:
+    cpus: 2
+    mem_limit: 1g
+    memswap_limit: 1g
+    environment:
+      GOMAXPROCS: "2"

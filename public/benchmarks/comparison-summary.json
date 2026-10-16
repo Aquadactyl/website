@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "measuredOn": "2026-10-15",
+  "sources": {
+    "panel": {
+      "file": "panel-comparison.json",
+      "sha256": "a77aba3b2cf3d21eeedd88cac9f1743a959fcc755bc87888060551f9364782ed"
+    },
+    "daemon": {
+      "file": "daemon-comparison.json",
+      "sha256": "dde1432737a5ab7496dbc72f65db08f68ed8e13b3e0cd7747811cf6de6103cff"
+    }
+  },
+  "comparisons": {
+    "panel": {
+      "label": "Panel vs Pterodactyl",
+      "baseline": "Pterodactyl",
+      "candidate": "Aquadactyl",
+      "href": "/docs/panel/panel-comparison",
+      "description": "50-server dashboard · 2 CPU cores per panel.",
+      "metrics": [
+        {
+          "id": "browser",
+          "label": "Browser load",
+          "context": "Cold-cache dashboard ready · median",
+          "unit": "ms",
+          "better": "lower",
+          "changeLabel": "time",
+          "baseline": 328.1500000357628,
+          "candidate": 198.14999997615814
+        },
+        {
+          "id": "api",
+          "label": "API throughput",
+          "context": "50-server list · 16 concurrent requests",
+          "unit": "req/s",
+          "better": "higher",
+          "changeLabel": "throughput",
+          "baseline": 17.782406307626964,
+          "candidate": 72.20188666370906
+        },
+        {
+          "id": "memory",
+          "label": "Memory use",
+          "context": "Panel container under API load · median",
+          "unit": "MiB",
+          "better": "lower",
+          "changeLabel": "memory",
+          "baseline": 126.576171875,
+          "candidate": 127.548828125
+        }
+      ]
+    },
+    "daemon": {
+      "label": "Wings vs Manta",
+      "baseline": "Wings",
+      "candidate": "Manta",
+      "href": "/docs/wings/benchmarks",
+      "description": "Paper + Bedrock · 2 CPU cores per daemon.",
+      "metrics": [
+        {
+          "id": "api",
+          "label": "API throughput",
+          "context": "Server status · 16 concurrent requests",
+          "unit": "req/s",
+          "better": "higher",
+          "changeLabel": "throughput",
+          "baseline": 43154.4244397315,
+          "candidate": 47467.237222858086
+        },
+        {
+          "id": "files",
+          "label": "File listing",
+          "context": "1,000 files · 16 concurrent requests · p50",
+          "unit": "ms",
+          "better": "lower",
+          "changeLabel": "time",
+          "baseline": 85.567,
+          "candidate": 52.822
+        },
+        {
+          "id": "memory",
+          "label": "Memory use",
+          "context": "Daemon during game command load · mean",
+          "unit": "MiB",
+          "better": "lower",
+          "changeLabel": "memory",
+          "baseline": 50.36770833333333,
+          "candidate": 51.459895833333334
+        }
+      ]
+    }
+  }
+}

@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 
+const stem = process.argv[2] || "runtime";
+if (!/^[a-z-]+$/.test(stem)) throw new Error("Invalid benchmark filename.");
+const guidePath = `docs/panel/${stem === "runtime" ? "runtime-benchmarks" : stem}.mdx`;
 const report = JSON.parse(
-  fs.readFileSync("public/benchmarks/runtime.json", "utf8"),
+  fs.readFileSync(`public/benchmarks/${stem}.json`, "utf8"),
 );
 if (!report.completedAt)
   throw new Error("Runtime benchmark has not completed.");
@@ -58,7 +61,7 @@ const summary = {
   ),
 };
 fs.writeFileSync(
-  "public/benchmarks/runtime-summary.json",
+  `public/benchmarks/${stem}-summary.json`,
   JSON.stringify(summary, null, 2) + "\n",
 );
 const browserRows = ["cold", "warm"]
@@ -114,13 +117,13 @@ const blocked = [
   ...new Set(report.browserRuns.flatMap((run) => run.blockedExternal)),
 ];
 const doc = `---
-title: Browser, API and memory benchmarks
+title: ${stem === "runtime" ? "Browser, API and memory benchmarks" : "Panel vs Pterodactyl benchmarks"}
 description: Measured browser timing, authenticated API throughput and memory use from matching local Aquadactyl and Pterodactyl stacks.
 ---
 
 Measured **${report.measuredOn}**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
 
-[Interactive showcase](/#runtime-benchmarks) · [Raw samples](/benchmarks/runtime.json) · [Chart data](/benchmarks/runtime-summary.json) · [Measured runner source](/benchmarks/runtime-runner.txt)
+[Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/${stem}.json) · [Summary](/benchmarks/${stem}-summary.json) · [Measured runner source](/benchmarks/${stem}-runner.txt)
 
 ## Scope and compared versions
 
@@ -133,7 +136,7 @@ ${report.methodology.fixture}
 
 ${report.methodology.sharedConfiguration}
 
-Both applications use their own locked production Composer dependencies and the frontend artifacts from the pinned build comparison. No application source was patched. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
+Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. ${aqua.sourcePatchSha256 ? `Aquadactyl includes the recorded local performance and SFTP compatibility changes on top of the linked base commit. [Download the exact source patch](/benchmarks/${stem}-aquadactyl.patch) (SHA-256: ${aqua.sourcePatchSha256}). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions.` : "No application source was patched."} Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
 
 These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
 
@@ -221,7 +224,7 @@ Browser observations, API windows and memory windows ran in separate phases. Pan
 
 ## Reproduce
 
-Use the exact clean source checkouts and production frontend builds from the [build benchmark](/docs/panel/benchmarks#reproduce). Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
+Check out the exact source commits above. ${aqua.sourcePatchSha256 ? `Apply the linked patch to Aquadactyl with git apply, then include --include-working-tree when preparing the stacks.` : "Use clean source checkouts."} Install each panel's locked dependencies and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: yarn build:production) before preparing the stacks. The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately. Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
 
 FIRST_COMMANDS
 
@@ -234,13 +237,18 @@ The generated Compose file binds only to 127.0.0.1:8091 and :8092 and has its ow
 const firstCommands = [
   "docker build -t aquadactyl:test /path/to/aquadactyl-bench",
   "pnpm exec playwright install chromium",
-  "node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench",
+  `node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench${aqua.sourcePatchSha256 ? " --include-working-tree" : ""}`,
 ].join("\n");
 const runCommands = [
   "docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240",
-  "node scripts/benchmark-runtime.mjs WORKDIR",
-  "node scripts/write-runtime-benchmark-guide.mjs",
-  "node scripts/verify-runtime-benchmark.mjs",
+  `node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/${stem}.json`,
+  ...(aqua.sourcePatchSha256
+    ? [
+        `node -e "require('fs').copyFileSync('WORKDIR/aquadactyl-source.patch', 'public/benchmarks/${stem}-aquadactyl.patch')"`,
+      ]
+    : []),
+  `node scripts/write-runtime-benchmark-guide.mjs ${stem}`,
+  `node scripts/verify-runtime-benchmark.mjs ${stem}`,
   "docker compose -f WORKDIR/compose.json down --volumes",
 ].join("\n");
 // Place code fences after interpolation to keep the generated MDX readable.
@@ -248,14 +256,14 @@ const fence = (content) => "\n```bash\n" + content + "\n```\n";
 const rendered = doc
   .replace("FIRST_COMMANDS", () => fence(firstCommands))
   .replace("RUN_COMMANDS", () => fence(runCommands));
-fs.writeFileSync("docs/panel/runtime-benchmarks.mdx", rendered);
+fs.writeFileSync(guidePath, rendered);
 execFileSync(
   process.execPath,
   [
     "node_modules/oxfmt/bin/oxfmt",
     "--write",
-    "docs/panel/runtime-benchmarks.mdx",
-    "public/benchmarks/runtime-summary.json",
+    guidePath,
+    `public/benchmarks/${stem}-summary.json`,
   ],
   { stdio: "inherit", windowsHide: true },
 );

@@ -86,7 +86,7 @@ description: Before-and-after measurements for batched server-list queries, API-
 
 Measured **${report.measuredOn}** using two Aquadactyl instances built from the same base commit [${before.revision.slice(0, 12)}](https://github.com/Aquadactyl/aquadactyl/tree/${before.revision}). The candidate contains an uncommitted performance patch, identified by file hashes in the raw report. These results describe that working patch, not a published release.
 
-[Homepage results](/#optimization-benchmarks) · [Full samples](/benchmarks/aquadactyl-optimization.json) · [Performance patch](/benchmarks/aquadactyl-optimization.patch) · [Measured runner](/benchmarks/aquadactyl-optimization-runner.txt)
+[Homepage comparisons](/#benchmarks) · [Full samples](/benchmarks/aquadactyl-optimization.json) · [Performance patch](/benchmarks/aquadactyl-optimization.patch) · [Measured runner](/benchmarks/aquadactyl-optimization-runner.txt)
 
 The earlier [Pterodactyl comparison](/docs/panel/runtime-benchmarks) remains a separate measurement of its pinned revisions. This experiment compares Aquadactyl before and after the changes; it does not combine measurements from different runs into a new Pterodactyl ranking.
 

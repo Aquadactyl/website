@@ -1,4 +1,9 @@
 {
   "title": "Wings",
-  "pages": ["installing-wings", "additional-configuration", "upgrading-wings"]
+  "pages": [
+    "installing-wings",
+    "additional-configuration",
+    "upgrading-wings",
+    "benchmarks"
+  ]
 }

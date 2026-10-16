@@ -114,10 +114,46 @@ the guides. Keep original upstream credits and license notices.
 ## Verify changes
 
 The homepage feature cards and comparison table share `src/lib/panel-features.ts`.
-Its source revisions identify the reviewed stock panels. Benchmark charts read
-`public/benchmarks/panels.json`; the methodology page and build output are linked
-from the showcase. The measurements cover frontend build duration and emitted
-dashboard JS/CSS, including separately emitted CSS for a fairer asset comparison.
+Its source revisions identify the reviewed stock panels. The homepage has one
+compact benchmark section with **Panel vs Pterodactyl** and **Wings vs Manta**
+comparison buttons, each showing three fixed measurements. It imports only
+`public/benchmarks/comparison-summary.json`. Full results and methodology live in
+`docs/panel/panel-comparison.mdx` and `docs/wings/benchmarks.mdx`.
+
+Refresh both comparisons sequentially, with no other benchmark jobs running.
+Build both panel frontends from their locked dependencies first. The runtime
+preparation script accepts `--include-working-tree` to record local changes,
+their hashes and an exact Git patch without changing the checkout's Git index.
+
+```bash
+node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl /path/to/pterodactyl --include-working-tree
+docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
+node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/panel-comparison.json
+# Copy WORKDIR/aquadactyl-source.patch to public/benchmarks/panel-comparison-aquadactyl.patch.
+node scripts/write-runtime-benchmark-guide.mjs panel-comparison
+node scripts/verify-runtime-benchmark.mjs panel-comparison
+docker compose -f WORKDIR/compose.json down --volumes
+```
+
+Use the guarded Manta repository runner on its dedicated local benchmark nodes
+to collect lifecycle, performance, resources and security phases into a fresh
+output directory. It starts/stops only the four provisioned benchmark games.
+Rebuild Manta before the run and use the recorded stock Wings release/image.
+See the daemon methodology for topology, quotas and limitations. Then package
+only the credential-free results and regenerate the small homepage dataset:
+
+```bash
+node scripts/publish-daemon-benchmark.mjs /path/to/manta /path/to/fresh-results
+node scripts/write-comparison-showcase.mjs
+node scripts/verify-comparison-data.mjs
+node scripts/verify-runtime-showcase.mjs http://localhost:3000
+```
+
+The older frontend build, runtime and before/after optimization reports remain
+historical documentation. They are not separate homepage sections. Their
+original source revisions and measurement dates are retained. The frontend
+report covers build duration and emitted dashboard JS/CSS, including separately
+emitted CSS for asset accounting.
 
 With locked dependencies installed in clean panel checkouts, refresh the results:
 
@@ -157,8 +193,8 @@ locked Composer dependencies and prebuilt frontend assets from `/bench`.
 contains only the chart aggregates so raw latency arrays are not bundled into
 the homepage.
 
-With the website running, check the runtime chart controls, methodology links
-and mobile layout with:
+With the website running, check both comparison buttons, displayed values,
+methodology links, keyboard interaction and compact desktop/mobile layouts with:
 
 ```bash
 node scripts/verify-runtime-showcase.mjs http://localhost:3000
