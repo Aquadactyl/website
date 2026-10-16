@@ -125,6 +125,8 @@ Measured **${report.measuredOn}**. These runtime tests extend the separate [fron
 
 [Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/${stem}.json) · [Summary](/benchmarks/${stem}-summary.json) · [Measured runner source](/benchmarks/${stem}-runner.txt)
 
+${report.projection ? `This is the candidate/Pterodactyl view of a **three-way run**, not a newly timed two-panel experiment. The [unchanged full record](/benchmarks/${report.projection.file}) also contains the previous Aquadactyl build: 60 browser samples, 54 API windows and 180 memory samples in total. The homepage view selects 40 browser samples, 36 API windows and 120 memory samples without changing any values. All three stacks were provisioned separately, and their order alternated within each phase. Full-record SHA-256: ${report.projection.sha256}. [Source and font provenance](/benchmarks/${report.projection.provenanceFile}).` : stem === "runtime" ? "This historical report retains its original revisions and measurements. See the [current panel comparison](/docs/panel/panel-comparison) for newer results and the [archived build record](/benchmarks/archive/2026-10-14/panels.json) for the frontend artifacts used in this run." : ""}
+
 ## Scope and compared versions
 
 | Panel | Source | PHP |
@@ -139,6 +141,8 @@ ${report.methodology.sharedConfiguration}
 Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. ${aqua.sourcePatchSha256 ? `Aquadactyl includes the recorded local performance and SFTP compatibility changes on top of the linked base commit. [Download the exact source patch](/benchmarks/${stem}-aquadactyl.patch) (SHA-256: ${aqua.sourcePatchSha256}). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions.` : "No application source was patched."} Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
 
 These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
+
+${aqua.appliedCommit ? `The recorded runtime and font source files have been checked against committed Aquadactyl [${aqua.appliedCommit.slice(0, 12)}](https://github.com/Aquadactyl/aquadactyl/tree/${aqua.appliedCommit}). The linked patch recreates that source from the base commit above. The original raw record retains the parent image's patch metadata; the separate provenance records the additional files copied into the candidate before measurement. New production font cache headers were checked separately and were **not** applied to the shared benchmark Nginx configuration. The [current frontend build comparison](/docs/panel/benchmarks) was collected separately from a clean checkout of the committed version.` : ""}
 
 ## Browser load time
 
@@ -194,6 +198,8 @@ ${memoryRows}
 
 Each state has 30 samples per panel across three windows. Loaded samples use the authenticated 50-server-list endpoint at concurrency 16. The Docker working-set calculation follows [Docker's documented cache subtraction](https://docs.docker.com/reference/cli/docker/container/stats/). These are short steady-state observations, not a leak or long-running capacity test.
 
+${report.projection ? `Aquadactyl's measured loaded container working set was higher (${mib(aqua.memory.loaded.panelWorkingSetBytes.median)} versus ${mib(ptero.memory.loaded.panelWorkingSetBytes.median)}); this is **not a memory improvement**. [Supplementary idle diagnostics](/benchmarks/panel-comparison-diagnostics.json), collected after the timed run, showed 82.5/82.9 MiB of anonymous memory in the previous/candidate Aquadactyl containers, but 0.9/24.9 MiB of active file cache and 3.3/7.3 MiB of reclaimable slab. Cache accounting dominates that before/after difference. Shared image pages and cgroup ownership limit container-memory comparisons; these observations do not establish a leak or a general RAM reduction.` : ""}
+
 Sampling pauses one second between collections; container-exec overhead adds to that interval. The raw report retains each sample timestamp. The helper shell and Docker sampling overhead are present for both panels.
 
 ### Browser JavaScript heap
@@ -223,6 +229,8 @@ ${report.methodology.limitations}
 Browser observations, API windows and memory windows ran in separate phases. Panels were tested sequentially within each phase, alternating which panel ran first by repetition. The measured panel stacks do not run game servers; existing unrelated containers were left untouched. Changing CPU quotas, PHP worker counts, dataset, caching, browser, network or optional features can change the outcome. Differences should be read per metric, without combining them into an overall performance score.
 
 ## Reproduce
+
+${report.projection ? "The commands below collect a **new two-way comparison** with the same fixture and resource limits. They do not recreate the original third Aquadactyl baseline or its alternating three-stack order. Keep the full three-way record and its measured runner when citing the published results." : ""}
 
 Check out the exact source commits above. ${aqua.sourcePatchSha256 ? `Apply the linked patch to Aquadactyl with git apply, then include --include-working-tree when preparing the stacks.` : "Use clean source checkouts."} Install each panel's locked dependencies and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: yarn build:production) before preparing the stacks. The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately. Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
 

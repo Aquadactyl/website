@@ -1,0 +1,4 @@
+# Benchmark hashes identify exact bytes, including measured runner source.
+/public/benchmarks/** -text
+# Patch context and original license text may contain literal trailing spaces.
+/public/benchmarks/**/*.patch -whitespace

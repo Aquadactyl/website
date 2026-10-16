@@ -1,7 +1,7 @@
-=== aquadactyl; warm-up; 1695.16 ms ===
+=== aquadactyl; warm-up; 1725.82 ms ===
 vite v8.3.4 building client environment for production...
 transforming...
-✓ 4011 modules transformed.
+✓ 4012 modules transformed.
 rendering chunks...
 computing gzip size...
 public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
@@ -11,145 +11,145 @@ public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip: 
 public/build/manifest.json                                   55.39 kB │ gzip:   5.56 kB
 public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
 public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-CN27H3h8.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/useBaseUiId-CD1nHeCx.js                   0.09 kB │ gzip:   0.11 kB
 public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-BmbNzAyN.js            0.16 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareEffect-DMLvTEi8.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-C2FJnzsS.js            0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareEffect-Y8GVsOUQ.js          0.16 kB │ gzip:   0.15 kB
 public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
 public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
 public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
 public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
 public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
 public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-A3_3DUWE.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-BNZuWUHd.js                0.20 kB │ gzip:   0.17 kB
 public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
 public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-jXMGbA5u.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/updateStartupVariable-DODRwxMA.js         0.24 kB │ gzip:   0.20 kB
 public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
 public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-D7aDWkEt.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-FXuUJ0nt.js            0.25 kB │ gzip:   0.21 kB
 public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
 public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
 public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
 public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
 public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
 public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-CcwK6GYy.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-BrTncZQ5.js             0.31 kB │ gzip:   0.23 kB
 public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-DySiI_uZ.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/usePermissions-DCjNSMZj.js                0.35 kB │ gzip:   0.27 kB
 public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-DpJjX6WP.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/asDialog-mRFM3o22.js                      0.39 kB │ gzip:   0.26 kB
 public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-DDeFHTOc.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/useFileManagerQuery-B7Gbu_KV.js           0.41 kB │ gzip:   0.29 kB
 public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-Dvrq_WmA.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-CV1cgrHk.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/getServerStartup-D64w5HUt.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-BMyNcHvo.js                           0.46 kB │ gzip:   0.31 kB
 public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-r3hWoKYj.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/alert-PjmCUhIa.js                         0.54 kB │ gzip:   0.33 kB
 public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-DXOUwHrs.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-CCZUHlDV.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-CQleQtaJ.js             0.61 kB │ gzip:   0.41 kB
+public/build/assets/FormFieldWrapper-BlSF_e7C.js              0.60 kB │ gzip:   0.37 kB
+public/build/assets/ContentBox--awED-Sp.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-BPQMdWSu.js             0.61 kB │ gzip:   0.40 kB
 public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
 public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-ChRYXCTr.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-Bi7_Enno.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/TitledGreyBox-BchTMD8H.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-DWXK3IM3.js                         0.77 kB │ gzip:   0.44 kB
 public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
 public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-fh9-hJYx.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/events-DbxSjfZ7.js                        0.91 kB │ gzip:   0.50 kB
 public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
 public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-RsT6HpFq.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-BVqqHv7a.js    1.33 kB │ gzip:   0.73 kB
-public/build/assets/asModal-BrHwugHu.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-NHd-9TD-.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey-Tu57xqrg.js                   1.47 kB │ gzip:   0.81 kB
+public/build/assets/Pagination-Cw8J-WDZ.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-Qr9pPgJh.js    1.33 kB │ gzip:   0.72 kB
+public/build/assets/asModal-1N_3jarv.js                       1.42 kB │ gzip:   0.61 kB
+public/build/assets/CopyOnClick-rAMb6S6_.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-D0Wbudfq.js                   1.47 kB │ gzip:   0.80 kB
 public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-CYKOcY-F.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-D1VPpIq9.js          1.77 kB │ gzip:   0.95 kB
-public/build/assets/EulaModalFeature-82DAKlxj.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-DkHDUkjG.js                     2.03 kB │ gzip:   0.98 kB
+public/build/assets/HytaleOauthRequireFeature-CFCCeqvx.js     1.59 kB │ gzip:   0.88 kB
+public/build/assets/ActivityLogContainer-DnCr4K8l.js          1.77 kB │ gzip:   0.95 kB
+public/build/assets/EulaModalFeature-CUQ94iWu.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-BpODaNtj.js                     2.03 kB │ gzip:   0.98 kB
 public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
 public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-BSXRyhL4.js          2.22 kB │ gzip:   1.16 kB
-public/build/assets/useButton-D0rXUf8H.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/GSLTokenModalFeature-scu06odn.js          2.22 kB │ gzip:   1.15 kB
+public/build/assets/useButton-DDdRCeMh.js                     2.43 kB │ gzip:   1.12 kB
 public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-BSWG-exo.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/SteamDiskSpaceFeature-uVRhPIk3.js         2.46 kB │ gzip:   1.01 kB
 public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-DNgykcuz.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/JavaVersionModalFeature-B5siaE6Q.js       2.71 kB │ gzip:   1.28 kB
 public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-dS4fZiBT.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-wWhqwUfW.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/useSetFieldFocused-CjpgsdG8.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-DPthH_Dg.js          2.98 kB │ gzip:   1.16 kB
 public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-B-bnLRHr.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ--6VVGXQa.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-DBMhTYfw.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/dist-kQJhNKPu.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-CYAhY7bu.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-BHz420Fw.js             3.48 kB │ gzip:   1.56 kB
 public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
 public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-DwcAWq_A.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-DmPmls-x.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-DuyTjorJ.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-C1Yo9lPG.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/Switch-D_lxdnwd.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-CwCKziYW.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-B_zOqduO.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-GLwdyhu8.js             4.76 kB │ gzip:   2.31 kB
 public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
 public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-Dm2pAujH.js              5.32 kB │ gzip:   2.11 kB
-public/build/assets/NetworkContainer-DlfbdxKc.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-CT6QImzx.js           5.93 kB │ gzip:   2.44 kB
-public/build/assets/SettingsContainer-CKtRIrJN.js             6.24 kB │ gzip:   2.19 kB
+public/build/assets/StartupContainer-pChQjab3.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-55G7Kd8k.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-Bz9Ee8Sw.js           5.93 kB │ gzip:   2.44 kB
+public/build/assets/SettingsContainer-eAzC8_Tf.js             6.24 kB │ gzip:   2.19 kB
 public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
 public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-C3k10ufw.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-DgFG0ntX.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/DialogRoot-ChN86jyO.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-DKRV7kPU.js             8.81 kB │ gzip:   3.44 kB
 public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-Pf2I5QbO.js                8.90 kB │ gzip:   2.85 kB
+public/build/assets/TrashContainer-zCSVTGik.js                8.90 kB │ gzip:   2.85 kB
 public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-DiDj7BAO.js                 10.52 kB │ gzip:   3.76 kB
-public/build/assets/DatabasesContainer-9hZhw1-c.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-DaUjdL4k.js               11.57 kB │ gzip:   3.97 kB
+public/build/assets/ServerRouter-Bl8bUNzQ.js                 10.52 kB │ gzip:   3.76 kB
+public/build/assets/DatabasesContainer-iLj2izeH.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-5k9wNOFJ.js               11.57 kB │ gzip:   3.97 kB
 public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-B1r85ovt.js              11.80 kB │ gzip:   4.19 kB
-public/build/assets/safePolygon-BecW2Zba.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-CQwPXV4e.js         13.53 kB │ gzip:   5.49 kB
+public/build/assets/BackupContainer-DDWkYnJK.js              11.80 kB │ gzip:   4.18 kB
+public/build/assets/safePolygon-jjJVgIrj.js                  12.40 kB │ gzip:   4.43 kB
+public/build/assets/useCompositeListItem-AtMoo5OF.js         13.53 kB │ gzip:   5.49 kB
 public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-G3a1rash.js            14.87 kB │ gzip:   4.97 kB
-public/build/assets/dist-BDFIPjj1.js                         15.92 kB │ gzip:   6.98 kB
-public/build/assets/ScheduleEditContainer-DHku0QOa.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-Op3RltrY.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/EditScheduleModal-DgDjxSqE.js            14.87 kB │ gzip:   4.97 kB
+public/build/assets/dist-BuPFEs_2.js                         15.92 kB │ gzip:   6.97 kB
+public/build/assets/ScheduleEditContainer-DI1abIkw.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-BQdAot2g.js              16.84 kB │ gzip:   5.46 kB
 public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
 public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
 public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-bGme9Yg3.js        26.19 kB │ gzip:   9.99 kB
+public/build/assets/useActivityLogFilters-CDxFWNJe.js        26.19 kB │ gzip:   9.99 kB
 public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
 public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-spVQ-lWV.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu-B0Qu6PAw.js                 28.88 kB │ gzip:  10.18 kB
+public/build/assets/dist-DXxnOphU.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-BROfbnpe.js                 28.88 kB │ gzip:  10.18 kB
 public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-Ck-8PLWs.js                        40.92 kB │ gzip:  14.92 kB
-public/build/assets/Select-Tn0MvvVZ.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-VyyV0G6j.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-BjfJ3bo7.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-DjnH3NDQ.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-D0W2KCrS.js     45.52 kB │ gzip:  14.65 kB
+public/build/assets/Label-CPgx_tqo.js                        40.92 kB │ gzip:  14.91 kB
+public/build/assets/Select-7z4f0e5P.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-BFc88-k6.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-CiMxLqto.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-ByKNhQRz.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-C8fRIPf3.js     45.52 kB │ gzip:  14.65 kB
 public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-g0-JxaUR.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-B1gkmyDo.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-Do0Ei3gT.js           70.42 kB │ gzip:  24.47 kB
-public/build/assets/schemas-s0So7t15.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/useScrollLock-DcMZUviO.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-BfCua09h.js         63.72 kB │ gzip:  19.86 kB
+public/build/assets/AfterSubNavigation-CGDT7iqZ.js           70.42 kB │ gzip:  24.47 kB
+public/build/assets/schemas-BbL-22Uv.js                      81.89 kB │ gzip:  23.55 kB
 public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-BycPiZRX.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-BbrPQcQi.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-Dugjc-kj.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-DJL1PEGX.js                         98.22 kB │ gzip:  28.81 kB
 public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-IrHv07gb.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/CodemirrorEditor-C0fntueZ.js            108.87 kB │ gzip:  35.58 kB
 public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
 public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-5m6PZhKe.js                       351.64 kB │ gzip: 111.45 kB
-public/build/assets/ServerConsoleContainer-6sD6Cxf6.js      473.34 kB │ gzip: 135.74 kB
+public/build/assets/index-DJ-sVhml.js                       352.57 kB │ gzip: 111.67 kB
+public/build/assets/ServerConsoleContainer-F2KANpaH.js      473.34 kB │ gzip: 135.75 kB
 
-✓ built in 1.06s
+✓ built in 1.22s
 
 
-=== pterodactyl; warm-up; 13319.06 ms ===
-(node:182356) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+=== pterodactyl; warm-up; 17886.06 ms ===
+(node:7152) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
   npx update-browserslist-db@latest
@@ -157,13 +157,187 @@ Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
 
 warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
 warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12798 ms
+webpack compiled in 17210 ms
 
 
-=== aquadactyl; measured; 1250.57 ms ===
+=== aquadactyl; measured; 1489.31 ms ===
 vite v8.3.4 building client environment for production...
 transforming...
-✓ 4011 modules transformed.
+✓ 4012 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
+public/build/assets/not_found-BlmDXu1D.svg                    7.00 kB │ gzip:   2.37 kB
+public/build/assets/server_restore-PPkQqefc.svg              10.96 kB │ gzip:   3.34 kB
+public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip:   8.83 kB
+public/build/manifest.json                                   55.39 kB │ gzip:   5.57 kB
+public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
+public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
+public/build/assets/useBaseUiId-o5DDq1gg.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-0mu53G1t.js            0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareEffect-Cr7muKhH.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
+public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
+public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
+public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
+public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
+public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-D0vBoeZR.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
+public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
+public/build/assets/updateStartupVariable-CMENpimU.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
+public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-BGLIsb-V.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
+public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
+public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
+public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
+public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
+public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-SwB0RQee.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
+public/build/assets/usePermissions-PS8PtGHS.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
+public/build/assets/asDialog-DEYqVGAU.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
+public/build/assets/useFileManagerQuery-BMSWWJ6r.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
+public/build/assets/getServerStartup-BvpitBzT.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-BBq7WBwT.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
+public/build/assets/alert-BrRlEIBZ.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
+public/build/assets/FormFieldWrapper-N8lLMT1H.js              0.60 kB │ gzip:   0.38 kB
+public/build/assets/ContentBox-DwTLMYAQ.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-BHnxcuPw.js             0.61 kB │ gzip:   0.40 kB
+public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
+public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
+public/build/assets/TitledGreyBox-DU-6NmKE.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-Cde-VgAA.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
+public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
+public/build/assets/events-D1cGbCmT.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
+public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
+public/build/assets/Pagination-DnNVb2vo.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-DTJKtWPq.js    1.33 kB │ gzip:   0.73 kB
+public/build/assets/asModal-jE8FsYPx.js                       1.42 kB │ gzip:   0.61 kB
+public/build/assets/CopyOnClick-I9Qh68X6.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-DzyIJ0ZE.js                   1.47 kB │ gzip:   0.81 kB
+public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
+public/build/assets/HytaleOauthRequireFeature-CiChB5XF.js     1.59 kB │ gzip:   0.88 kB
+public/build/assets/ActivityLogContainer-Bpoo2cMq.js          1.77 kB │ gzip:   0.95 kB
+public/build/assets/EulaModalFeature-CyjsGe_E.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-oSoMBLhz.js                     2.03 kB │ gzip:   0.98 kB
+public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
+public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
+public/build/assets/GSLTokenModalFeature-BQ9YabL9.js          2.22 kB │ gzip:   1.15 kB
+public/build/assets/useButton-DR00eO_T.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
+public/build/assets/SteamDiskSpaceFeature-B91aZWcW.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
+public/build/assets/JavaVersionModalFeature-DqB39XIm.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
+public/build/assets/useSetFieldFocused-DOalQuxj.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-C0H9E8i_.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
+public/build/assets/dist-Cth7YArU.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-Blc2c7Hg.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-Dbsgp5eR.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
+public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
+public/build/assets/Switch-QfjnKz3j.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-Bi2xP1Cf.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-BppCWABn.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-CNvjAI6f.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
+public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
+public/build/assets/StartupContainer-Dv8aD2Fz.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-A_nJkVav.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-Dom63hmI.js           5.93 kB │ gzip:   2.45 kB
+public/build/assets/SettingsContainer-J67jUIBB.js             6.24 kB │ gzip:   2.20 kB
+public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
+public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
+public/build/assets/DialogRoot-DzSs4DzR.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-DhUJkJwN.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
+public/build/assets/TrashContainer-DIcXkAmp.js                8.90 kB │ gzip:   2.85 kB
+public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
+public/build/assets/ServerRouter-C8oMIY7H.js                 10.52 kB │ gzip:   3.77 kB
+public/build/assets/DatabasesContainer-C-UYe2zy.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-Di-4CfFb.js               11.57 kB │ gzip:   3.97 kB
+public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
+public/build/assets/BackupContainer-PdW-Q2Qo.js              11.80 kB │ gzip:   4.19 kB
+public/build/assets/safePolygon-S-ZUVIeF.js                  12.40 kB │ gzip:   4.44 kB
+public/build/assets/useCompositeListItem-rZ7lKocM.js         13.53 kB │ gzip:   5.49 kB
+public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
+public/build/assets/EditScheduleModal-iybsFB7e.js            14.87 kB │ gzip:   4.98 kB
+public/build/assets/dist-DUHTgFmc.js                         15.92 kB │ gzip:   6.98 kB
+public/build/assets/ScheduleEditContainer-D67xmfMs.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-XxX23_6H.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
+public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
+public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
+public/build/assets/useActivityLogFilters-BE3ZtdXh.js        26.19 kB │ gzip:   9.99 kB
+public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
+public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
+public/build/assets/dist-BSAvVhRy.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-BmfpFHGx.js                 28.88 kB │ gzip:  10.18 kB
+public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
+public/build/assets/Label-C8XJNj-f.js                        40.92 kB │ gzip:  14.91 kB
+public/build/assets/Select-d0_n9pQO.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-BUov62vj.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-BkFz5Kql.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-Bed8gv85.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-DYI1pzbY.js     45.52 kB │ gzip:  14.65 kB
+public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
+public/build/assets/useScrollLock-BlE5Pbro.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-D2vQCryq.js         63.72 kB │ gzip:  19.86 kB
+public/build/assets/AfterSubNavigation-Cac4ySHv.js           70.42 kB │ gzip:  24.48 kB
+public/build/assets/schemas-BNUEsOW7.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
+public/build/assets/dist-BQ0rjC9R.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-D-BkdQHt.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
+public/build/assets/CodemirrorEditor-BL2Aozpd.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
+public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
+public/build/assets/index-pEaYvTpM.js                       352.57 kB │ gzip: 111.67 kB
+public/build/assets/ServerConsoleContainer-x8QMqyZO.js      473.34 kB │ gzip: 135.74 kB
+
+✓ built in 1.16s
+
+
+=== pterodactyl; measured; 15841.96 ms ===
+(node:2752) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+webpack compiled in 15386 ms
+
+
+=== pterodactyl; measured; 15789.61 ms ===
+(node:45476) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+webpack compiled in 15325 ms
+
+
+=== aquadactyl; measured; 1464.56 ms ===
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 4012 modules transformed.
 rendering chunks...
 computing gzip size...
 public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
@@ -173,495 +347,147 @@ public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip: 
 public/build/manifest.json                                   55.39 kB │ gzip:   5.56 kB
 public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
 public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-CVXzHpxp.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/useBaseUiId-Tes2JA2J.js                   0.09 kB │ gzip:   0.11 kB
 public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-DU_nY2R6.js            0.16 kB │ gzip:   0.14 kB
-public/build/assets/useDeepCompareEffect-BzSrk9Sh.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-BTaPVc7k.js            0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareEffect-_ndtw9m8.js          0.16 kB │ gzip:   0.15 kB
 public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
 public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
 public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
 public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
 public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
 public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-Bcdldz-i.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-BlsL9pVz.js                0.20 kB │ gzip:   0.17 kB
 public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
 public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-ByISrTH_.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/updateStartupVariable-B1qVWm4z.js         0.24 kB │ gzip:   0.20 kB
 public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
 public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-5UQhJwdd.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-tBK_adi7.js            0.25 kB │ gzip:   0.21 kB
 public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
 public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
 public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
 public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
 public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
 public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-DmcQUzRs.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-DahnQ3t0.js             0.31 kB │ gzip:   0.23 kB
 public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-Cf_W-TjF.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/usePermissions-32R3-yjq.js                0.35 kB │ gzip:   0.27 kB
 public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-CclJrA92.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/asDialog-CQnyp-dy.js                      0.39 kB │ gzip:   0.26 kB
 public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-DRs1X4K9.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/useFileManagerQuery-LWhpzGzI.js           0.41 kB │ gzip:   0.30 kB
 public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-CsI2YeP6.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-DfV88r07.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/getServerStartup-8GgxDzdc.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-DAXq9Bj1.js                           0.46 kB │ gzip:   0.31 kB
 public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-BmeMl7Vd.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/alert-CJiKVtG3.js                         0.54 kB │ gzip:   0.33 kB
 public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-CM5daAcT.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-6rCU3InS.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-CCCtQdvv.js             0.61 kB │ gzip:   0.40 kB
+public/build/assets/FormFieldWrapper-BtfkIqnN.js              0.60 kB │ gzip:   0.38 kB
+public/build/assets/ContentBox-BKJfdYMf.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-CK6gCCqP.js             0.61 kB │ gzip:   0.40 kB
 public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
 public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-p6Zyzxi5.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-mzfC-4zm.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/TitledGreyBox-CpPMpQpU.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-Bb47-8gB.js                         0.77 kB │ gzip:   0.44 kB
 public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
 public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-Vnul24Vt.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/events-HMB9aydz.js                        0.91 kB │ gzip:   0.50 kB
 public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
 public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-C5w2go3K.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-Dv8CEyF9.js    1.33 kB │ gzip:   0.73 kB
-public/build/assets/asModal-CCeS7q1I.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-TwzFx2rG.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey-BJi3AFdE.js                   1.47 kB │ gzip:   0.81 kB
+public/build/assets/Pagination-BZMA2iJI.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-CMQ6YQJp.js    1.33 kB │ gzip:   0.72 kB
+public/build/assets/asModal-D7iSzEzV.js                       1.42 kB │ gzip:   0.61 kB
+public/build/assets/CopyOnClick-C-Ttr2CV.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-42LRLndL.js                   1.47 kB │ gzip:   0.81 kB
 public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-BKo8lTu5.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-WfmxLVFP.js          1.77 kB │ gzip:   0.95 kB
-public/build/assets/EulaModalFeature-C8eGHwQ1.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-DZm5Kf4Y.js                     2.03 kB │ gzip:   0.98 kB
+public/build/assets/HytaleOauthRequireFeature-CLJuBZva.js     1.59 kB │ gzip:   0.88 kB
+public/build/assets/ActivityLogContainer-CIDK0Ezf.js          1.77 kB │ gzip:   0.95 kB
+public/build/assets/EulaModalFeature-CcZr34no.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-CBpeAJkG.js                     2.03 kB │ gzip:   0.98 kB
 public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
 public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-G_7O4Qkj.js          2.22 kB │ gzip:   1.16 kB
-public/build/assets/useButton-C4MAL75N.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/GSLTokenModalFeature-DPwZMxqk.js          2.22 kB │ gzip:   1.15 kB
+public/build/assets/useButton-BRFuhey6.js                     2.43 kB │ gzip:   1.12 kB
 public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-m5P9WQvk.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/SteamDiskSpaceFeature-D-wVfDav.js         2.46 kB │ gzip:   1.01 kB
 public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-DAOc4T2g.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/JavaVersionModalFeature-ElKE2RLy.js       2.71 kB │ gzip:   1.28 kB
 public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-CV2RoaBM.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-D8mrSIFT.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/useSetFieldFocused-Dr9k3FvJ.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-tljsFPBr.js          2.98 kB │ gzip:   1.16 kB
 public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-59G9AonN.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ-DXIM6ce2.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-DtodExYs.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/dist-DHBBdNk7.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-BHy7ejSe.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-C9PHJ60A.js             3.48 kB │ gzip:   1.56 kB
 public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
 public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-DInccM4x.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-BZnSjqtZ.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-CTRBsdvy.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-BioOu1UX.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/Switch-BZw0TUTm.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-Zsp8aqE2.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-DjRc7qLj.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-bBH6aJYs.js             4.76 kB │ gzip:   2.32 kB
 public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
 public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-jHG2XrTW.js              5.32 kB │ gzip:   2.11 kB
-public/build/assets/NetworkContainer-4diSj1LH.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-CQ_VzCuK.js           5.93 kB │ gzip:   2.45 kB
-public/build/assets/SettingsContainer-PZaBrHSQ.js             6.24 kB │ gzip:   2.20 kB
+public/build/assets/StartupContainer-DQqngLQF.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-qazxu4at.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-C08XufPK.js           5.93 kB │ gzip:   2.44 kB
+public/build/assets/SettingsContainer-BzM8RpBA.js             6.24 kB │ gzip:   2.19 kB
 public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
 public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-BW1Bvzoj.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-DGV_SPSF.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/DialogRoot-u_t0rN3W.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-DwhUtNe0.js             8.81 kB │ gzip:   3.43 kB
 public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-COIa4-ol.js                8.90 kB │ gzip:   2.86 kB
+public/build/assets/TrashContainer-B5Jw8ore.js                8.90 kB │ gzip:   2.86 kB
 public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-C_1JzMaW.js                 10.52 kB │ gzip:   3.77 kB
-public/build/assets/DatabasesContainer-C-4cUYZy.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-DsNr8-XB.js               11.57 kB │ gzip:   3.97 kB
+public/build/assets/ServerRouter-CwjO3ryI.js                 10.52 kB │ gzip:   3.77 kB
+public/build/assets/DatabasesContainer-BpBwZV0v.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-DKgcMbm6.js               11.57 kB │ gzip:   3.97 kB
 public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-CFTyUosY.js              11.80 kB │ gzip:   4.19 kB
-public/build/assets/safePolygon-CzeBEX3b.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-DAYxwzzm.js         13.53 kB │ gzip:   5.49 kB
+public/build/assets/BackupContainer-DDfaRcMS.js              11.80 kB │ gzip:   4.19 kB
+public/build/assets/safePolygon-qTqiqMe4.js                  12.40 kB │ gzip:   4.44 kB
+public/build/assets/useCompositeListItem-DOJW_qPH.js         13.53 kB │ gzip:   5.49 kB
 public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-LjKGKoOA.js            14.87 kB │ gzip:   4.97 kB
-public/build/assets/dist-BxYpm1q8.js                         15.92 kB │ gzip:   6.98 kB
-public/build/assets/ScheduleEditContainer-DeGpUK86.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-3718piQj.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/EditScheduleModal-CQDs3lYu.js            14.87 kB │ gzip:   4.98 kB
+public/build/assets/dist-CnjKeowU.js                         15.92 kB │ gzip:   6.97 kB
+public/build/assets/ScheduleEditContainer-vQfRESZ2.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-BTmx6dOM.js              16.84 kB │ gzip:   5.46 kB
 public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
 public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
 public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-DiS13QI5.js        26.19 kB │ gzip:   9.99 kB
+public/build/assets/useActivityLogFilters-B3Z8GlJb.js        26.19 kB │ gzip:  10.00 kB
 public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
 public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-4-qTKfuS.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu-CGBxsrVX.js                 28.88 kB │ gzip:  10.18 kB
+public/build/assets/dist-DNxFsTcT.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-BIyqtyG7.js                 28.88 kB │ gzip:  10.18 kB
 public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-CmB7NMRz.js                        40.92 kB │ gzip:  14.92 kB
-public/build/assets/Select-pwuGIUlE.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-TpnqwtxW.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-Xovpawrq.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-NoLn6nOD.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-DNo-hkrM.js     45.52 kB │ gzip:  14.64 kB
+public/build/assets/Label-DUuGyC_L.js                        40.92 kB │ gzip:  14.92 kB
+public/build/assets/Select-CqaseEOl.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-BqB9KkGi.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-LCfGwXCR.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-Ce8PGwx3.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-D1T9BUCm.js     45.52 kB │ gzip:  14.64 kB
 public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-BRIwSxxV.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-BOm9OuJE.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-RJIjzXxT.js           70.42 kB │ gzip:  24.47 kB
-public/build/assets/schemas-BQofC4kQ.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/useScrollLock-OHaFWxhO.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-B4nwTmMm.js         63.72 kB │ gzip:  19.86 kB
+public/build/assets/AfterSubNavigation-Dmcrw544.js           70.42 kB │ gzip:  24.47 kB
+public/build/assets/schemas-DOqZelFy.js                      81.89 kB │ gzip:  23.55 kB
 public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-8GRkMGoa.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-BOsPXSl9.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-B0-YSeoa.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-Cinxb7c7.js                         98.22 kB │ gzip:  28.81 kB
 public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-DnUe4Lez.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/CodemirrorEditor-DWvtfBea.js            108.87 kB │ gzip:  35.58 kB
 public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
 public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-445go0EQ.js                       351.64 kB │ gzip: 111.46 kB
-public/build/assets/ServerConsoleContainer-BV_Q80Di.js      473.34 kB │ gzip: 135.74 kB
+public/build/assets/index-BAWx_6LS.js                       352.57 kB │ gzip: 111.68 kB
+public/build/assets/ServerConsoleContainer-Bb4cy-C9.js      473.34 kB │ gzip: 135.74 kB
 
-✓ built in 928ms
-
-
-=== pterodactyl; measured; 12886.82 ms ===
-(node:186648) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-
-warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
-warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12415 ms
+✓ built in 1.14s
 
 
-=== pterodactyl; measured; 13035.03 ms ===
-(node:148668) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-
-warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
-warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12554 ms
-
-
-=== aquadactyl; measured; 1230.73 ms ===
+=== aquadactyl; measured; 1495.07 ms ===
 vite v8.3.4 building client environment for production...
 transforming...
-✓ 4011 modules transformed.
-rendering chunks...
-computing gzip size...
-public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
-public/build/assets/not_found-BlmDXu1D.svg                    7.00 kB │ gzip:   2.37 kB
-public/build/assets/server_restore-PPkQqefc.svg              10.96 kB │ gzip:   3.34 kB
-public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip:   8.83 kB
-public/build/manifest.json                                   55.39 kB │ gzip:   5.56 kB
-public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
-public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-5vd_LQSp.js                   0.09 kB │ gzip:   0.11 kB
-public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-Cw5u1DEW.js            0.16 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareEffect-CeLc3YAn.js          0.16 kB │ gzip:   0.15 kB
-public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
-public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
-public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
-public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
-public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
-public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-7y749xvQ.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
-public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-Dg5gtP6Q.js         0.24 kB │ gzip:   0.20 kB
-public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
-public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-QjZsolez.js            0.25 kB │ gzip:   0.21 kB
-public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
-public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
-public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
-public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-CcLw9R09.js             0.31 kB │ gzip:   0.23 kB
-public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-CFXNxTPz.js                0.35 kB │ gzip:   0.27 kB
-public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-MhjZMif5.js                      0.39 kB │ gzip:   0.26 kB
-public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-C4bzMjDq.js           0.41 kB │ gzip:   0.29 kB
-public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-Dsi3xsBh.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-BF7dOhkE.js                           0.46 kB │ gzip:   0.31 kB
-public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-D_B1Ib2_.js                         0.54 kB │ gzip:   0.33 kB
-public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-B9016beu.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-DPq0eRYt.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-CFXwWvO4.js             0.61 kB │ gzip:   0.40 kB
-public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
-public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-BKNVAy86.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-CWVyqzVR.js                         0.77 kB │ gzip:   0.44 kB
-public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
-public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-RfeqizvO.js                        0.91 kB │ gzip:   0.50 kB
-public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
-public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-C79wWxC-.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-BePrDOpu.js    1.33 kB │ gzip:   0.73 kB
-public/build/assets/asModal-BpqGQwH3.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-BDMru9k2.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey-esUleus2.js                   1.47 kB │ gzip:   0.81 kB
-public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-CE7l6iSt.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-BT30JBc0.js          1.77 kB │ gzip:   0.94 kB
-public/build/assets/EulaModalFeature-BUfvUHNY.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-5rqFofk0.js                     2.03 kB │ gzip:   0.98 kB
-public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
-public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-CWygNb9P.js          2.22 kB │ gzip:   1.15 kB
-public/build/assets/useButton-Bpx4pInd.js                     2.43 kB │ gzip:   1.12 kB
-public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-CkFchcnm.js         2.46 kB │ gzip:   1.01 kB
-public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-Bz2YV6S9.js       2.71 kB │ gzip:   1.28 kB
-public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-CTkxH3Q8.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-D_eAbKaB.js          2.98 kB │ gzip:   1.16 kB
-public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-BR57kJul.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ-2t_fDBd7.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-DPz5zHW5.js             3.48 kB │ gzip:   1.56 kB
-public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
-public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-CeKseWez.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-dCAAEAoG.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-DPkITcn0.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-CEoL_YUA.js             4.76 kB │ gzip:   2.32 kB
-public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
-public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-CJ6nlp3Q.js              5.32 kB │ gzip:   2.10 kB
-public/build/assets/NetworkContainer-B10oMrx7.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-Cgf1-enx.js           5.93 kB │ gzip:   2.44 kB
-public/build/assets/SettingsContainer-BOymvGMq.js             6.24 kB │ gzip:   2.19 kB
-public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
-public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-bXcXUrEQ.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-D2Riyx1b.js             8.81 kB │ gzip:   3.44 kB
-public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-CGa0Ogr3.js                8.90 kB │ gzip:   2.86 kB
-public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-KGXNTwmX.js                 10.52 kB │ gzip:   3.77 kB
-public/build/assets/DatabasesContainer-CrmxeFFB.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-DC1FGJ0G.js               11.57 kB │ gzip:   3.97 kB
-public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-CS4-BWpR.js              11.80 kB │ gzip:   4.19 kB
-public/build/assets/safePolygon-C40PJGhU.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-d1szd4av.js         13.53 kB │ gzip:   5.49 kB
-public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-ChJvHshQ.js            14.87 kB │ gzip:   4.97 kB
-public/build/assets/dist-B60tIGm_.js                         15.92 kB │ gzip:   6.97 kB
-public/build/assets/ScheduleEditContainer-BabIOgFd.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-B4yi__50.js              16.84 kB │ gzip:   5.46 kB
-public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
-public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
-public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-D365CLJB.js        26.19 kB │ gzip:   9.99 kB
-public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
-public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-DseqsOZ8.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu-2a65a1xD.js                 28.88 kB │ gzip:  10.18 kB
-public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-D6sHxF4B.js                        40.92 kB │ gzip:  14.91 kB
-public/build/assets/Select-BIUwoysU.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-C8ax650d.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-BI5trGm-.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-DPYEc5Ms.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-BjNyYUEE.js     45.52 kB │ gzip:  14.64 kB
-public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-Du5Qg77r.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-DkJ-4FXk.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-BiuZ_z63.js           70.42 kB │ gzip:  24.46 kB
-public/build/assets/schemas-CYCAR0Bv.js                      81.89 kB │ gzip:  23.55 kB
-public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-COpzT-ab.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-PlgUwsav.js                         98.22 kB │ gzip:  28.81 kB
-public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-csFx_hdu.js            108.87 kB │ gzip:  35.58 kB
-public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
-public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-C5iPx0mv.js                       351.64 kB │ gzip: 111.46 kB
-public/build/assets/ServerConsoleContainer-CgNVR2-c.js      473.34 kB │ gzip: 135.74 kB
-
-✓ built in 908ms
-
-
-=== aquadactyl; measured; 1236.22 ms ===
-vite v8.3.4 building client environment for production...
-transforming...
-✓ 4011 modules transformed.
-rendering chunks...
-computing gzip size...
-public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
-public/build/assets/not_found-BlmDXu1D.svg                    7.00 kB │ gzip:   2.37 kB
-public/build/assets/server_restore-PPkQqefc.svg              10.96 kB │ gzip:   3.34 kB
-public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip:   8.83 kB
-public/build/manifest.json                                   55.39 kB │ gzip:   5.56 kB
-public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
-public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-DKstkwkE.js                   0.09 kB │ gzip:   0.11 kB
-public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-C0pUj_Jb.js            0.16 kB │ gzip:   0.14 kB
-public/build/assets/useDeepCompareEffect-lL_NTOey.js          0.16 kB │ gzip:   0.15 kB
-public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
-public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
-public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
-public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
-public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
-public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-DgktxQCk.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
-public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-m8AlPZN_.js         0.24 kB │ gzip:   0.20 kB
-public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
-public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-BWt9L1uw.js            0.25 kB │ gzip:   0.21 kB
-public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
-public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
-public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
-public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-Dx_PD5Qv.js             0.31 kB │ gzip:   0.23 kB
-public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-CXOmVq4v.js                0.35 kB │ gzip:   0.27 kB
-public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-D8iqgCCg.js                      0.39 kB │ gzip:   0.26 kB
-public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-BnOoYTZA.js           0.41 kB │ gzip:   0.29 kB
-public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-jl1cQz8G.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-CPyWmN8N.js                           0.46 kB │ gzip:   0.31 kB
-public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-BVkIDIQI.js                         0.54 kB │ gzip:   0.33 kB
-public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-S9PWjjWh.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-DeuaY4BE.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-Bkpf-V6I.js             0.61 kB │ gzip:   0.40 kB
-public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
-public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-BJBoi5sZ.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-6ljB_zKK.js                         0.77 kB │ gzip:   0.44 kB
-public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
-public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-BA4g_k22.js                        0.91 kB │ gzip:   0.50 kB
-public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
-public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-DtskhvRc.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-BpwfpxTl.js    1.33 kB │ gzip:   0.72 kB
-public/build/assets/asModal-C1JVbepf.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-B3GmuGVk.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey--ZeYf_fa.js                   1.47 kB │ gzip:   0.80 kB
-public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-DbSFw_2l.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-DrIt3yu6.js          1.77 kB │ gzip:   0.95 kB
-public/build/assets/EulaModalFeature-m4N2gGWF.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-BN4SSGDx.js                     2.03 kB │ gzip:   0.98 kB
-public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
-public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-BLiOTWnQ.js          2.22 kB │ gzip:   1.16 kB
-public/build/assets/useButton-B2OtncG1.js                     2.43 kB │ gzip:   1.12 kB
-public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-iM-kJVBN.js         2.46 kB │ gzip:   1.01 kB
-public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-DKm0Ui0o.js       2.71 kB │ gzip:   1.28 kB
-public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-zxfoNXsk.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-3ciJ8nsZ.js          2.98 kB │ gzip:   1.16 kB
-public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-BJ8ynXF5.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ-DC8IbGNj.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-G8qE2Eyh.js             3.48 kB │ gzip:   1.56 kB
-public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
-public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-BCRvrNXE.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-BLn3bjWV.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-B4diaQY_.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-B2UWkn6J.js             4.76 kB │ gzip:   2.31 kB
-public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
-public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-CxROgvnZ.js              5.32 kB │ gzip:   2.11 kB
-public/build/assets/NetworkContainer-BcN0E3fk.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-DY9llLLW.js           5.93 kB │ gzip:   2.44 kB
-public/build/assets/SettingsContainer-C8ssVCEO.js             6.24 kB │ gzip:   2.19 kB
-public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
-public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-DnND59Lg.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-B8hfu0MK.js             8.81 kB │ gzip:   3.44 kB
-public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-fYq2cFdY.js                8.90 kB │ gzip:   2.86 kB
-public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-E-dNOLIh.js                 10.52 kB │ gzip:   3.77 kB
-public/build/assets/DatabasesContainer-DUA2XiMQ.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-XeYjYcSD.js               11.57 kB │ gzip:   3.97 kB
-public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-BbKAeHER.js              11.80 kB │ gzip:   4.20 kB
-public/build/assets/safePolygon-Cbh3Aaf9.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-CUS6L6hM.js         13.53 kB │ gzip:   5.49 kB
-public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-BBEIZTrC.js            14.87 kB │ gzip:   4.98 kB
-public/build/assets/dist-CYNEgRQu.js                         15.92 kB │ gzip:   6.98 kB
-public/build/assets/ScheduleEditContainer-Cxejxl8m.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-BCf5MS8l.js              16.84 kB │ gzip:   5.46 kB
-public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
-public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
-public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-CQNCxUyj.js        26.19 kB │ gzip:   9.99 kB
-public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
-public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-h4eF4IX1.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu-BbkoQdeO.js                 28.88 kB │ gzip:  10.18 kB
-public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-PP9X16NU.js                        40.92 kB │ gzip:  14.91 kB
-public/build/assets/Select-Dx16OYao.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-B0FD3Vqv.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-D61Kb-0s.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-C00k_e7L.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-CBX87oNB.js     45.52 kB │ gzip:  14.65 kB
-public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-CR4FXD0e.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-CDHk0lrU.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-BBZa9wz7.js           70.42 kB │ gzip:  24.48 kB
-public/build/assets/schemas-BkRPmcpj.js                      81.89 kB │ gzip:  23.55 kB
-public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-BUcNK0R3.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-DGlqXJmM.js                         98.22 kB │ gzip:  28.81 kB
-public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-CPOAwUpB.js            108.87 kB │ gzip:  35.58 kB
-public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
-public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-P1h_yOM2.js                       351.64 kB │ gzip: 111.46 kB
-public/build/assets/ServerConsoleContainer-Bqditn0W.js      473.34 kB │ gzip: 135.75 kB
-
-✓ built in 921ms
-
-
-=== pterodactyl; measured; 12831.17 ms ===
-(node:192628) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-
-warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
-warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12384 ms
-
-
-=== pterodactyl; measured; 13247.95 ms ===
-(node:198172) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-
-warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
-warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12784 ms
-
-
-=== aquadactyl; measured; 1224.86 ms ===
-vite v8.3.4 building client environment for production...
-transforming...
-✓ 4011 modules transformed.
+✓ 4012 modules transformed.
 rendering chunks...
 computing gzip size...
 public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
@@ -671,147 +497,171 @@ public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip: 
 public/build/manifest.json                                   55.39 kB │ gzip:   5.55 kB
 public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
 public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-CReXFuzF.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/useBaseUiId-Dz9RVn8N.js                   0.09 kB │ gzip:   0.11 kB
 public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-DkbbXHxK.js            0.16 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareEffect-BQAcN0Ry.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-DSr7xSc9.js            0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareEffect-Bx29iyyU.js          0.16 kB │ gzip:   0.15 kB
 public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
 public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
 public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
 public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
 public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
 public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-C56QUmk8.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-BHED0q24.js                0.20 kB │ gzip:   0.17 kB
 public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
 public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-ZLCfQ4oH.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/updateStartupVariable-BMaTDA_n.js         0.24 kB │ gzip:   0.20 kB
 public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
 public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-BCRzkHZl.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-CN4dfHpE.js            0.25 kB │ gzip:   0.21 kB
 public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
 public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
 public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
 public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
 public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
 public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-Zbb4_PX7.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-BBUwDiH5.js             0.31 kB │ gzip:   0.23 kB
 public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-CakybHIP.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/usePermissions-Dx-4agVZ.js                0.35 kB │ gzip:   0.27 kB
 public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-2q5W6Z4E.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/asDialog-CggV2QUO.js                      0.39 kB │ gzip:   0.26 kB
 public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-Cv7G1htT.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/useFileManagerQuery-BqOrIgWU.js           0.41 kB │ gzip:   0.29 kB
 public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-lHQbCuYF.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-BQLv78h5.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/getServerStartup-CH8UTKFE.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-Bl3qxRnT.js                           0.46 kB │ gzip:   0.31 kB
 public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-BHYZ_otp.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/alert-BUctbdQ4.js                         0.54 kB │ gzip:   0.33 kB
 public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-Blb01_hL.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-BXOSCMD-.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-DnWteyP7.js             0.61 kB │ gzip:   0.40 kB
+public/build/assets/FormFieldWrapper-8W6j-y3D.js              0.60 kB │ gzip:   0.38 kB
+public/build/assets/ContentBox-ww8gSrWs.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-B8HsbnFV.js             0.61 kB │ gzip:   0.40 kB
 public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
 public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-CvEsi8A9.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-C7fnzuFN.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/TitledGreyBox-WpPRKBLC.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-BEvqzCSJ.js                         0.77 kB │ gzip:   0.44 kB
 public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
 public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-E-IDqX9z.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/events-CCTZPXQ8.js                        0.91 kB │ gzip:   0.50 kB
 public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
 public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-Dln94luo.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-hY3wCMBC.js    1.33 kB │ gzip:   0.72 kB
-public/build/assets/asModal-DlgovFXs.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-CfQpkAHi.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey-BvpamP-U.js                   1.47 kB │ gzip:   0.80 kB
+public/build/assets/Pagination-DGTmUsyn.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-CTOEQogF.js    1.33 kB │ gzip:   0.73 kB
+public/build/assets/asModal-BLGlb8oF.js                       1.42 kB │ gzip:   0.61 kB
+public/build/assets/CopyOnClick-I7eucFjf.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-D-72U8o2.js                   1.47 kB │ gzip:   0.81 kB
 public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-C54o-RDs.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-UvSV673a.js          1.77 kB │ gzip:   0.95 kB
-public/build/assets/EulaModalFeature-ByjrYsLt.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-yl0rSplx.js                     2.03 kB │ gzip:   0.98 kB
+public/build/assets/HytaleOauthRequireFeature-Bhjh8-43.js     1.59 kB │ gzip:   0.88 kB
+public/build/assets/ActivityLogContainer-B0tS3pK4.js          1.77 kB │ gzip:   0.95 kB
+public/build/assets/EulaModalFeature-06b_DKSI.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-BW-KcxnI.js                     2.03 kB │ gzip:   0.98 kB
 public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
 public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-Dfh5fj05.js          2.22 kB │ gzip:   1.15 kB
-public/build/assets/useButton-B59K4htF.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/GSLTokenModalFeature-C5JBtvQn.js          2.22 kB │ gzip:   1.16 kB
+public/build/assets/useButton-FcvPetu1.js                     2.43 kB │ gzip:   1.12 kB
 public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-K3rWflmr.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/SteamDiskSpaceFeature-CdIonXjj.js         2.46 kB │ gzip:   1.01 kB
 public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-DuS6EuQ1.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/JavaVersionModalFeature-DRE044xj.js       2.71 kB │ gzip:   1.28 kB
 public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-BkIEYvjm.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-B5hMjJ9_.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/useSetFieldFocused-KM3jKuA-.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-CnhSw_ZA.js          2.98 kB │ gzip:   1.16 kB
 public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-C85md3j1.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ-CxiKv7qU.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-BOv67pAz.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/dist-7TgSpGwh.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-B_PBSxL4.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-Bbz7TNZr.js             3.48 kB │ gzip:   1.56 kB
 public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
 public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-BK3ElodC.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-DrQwS3D2.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-FVl4k_tM.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-CV56k6ot.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/Switch-D7asmImP.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-SkxiRTmj.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-C8tCsI8z.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-zJtSBhQ0.js             4.76 kB │ gzip:   2.31 kB
 public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
 public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-CMcENmo-.js              5.32 kB │ gzip:   2.10 kB
-public/build/assets/NetworkContainer-3PTdClAo.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-B6k9p_Ut.js           5.93 kB │ gzip:   2.44 kB
-public/build/assets/SettingsContainer-BL0N8oWd.js             6.24 kB │ gzip:   2.19 kB
+public/build/assets/StartupContainer-CZ9oRt7B.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-Bv1CNc_k.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-tXEHI2SO.js           5.93 kB │ gzip:   2.44 kB
+public/build/assets/SettingsContainer-BgxjWFzR.js             6.24 kB │ gzip:   2.19 kB
 public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
 public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-BeNFu1ly.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-DfgK0f7Z.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/DialogRoot-DKC4hYSo.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-C-d5aweG.js             8.81 kB │ gzip:   3.44 kB
 public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-7vq0WFFD.js                8.90 kB │ gzip:   2.86 kB
+public/build/assets/TrashContainer-ELUGJoK6.js                8.90 kB │ gzip:   2.86 kB
 public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-Ce1eDEdD.js                 10.52 kB │ gzip:   3.76 kB
-public/build/assets/DatabasesContainer-CUWWrAOy.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-BhymAiKE.js               11.57 kB │ gzip:   3.96 kB
+public/build/assets/ServerRouter-CoJFci_P.js                 10.52 kB │ gzip:   3.77 kB
+public/build/assets/DatabasesContainer-DUKRCKei.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-BrThb7qR.js               11.57 kB │ gzip:   3.97 kB
 public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-CgLu1_L0.js              11.80 kB │ gzip:   4.19 kB
-public/build/assets/safePolygon-DgVTj7Vw.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-DP6hZYiw.js         13.53 kB │ gzip:   5.49 kB
+public/build/assets/BackupContainer-D-WJCnGu.js              11.80 kB │ gzip:   4.19 kB
+public/build/assets/safePolygon-DPEeP7kv.js                  12.40 kB │ gzip:   4.44 kB
+public/build/assets/useCompositeListItem-DsXYCqFd.js         13.53 kB │ gzip:   5.49 kB
 public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-BRVwQlg_.js            14.87 kB │ gzip:   4.97 kB
-public/build/assets/dist-CB2j7rKZ.js                         15.92 kB │ gzip:   6.98 kB
-public/build/assets/ScheduleEditContainer-BpBM4pZQ.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-C55Mk6qP.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/EditScheduleModal-xgO7zzll.js            14.87 kB │ gzip:   4.97 kB
+public/build/assets/dist-DIBHEhD5.js                         15.92 kB │ gzip:   6.98 kB
+public/build/assets/ScheduleEditContainer-BoR6BSfe.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-B14BIS0d.js              16.84 kB │ gzip:   5.46 kB
 public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
 public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
 public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-BVtTzJ36.js        26.19 kB │ gzip:   9.99 kB
+public/build/assets/useActivityLogFilters-BqCChrXb.js        26.19 kB │ gzip:   9.99 kB
 public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
 public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-QyNN_Y0T.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu--GsL74iV.js                 28.88 kB │ gzip:  10.18 kB
+public/build/assets/dist-Bwd5HhTB.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-CfDjGCvh.js                 28.88 kB │ gzip:  10.18 kB
 public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-D7nDgKiH.js                        40.92 kB │ gzip:  14.91 kB
-public/build/assets/Select-BQ7Gwltf.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-R14gywKD.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-DXIDoesE.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-CVByKxfe.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-C2Uxesbn.js     45.52 kB │ gzip:  14.64 kB
+public/build/assets/Label-Bfo2PS65.js                        40.92 kB │ gzip:  14.92 kB
+public/build/assets/Select-Ci8Tth14.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-CC61ezxG.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-e45msKYO.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-CtINdwHh.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-BmoVFlnw.js     45.52 kB │ gzip:  14.64 kB
 public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-ZJNs9l19.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-CzGadn_m.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-DeYcjHRJ.js           70.42 kB │ gzip:  24.48 kB
-public/build/assets/schemas-ZzWZTgho.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/useScrollLock-LMQoeRFk.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-DOAbM8Ei.js         63.72 kB │ gzip:  19.86 kB
+public/build/assets/AfterSubNavigation-DxfO5Nch.js           70.42 kB │ gzip:  24.48 kB
+public/build/assets/schemas-BgbTb-rh.js                      81.89 kB │ gzip:  23.55 kB
 public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-DyYkwGza.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-CZ5t8G1w.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-lOTGH4_A.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-CVsB1Pww.js                         98.22 kB │ gzip:  28.81 kB
 public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-CfoyJHKp.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/CodemirrorEditor-DKVRWFm6.js            108.87 kB │ gzip:  35.59 kB
 public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
 public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-CUiGoiHe.js                       351.64 kB │ gzip: 111.45 kB
-public/build/assets/ServerConsoleContainer-BJcMsWpA.js      473.34 kB │ gzip: 135.74 kB
+public/build/assets/index-DYGpAhVs.js                       352.57 kB │ gzip: 111.67 kB
+public/build/assets/ServerConsoleContainer-DYeQ-QN2.js      473.34 kB │ gzip: 135.75 kB
 
-✓ built in 908ms
+✓ built in 1.14s
 
 
-=== aquadactyl; measured; 1212.43 ms ===
+=== pterodactyl; measured; 15775.53 ms ===
+(node:19448) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+webpack compiled in 15308 ms
+
+
+=== pterodactyl; measured; 15765.02 ms ===
+(node:45832) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+webpack compiled in 15318 ms
+
+
+=== aquadactyl; measured; 1475.15 ms ===
 vite v8.3.4 building client environment for production...
 transforming...
-✓ 4011 modules transformed.
+✓ 4012 modules transformed.
 rendering chunks...
 computing gzip size...
 public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
@@ -821,145 +671,295 @@ public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip: 
 public/build/manifest.json                                   55.39 kB │ gzip:   5.56 kB
 public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
 public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
-public/build/assets/useBaseUiId-DARChDa6.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/useBaseUiId-CdpbC1tr.js                   0.09 kB │ gzip:   0.11 kB
 public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareMemo-ChyXygPf.js            0.16 kB │ gzip:   0.15 kB
-public/build/assets/useDeepCompareEffect-D9UseDbh.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-DJjy4R4b.js            0.16 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareEffect-BChBT83q.js          0.16 kB │ gzip:   0.15 kB
 public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
 public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
 public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
 public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
 public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
 public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
-public/build/assets/useDeepMemoize-IZHBDzV4.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-C5XibAeT.js                0.20 kB │ gzip:   0.17 kB
 public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
 public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
-public/build/assets/updateStartupVariable-BlZHxnO-.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/updateStartupVariable-nUUL2GJc.js         0.24 kB │ gzip:   0.20 kB
 public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
 public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
-public/build/assets/ServerContentBlock-46lYbyAs.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-BbrabR5z.js            0.25 kB │ gzip:   0.21 kB
 public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
 public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
 public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
 public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
 public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
 public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
-public/build/assets/ConfirmationModal-YY-VYYi8.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-CSvQ8pKa.js             0.31 kB │ gzip:   0.23 kB
 public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
-public/build/assets/usePermissions-BRq-UeTS.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/usePermissions-CPFEklr8.js                0.35 kB │ gzip:   0.27 kB
 public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
-public/build/assets/asDialog-BCt_3LPM.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/asDialog-D_Zm_iXp.js                      0.39 kB │ gzip:   0.26 kB
 public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
-public/build/assets/useFileManagerQuery-Co3h5QbK.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/useFileManagerQuery-DWrgXxuf.js           0.41 kB │ gzip:   0.29 kB
 public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
-public/build/assets/getServerStartup-BGOBXJTZ.js              0.46 kB │ gzip:   0.31 kB
-public/build/assets/Can-zIoYA0nV.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/getServerStartup-pJbIqY2J.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-BQ_PAoO_.js                           0.46 kB │ gzip:   0.30 kB
 public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
-public/build/assets/alert-B5NvkE5g.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/alert-BX9pHh-l.js                         0.54 kB │ gzip:   0.33 kB
 public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
-public/build/assets/FormFieldWrapper-Cqr7TO_D.js              0.60 kB │ gzip:   0.38 kB
-public/build/assets/ContentBox-P8BgT3ug.js                    0.60 kB │ gzip:   0.37 kB
-public/build/assets/useAriaLabelledBy-CTtksGdp.js             0.61 kB │ gzip:   0.41 kB
+public/build/assets/FormFieldWrapper-B8Wi3NSi.js              0.60 kB │ gzip:   0.37 kB
+public/build/assets/ContentBox-ByaVRECX.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-D0o_0Aiq.js             0.61 kB │ gzip:   0.40 kB
 public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
 public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
-public/build/assets/TitledGreyBox-5DnbkFbb.js                 0.72 kB │ gzip:   0.39 kB
-public/build/assets/trash-DlKJXXiF.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/TitledGreyBox-Cy9ZdiPP.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-DkSsl54f.js                         0.77 kB │ gzip:   0.44 kB
 public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
 public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
-public/build/assets/events-BGVnWjLZ.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/events-DNuWWOBT.js                        0.91 kB │ gzip:   0.50 kB
 public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
 public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
-public/build/assets/Pagination-I1w7Zj1w.js                    1.14 kB │ gzip:   0.59 kB
-public/build/assets/ServerActivityLogContainer-BTyWz1B_.js    1.33 kB │ gzip:   0.72 kB
-public/build/assets/asModal-DRs88nE6.js                       1.42 kB │ gzip:   0.61 kB
-public/build/assets/CopyOnClick-lWv9A1Pb.js                   1.46 kB │ gzip:   0.84 kB
-public/build/assets/useQueryKey-KfQYkYUK.js                   1.47 kB │ gzip:   0.81 kB
+public/build/assets/Pagination-oZ4Lo_g-.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-D2b0KBzW.js    1.33 kB │ gzip:   0.72 kB
+public/build/assets/asModal-BC7LFR87.js                       1.42 kB │ gzip:   0.61 kB
+public/build/assets/CopyOnClick-qwWBqD_F.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-_zDN9VcP.js                   1.47 kB │ gzip:   0.80 kB
 public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
-public/build/assets/HytaleOauthRequireFeature-H05ouOZ0.js     1.59 kB │ gzip:   0.88 kB
-public/build/assets/ActivityLogContainer-BIEpgNfc.js          1.77 kB │ gzip:   0.95 kB
-public/build/assets/EulaModalFeature-C3HgC_Yt.js              2.02 kB │ gzip:   1.08 kB
-public/build/assets/FormField-6WobvOV2.js                     2.03 kB │ gzip:   0.97 kB
+public/build/assets/HytaleOauthRequireFeature-jtfXQLV8.js     1.59 kB │ gzip:   0.88 kB
+public/build/assets/ActivityLogContainer-Bd4FpefG.js          1.77 kB │ gzip:   0.95 kB
+public/build/assets/EulaModalFeature-DSIHUi4f.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-C973f_zG.js                     2.03 kB │ gzip:   0.98 kB
 public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
 public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
-public/build/assets/GSLTokenModalFeature-B5mUg0am.js          2.22 kB │ gzip:   1.16 kB
-public/build/assets/useButton-DMcblznB.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/GSLTokenModalFeature-B9PPAx7D.js          2.22 kB │ gzip:   1.16 kB
+public/build/assets/useButton-4FgBr_DN.js                     2.43 kB │ gzip:   1.12 kB
 public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
-public/build/assets/SteamDiskSpaceFeature-CegfAbRc.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/SteamDiskSpaceFeature-ytCprewc.js         2.46 kB │ gzip:   1.01 kB
 public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
-public/build/assets/JavaVersionModalFeature-CERfsnq-.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/JavaVersionModalFeature-6cVUsJix.js       2.71 kB │ gzip:   1.28 kB
 public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
-public/build/assets/useSetFieldFocused-Bt96U48t.js            2.75 kB │ gzip:   1.29 kB
-public/build/assets/PIDLimitModalFeature-MOU7WgoV.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/useSetFieldFocused-LSyIuiMs.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-w0Wgb_V3.js          2.98 kB │ gzip:   1.16 kB
 public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
-public/build/assets/dist-JaqsvixK.js                          3.35 kB │ gzip:   1.70 kB
-public/build/assets/pathe.M-eThtNZ-DVylMLGS.js                3.47 kB │ gzip:   1.59 kB
-public/build/assets/ScheduleContainer-b3FuCoAY.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/dist-XFKqh7uI.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-Cc6OyTU5.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-C9HWP_e5.js             3.48 kB │ gzip:   1.56 kB
 public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
 public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
-public/build/assets/Switch-DOEYONSl.js                        4.17 kB │ gzip:   1.99 kB
-public/build/assets/AccountSSHContainer-DSxeunbd.js           4.31 kB │ gzip:   1.91 kB
-public/build/assets/dialog-58HWtwW6.js                        4.39 kB │ gzip:   1.95 kB
-public/build/assets/CheckboxIndicator-oLSbf0Mb.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/Switch-DxPElmlG.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-BKJUd0L3.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-CS4i8Hwz.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-D8RDa8OJ.js             4.76 kB │ gzip:   2.31 kB
 public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
 public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
-public/build/assets/StartupContainer-BKTF4duk.js              5.32 kB │ gzip:   2.11 kB
-public/build/assets/NetworkContainer-CbdE3NMd.js              5.79 kB │ gzip:   2.22 kB
-public/build/assets/AccountApiContainer-DsA_cgw3.js           5.93 kB │ gzip:   2.45 kB
-public/build/assets/SettingsContainer-D3-L2kvm.js             6.24 kB │ gzip:   2.19 kB
+public/build/assets/StartupContainer-BB5rIo1S.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-AzRSEiwL.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-D4bD4CTM.js           5.93 kB │ gzip:   2.44 kB
+public/build/assets/SettingsContainer-BTtGC6DM.js             6.24 kB │ gzip:   2.19 kB
 public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
 public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
-public/build/assets/DialogRoot-DqTIBq6k.js                    7.95 kB │ gzip:   3.05 kB
-public/build/assets/FileEditContainer-CONf_TVf.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/DialogRoot-B8Ute6gY.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-DwSJ1ZYt.js             8.81 kB │ gzip:   3.44 kB
 public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
-public/build/assets/TrashContainer-AbUTrdOb.js                8.90 kB │ gzip:   2.86 kB
+public/build/assets/TrashContainer-BuARCpbs.js                8.90 kB │ gzip:   2.85 kB
 public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
-public/build/assets/ServerRouter-BB7XFTIp.js                 10.52 kB │ gzip:   3.77 kB
-public/build/assets/DatabasesContainer-DivBlEkr.js           10.62 kB │ gzip:   3.32 kB
-public/build/assets/UsersContainer-BrYGsKwB.js               11.57 kB │ gzip:   3.97 kB
+public/build/assets/ServerRouter-DCbXwAts.js                 10.52 kB │ gzip:   3.76 kB
+public/build/assets/DatabasesContainer-Dp0hKmy3.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-0pPKDHip.js               11.57 kB │ gzip:   3.97 kB
 public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
-public/build/assets/BackupContainer-CtKGUax5.js              11.80 kB │ gzip:   4.19 kB
-public/build/assets/safePolygon-J6ZB_zzL.js                  12.40 kB │ gzip:   4.44 kB
-public/build/assets/useCompositeListItem-BBIY1Zzx.js         13.53 kB │ gzip:   5.50 kB
+public/build/assets/BackupContainer-wMvnEX4t.js              11.80 kB │ gzip:   4.19 kB
+public/build/assets/safePolygon-Cxdlkxu1.js                  12.40 kB │ gzip:   4.44 kB
+public/build/assets/useCompositeListItem-DhPDFk2B.js         13.53 kB │ gzip:   5.49 kB
 public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
-public/build/assets/EditScheduleModal-EoiOJHzX.js            14.87 kB │ gzip:   4.97 kB
-public/build/assets/dist-CIawhpmd.js                         15.92 kB │ gzip:   6.98 kB
-public/build/assets/ScheduleEditContainer-DJXlou-R.js        16.81 kB │ gzip:   5.61 kB
-public/build/assets/DashboardRouter-CUwKLlw5.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/EditScheduleModal-CU2QMgje.js            14.87 kB │ gzip:   4.97 kB
+public/build/assets/dist-PIEMPVnq.js                         15.92 kB │ gzip:   6.98 kB
+public/build/assets/ScheduleEditContainer-D2jjmCt-.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-D4grl6K0.js              16.84 kB │ gzip:   5.46 kB
 public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
 public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
 public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
-public/build/assets/useActivityLogFilters-dREFal0z.js        26.19 kB │ gzip:  10.00 kB
+public/build/assets/useActivityLogFilters-BzURcUqs.js        26.19 kB │ gzip:   9.99 kB
 public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
 public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
-public/build/assets/dist-DzFo1NFY.js                         28.44 kB │ gzip:  11.56 kB
-public/build/assets/DropdownMenu-CXYuhPy7.js                 28.88 kB │ gzip:  10.19 kB
+public/build/assets/dist-BsExQ6Zm.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-BC8NgNyQ.js                 28.88 kB │ gzip:  10.18 kB
 public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
-public/build/assets/Label-aAC7J2Aw.js                        40.92 kB │ gzip:  14.92 kB
-public/build/assets/Select-OegH5Aoe.js                       41.57 kB │ gzip:  14.41 kB
-public/build/assets/dist-BAj8PvXs.js                         44.08 kB │ gzip:  15.23 kB
-public/build/assets/dist-PhrVhYzQ.js                         44.66 kB │ gzip:  19.38 kB
-public/build/assets/AuthenticationRouter-CRdduSou.js         44.93 kB │ gzip:  14.13 kB
-public/build/assets/AccountOverviewContainer-CFb6qwHa.js     45.52 kB │ gzip:  14.64 kB
+public/build/assets/Label-DpplkLDE.js                        40.92 kB │ gzip:  14.91 kB
+public/build/assets/Select-DvyiDRu1.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-CJI1ObOy.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-ClDmAwho.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-CKW0b4_P.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-DXbONYgE.js     45.52 kB │ gzip:  14.65 kB
 public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
-public/build/assets/useScrollLock-Bq5Y4Iau.js                56.64 kB │ gzip:  20.08 kB
-public/build/assets/FileManagerContainer-BJLmdZhi.js         63.09 kB │ gzip:  19.59 kB
-public/build/assets/AfterSubNavigation-DY6839XY.js           70.42 kB │ gzip:  24.47 kB
-public/build/assets/schemas-DqD428yX.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/useScrollLock-DBFpCJk7.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-Qa1ORc-z.js         63.72 kB │ gzip:  19.86 kB
+public/build/assets/AfterSubNavigation-DbpWwGRb.js           70.42 kB │ gzip:  24.47 kB
+public/build/assets/schemas-DRncP3Qa.js                      81.89 kB │ gzip:  23.55 kB
 public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
-public/build/assets/dist-BOTdo7Dq.js                         84.80 kB │ gzip:  33.81 kB
-public/build/assets/dist-BW4fhryk.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-6zFlgCAc.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-CJY4jJBN.js                         98.22 kB │ gzip:  28.81 kB
 public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
-public/build/assets/CodemirrorEditor-BqOvy6mq.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/CodemirrorEditor-D1ZDYYoy.js            108.87 kB │ gzip:  35.58 kB
 public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
 public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
-public/build/assets/index-CBef_AD5.js                       351.64 kB │ gzip: 111.46 kB
-public/build/assets/ServerConsoleContainer-D16E6dEb.js      473.34 kB │ gzip: 135.74 kB
+public/build/assets/index-DjpqAYic.js                       352.57 kB │ gzip: 111.67 kB
+public/build/assets/ServerConsoleContainer-DWuz1_Ys.js      473.34 kB │ gzip: 135.75 kB
 
-✓ built in 895ms
+✓ built in 1.14s
 
 
-=== pterodactyl; measured; 12852.11 ms ===
-(node:193696) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+=== aquadactyl; measured; 1583.57 ms ===
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 4012 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/assets/server_error-5qjrFKpx.svg                 6.51 kB │ gzip:   1.98 kB
+public/build/assets/not_found-BlmDXu1D.svg                    7.00 kB │ gzip:   2.37 kB
+public/build/assets/server_restore-PPkQqefc.svg              10.96 kB │ gzip:   3.34 kB
+public/build/assets/server_installing-Dv7w4A4K.svg           24.00 kB │ gzip:   8.83 kB
+public/build/manifest.json                                   55.39 kB │ gzip:   5.55 kB
+public/build/assets/ServerConsoleContainer-DxOjzeu3.css       5.58 kB │ gzip:   1.53 kB
+public/build/assets/index-ByME0HLB.css                      126.33 kB │ gzip:  21.35 kB
+public/build/assets/useBaseUiId-C6WR4mWm.js                   0.09 kB │ gzip:   0.11 kB
+public/build/assets/minus-Dva6l_Vh.js                         0.14 kB │ gzip:   0.15 kB
+public/build/assets/useDeepCompareMemo-DES_jKow.js            0.16 kB │ gzip:   0.14 kB
+public/build/assets/useDeepCompareEffect-CuqxPPdP.js          0.16 kB │ gzip:   0.15 kB
+public/build/assets/saveFileContents-rZEyAkMC.js              0.18 kB │ gzip:   0.17 kB
+public/build/assets/terminal-BT8gNOaT.js                      0.19 kB │ gzip:   0.17 kB
+public/build/assets/arrow-right-C0QfZoz8.js                   0.19 kB │ gzip:   0.17 kB
+public/build/assets/loader-circle-Cr62Oz3A.js                 0.19 kB │ gzip:   0.18 kB
+public/build/assets/clock-B-OUFmZ1.js                         0.20 kB │ gzip:   0.18 kB
+public/build/assets/chevrons-right-CAVZlnRe.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/useDeepMemoize-DvEmWfgw.js                0.20 kB │ gzip:   0.17 kB
+public/build/assets/chevrons-left-CpZvTZDr.js                 0.20 kB │ gzip:   0.17 kB
+public/build/assets/objects-DfSR6XZa.js                       0.22 kB │ gzip:   0.15 kB
+public/build/assets/updateStartupVariable-CjZTcltk.js         0.24 kB │ gzip:   0.20 kB
+public/build/assets/getRoundingMethod-DtYZQHfQ.js             0.24 kB │ gzip:   0.18 kB
+public/build/assets/Portal-Dd7kJqVB.js                        0.25 kB │ gzip:   0.21 kB
+public/build/assets/ServerContentBlock-B2F2IJTd.js            0.25 kB │ gzip:   0.21 kB
+public/build/assets/folder-TYWdxxCB.js                        0.25 kB │ gzip:   0.21 kB
+public/build/assets/archive-CNdDirab.js                       0.28 kB │ gzip:   0.23 kB
+public/build/assets/key-CcksBpst.js                           0.29 kB │ gzip:   0.23 kB
+public/build/assets/diff-ChtP43wD.js                          0.30 kB │ gzip:   0.23 kB
+public/build/assets/pencil-DBc0JhnY.js                        0.30 kB │ gzip:   0.24 kB
+public/build/assets/Code-D6N2pfht.js                          0.30 kB │ gzip:   0.23 kB
+public/build/assets/ConfirmationModal-D7xRh90i.js             0.31 kB │ gzip:   0.23 kB
+public/build/assets/refresh-cw-T29vnseR.js                    0.35 kB │ gzip:   0.24 kB
+public/build/assets/usePermissions-s1pLJiTk.js                0.35 kB │ gzip:   0.27 kB
+public/build/assets/trash-DhotOuod.js                         0.37 kB │ gzip:   0.24 kB
+public/build/assets/asDialog-BW_u3bNe.js                      0.39 kB │ gzip:   0.26 kB
+public/build/assets/network-P_OZCPKp.js                       0.41 kB │ gzip:   0.25 kB
+public/build/assets/useFileManagerQuery-Dqrzk_cB.js           0.41 kB │ gzip:   0.29 kB
+public/build/assets/lock-DJ6gUpu-.js                          0.43 kB │ gzip:   0.25 kB
+public/build/assets/getServerStartup-D994YbAW.js              0.46 kB │ gzip:   0.31 kB
+public/build/assets/Can-BxcelWkC.js                           0.46 kB │ gzip:   0.31 kB
+public/build/assets/copy-Dk7aR3AM.js                          0.51 kB │ gzip:   0.34 kB
+public/build/assets/alert-CfoQ5jXy.js                         0.54 kB │ gzip:   0.33 kB
+public/build/assets/brainfuck-D5EjA2JK.js                     0.59 kB │ gzip:   0.32 kB
+public/build/assets/FormFieldWrapper-BlsPMM2Q.js              0.60 kB │ gzip:   0.38 kB
+public/build/assets/ContentBox-BFo4v4VN.js                    0.60 kB │ gzip:   0.37 kB
+public/build/assets/useAriaLabelledBy-CIeytcRy.js             0.61 kB │ gzip:   0.41 kB
+public/build/assets/GreyRowBox-CpIE_85w.js                    0.62 kB │ gzip:   0.39 kB
+public/build/assets/properties-C357ku5U.js                    0.66 kB │ gzip:   0.34 kB
+public/build/assets/TitledGreyBox-CyWi4YDZ.js                 0.72 kB │ gzip:   0.39 kB
+public/build/assets/trash-BfprKnkd.js                         0.77 kB │ gzip:   0.44 kB
+public/build/assets/protobuf-D1ij_kNL.js                      0.80 kB │ gzip:   0.51 kB
+public/build/assets/http-CLVgA2GD.js                          0.84 kB │ gzip:   0.42 kB
+public/build/assets/events-sFYbgdhX.js                        0.91 kB │ gzip:   0.50 kB
+public/build/assets/button-BPeIpIBj.js                        1.01 kB │ gzip:   0.48 kB
+public/build/assets/toml-BPTmHmyx.js                          1.04 kB │ gzip:   0.53 kB
+public/build/assets/Pagination-BsY1Ngka.js                    1.14 kB │ gzip:   0.59 kB
+public/build/assets/ServerActivityLogContainer-B0L8p9MH.js    1.33 kB │ gzip:   0.73 kB
+public/build/assets/asModal-C3N8NjDr.js                       1.42 kB │ gzip:   0.60 kB
+public/build/assets/CopyOnClick-WpTdXnqJ.js                   1.46 kB │ gzip:   0.84 kB
+public/build/assets/useQueryKey-E-SJfaaR.js                   1.47 kB │ gzip:   0.80 kB
+public/build/assets/rpm-gpDK5sbt.js                           1.59 kB │ gzip:   0.81 kB
+public/build/assets/HytaleOauthRequireFeature-DncBieHP.js     1.59 kB │ gzip:   0.87 kB
+public/build/assets/ActivityLogContainer-Cta7s8WR.js          1.77 kB │ gzip:   0.94 kB
+public/build/assets/EulaModalFeature-BW-_pcxy.js              2.02 kB │ gzip:   1.08 kB
+public/build/assets/FormField-BZJHOzKZ.js                     2.03 kB │ gzip:   0.98 kB
+public/build/assets/dist-CLr-b-n1.js                          2.06 kB │ gzip:   1.29 kB
+public/build/assets/usePersistedState-CsWMFIC3.js             2.18 kB │ gzip:   0.94 kB
+public/build/assets/GSLTokenModalFeature-Cjl1WbGY.js          2.22 kB │ gzip:   1.15 kB
+public/build/assets/useButton-CAc1evZ5.js                     2.43 kB │ gzip:   1.12 kB
+public/build/assets/shell-DwuoZtxw.js                         2.43 kB │ gzip:   1.20 kB
+public/build/assets/SteamDiskSpaceFeature-B2IeVbbZ.js         2.46 kB │ gzip:   1.01 kB
+public/build/assets/security-x6tiDG-3.js                      2.61 kB │ gzip:   1.05 kB
+public/build/assets/JavaVersionModalFeature-C24yDJIT.js       2.71 kB │ gzip:   1.28 kB
+public/build/assets/go-D9_sU89l.js                            2.75 kB │ gzip:   1.30 kB
+public/build/assets/useSetFieldFocused-C5jxHcHj.js            2.75 kB │ gzip:   1.29 kB
+public/build/assets/PIDLimitModalFeature-BGkj2c1r.js          2.98 kB │ gzip:   1.16 kB
+public/build/assets/lua-DPCEkfD_.js                           3.12 kB │ gzip:   1.40 kB
+public/build/assets/dist-K5iYTeo9.js                          3.35 kB │ gzip:   1.70 kB
+public/build/assets/pathe.M-eThtNZ-BzCOPt7Y.js                3.47 kB │ gzip:   1.59 kB
+public/build/assets/ScheduleContainer-CTAYipZZ.js             3.48 kB │ gzip:   1.56 kB
+public/build/assets/swift-DKB6_1j6.js                         3.76 kB │ gzip:   1.81 kB
+public/build/assets/dockerfile-BDePf5PZ.js                    4.12 kB │ gzip:   1.64 kB
+public/build/assets/Switch-CDTrZXp3.js                        4.17 kB │ gzip:   1.99 kB
+public/build/assets/AccountSSHContainer-BHQxAYx3.js           4.31 kB │ gzip:   1.91 kB
+public/build/assets/dialog-DSji4__z.js                        4.39 kB │ gzip:   1.95 kB
+public/build/assets/CheckboxIndicator-MQo5P2Tz.js             4.76 kB │ gzip:   2.31 kB
+public/build/assets/ruby-ChfNwlCY.js                          5.07 kB │ gzip:   2.15 kB
+public/build/assets/julia-CQfgDRfP.js                         5.26 kB │ gzip:   2.16 kB
+public/build/assets/StartupContainer-BzL0cP4s.js              5.32 kB │ gzip:   2.11 kB
+public/build/assets/NetworkContainer-_nRdRAuE.js              5.79 kB │ gzip:   2.22 kB
+public/build/assets/AccountApiContainer-CLNCfB8D.js           5.93 kB │ gzip:   2.44 kB
+public/build/assets/SettingsContainer-BZbV4niY.js             6.24 kB │ gzip:   2.19 kB
+public/build/assets/nginx-8H7HVH4w.js                         7.40 kB │ gzip:   2.72 kB
+public/build/assets/erlang-BV0c4Hdn.js                        7.84 kB │ gzip:   2.90 kB
+public/build/assets/DialogRoot-Ds8nHZx6.js                    7.95 kB │ gzip:   3.05 kB
+public/build/assets/FileEditContainer-CQQF9t5g.js             8.81 kB │ gzip:   3.44 kB
+public/build/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
+public/build/assets/TrashContainer-DfrZZuLr.js                8.90 kB │ gzip:   2.85 kB
+public/build/assets/perl-BkSkiI9m.js                          9.73 kB │ gzip:   3.50 kB
+public/build/assets/ServerRouter-D22tEyRj.js                 10.52 kB │ gzip:   3.76 kB
+public/build/assets/DatabasesContainer-CEz6ZAql.js           10.62 kB │ gzip:   3.32 kB
+public/build/assets/UsersContainer-D6z1apuB.js               11.57 kB │ gzip:   3.97 kB
+public/build/assets/dist-DOT65XjO.js                         11.62 kB │ gzip:   5.21 kB
+public/build/assets/BackupContainer-DtXXEXW3.js              11.80 kB │ gzip:   4.19 kB
+public/build/assets/safePolygon-CkGVLKAZ.js                  12.40 kB │ gzip:   4.44 kB
+public/build/assets/useCompositeListItem-crzQLa0b.js         13.53 kB │ gzip:   5.49 kB
+public/build/assets/dist-GGpsyvPy.js                         14.38 kB │ gzip:   5.80 kB
+public/build/assets/EditScheduleModal-CbAh1toj.js            14.87 kB │ gzip:   4.98 kB
+public/build/assets/dist-mcxcMGh8.js                         15.92 kB │ gzip:   6.98 kB
+public/build/assets/ScheduleEditContainer-DnyM_GA6.js        16.81 kB │ gzip:   5.61 kB
+public/build/assets/DashboardRouter-ZqUrkB8Z.js              16.84 kB │ gzip:   5.46 kB
+public/build/assets/format-1xnafhDg.js                       19.38 kB │ gzip:   5.59 kB
+public/build/assets/clike-C2M2Cbvf.js                        22.12 kB │ gzip:   7.80 kB
+public/build/assets/pug-CWArLnY2.js                          23.50 kB │ gzip:   7.48 kB
+public/build/assets/useActivityLogFilters-D1p1oHgp.js        26.19 kB │ gzip:   9.99 kB
+public/build/assets/dist-D3d973G6.js                         26.89 kB │ gzip:   8.81 kB
+public/build/assets/dist-BelbXeVn.js                         26.92 kB │ gzip:  12.80 kB
+public/build/assets/dist-BX86RCp2.js                         28.44 kB │ gzip:  11.56 kB
+public/build/assets/DropdownMenu-BhbB7jJM.js                 28.88 kB │ gzip:  10.18 kB
+public/build/assets/sass-QtLgLo38.js                         28.99 kB │ gzip:   9.63 kB
+public/build/assets/Label-DWijn7DG.js                        40.92 kB │ gzip:  14.92 kB
+public/build/assets/Select-Ccoa27jY.js                       41.57 kB │ gzip:  14.41 kB
+public/build/assets/dist-DwMK2D7r.js                         44.08 kB │ gzip:  15.23 kB
+public/build/assets/dist-BrcgeoST.js                         44.66 kB │ gzip:  19.38 kB
+public/build/assets/AuthenticationRouter-gPzSA8Kh.js         44.93 kB │ gzip:  14.13 kB
+public/build/assets/AccountOverviewContainer-BAwtpHnB.js     45.52 kB │ gzip:  14.65 kB
+public/build/assets/dist-Bx9GMMq2.js                         47.82 kB │ gzip:  19.57 kB
+public/build/assets/useScrollLock-wzEs2vO3.js                56.64 kB │ gzip:  20.08 kB
+public/build/assets/FileManagerContainer-gH4dx03_.js         63.72 kB │ gzip:  19.85 kB
+public/build/assets/AfterSubNavigation-jCSUyurA.js           70.42 kB │ gzip:  24.47 kB
+public/build/assets/schemas-CI-Fd6en.js                      81.89 kB │ gzip:  23.55 kB
+public/build/assets/dist-CAloGDKN.js                         83.75 kB │ gzip:  30.69 kB
+public/build/assets/dist-CeS6DdqU.js                         84.80 kB │ gzip:  33.81 kB
+public/build/assets/dist-D5x_MSz6.js                         98.22 kB │ gzip:  28.81 kB
+public/build/assets/dist-D5CdSA2o.js                        103.99 kB │ gzip:  34.80 kB
+public/build/assets/CodemirrorEditor-BzoFl0Cl.js            108.87 kB │ gzip:  35.58 kB
+public/build/assets/Spinner-ugkh3xqA.js                     191.57 kB │ gzip:  65.16 kB
+public/build/assets/dist-Dreq6AqC.js                        320.13 kB │ gzip: 103.83 kB
+public/build/assets/index-DnrqSVvK.js                       352.57 kB │ gzip: 111.68 kB
+public/build/assets/ServerConsoleContainer-DvmeY5MI.js      473.34 kB │ gzip: 135.75 kB
+
+✓ built in 1.25s
+
+
+=== pterodactyl; measured; 15861.01 ms ===
+(node:3112) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
   npx update-browserslist-db@latest
@@ -967,4 +967,4 @@ Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
 
 warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
 warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
-webpack compiled in 12376 ms
+webpack compiled in 15405 ms

@@ -30,7 +30,7 @@ description: Reproducible frontend asset and production-build measurements, with
 On ${report.measuredOn}, the reviewed Aquadactyl frontend emitted **${saving(aqua.dashboard.totalGzipBytes, ptero.dashboard.totalGzipBytes)} less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **${seconds(aqua.buildMs.median)}**, compared with **${seconds(ptero.buildMs.median)}** for Pterodactyl, a **${(ptero.buildMs.median / aqua.buildMs.median).toFixed(2)}× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
 
 These are local measurements of built frontend artifacts and build duration.
-The separate [runtime benchmark](/docs/panel/runtime-benchmarks) measures browser
+The separate [runtime benchmark](/docs/panel/panel-comparison) measures browser
 load time, authenticated API throughput and memory use. Neither comparison
 measures Wings or game-server performance.
 
@@ -43,8 +43,7 @@ measures Wings or game-server performance.
 | Aquadactyl | ${aqua.ref}, pinned | [${aqua.revision.slice(0, 12)}](${source(aqua)}) | ${aqua.toolchain} |
 | Pterodactyl | ${ptero.ref} | [${ptero.revision.slice(0, 12)}](${source(ptero)}) | ${ptero.toolchain} |
 
-Pterodactyl ${ptero.ref} was the latest release returned by the official repository
-when the comparison was prepared. These results apply to these exact commits.
+Pterodactyl is pinned to ${ptero.ref}. These results apply to these exact commits.
 Both source checkouts had no tracked changes and no installed third-party addons.
 Aquadactyl's bundled Blueprint framework was included as shipped.
 

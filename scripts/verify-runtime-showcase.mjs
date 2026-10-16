@@ -48,6 +48,14 @@ try {
       await button.focus();
       await page.keyboard.press("Space");
       assert.equal(await button.getAttribute("aria-pressed"), "true");
+      assert.ok((await section.textContent()).includes(comparison.measuredOn));
+      if (id === "panel")
+        assert.equal(
+          await section
+            .getByRole("link", { name: "Build times & asset sizes" })
+            .getAttribute("href"),
+          "/docs/panel/benchmarks",
+        );
       assert.equal(
         await section.locator('button[aria-pressed="true"]').count(),
         1,
@@ -91,7 +99,7 @@ try {
       );
       assert.ok(
         bounds.height <= (width < 640 ? 640 : 520),
-        "Benchmark section is too tall: " + bounds.height,
+        "Benchmark section is too tall at " + width + "px: " + bounds.height,
       );
       assert.ok(
         await page.evaluate(
@@ -110,12 +118,22 @@ try {
     assert.equal(response.status(), 200);
     assert.ok(await page.getByRole("heading", { level: 1 }).count());
   }
+  const buildGuide = await page.goto(base + "/docs/panel/benchmarks");
+  assert.equal(buildGuide.status(), 200);
+  assert.ok(await page.getByRole("heading", { level: 1 }).count());
   for (const path of [
     "/benchmarks/panel-comparison.json",
     "/benchmarks/daemon-comparison.json",
     "/benchmarks/comparison-summary.json",
     "/benchmarks/panel-comparison-aquadactyl.patch",
     "/benchmarks/daemon-comparison-manta.patch",
+    "/benchmarks/panels.json",
+    "/benchmarks/build-logs.txt",
+    "/benchmarks/panel-runtime-2026-10-16.json",
+    "/benchmarks/panel-runtime-2026-10-16-provenance.json",
+    "/benchmarks/panel-comparison-diagnostics.json",
+    "/benchmarks/archive/2026-10-14/panels.json",
+    "/benchmarks/archive/2026-10-15/panel-comparison.json",
   ]) {
     assert.equal((await fetch(base + path)).status, 200, path);
   }

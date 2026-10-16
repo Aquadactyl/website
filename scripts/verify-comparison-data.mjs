@@ -14,10 +14,10 @@ assert.ok(
     Date.parse(panel.completedAt) <= Date.parse(daemon.startedAt),
   "Measured workloads must not overlap.",
 );
-for (const id of ["panel", "daemon"])
+for (const id of ["panel", "daemon", "build"])
   assert.equal(
     summary.sources[id].sha256,
-    hash(`public/benchmarks/${id}-comparison.json`),
+    hash(`public/benchmarks/${summary.sources[id].file}`),
   );
 assert.equal(
   hash("public/benchmarks/panel-comparison-runner.txt"),
@@ -145,6 +145,12 @@ for (const [index, variant] of ["wings", "manta"].entries()) {
   );
 }
 for (const comparison of Object.values(summary.comparisons)) {
+  assert.equal(
+    comparison.measuredOn,
+    comparison === summary.comparisons.panel
+      ? panel.measuredOn
+      : daemon.measuredOn,
+  );
   assert.equal(comparison.metrics.length, 3);
   const doc = fs.readFileSync(
     `docs/${comparison.href.slice("/docs/".length)}.mdx`,

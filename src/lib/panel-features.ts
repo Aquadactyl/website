@@ -1,6 +1,6 @@
 export const panelReview = {
-  reviewedOn: "14 October 2026",
-  aquadactyl: "2bfd6ae2a30c8152b34b53c53562773a973ae901",
+  reviewedOn: "16 October 2026",
+  aquadactyl: "b5cc74ecb11d031c33582ef257a189efc9f3178c",
   pterodactyl: "e98678c5a1d07a74036660a459d87a4eb7c105c1",
   pterodactylRelease: "v1.15.1",
 };

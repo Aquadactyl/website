@@ -140,18 +140,28 @@ export default function BenchmarkComparison() {
             </tbody>
           </table>
         </div>
-        <div className="mt-3 flex flex-col justify-between gap-2 text-[11px] leading-relaxed text-[#a0abb6] sm:flex-row sm:items-center">
+        <div className="mt-3 flex flex-col justify-between gap-1 text-[11px] leading-relaxed text-[#a0abb6] sm:flex-row sm:items-center">
           <p>
-            {comparison.description} Local lab · {results.measuredOn}. Results
-            vary by workload.
+            {comparison.description} Local lab · {comparison.measuredOn}.
+            Results vary by workload.
           </p>
-          <Link
-            href={comparison.href}
-            className="inline-flex shrink-0 items-center gap-1 text-[#a4e3dc] hover:text-white"
-          >
-            Full results &amp; methodology{" "}
-            <ArrowUpRight size={13} aria-hidden />
-          </Link>
+          <div className="flex shrink-0 flex-wrap gap-x-4 gap-y-1">
+            {selected === "panel" && (
+              <Link
+                href="/docs/panel/benchmarks"
+                className="text-[#a4e3dc] hover:text-white"
+              >
+                Build times &amp; asset sizes
+              </Link>
+            )}
+            <Link
+              href={comparison.href}
+              className="inline-flex items-center gap-1 text-[#a4e3dc] hover:text-white"
+            >
+              Full results &amp; methodology{" "}
+              <ArrowUpRight size={13} aria-hidden />
+            </Link>
+          </div>
         </div>
       </div>
     </section>

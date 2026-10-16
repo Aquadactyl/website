@@ -1,19 +1,24 @@
 {
   "schemaVersion": 1,
-  "measuredOn": "2026-10-15",
+  "measuredOn": "2026-10-16 / 2026-10-15",
   "sources": {
     "panel": {
       "file": "panel-comparison.json",
-      "sha256": "a77aba3b2cf3d21eeedd88cac9f1743a959fcc755bc87888060551f9364782ed"
+      "sha256": "d547e7798abb6a8ebc0b9f52cae8e7f898ed3b6b804fb3bd4ce8c0b9aea8c25d"
     },
     "daemon": {
       "file": "daemon-comparison.json",
       "sha256": "dde1432737a5ab7496dbc72f65db08f68ed8e13b3e0cd7747811cf6de6103cff"
+    },
+    "build": {
+      "file": "panels.json",
+      "sha256": "637ee19aac2897c84190d6baf1fde16324bb095d16c6d313bc0c38d9232d9923"
     }
   },
   "comparisons": {
     "panel": {
       "label": "Panel vs Pterodactyl",
+      "measuredOn": "2026-10-16",
       "baseline": "Pterodactyl",
       "candidate": "Aquadactyl",
       "href": "/docs/panel/panel-comparison",
@@ -26,8 +31,8 @@
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 328.1500000357628,
-          "candidate": 198.14999997615814
+          "baseline": 325.5999999999767,
+          "candidate": 198.30000000004657
         },
         {
           "id": "api",
@@ -36,8 +41,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 17.782406307626964,
-          "candidate": 72.20188666370906
+          "baseline": 18.05837416679014,
+          "candidate": 77.26760111828573
         },
         {
           "id": "memory",
@@ -46,13 +51,14 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 126.576171875,
-          "candidate": 127.548828125
+          "baseline": 148.072265625,
+          "candidate": 155.541015625
         }
       ]
     },
     "daemon": {
       "label": "Wings vs Manta",
+      "measuredOn": "2026-10-15",
       "baseline": "Wings",
       "candidate": "Manta",
       "href": "/docs/wings/benchmarks",

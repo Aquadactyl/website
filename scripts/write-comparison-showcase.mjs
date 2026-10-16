@@ -50,12 +50,16 @@ const summary = {
       ? panel.measuredOn
       : `${panel.measuredOn} / ${daemon.measuredOn}`,
   sources: Object.fromEntries(
-    ["panel", "daemon"].map((id) => [
+    ["panel", "daemon", "build"].map((id) => [
       id,
       {
-        file: `${id}-comparison.json`,
+        file: id === "build" ? "panels.json" : `${id}-comparison.json`,
         sha256: createHash("sha256")
-          .update(fs.readFileSync(`public/benchmarks/${id}-comparison.json`))
+          .update(
+            fs.readFileSync(
+              `public/benchmarks/${id === "build" ? "panels" : id + "-comparison"}.json`,
+            ),
+          )
           .digest("hex"),
       },
     ]),
@@ -63,6 +67,7 @@ const summary = {
   comparisons: {
     panel: {
       label: "Panel vs Pterodactyl",
+      measuredOn: panel.measuredOn,
       baseline: "Pterodactyl",
       candidate: "Aquadactyl",
       href: "/docs/panel/panel-comparison",
@@ -102,6 +107,7 @@ const summary = {
     },
     daemon: {
       label: "Wings vs Manta",
+      measuredOn: daemon.measuredOn,
       baseline: "Wings",
       candidate: "Manta",
       href: "/docs/wings/benchmarks",

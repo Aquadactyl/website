@@ -5,9 +5,9 @@ description: Measured browser timing, authenticated API throughput and memory us
 
 Measured **2026-10-15**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
 
-This is the earlier runtime snapshot. See the [latest panel comparison](/docs/panel/panel-comparison) for the measurements used on the homepage.
+[Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/runtime.json) · [Summary](/benchmarks/runtime-summary.json) · [Measured runner source](/benchmarks/runtime-runner.txt)
 
-[Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/runtime.json) · [Chart data](/benchmarks/runtime-summary.json) · [Measured runner source](/benchmarks/runtime-runner.txt)
+This historical report retains its original revisions and measurements. See the [current panel comparison](/docs/panel/panel-comparison) for newer results and the [archived build record](/benchmarks/archive/2026-10-14/panels.json) for the frontend artifacts used in this run.
 
 ## Scope and compared versions
 
@@ -20,7 +20,7 @@ One non-admin user owning 50 suspended server records, one node, one nest, one e
 
 PHP 8.5, four static FPM workers, OPcache 128 MiB, PHP memory_limit 256 MiB; nginx one worker with gzip level 6; config/route/view caches; one queue worker. Each panel 2 CPU quota cores/1 GiB; each MariaDB 1 core/512 MiB; each Redis 0.5 core/128 MiB. REDIS_CLIENT=phpredis on both. Production mode, debug and telemetry off, no extra addons.
 
-Both applications use their own locked production Composer dependencies and the frontend artifacts from the pinned build comparison. No application source was patched. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
+Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. No application source was patched. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
 
 These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
 
@@ -125,7 +125,7 @@ Browser observations, API windows and memory windows ran in separate phases. Pan
 
 ## Reproduce
 
-Use the exact clean source checkouts and production frontend builds from the [build benchmark](/docs/panel/benchmarks#reproduce). Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
+Check out the exact source commits above. Use clean source checkouts. Install each panel's locked dependencies and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: yarn build:production) before preparing the stacks. The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately. Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
 
 ```bash
 docker build -t aquadactyl:test /path/to/aquadactyl-bench
@@ -137,9 +137,9 @@ The preparation script prints a temporary directory. Replace WORKDIR below with 
 
 ```bash
 docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
-node scripts/benchmark-runtime.mjs WORKDIR
-node scripts/write-runtime-benchmark-guide.mjs
-node scripts/verify-runtime-benchmark.mjs
+node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/runtime.json
+node scripts/write-runtime-benchmark-guide.mjs runtime
+node scripts/verify-runtime-benchmark.mjs runtime
 docker compose -f WORKDIR/compose.json down --volumes
 ```
 

@@ -3,10 +3,10 @@ title: Pterodactyl vs Aquadactyl benchmarks
 description: Reproducible frontend asset and production-build measurements, with raw samples, source revisions and methodology.
 ---
 
-On 2026-10-14, the reviewed Aquadactyl frontend emitted **48.6% less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **1.231 s**, compared with **12.887 s** for Pterodactyl, a **10.47× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
+On 2026-10-16, the reviewed Aquadactyl frontend emitted **48.5% less dashboard JavaScript and CSS under gzip** than the reviewed Pterodactyl release. Its median production frontend build was **1.489 s**, compared with **15.790 s** for Pterodactyl, a **10.60× build-duration ratio** (Pterodactyl ÷ Aquadactyl).
 
 These are local measurements of built frontend artifacts and build duration.
-The separate [runtime benchmark](/docs/panel/runtime-benchmarks) measures browser
+The separate [runtime benchmark](/docs/panel/panel-comparison) measures browser
 load time, authenticated API throughput and memory use. Neither comparison
 measures Wings or game-server performance.
 
@@ -16,11 +16,10 @@ measures Wings or game-server performance.
 
 | Panel       | Ref          | Exact commit                                                                                           | Toolchain        |
 | ----------- | ------------ | ------------------------------------------------------------------------------------------------------ | ---------------- |
-| Aquadactyl  | main, pinned | [2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901) | Vite ^8.3.4      |
+| Aquadactyl  | main, pinned | [b5cc74ecb11d](https://github.com/Aquadactyl/aquadactyl/tree/b5cc74ecb11d031c33582ef257a189efc9f3178c) | Vite ^8.3.4      |
 | Pterodactyl | v1.15.1      | [e98678c5a1d0](https://github.com/pterodactyl/panel/tree/e98678c5a1d07a74036660a459d87a4eb7c105c1)     | Webpack ^5.103.0 |
 
-Pterodactyl v1.15.1 was the latest release returned by the official repository
-when the comparison was prepared. These results apply to these exact commits.
+Pterodactyl is pinned to v1.15.1. These results apply to these exact commits.
 Both source checkouts had no tracked changes and no installed third-party addons.
 Aquadactyl's bundled Blueprint framework was included as shipped.
 
@@ -31,12 +30,12 @@ different comparison. They were not used as a Pterodactyl baseline here.
 
 | Measurement                     | Pterodactyl                  | Aquadactyl                | Reduction |
 | ------------------------------- | ---------------------------- | ------------------------- | --------- |
-| JavaScript, uncompressed        | 2,025,060 bytes (1977.6 KiB) | 765,012 bytes (747.1 KiB) | 62.2%     |
-| JavaScript, gzip estimate       | 535,676 bytes (523.1 KiB)    | 254,372 bytes (248.4 KiB) | 52.5%     |
+| JavaScript, uncompressed        | 2,025,060 bytes (1977.6 KiB) | 765,935 bytes (748.0 KiB) | 62.2%     |
+| JavaScript, gzip estimate       | 535,675 bytes (523.1 KiB)    | 254,591 bytes (248.6 KiB) | 52.5%     |
 | Separate CSS, uncompressed      | 0 bytes (0.0 KiB)            | 126,337 bytes (123.4 KiB) | —         |
 | Separate CSS, gzip estimate     | 0 bytes (0.0 KiB)            | 21,213 bytes (20.7 KiB)   | —         |
-| JavaScript + CSS, uncompressed  | 2,025,060 bytes (1977.6 KiB) | 891,349 bytes (870.5 KiB) | 56.0%     |
-| JavaScript + CSS, gzip estimate | 535,676 bytes (523.1 KiB)    | 275,585 bytes (269.1 KiB) | 48.6%     |
+| JavaScript + CSS, uncompressed  | 2,025,060 bytes (1977.6 KiB) | 892,272 bytes (871.4 KiB) | 55.9%     |
+| JavaScript + CSS, gzip estimate | 535,675 bytes (523.1 KiB)    | 275,804 bytes (269.3 KiB) | 48.5%     |
 
 Pterodactyl's CSS is carried inside its JavaScript through style-loader. Zero
 separate CSS bytes does not mean it has no styles. The headline includes
@@ -57,17 +56,17 @@ payload samples and every counted filename/SHA-256 are in the raw report.
 
 | Measurement    | Pterodactyl | Aquadactyl |
 | -------------- | ----------- | ---------- |
-| Median of five | 12.887 s    | 1.231 s    |
-| Minimum        | 12.831 s    | 1.212 s    |
-| Maximum        | 13.248 s    | 1.251 s    |
+| Median of five | 15.790 s    | 1.489 s    |
+| Minimum        | 15.765 s    | 1.465 s    |
+| Maximum        | 15.861 s    | 1.584 s    |
 
 | Measured sample | Pterodactyl | Aquadactyl |
 | --------------- | ----------- | ---------- |
-| 1               | 12.887 s    | 1.251 s    |
-| 2               | 13.035 s    | 1.231 s    |
-| 3               | 12.831 s    | 1.236 s    |
-| 4               | 13.248 s    | 1.225 s    |
-| 5               | 12.852 s    | 1.212 s    |
+| 1               | 15.842 s    | 1.489 s    |
+| 2               | 15.790 s    | 1.465 s    |
+| 3               | 15.776 s    | 1.495 s    |
+| 4               | 15.765 s    | 1.475 s    |
+| 5               | 15.861 s    | 1.584 s    |
 
 Each panel had one discarded warm-up and five measured builds. After warm-up,
 run order alternated by round: Aquadactyl/Pterodactyl, then
@@ -106,7 +105,7 @@ PHP, a database, administrator credentials or a game server.
 
 ```bash
 git clone https://github.com/Aquadactyl/aquadactyl.git aquadactyl-bench
-git -C aquadactyl-bench checkout --detach 2bfd6ae2a30c8152b34b53c53562773a973ae901
+git -C aquadactyl-bench checkout --detach b5cc74ecb11d031c33582ef257a189efc9f3178c
 git clone --branch v1.15.1 https://github.com/pterodactyl/panel.git pterodactyl-bench
 
 cd aquadactyl-bench

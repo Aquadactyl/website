@@ -9,7 +9,8 @@ import { promisify } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
 import { createHash } from "node:crypto";
 import { monitorEventLoopDelay } from "node:perf_hooks";
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
+const { chromium } = createRequire("C:/Users/rep/Downloads/website/package.json")("playwright");
 
 const work = path.resolve(process.argv[2] || "");
 const manifest = JSON.parse(
@@ -49,7 +50,7 @@ const credentials = Object.fromEntries(
 const report = {
   schemaVersion: 1,
   comparison: manifest.comparison ?? "Pterodactyl vs Aquadactyl",
-  measuredOn: new Date().toISOString().slice(0, 10),
+  measuredOn: manifest.clientDate,
   startedAt: new Date().toISOString(),
   environment: {
     hostCpu: os.cpus()[0].model,

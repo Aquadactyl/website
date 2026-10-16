@@ -120,6 +120,27 @@ comparison buttons, each showing three fixed measurements. It imports only
 `public/benchmarks/comparison-summary.json`. Full results and methodology live in
 `docs/panel/panel-comparison.mdx` and `docs/wings/benchmarks.mdx`.
 
+The current panel runtime results were measured on 16 October 2026. The
+homepage selects the candidate and Pterodactyl from the recorded three-way
+experiment; its full record, source provenance and earlier reports remain in
+`public/benchmarks/`. The production build comparison is a separate five-build
+measurement of committed panel source. Dates are shown per comparison.
+
+To publish an already completed three-way run, without rerunning or mixing its
+measurements, commit its panel source and run:
+
+```bash
+node scripts/publish-panel-benchmark.mjs /path/to/recorded-run /path/to/aquadactyl
+node scripts/write-runtime-benchmark-guide.mjs panel-comparison
+node scripts/write-comparison-showcase.mjs
+node scripts/verify-runtime-benchmark.mjs panel-comparison
+node scripts/verify-comparison-data.mjs
+```
+
+The importer verifies recorded runtime/font hashes against the committed source,
+preserves the original report byte for byte, and archives the previous homepage
+comparison. Never publish the private Compose file or benchmark credentials.
+
 Refresh both comparisons sequentially, with no other benchmark jobs running.
 Build both panel frontends from their locked dependencies first. The runtime
 preparation script accepts `--include-working-tree` to record local changes,
@@ -149,11 +170,11 @@ node scripts/verify-comparison-data.mjs
 node scripts/verify-runtime-showcase.mjs http://localhost:3000
 ```
 
-The older frontend build, runtime and before/after optimization reports remain
-historical documentation. They are not separate homepage sections. Their
-original source revisions and measurement dates are retained. The frontend
-report covers build duration and emitted dashboard JS/CSS, including separately
-emitted CSS for asset accounting.
+The older runtime and before/after optimization guides remain historical
+documentation. Earlier frontend and homepage runtime data live under
+`public/benchmarks/archive/`; their original revisions and dates are retained.
+The current frontend report covers build duration and emitted dashboard JS/CSS,
+including separately emitted CSS for asset accounting.
 
 With locked dependencies installed in clean panel checkouts, refresh the results:
 

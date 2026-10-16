@@ -1,0 +1,609 @@
+diff --git a/app/Http/Controllers/Api/Client/ClientController.php b/app/Http/Controllers/Api/Client/ClientController.php
+index d69cd7481..4e2895706 100644
+--- a/app/Http/Controllers/Api/Client/ClientController.php
++++ b/app/Http/Controllers/Api/Client/ClientController.php
+@@ -9,6 +9,7 @@ use Spatie\QueryBuilder\AllowedFilter;
+ use Pterodactyl\Models\Filters\MultiFieldServerFilter;
+ use Pterodactyl\Transformers\Api\Client\ServerTransformer;
+ use Pterodactyl\Http\Requests\Api\Client\GetServersRequest;
++use Pterodactyl\Services\Servers\ServerListRelationsService;
+ 
+ class ClientController extends ClientApiController
+ {
+@@ -62,6 +63,7 @@ class ClientController extends ClientApiController
+         }
+ 
+         $servers = $builder->paginate(min($request->query('per_page', 50), 100))->appends($request->query());
++        app(ServerListRelationsService::class)->handle($servers->getCollection());
+ 
+         return $this->fractal->transformWith($transformer)->collection($servers)->toArray();
+     }
+diff --git a/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php b/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
+index 9512ec593..8e50a47f8 100644
+--- a/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
++++ b/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
+@@ -93,6 +93,23 @@ class SftpAuthenticationController extends Controller
+      */
+     protected function getServer(Request $request, string $uuid): Server
+     {
++        // Wings clients historically send the first eight UUID characters.
++        // Resolve that legacy form only within the authenticated node, and
++        // reject collisions instead of selecting an arbitrary server.
++        if (preg_match('/^[a-f0-9]{8}$/i', $uuid)) {
++            $matches = Server::query()
++                ->where('node_id', $request->attributes->get('node')->id)
++                ->where('uuid', 'like', $uuid . '%')
++                ->limit(2)
++                ->get();
++
++            if ($matches->count() !== 1) {
++                $this->reject($request);
++            }
++
++            return $matches->first();
++        }
++
+         return Server::query()
+             ->when(
+                 str_starts_with($uuid, 'serv_'),
+diff --git a/app/Models/ApiKey.php b/app/Models/ApiKey.php
+index 1d5de0da0..1246e50b3 100644
+--- a/app/Models/ApiKey.php
++++ b/app/Models/ApiKey.php
+@@ -66,6 +66,29 @@ class ApiKey extends Model implements HasAbilities
+     /** @use HasFactory<\Database\Factories\ApiKeyFactory> */
+     use HasFactory;
+ 
++    /**
++     * Sanctum saves the usage timestamp on authenticated requests. An unchanged
++     * key does not need identity/foreign-key queries on every timestamp update.
++     * Key creation and changes to any other attribute still use full validation.
++     */
++    public function validate(): void
++    {
++        if ($this->skipValidation) {
++            return;
++        }
++
++        if ($this->exists && !array_diff(array_keys($this->getDirty()), ['last_used_at', 'updated_at'])) {
++            static::$validatorFactory->make(
++                ['last_used_at' => $this->last_used_at],
++                ['last_used_at' => static::$validationRules['last_used_at']],
++            )->validate();
++
++            return;
++        }
++
++        parent::validate();
++    }
++
+     /**
+      * The resource name for this model when it is transformed into an
+      * API representation using fractal.
+diff --git a/app/Services/Servers/GetUserPermissionsService.php b/app/Services/Servers/GetUserPermissionsService.php
+index ae91cb33f..1e85c16c2 100644
+--- a/app/Services/Servers/GetUserPermissionsService.php
++++ b/app/Services/Servers/GetUserPermissionsService.php
+@@ -27,7 +27,9 @@ class GetUserPermissionsService
+         }
+ 
+         /** @var \Pterodactyl\Models\Subuser|null $subuserPermissions */
+-        $subuserPermissions = $server->subusers()->where('user_id', $user->id)->first();
++        $subuserPermissions = $server->relationLoaded('subusers')
++            ? $server->subusers->firstWhere('user_id', $user->id)
++            : $server->subusers()->where('user_id', $user->id)->first();
+ 
+         return $subuserPermissions ? $subuserPermissions->permissions : [];
+     }
+diff --git a/app/Services/Servers/ServerListRelationsService.php b/app/Services/Servers/ServerListRelationsService.php
+new file mode 100644
+index 000000000..6d739ccbf
+--- /dev/null
++++ b/app/Services/Servers/ServerListRelationsService.php
+@@ -0,0 +1,48 @@
++<?php
++
++namespace Pterodactyl\Services\Servers;
++
++use Pterodactyl\Models\Server;
++use Pterodactyl\Models\EggVariable;
++use Pterodactyl\Models\ServerVariable;
++use Illuminate\Database\Eloquent\Collection;
++
++class ServerListRelationsService
++{
++    /**
++     * Load the relationships used by the client server list in batches.
++     *
++     * @param Collection<int, Server> $servers
++     */
++    public function handle(Collection $servers): void
++    {
++        if ($servers->isEmpty()) {
++            return;
++        }
++
++        $servers->loadMissing(['node', 'egg.configFrom', 'allocations', 'transfer', 'subusers']);
++
++        // Server::variables() joins on the individual server ID, so ordinary
++        // eager loading would mix overrides between servers sharing an egg.
++        $definitions = EggVariable::query()->whereIn('egg_id', $servers->pluck('egg_id')->unique())->get()->groupBy('egg_id');
++        $overrides = ServerVariable::query()->whereIn('server_id', $servers->modelKeys())->get()->groupBy('server_id');
++
++        foreach ($servers as $server) {
++            $values = ($overrides->get($server->id) ?? new Collection())->keyBy('variable_id');
++            $variables = ($definitions->get($server->egg_id) ?? new Collection())->map(function (EggVariable $definition) use ($values) {
++                $variable = clone $definition;
++                $variable->setAttribute('server_value', $values->get($definition->id)?->variable_value);
++
++                return $variable;
++            });
++            $server->setRelation('variables', $variables);
++
++            // AllocationTransformer needs the parent only to identify the
++            // primary allocation; reuse the already hydrated server instance.
++            foreach ($server->allocations as $allocation) {
++                $allocation->setRelation('server', $server);
++            }
++            $server->allocation?->setRelation('server', $server);
++        }
++    }
++}
+diff --git a/docs/PERFORMANCE.md b/docs/PERFORMANCE.md
+index b095ca0cc..412b15f50 100644
+--- a/docs/PERFORMANCE.md
++++ b/docs/PERFORMANCE.md
+@@ -1,5 +1,51 @@
+ # Performance and build caching
+ 
++## Runtime optimization measurements
++
++On 15 October 2026, separate before/after instances were measured from base
++commit `a42ce0af63c5`, with the runtime performance changes applied only to the
++candidate. Both used PHP 8.5.11, four static FPM workers, the same production
++dependencies, two CPU quota cores and 1 GiB per panel, and matching database and
++Redis limits. Each had 50 suspended server records owned by one non-admin user.
++
++| Measurement                                 |      Before |       After |
++| ------------------------------------------- | ----------: | ----------: |
++| Cold-browser dashboard ready, median of ten |    570.3 ms |    176.9 ms |
++| Cold-browser first contentful paint         |    418.0 ms |    112.0 ms |
++| Account API, concurrency 16                 | 265.5 req/s | 313.5 req/s |
++| 50-server-list API, concurrency 16          |  19.9 req/s |  82.8 req/s |
++| Loaded panel container working set          |   129.3 MiB |   127.4 MiB |
++
++The server list batches page relationships and server-specific variable values,
++and reuses loaded parents during allocation transformation. A separate request
++profile dropped from 310 SQL queries to 14, excluding application bootstrap.
++Variable overrides remain isolated per server, including empty values; hidden
++variables and allocation-note restrictions still follow the existing permissions.
++
++API-key usage timestamp saves avoid repeating validation queries for unchanged
++identity fields. Token lookup, authorization, revocation/expiry checks and
++last-used timestamp persistence remain active; key creation and edits retain
++full validation. The entry point resolves only the requested initial router shell
++before mounting App, with a spinner while loading, avoiding the initial
++lazy/Suspense reveal delay. Later routes remain lazy and retain error handling.
++
++The API figures are medians of three 10-second persistent-connection windows.
++All 47,531 measured responses passed status and JSON checks. Memory is the median
++of 30 loaded samples, calculated as cgroup usage minus inactive file cache; the
++observed memory improvement is modest and idle memory was essentially unchanged.
++Dashboard ready is a custom DOM milestone, distinct from window load and browser
++paint metrics. These local workstation results do not establish WAN/mobile
++performance or universal production capacity.
++
++Validation: 1,508 frontend tests with 100% coverage, 43 focused backend tests
++(286 assertions), TypeScript, frontend lint, scoped format checks, static analysis
++of changed PHP files and a production Vite build. Full samples, the patch and
++reproduction commands are in the website repository's
++`docs/panel/optimization-benchmarks.mdx` and `public/benchmarks/` artifacts. The
++earlier Pterodactyl comparison remains pinned to its original source revisions.
++
++## Frontend loading and builds
++
+ Account and server screens load when their routes are opened. The shared route
+ registry exposes navigation without eagerly importing the terminal, charts,
+ account security forms, or every server management screen. Vite handles shared
+diff --git a/resources/scripts/components/App.spec.tsx b/resources/scripts/components/App.spec.tsx
+index 09a5fdfd0..0701f2dc5 100644
+--- a/resources/scripts/components/App.spec.tsx
++++ b/resources/scripts/components/App.spec.tsx
+@@ -74,6 +74,20 @@ describe("components/App", () => {
+     expect(store.getState().settings.data?.name).toBe("Test Panel");
+   });
+ 
++  it.each([
++    { path: "/", kind: "dashboard" },
++    { path: "/auth/login", kind: "auth" },
++    { path: "/server/srv-1", kind: "server" },
++  ] as const)(
++    "mounts the resolved $kind shell synchronously",
++    ({ path, kind }) => {
++      history.push(path);
++      const Component = () => <div data-testid="resolved-shell">Ready</div>;
++      render(<App initialRouter={{ kind, Component }} />);
++      expect(screen.getByTestId("resolved-shell")).toBeDefined();
++    },
++  );
++
+   it("routes to authentication router when on /auth/login", async () => {
+     history.push("/auth/login");
+ 
+diff --git a/resources/scripts/components/App.tsx b/resources/scripts/components/App.tsx
+index 967648bdb..eed62329e 100644
+--- a/resources/scripts/components/App.tsx
++++ b/resources/scripts/components/App.tsx
+@@ -19,6 +19,7 @@ import "@/assets/index.css";
+ import Spinner from "@/components/elements/Spinner";
+ import PrivacyMode from "@/components/elements/PrivacyMode";
+ import PanelBackground from "@/components/elements/PanelBackground";
++import type { InitialRouter } from "@/routers/initialRouter";
+ 
+ const DashboardRouter = lazy(() => import("@/routers/DashboardRouter"));
+ const ServerRouter = lazy(() => import("@/routers/ServerRouter"));
+@@ -44,7 +45,17 @@ interface ExtendedWindow extends Window {
+ 
+ setupInterceptors(history);
+ 
+-const App = () => {
++const App = ({ initialRouter }: { initialRouter?: InitialRouter }) => {
++  const AuthRouter =
++    initialRouter?.kind === "auth"
++      ? initialRouter.Component
++      : AuthenticationRouter;
++  const Dashboard =
++    initialRouter?.kind === "dashboard"
++      ? initialRouter.Component
++      : DashboardRouter;
++  const Server =
++    initialRouter?.kind === "server" ? initialRouter.Component : ServerRouter;
+   const { PterodactylUser, SiteConfiguration } = window as ExtendedWindow;
+   if (PterodactylUser && !store.getState().user.data) {
+     store.getActions().user.setUserData({
+@@ -78,7 +89,7 @@ const App = () => {
+                 path={"/auth/*"}
+                 element={
+                   <Spinner.Suspense>
+-                    <AuthenticationRouter />
++                    <AuthRouter />
+                   </Spinner.Suspense>
+                 }
+               />
+@@ -88,7 +99,7 @@ const App = () => {
+                   <AuthenticatedRoute>
+                     <Spinner.Suspense>
+                       <ServerContext.Provider>
+-                        <ServerRouter />
++                        <Server />
+                       </ServerContext.Provider>
+                     </Spinner.Suspense>
+                   </AuthenticatedRoute>
+@@ -99,7 +110,7 @@ const App = () => {
+                 element={
+                   <AuthenticatedRoute>
+                     <Spinner.Suspense>
+-                      <DashboardRouter />
++                      <Dashboard />
+                     </Spinner.Suspense>
+                   </AuthenticatedRoute>
+                 }
+diff --git a/resources/scripts/index.spec.tsx b/resources/scripts/index.spec.tsx
+index 22d17f8fb..2b2d65146 100644
+--- a/resources/scripts/index.spec.tsx
++++ b/resources/scripts/index.spec.tsx
+@@ -4,6 +4,7 @@ const mockRender = vi.fn();
+ const mockCreateRoot = vi.fn((_el?: any) => ({
+   render: mockRender,
+ }));
++const mockLoadRouter = vi.fn();
+ 
+ vi.mock("react-dom/client", () => ({
+   createRoot: (el: any) => mockCreateRoot(el),
+@@ -12,12 +13,19 @@ vi.mock("@/components/App", () => ({
+   default: () => null,
+ }));
+ vi.mock("./i18n", () => ({}));
++vi.mock("@/routers/initialRouter", () => ({
++  loadInitialRouter: (...args: unknown[]) => mockLoadRouter(...args),
++}));
+ 
+ describe("index", () => {
+   beforeEach(() => {
+     vi.clearAllMocks();
+     document.body.innerHTML = "";
+     vi.resetModules();
++    mockLoadRouter.mockResolvedValue({
++      kind: "dashboard",
++      Component: () => null,
++    });
+   });
+ 
+   it("does not render when #app container is missing", async () => {
+@@ -35,4 +43,12 @@ describe("index", () => {
+     expect(mockCreateRoot).toHaveBeenCalledWith(appDiv);
+     expect(mockRender).toHaveBeenCalled();
+   });
++
++  it("falls back to App's lazy route error boundary if initial loading fails", async () => {
++    document.body.innerHTML = '<div id="app"></div>';
++    mockLoadRouter.mockRejectedValue(new Error("Chunk unavailable"));
++    await import("./index");
++    await vi.waitFor(() => expect(mockRender).toHaveBeenCalledTimes(2));
++    expect(mockRender.mock.calls[1][0].props.initialRouter).toBeUndefined();
++  });
+ });
+diff --git a/resources/scripts/index.tsx b/resources/scripts/index.tsx
+index 64fda1da6..d5ead1a6c 100644
+--- a/resources/scripts/index.tsx
++++ b/resources/scripts/index.tsx
+@@ -1,6 +1,8 @@
+ import React from "react";
+ import { createRoot } from "react-dom/client";
+ import App from "@/components/App";
++import Spinner from "@/components/elements/Spinner";
++import { loadInitialRouter } from "@/routers/initialRouter";
+ 
+ // Enable language support.
+ import "./i18n";
+@@ -8,5 +10,9 @@ import "./i18n";
+ const container = document.getElementById("app");
+ if (container) {
+   const root = createRoot(container);
+-  root.render(<App />);
++  root.render(<Spinner centered size="large" />);
++  void loadInitialRouter(window.location.pathname).then(
++    (initialRouter) => root.render(<App initialRouter={initialRouter} />),
++    () => root.render(<App />),
++  );
+ }
+diff --git a/resources/scripts/routers/initialRouter.spec.ts b/resources/scripts/routers/initialRouter.spec.ts
+new file mode 100644
+index 000000000..0a3775069
+--- /dev/null
++++ b/resources/scripts/routers/initialRouter.spec.ts
+@@ -0,0 +1,20 @@
++import { describe, expect, it, vi } from "vitest";
++import { loadInitialRouter } from "./initialRouter";
++
++vi.mock("./AuthenticationRouter", () => ({ default: () => null }));
++vi.mock("./ServerRouter", () => ({ default: () => null }));
++vi.mock("./DashboardRouter", () => ({ default: () => null }));
++
++describe("initial router selection", () => {
++  it.each([
++    ["/auth/login", "auth"],
++    ["/auth/password", "auth"],
++    ["/server/identifier/files", "server"],
++    ["/", "dashboard"],
++    ["/account/api", "dashboard"],
++  ])("loads the shell for %s", async (path, kind) => {
++    const router = await loadInitialRouter(path);
++    expect(router.kind).toBe(kind);
++    expect(router.Component).toBeTypeOf("function");
++  });
++});
+diff --git a/resources/scripts/routers/initialRouter.ts b/resources/scripts/routers/initialRouter.ts
+new file mode 100644
+index 000000000..7cea3e279
+--- /dev/null
++++ b/resources/scripts/routers/initialRouter.ts
+@@ -0,0 +1,30 @@
++import type { ComponentType } from "react";
++
++export interface InitialRouter {
++  kind: "auth" | "server" | "dashboard";
++  Component: ComponentType;
++}
++
++// Resolve only the requested shell before mounting App. The initial screen
++// can then render immediately without a lazy/Suspense reveal delay; subsequent
++// route changes retain the normal lazy loading and error boundaries.
++export const loadInitialRouter = async (
++  pathname: string,
++): Promise<InitialRouter> => {
++  if (pathname.startsWith("/auth/")) {
++    return {
++      kind: "auth",
++      Component: (await import("./AuthenticationRouter")).default,
++    };
++  }
++  if (pathname.startsWith("/server/")) {
++    return {
++      kind: "server",
++      Component: (await import("./ServerRouter")).default,
++    };
++  }
++  return {
++    kind: "dashboard",
++    Component: (await import("./DashboardRouter")).default,
++  };
++};
+diff --git a/tests/Integration/Api/Client/ApiKeyUsageValidationTest.php b/tests/Integration/Api/Client/ApiKeyUsageValidationTest.php
+new file mode 100644
+index 000000000..328064096
+--- /dev/null
++++ b/tests/Integration/Api/Client/ApiKeyUsageValidationTest.php
+@@ -0,0 +1,26 @@
++<?php
++
++use Pterodactyl\Models\User;
++use Pterodactyl\Models\ApiKey;
++use Illuminate\Support\Facades\DB;
++use Pterodactyl\Services\Api\KeyCreationService;
++use Pterodactyl\Exceptions\Model\DataValidationException;
++
++test('usage timestamps persist without repeating key identity validation queries', function () {
++    $user = User::factory()->create();
++    $key = app(KeyCreationService::class)->setKeyType(ApiKey::TYPE_ACCOUNT)->handle(['user_id' => $user->id, 'memo' => 'Usage test', 'allowed_ips' => []]);
++    DB::enableQueryLog();
++    DB::flushQueryLog();
++    $key->forceFill(['last_used_at' => now()])->save();
++    $queries = DB::getQueryLog();
++    DB::disableQueryLog();
++    expect(collect($queries)->filter(fn ($query) => str_starts_with(strtolower($query['query']), 'select'))->count())->toBe(0);
++    expect($key->fresh()->last_used_at)->not->toBeNull();
++});
++
++test('changing an existing key still validates its identity', function () {
++    $user = User::factory()->create();
++    $key = app(KeyCreationService::class)->setKeyType(ApiKey::TYPE_ACCOUNT)->handle(['user_id' => $user->id, 'memo' => 'Usage test', 'allowed_ips' => []]);
++    $key->identifier = 'invalid';
++    expect(fn () => $key->save())->toThrow(DataValidationException::class);
++});
+diff --git a/tests/Integration/Api/Client/ServerListEmptyPageTest.php b/tests/Integration/Api/Client/ServerListEmptyPageTest.php
+new file mode 100644
+index 000000000..bc74dc242
+--- /dev/null
++++ b/tests/Integration/Api/Client/ServerListEmptyPageTest.php
+@@ -0,0 +1,7 @@
++<?php
++
++use Pterodactyl\Models\User;
++
++test('an account with no servers receives an empty list', function () {
++    $this->actingAs(User::factory()->create())->getJson('/api/client')->assertOk()->assertJsonCount(0, 'data');
++});
+diff --git a/tests/Integration/Api/Client/ServerListPerformanceTest.php b/tests/Integration/Api/Client/ServerListPerformanceTest.php
+new file mode 100644
+index 000000000..a26bc377f
+--- /dev/null
++++ b/tests/Integration/Api/Client/ServerListPerformanceTest.php
+@@ -0,0 +1,67 @@
++<?php
++
++use Pterodactyl\Models\User;
++use Pterodactyl\Models\Subuser;
++use Illuminate\Support\Facades\DB;
++use Pterodactyl\Models\Permission;
++use Pterodactyl\Models\EggVariable;
++use Pterodactyl\Models\ServerVariable;
++
++test('list variables retain distinct overrides and defaults for servers sharing an egg', function () {
++    $user = User::factory()->create();
++    $first = $this->createServerModel(['owner_id' => $user->id, 'startup' => '{{BENCH_VALUE}} {{BENCH_SECRET}}']);
++    $egg = $this->cloneEggAndVariables($first->egg);
++    $first->update(['egg_id' => $egg->id]);
++    $second = $this->createServerModel(['owner_id' => $user->id, 'egg_id' => $first->egg_id, 'startup' => '{{BENCH_VALUE}} {{BENCH_SECRET}}']);
++    $third = $this->createServerModel(['owner_id' => $user->id, 'egg_id' => $first->egg_id, 'startup' => '{{BENCH_VALUE}} {{BENCH_SECRET}}']);
++    $visible = EggVariable::factory()->create(['egg_id' => $first->egg_id, 'env_variable' => 'BENCH_VALUE', 'default_value' => 'fallback', 'user_viewable' => true]);
++    $secret = EggVariable::factory()->create(['egg_id' => $first->egg_id, 'env_variable' => 'BENCH_SECRET', 'default_value' => 'private-default', 'user_viewable' => false]);
++    ServerVariable::query()->create(['server_id' => $first->id, 'variable_id' => $visible->id, 'variable_value' => 'first-value']);
++    ServerVariable::query()->create(['server_id' => $second->id, 'variable_id' => $visible->id, 'variable_value' => '']);
++    ServerVariable::query()->create(['server_id' => $first->id, 'variable_id' => $secret->id, 'variable_value' => 'private-override']);
++
++    $response = $this->actingAs($user)->getJson('/api/client')->assertOk();
++    $servers = collect($response->json('data'))->keyBy('attributes.uuid');
++    expect($servers[$first->uuid]['attributes']['invocation'])->toBe('first-value [hidden]');
++    expect($servers[$second->uuid]['attributes']['invocation'])->toBe(' [hidden]');
++    expect($servers[$third->uuid]['attributes']['invocation'])->toBe('fallback [hidden]');
++    foreach ($servers as $server) {
++        expect(collect($server['attributes']['relationships']['variables']['data'])->pluck('attributes.env_variable')->all())->not->toContain('BENCH_SECRET');
++        expect($server['attributes']['relationships']['allocations']['data'][0]['attributes']['is_default'])->toBeTrue();
++    }
++});
++
++test('batch loading does not expose startup variables or allocation notes to a restricted subuser', function () {
++    $server = $this->createServerModel(['startup' => '{{BENCH_VALUE}}']);
++    $egg = $this->cloneEggAndVariables($server->egg);
++    $server->update(['egg_id' => $egg->id]);
++    $user = User::factory()->create();
++    Subuser::query()->create(['server_id' => $server->id, 'user_id' => $user->id, 'permissions' => [Permission::ACTION_CONTROL_CONSOLE]]);
++    $variable = EggVariable::factory()->create(['egg_id' => $server->egg_id, 'env_variable' => 'BENCH_VALUE', 'user_viewable' => true]);
++    ServerVariable::query()->create(['server_id' => $server->id, 'variable_id' => $variable->id, 'variable_value' => 'do-not-disclose']);
++    $server->allocation->update(['notes' => 'private-allocation-note']);
++
++    $response = $this->actingAs($user)->getJson('/api/client')->assertOk();
++    $response->assertJsonPath('data.0.attributes.invocation', '[hidden]');
++    $response->assertJsonPath('data.0.attributes.user_permissions', [Permission::ACTION_CONTROL_CONSOLE]);
++    $response->assertJsonPath('data.0.attributes.relationships.allocations.data.0.attributes.notes', null);
++    expect($response->getContent())->not->toContain('do-not-disclose', 'private-allocation-note');
++});
++
++test('list query count stays bounded as the page grows', function () {
++    $user = User::factory()->create();
++    for ($i = 0; $i < 12; ++$i) {
++        $this->createServerModel(['owner_id' => $user->id]);
++    }
++    $this->actingAs($user)->getJson('/api/client?per_page=1')->assertOk();
++    DB::enableQueryLog();
++    DB::flushQueryLog();
++    $this->getJson('/api/client?per_page=1')->assertOk();
++    $small = count(DB::getQueryLog());
++    DB::flushQueryLog();
++    $this->getJson('/api/client?per_page=12')->assertOk()->assertJsonCount(12, 'data');
++    $large = count(DB::getQueryLog());
++    DB::disableQueryLog();
++
++    expect($large)->toBeLessThanOrEqual($small + 2);
++});
+diff --git a/tests/Integration/Api/Remote/SftpAuthenticationControllerTest.php b/tests/Integration/Api/Remote/SftpAuthenticationControllerTest.php
+index 61fe503a7..d6614a14c 100644
+--- a/tests/Integration/Api/Remote/SftpAuthenticationControllerTest.php
++++ b/tests/Integration/Api/Remote/SftpAuthenticationControllerTest.php
+@@ -30,6 +30,33 @@ $getUsername = function ($user, $server, bool $long = false): string {
+     return $user->username . '.' . ($long ? $server->uuid : $server->identifier);
+ };
+ 
++test('legacy Wings short UUID usernames are supported', function () {
++    $this->postJson('/api/remote/sftp/auth', [
++        'username' => $this->user->username . '.' . substr($this->server->uuid, 0, 8),
++        'password' => 'foobar',
++    ])->assertOk()->assertJsonPath('server', $this->server->uuid);
++});
++
++test('legacy Wings short UUID usernames cannot cross nodes', function () {
++    $node = $this->createServerModel()->node;
++    $this->withHeader('Authorization', 'Bearer ' . $node->daemon_token_id . '.' . decrypt($node->daemon_token));
++    $this->postJson('/api/remote/sftp/auth', [
++        'username' => $this->user->username . '.' . substr($this->server->uuid, 0, 8),
++        'password' => 'foobar',
++    ])->assertForbidden();
++});
++
++test('ambiguous legacy Wings short UUID usernames are rejected', function () {
++    $this->createServerModel([
++        'node_id' => $this->server->node_id,
++        'uuid' => substr($this->server->uuid, 0, 8) . '-1111-4111-8111-111111111111',
++    ]);
++    $this->postJson('/api/remote/sftp/auth', [
++        'username' => $this->user->username . '.' . substr($this->server->uuid, 0, 8),
++        'password' => 'foobar',
++    ])->assertForbidden();
++});
++
+ $makeCertificate = function (): string {
+     return <<<'PEM'
+ -----BEGIN CERTIFICATE-----
+diff --git a/tests/Integration/Services/RuntimePerformanceValidationTest.php b/tests/Integration/Services/RuntimePerformanceValidationTest.php
+new file mode 100644
+index 000000000..e94770c1b
+--- /dev/null
++++ b/tests/Integration/Services/RuntimePerformanceValidationTest.php
+@@ -0,0 +1,26 @@
++<?php
++
++use Pterodactyl\Models\User;
++use Pterodactyl\Models\ApiKey;
++use Pterodactyl\Models\Subuser;
++use Pterodactyl\Models\Permission;
++use Pterodactyl\Services\Api\KeyCreationService;
++use Pterodactyl\Services\Servers\GetUserPermissionsService;
++
++uses(Illuminate\Foundation\Testing\DatabaseTransactions::class);
++
++test('permission lookup still works without preloaded subusers', function () {
++    $server = $this->createServerModel();
++    $user = User::factory()->create();
++    Subuser::query()->create(['server_id' => $server->id, 'user_id' => $user->id, 'permissions' => [Permission::ACTION_CONTROL_CONSOLE]]);
++    $server->unsetRelation('subusers');
++
++    expect(app(GetUserPermissionsService::class)->handle($server, $user))->toBe([Permission::ACTION_CONTROL_CONSOLE]);
++});
++
++test('the explicit model validation bypass remains available for imports', function () {
++    $user = User::factory()->create();
++    $key = app(KeyCreationService::class)->setKeyType(ApiKey::TYPE_ACCOUNT)->handle(['user_id' => $user->id, 'memo' => 'Bypass test', 'allowed_ips' => []]);
++    $key->skipValidation()->forceFill(['identifier' => 'imported'])->save();
++    expect($key->fresh()->identifier)->toBe('imported');
++});

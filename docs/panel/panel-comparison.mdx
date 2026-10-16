@@ -3,9 +3,11 @@ title: Panel vs Pterodactyl benchmarks
 description: Measured browser timing, authenticated API throughput and memory use from matching local Aquadactyl and Pterodactyl stacks.
 ---
 
-Measured **2026-10-15**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
+Measured **2026-10-16**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
 
 [Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/panel-comparison.json) · [Summary](/benchmarks/panel-comparison-summary.json) · [Measured runner source](/benchmarks/panel-comparison-runner.txt)
+
+This is the candidate/Pterodactyl view of a **three-way run**, not a newly timed two-panel experiment. The [unchanged full record](/benchmarks/panel-runtime-2026-10-16.json) also contains the previous Aquadactyl build: 60 browser samples, 54 API windows and 180 memory samples in total. The homepage view selects 40 browser samples, 36 API windows and 120 memory samples without changing any values. All three stacks were provisioned separately, and their order alternated within each phase. Full-record SHA-256: ed2d3e5545f5847e1e006e67f39a456f6c7513ff7b00aa5a8263f38f91f1b91e. [Source and font provenance](/benchmarks/panel-runtime-2026-10-16-provenance.json).
 
 ## Scope and compared versions
 
@@ -18,9 +20,11 @@ One non-admin user owning 50 suspended server records, one node, one nest, one e
 
 PHP 8.5, four static FPM workers, OPcache 128 MiB, PHP memory_limit 256 MiB; nginx one worker with gzip level 6; config/route/view caches; one queue worker. Each panel 2 CPU quota cores/1 GiB; each MariaDB 1 core/512 MiB; each Redis 0.5 core/128 MiB. REDIS_CLIENT=phpredis on both. Production mode, debug and telemetry off, no extra addons.
 
-Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. Aquadactyl includes the recorded local performance and SFTP compatibility changes on top of the linked base commit. [Download the exact source patch](/benchmarks/panel-comparison-aquadactyl.patch) (SHA-256: 670aee21377226638a4177a609dabfdd496d6625bf1eefac6d607f45519e079e). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
+Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. Aquadactyl includes the recorded local performance and SFTP compatibility changes on top of the linked base commit. [Download the exact source patch](/benchmarks/panel-comparison-aquadactyl.patch) (SHA-256: ff02fea2f825e98d3cfae7858550b6c181fb864dc90cce1312442aee25df9bc2). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions. Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
 
 These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
+
+The recorded runtime and font source files have been checked against committed Aquadactyl [b5cc74ecb11d](https://github.com/Aquadactyl/aquadactyl/tree/b5cc74ecb11d031c33582ef257a189efc9f3178c). The linked patch recreates that source from the base commit above. The original raw record retains the parent image's patch metadata; the separate provenance records the additional files copied into the candidate before measurement. New production font cache headers were checked separately and were **not** applied to the shared benchmark Nginx configuration. The [current frontend build comparison](/docs/panel/benchmarks) was collected separately from a clean checkout of the committed version.
 
 ## Browser load time
 
@@ -34,16 +38,16 @@ Each distribution renders its own dashboard layout and normal response fields. L
 
 | Browser cache | Measurement              | Pterodactyl median | Aquadactyl median | Pterodactyl p95 | Aquadactyl p95 |
 | ------------- | ------------------------ | ------------------ | ----------------- | --------------- | -------------- |
-| cold          | Dashboard ready          | 328.2 ms           | 198.1 ms          | 356.3 ms        | 229.4 ms       |
-| cold          | First contentful paint   | 172.0 ms           | 120.0 ms          | 184.0 ms        | 144.0 ms       |
-| cold          | Largest contentful paint | 348.0 ms           | 306.0 ms          | 384.0 ms        | 328.0 ms       |
-| cold          | Window load event        | 135.9 ms           | 73.2 ms           | 147.5 ms        | 87.1 ms        |
-| cold          | HTML time to first byte  | 14.1 ms            | 19.6 ms           | 16.5 ms         | 22.7 ms        |
-| warm          | Dashboard ready          | 296.3 ms           | 194.4 ms          | 318.5 ms        | 234.4 ms       |
-| warm          | First contentful paint   | 136.0 ms           | 116.0 ms          | 148.0 ms        | 148.0 ms       |
-| warm          | Largest contentful paint | 314.0 ms           | 294.0 ms          | 336.0 ms        | 348.0 ms       |
-| warm          | Window load event        | 130.9 ms           | 76.2 ms           | 138.5 ms        | 94.1 ms        |
-| warm          | HTML time to first byte  | 11.7 ms            | 16.1 ms           | 13.9 ms         | 23.2 ms        |
+| cold          | Dashboard ready          | 325.6 ms           | 198.3 ms          | 343.3 ms        | 214.3 ms       |
+| cold          | First contentful paint   | 180.0 ms           | 124.0 ms          | 196.0 ms        | 140.0 ms       |
+| cold          | Largest contentful paint | 356.0 ms           | 304.0 ms          | 372.0 ms        | 324.0 ms       |
+| cold          | Window load event        | 139.8 ms           | 67.4 ms           | 144.2 ms        | 74.3 ms        |
+| cold          | HTML time to first byte  | 13.3 ms            | 15.3 ms           | 15.2 ms         | 17.7 ms        |
+| warm          | Dashboard ready          | 291.9 ms           | 192.7 ms          | 376.2 ms        | 211.1 ms       |
+| warm          | First contentful paint   | 142.0 ms           | 118.0 ms          | 164.0 ms        | 132.0 ms       |
+| warm          | Largest contentful paint | 310.0 ms           | 220.0 ms          | 392.0 ms        | 320.0 ms       |
+| warm          | Window load event        | 135.8 ms           | 76.6 ms           | 160.5 ms        | 81.9 ms        |
+| warm          | HTML time to first byte  | 11.6 ms            | 14.6 ms           | 13.0 ms         | 16.5 ms        |
 
 There are ten measured samples per panel/cache profile; with this small sample, p95 is the maximum sample. Each panel had one discarded cold/warm pair. No real users or physical mobile devices were measured.
 
@@ -53,7 +57,7 @@ External resource URLs blocked during the measured loads: **none were requested*
 
 | Browser cache | Pterodactyl median | Aquadactyl median |
 | ------------- | ------------------ | ----------------- |
-| cold          | 570.8 KiB          | 800.6 KiB         |
+| cold          | 570.8 KiB          | 504.1 KiB         |
 | warm          | 2.3 KiB            | 2.2 KiB           |
 
 This sums Resource Timing transferSize values observed by the end of each settling window, including fonts, styles, scripts and API responses, and excluding the main HTML navigation. Warm cache hits can report zero transfer bytes. These browser observations have a wider scope than the build benchmark's JavaScript/CSS-only gzip estimate. Aquadactyl's smaller script/style bundle does not imply less total page transfer or faster dashboard readiness.
@@ -70,14 +74,14 @@ Throughput is the median of three measured windows. Each p95 below is the median
 
 | Endpoint | Concurrent requests | Pterodactyl throughput | Aquadactyl throughput | Pterodactyl p95 | Aquadactyl p95 | Errors P / A |
 | -------- | ------------------- | ---------------------- | --------------------- | --------------- | -------------- | ------------ |
-| account  | 1                   | 80.1 req/s             | 83.8 req/s            | 14.8 ms         | 14.1 ms        | 0 / 0        |
-| account  | 8                   | 246.3 req/s            | 278.6 req/s           | 60.0 ms         | 57.0 ms        | 0 / 0        |
-| account  | 16                  | 257.5 req/s            | 274.5 req/s           | 80.0 ms         | 78.4 ms        | 0 / 0        |
-| servers  | 1                   | 7.1 req/s              | 30.7 req/s            | 154.4 ms        | 38.0 ms        | 0 / 0        |
-| servers  | 8                   | 17.5 req/s             | 73.9 req/s            | 498.3 ms        | 150.9 ms       | 0 / 0        |
-| servers  | 16                  | 17.8 req/s             | 72.2 req/s            | 989.5 ms        | 267.1 ms       | 0 / 0        |
+| account  | 1                   | 87.1 req/s             | 96.2 req/s            | 13.5 ms         | 12.0 ms        | 0 / 0        |
+| account  | 8                   | 260.7 req/s            | 284.4 req/s           | 57.9 ms         | 57.3 ms        | 0 / 0        |
+| account  | 16                  | 258.9 req/s            | 284.4 req/s           | 81.8 ms         | 77.4 ms        | 0 / 0        |
+| servers  | 1                   | 7.3 req/s              | 32.8 req/s            | 157.9 ms        | 34.0 ms        | 0 / 0        |
+| servers  | 8                   | 17.9 req/s             | 78.4 req/s            | 503.7 ms        | 118.7 ms       | 0 / 0        |
+| servers  | 16                  | 18.1 req/s             | 77.3 req/s            | 962.0 ms        | 252.0 ms       | 0 / 0        |
 
-Across the 36 measured API windows: **43,477 successful responses**, **0 errors**. Warm-up and memory-load requests are additional and excluded from these totals. The default 256 requests/minute limiter was not being measured; raising its configured cap leaves the normal authentication, authorization and rate-limit middleware active.
+Across the 36 measured API windows: **45,142 successful responses**, **0 errors**. Warm-up and memory-load requests are additional and excluded from these totals. The default 256 requests/minute limiter was not being measured; raising its configured cap leaves the normal authentication, authorization and rate-limit middleware active.
 
 ## Memory use
 
@@ -87,10 +91,12 @@ The panel container includes nginx, supervisor, the FPM master and its four PHP 
 
 | State  | Pterodactyl panel median | Aquadactyl panel median | Pterodactyl sampled panel peak | Aquadactyl sampled panel peak | Pterodactyl stack median | Aquadactyl stack median |
 | ------ | ------------------------ | ----------------------- | ------------------------------ | ----------------------------- | ------------------------ | ----------------------- |
-| idle   | 121.0 MiB                | 124.6 MiB               | 125.0 MiB                      | 128.0 MiB                     | 243.1 MiB                | 248.4 MiB               |
-| loaded | 126.6 MiB                | 127.5 MiB               | 129.6 MiB                      | 129.1 MiB                     | 249.6 MiB                | 252.5 MiB               |
+| idle   | 143.2 MiB                | 152.9 MiB               | 146.4 MiB                      | 157.8 MiB                     | 268.2 MiB                | 278.2 MiB               |
+| loaded | 148.1 MiB                | 155.5 MiB               | 154.4 MiB                      | 156.5 MiB                     | 274.7 MiB                | 282.2 MiB               |
 
 Each state has 30 samples per panel across three windows. Loaded samples use the authenticated 50-server-list endpoint at concurrency 16. The Docker working-set calculation follows [Docker's documented cache subtraction](https://docs.docker.com/reference/cli/docker/container/stats/). These are short steady-state observations, not a leak or long-running capacity test.
+
+Aquadactyl's measured loaded container working set was higher (155.5 MiB versus 148.1 MiB); this is **not a memory improvement**. [Supplementary idle diagnostics](/benchmarks/panel-comparison-diagnostics.json), collected after the timed run, showed 82.5/82.9 MiB of anonymous memory in the previous/candidate Aquadactyl containers, but 0.9/24.9 MiB of active file cache and 3.3/7.3 MiB of reclaimable slab. Cache accounting dominates that before/after difference. Shared image pages and cgroup ownership limit container-memory comparisons; these observations do not establish a leak or a general RAM reduction.
 
 Sampling pauses one second between collections; container-exec overhead adds to that interval. The raw report retains each sample timestamp. The helper shell and Docker sampling overhead are present for both panels.
 
@@ -122,6 +128,8 @@ Single shared Windows/WSL2 workstation; existing unrelated game containers remai
 Browser observations, API windows and memory windows ran in separate phases. Panels were tested sequentially within each phase, alternating which panel ran first by repetition. The measured panel stacks do not run game servers; existing unrelated containers were left untouched. Changing CPU quotas, PHP worker counts, dataset, caching, browser, network or optional features can change the outcome. Differences should be read per metric, without combining them into an overall performance score.
 
 ## Reproduce
+
+The commands below collect a **new two-way comparison** with the same fixture and resource limits. They do not recreate the original third Aquadactyl baseline or its alternating three-stack order. Keep the full three-way record and its measured runner when citing the published results.
 
 Check out the exact source commits above. Apply the linked patch to Aquadactyl with git apply, then include --include-working-tree when preparing the stacks. Install each panel's locked dependencies and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: yarn build:production) before preparing the stacks. The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately. Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
 

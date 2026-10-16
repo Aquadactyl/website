@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "measuredOn": "2026-10-14",
+  "measuredOn": "2026-10-16",
   "environment": {
     "cpu": "Intel(R) Core(TM) i7-14700KF",
     "logicalCpus": 28,
@@ -18,62 +18,62 @@
       {
         "family": "aquadactyl",
         "warmup": true,
-        "buildMs": 1695.1581999999999
+        "buildMs": 1725.8211999999999
       },
       {
         "family": "pterodactyl",
         "warmup": true,
-        "buildMs": 13319.060500000001
+        "buildMs": 17886.0554
       },
       {
         "family": "aquadactyl",
         "warmup": false,
-        "buildMs": 1250.5707
+        "buildMs": 1489.308
       },
       {
         "family": "pterodactyl",
         "warmup": false,
-        "buildMs": 12886.8166
+        "buildMs": 15841.9599
       },
       {
         "family": "pterodactyl",
         "warmup": false,
-        "buildMs": 13035.030499999999
+        "buildMs": 15789.614300000001
       },
       {
         "family": "aquadactyl",
         "warmup": false,
-        "buildMs": 1230.7264
+        "buildMs": 1464.5637
       },
       {
         "family": "aquadactyl",
         "warmup": false,
-        "buildMs": 1236.2154
+        "buildMs": 1495.068
       },
       {
         "family": "pterodactyl",
         "warmup": false,
-        "buildMs": 12831.1713
+        "buildMs": 15775.5306
       },
       {
         "family": "pterodactyl",
         "warmup": false,
-        "buildMs": 13247.9464
+        "buildMs": 15765.021200000001
       },
       {
         "family": "aquadactyl",
         "warmup": false,
-        "buildMs": 1224.8646999999999
+        "buildMs": 1475.1452
       },
       {
         "family": "aquadactyl",
         "warmup": false,
-        "buildMs": 1212.4278000000002
+        "buildMs": 1583.5735
       },
       {
         "family": "pterodactyl",
         "warmup": false,
-        "buildMs": 12852.1102
+        "buildMs": 15861.013799999999
       }
     ],
     "production": true,
@@ -86,33 +86,36 @@
   },
   "panels": {
     "aquadactyl": {
-      "revision": "2bfd6ae2a30c8152b34b53c53562773a973ae901",
+      "revision": "b5cc74ecb11d031c33582ef257a189efc9f3178c",
       "ref": "main",
       "repository": "Aquadactyl/aquadactyl",
       "lockfileSha256": "15282bb8c018a86102b2ae4368dcf7cb8167a8397a2126b08563f34397892b86",
       "toolchain": "Vite ^8.3.4",
       "buildMs": {
-        "median": 1230.7264,
-        "min": 1212.4278000000002,
-        "max": 1250.5707,
+        "median": 1489.308,
+        "min": 1464.5637,
+        "max": 1583.5735,
         "samples": [
-          1250.5707, 1230.7264, 1236.2154, 1224.8646999999999,
-          1212.4278000000002
+          1489.308,
+          1464.5637,
+          1495.068,
+          1475.1452,
+          1583.5735
         ]
       },
       "entry": {
-        "jsBytes": 552122,
-        "jsGzipBytes": 178213,
+        "jsBytes": 553045,
+        "jsGzipBytes": 178436,
         "cssBytes": 126337,
         "cssGzipBytes": 21213,
-        "totalBytes": 678459,
-        "totalGzipBytes": 199426,
+        "totalBytes": 679382,
+        "totalGzipBytes": 199649,
         "files": [
           {
-            "file": "assets/index-CBef_AD5.js",
-            "bytes": 351649,
-            "gzipBytes": 110262,
-            "sha256": "68d0e3f061c7640b50c121b93ec07203a2ee6432960ae5e54b3fa728b97aa1d3"
+            "file": "assets/index-DnrqSVvK.js",
+            "bytes": 352572,
+            "gzipBytes": 110485,
+            "sha256": "8f075916b14c09b1db4f0ba6ed3fcbc97b450ce4a34355c7c3a9ff6debc4d794"
           },
           {
             "file": "assets/index-ByME0HLB.css",
@@ -135,18 +138,18 @@
         ]
       },
       "dashboard": {
-        "jsBytes": 765012,
-        "jsGzipBytes": 254372,
+        "jsBytes": 765935,
+        "jsGzipBytes": 254591,
         "cssBytes": 126337,
         "cssGzipBytes": 21213,
-        "totalBytes": 891349,
-        "totalGzipBytes": 275585,
+        "totalBytes": 892272,
+        "totalGzipBytes": 275804,
         "files": [
           {
-            "file": "assets/index-CBef_AD5.js",
-            "bytes": 351649,
-            "gzipBytes": 110262,
-            "sha256": "68d0e3f061c7640b50c121b93ec07203a2ee6432960ae5e54b3fa728b97aa1d3"
+            "file": "assets/index-DnrqSVvK.js",
+            "bytes": 352572,
+            "gzipBytes": 110485,
+            "sha256": "8f075916b14c09b1db4f0ba6ed3fcbc97b450ce4a34355c7c3a9ff6debc4d794"
           },
           {
             "file": "assets/index-ByME0HLB.css",
@@ -167,10 +170,10 @@
             "sha256": "2b8e87a57012f57dc62610f55c358b699d4659c3247eb82322ab90fffc9578f7"
           },
           {
-            "file": "assets/DashboardRouter-CUwKLlw5.js",
+            "file": "assets/DashboardRouter-ZqUrkB8Z.js",
             "bytes": 16840,
-            "gzipBytes": 5462,
-            "sha256": "cb9f0fc126d536f25e783f67e0769bb35167d8eb729b30acabca046cd854aa71"
+            "gzipBytes": 5460,
+            "sha256": "dfe8e9107fe8c80c99773254db67821020da96805060af78a93dbfda44b25813"
           },
           {
             "file": "assets/arrow-right-C0QfZoz8.js",
@@ -179,46 +182,46 @@
             "sha256": "190ac80530e2652d2722a1ce49e85b4bec112af63bb6d13bf6be0d541a5f8a81"
           },
           {
-            "file": "assets/AfterSubNavigation-DY6839XY.js",
+            "file": "assets/AfterSubNavigation-jCSUyurA.js",
             "bytes": 70429,
-            "gzipBytes": 24382,
-            "sha256": "da135e91c95eff2072c4742618387f8051b54e0fd9b50e5e7aad5717f3528a8b"
+            "gzipBytes": 24380,
+            "sha256": "864a6c1614a7255b394c1f7df1487cfbdfba673b1641994efd6a8314698890aa"
           },
           {
-            "file": "assets/DialogRoot-DqTIBq6k.js",
+            "file": "assets/DialogRoot-Ds8nHZx6.js",
             "bytes": 7957,
-            "gzipBytes": 3051,
-            "sha256": "2c9e3465e28e4861ccec27626998d25be023c3440864d67db23f967de8476556"
+            "gzipBytes": 3050,
+            "sha256": "5ade96013db7ba1bec197640ef9381e0467cf8c45b793df975a619e9cbf96f33"
           },
           {
-            "file": "assets/useScrollLock-Bq5Y4Iau.js",
+            "file": "assets/useScrollLock-wzEs2vO3.js",
             "bytes": 56646,
-            "gzipBytes": 19865,
-            "sha256": "eb543ff8d0f0b4747051cabf12bd081e0c788eaddb03a2cab699a20dc74da690"
+            "gzipBytes": 19866,
+            "sha256": "ccfafe5ead97defbc0b529a1dcf3da4d30aa32dd2f86da23c029c0edcf4b3f88"
           },
           {
-            "file": "assets/Label-aAC7J2Aw.js",
+            "file": "assets/Label-DWijn7DG.js",
             "bytes": 40927,
             "gzipBytes": 14775,
-            "sha256": "ae47ac096ec9fade9bee83ae55cb697e7bec8ec43ffb1c5be8119f2bc8833c26"
+            "sha256": "a51e665038d38ec78d178dde0e2dc6563ef34ef6fa20bb7f9e357168cce99a0a"
           },
           {
-            "file": "assets/useButton-DMcblznB.js",
+            "file": "assets/useButton-CAc1evZ5.js",
             "bytes": 2433,
             "gzipBytes": 1126,
-            "sha256": "6cd26c5516b835b99c23c584bf004ae6426bff8cc3fbf021e0554e9f39603c86"
+            "sha256": "470990ed19b7b1bac5410f3a5d5f3aed1da4fe4a41bd0fcfb9955e39c1bda0d7"
           },
           {
-            "file": "assets/useBaseUiId-DARChDa6.js",
+            "file": "assets/useBaseUiId-C6WR4mWm.js",
             "bytes": 95,
             "gzipBytes": 112,
-            "sha256": "f96879c7660ee596bc9dcce9ecff6ed8e220ed9d67ac1c684c741b13a473f423"
+            "sha256": "974faaaa4343082c9bd728ec6c82839908089e80955747f73490b30c8789dbba"
           },
           {
-            "file": "assets/safePolygon-J6ZB_zzL.js",
+            "file": "assets/safePolygon-CkGVLKAZ.js",
             "bytes": 12402,
             "gzipBytes": 4431,
-            "sha256": "c95e38b91ce0473ec0d3951920c9e02f5c7fc8afd1e5c03d119292cc49a13baf"
+            "sha256": "feda8351ca26d12dd7b6fbaf5dc2f83721cc3633cbe4946576b42ec520127552"
           },
           {
             "file": "assets/usePersistedState-CsWMFIC3.js",
@@ -251,10 +254,10 @@
             "sha256": "b52abc87bde60e46686846dae35af17181c7b01dd7323ba1d764ef968031602e"
           },
           {
-            "file": "assets/Pagination-I1w7Zj1w.js",
+            "file": "assets/Pagination-BsY1Ngka.js",
             "bytes": 1148,
             "gzipBytes": 591,
-            "sha256": "f23a16c9fe182f8ad4c4fb21ba185301078a7aed591ad7687498d614dfa49520"
+            "sha256": "b8d555640a87251544bcb764d8bff2571a3fd24d9200e02097199dbec561c2d7"
           },
           {
             "file": "assets/chevrons-left-CpZvTZDr.js",
@@ -272,34 +275,34 @@
       },
       "payloadSamples": [
         {
-          "dashboardJsBytes": 765012,
-          "dashboardJsGzipBytes": 254371,
-          "dashboardTotalBytes": 891349,
-          "dashboardTotalGzipBytes": 275584
+          "dashboardJsBytes": 765935,
+          "dashboardJsGzipBytes": 254587,
+          "dashboardTotalBytes": 892272,
+          "dashboardTotalGzipBytes": 275800
         },
         {
-          "dashboardJsBytes": 765012,
-          "dashboardJsGzipBytes": 254354,
-          "dashboardTotalBytes": 891349,
-          "dashboardTotalGzipBytes": 275567
+          "dashboardJsBytes": 765935,
+          "dashboardJsGzipBytes": 254592,
+          "dashboardTotalBytes": 892272,
+          "dashboardTotalGzipBytes": 275805
         },
         {
-          "dashboardJsBytes": 765012,
-          "dashboardJsGzipBytes": 254378,
-          "dashboardTotalBytes": 891349,
-          "dashboardTotalGzipBytes": 275591
+          "dashboardJsBytes": 765935,
+          "dashboardJsGzipBytes": 254589,
+          "dashboardTotalBytes": 892272,
+          "dashboardTotalGzipBytes": 275802
         },
         {
-          "dashboardJsBytes": 765012,
-          "dashboardJsGzipBytes": 254365,
-          "dashboardTotalBytes": 891349,
-          "dashboardTotalGzipBytes": 275578
+          "dashboardJsBytes": 765935,
+          "dashboardJsGzipBytes": 254581,
+          "dashboardTotalBytes": 892272,
+          "dashboardTotalGzipBytes": 275794
         },
         {
-          "dashboardJsBytes": 765012,
-          "dashboardJsGzipBytes": 254372,
-          "dashboardTotalBytes": 891349,
-          "dashboardTotalGzipBytes": 275585
+          "dashboardJsBytes": 765935,
+          "dashboardJsGzipBytes": 254591,
+          "dashboardTotalBytes": 892272,
+          "dashboardTotalGzipBytes": 275804
         }
       ]
     },
@@ -310,42 +313,46 @@
       "lockfileSha256": "bc3694b037e22369d3702eb635a430adaf7dac46ac5cee37b8be7c81f17962c5",
       "toolchain": "Webpack ^5.103.0",
       "buildMs": {
-        "median": 12886.8166,
-        "min": 12831.1713,
-        "max": 13247.9464,
+        "median": 15789.614300000001,
+        "min": 15765.021200000001,
+        "max": 15861.013799999999,
         "samples": [
-          12886.8166, 13035.030499999999, 12831.1713, 13247.9464, 12852.1102
+          15841.9599,
+          15789.614300000001,
+          15775.5306,
+          15765.021200000001,
+          15861.013799999999
         ]
       },
       "entry": {
         "jsBytes": 526586,
-        "jsGzipBytes": 162302,
+        "jsGzipBytes": 162301,
         "cssBytes": 0,
         "cssGzipBytes": 0,
         "totalBytes": 526586,
-        "totalGzipBytes": 162302,
+        "totalGzipBytes": 162301,
         "files": [
           {
-            "file": "bundle.219e8d71.js",
+            "file": "bundle.3e2a3619.js",
             "bytes": 526586,
-            "gzipBytes": 162302,
-            "sha256": "ae37947ea60edb58e28d8d0819a91a08f245edd100a0611883b6cdbe97524eb2"
+            "gzipBytes": 162301,
+            "sha256": "d0aa786a40ba16af09469973406e80cccaec20a986cff8ec4a1dccc8f5da51a3"
           }
         ]
       },
       "dashboard": {
         "jsBytes": 2025060,
-        "jsGzipBytes": 535676,
+        "jsGzipBytes": 535675,
         "cssBytes": 0,
         "cssGzipBytes": 0,
         "totalBytes": 2025060,
-        "totalGzipBytes": 535676,
+        "totalGzipBytes": 535675,
         "files": [
           {
-            "file": "bundle.219e8d71.js",
+            "file": "bundle.3e2a3619.js",
             "bytes": 526586,
-            "gzipBytes": 162302,
-            "sha256": "ae37947ea60edb58e28d8d0819a91a08f245edd100a0611883b6cdbe97524eb2"
+            "gzipBytes": 162301,
+            "sha256": "d0aa786a40ba16af09469973406e80cccaec20a986cff8ec4a1dccc8f5da51a3"
           },
           {
             "file": "478.285e5c3a.js",
@@ -382,6 +389,12 @@
         },
         {
           "dashboardJsBytes": 2025060,
+          "dashboardJsGzipBytes": 535675,
+          "dashboardTotalBytes": 2025060,
+          "dashboardTotalGzipBytes": 535675
+        },
+        {
+          "dashboardJsBytes": 2025060,
           "dashboardJsGzipBytes": 535676,
           "dashboardTotalBytes": 2025060,
           "dashboardTotalGzipBytes": 535676
@@ -397,12 +410,6 @@
           "dashboardJsGzipBytes": 535675,
           "dashboardTotalBytes": 2025060,
           "dashboardTotalGzipBytes": 535675
-        },
-        {
-          "dashboardJsBytes": 2025060,
-          "dashboardJsGzipBytes": 535676,
-          "dashboardTotalBytes": 2025060,
-          "dashboardTotalGzipBytes": 535676
         }
       ]
     }

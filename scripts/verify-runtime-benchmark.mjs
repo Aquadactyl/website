@@ -9,9 +9,26 @@ const raw = JSON.parse(
 const chart = JSON.parse(
   fs.readFileSync(`public/benchmarks/${stem}-summary.json`, "utf8"),
 );
-const build = JSON.parse(
-  fs.readFileSync("public/benchmarks/panels.json", "utf8"),
-);
+const buildFiles = ["public/benchmarks/panels.json"];
+const archive = "public/benchmarks/archive";
+if (fs.existsSync(archive))
+  for (const entry of fs.readdirSync(archive, { withFileTypes: true })) {
+    const file = `${archive}/${entry.name}/panels.json`;
+    if (entry.isDirectory() && fs.existsSync(file)) buildFiles.push(file);
+  }
+const build = buildFiles
+  .map((file) => JSON.parse(fs.readFileSync(file, "utf8")))
+  .find((candidate) =>
+    Object.entries(raw.panels).every(
+      ([family, panel]) =>
+        candidate.panels[family]?.revision === panel.revision,
+    ),
+  );
+if (stem === "runtime")
+  assert.ok(
+    build,
+    "The historical runtime source must match a recorded build report.",
+  );
 const guide = fs.readFileSync(
   `docs/panel/${stem === "runtime" ? "runtime-benchmarks" : stem}.mdx`,
   "utf8",
@@ -29,6 +46,35 @@ const stats = (values) => {
   };
 };
 assert.ok(raw.completedAt && raw.startedAt < raw.completedAt);
+if (raw.projection) {
+  const originalBytes = fs.readFileSync(
+    `public/benchmarks/${raw.projection.file}`,
+  );
+  assert.equal(
+    createHash("sha256").update(originalBytes).digest("hex"),
+    raw.projection.sha256,
+  );
+  const original = JSON.parse(originalBytes);
+  assert.equal(original.harnessSha256, raw.harnessSha256);
+  assert.equal(original.completedAt, raw.completedAt);
+  for (const key of ["browserRuns", "apiRuns", "memoryRuns"]) {
+    assert.equal(original[key].length, raw.projection.originalCounts[key]);
+    const names = Object.entries(raw.projection.families);
+    assert.deepEqual(
+      raw[key],
+      original[key]
+        .filter((run) => names.some(([, family]) => family === run.family))
+        .map((run) => ({
+          ...run,
+          family: names.find(([, family]) => family === run.family)[0],
+        })),
+    );
+  }
+  for (const [family, source] of Object.entries(raw.projection.families))
+    for (const key of ["browser", "api", "memory"])
+      assert.deepEqual(raw.panels[family][key], original.panels[source][key]);
+  assert.equal(raw.provenance.rawReportSha256, raw.projection.sha256);
+}
 assert.equal(
   createHash("sha256")
     .update(fs.readFileSync(`public/benchmarks/${stem}-runner.txt`))
