@@ -10,11 +10,18 @@ $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Pterodactyl\Models\ApiKey;
 use Pterodactyl\Models\User;
 use Pterodactyl\Services\Api\KeyCreationService;
 
 $access = '/bench/storage/benchmark-access.json';
+// Laravel's console exception renderer may return exit code zero for standalone
+// scripts. Fixture failures must stop the container instead of passing health checks.
+set_exception_handler(function (Throwable $error): never {
+    fwrite(STDERR, $error->getMessage() . PHP_EOL);
+    exit(1);
+});
 if (User::query()->exists()) {
     if (!file_exists($access)) {
         throw new RuntimeException('Existing database has no benchmark credentials; use fresh volumes.');
@@ -28,7 +35,7 @@ $user = User::forceCreate([
     'email' => 'benchmark@example.test',
     'name_first' => 'Benchmark',
     'name_last' => 'Account',
-    'password' => password_hash(getenv('BENCHMARK_PASSWORD'), PASSWORD_BCRYPT),
+    'password' => Hash::make(getenv('BENCHMARK_PASSWORD')),
     'root_admin' => false,
     'language' => 'en',
     'use_totp' => false,
@@ -70,9 +77,19 @@ for ($i = 1; $i <= 50; $i++) {
     $id = DB::table('servers')->insertGetId($server);
     DB::table('allocations')->where('id', $allocation)->update(['server_id' => $id]);
 }
-$key = $app->make(KeyCreationService::class)->setKeyType(ApiKey::TYPE_ACCOUNT)->handle([
-    'user_id' => $user->id, 'memo' => 'Disposable benchmark', 'allowed_ips' => [],
-]);
+if (class_exists(KeyCreationService::class)) {
+    $key = $app->make(KeyCreationService::class)->setKeyType(ApiKey::TYPE_ACCOUNT)->handle([
+        'user_id' => $user->id, 'memo' => 'Disposable benchmark', 'allowed_ips' => [],
+    ]);
+} else {
+    // v2 removed KeyCreationService; create the same legacy Sanctum client key.
+    $key = $user->apiKeys()->forceCreate([
+        'identifier' => ApiKey::generateTokenIdentifier(ApiKey::TYPE_ACCOUNT),
+        'key_type' => ApiKey::TYPE_ACCOUNT,
+        'token' => encrypt(Str::random(ApiKey::KEY_LENGTH)),
+        'memo' => 'Disposable benchmark', 'allowed_ips' => [],
+    ]);
+}
 file_put_contents($access, json_encode([
     'username' => $user->username, 'password' => getenv('BENCHMARK_PASSWORD'),
     'token' => $key->identifier . decrypt($key->token),

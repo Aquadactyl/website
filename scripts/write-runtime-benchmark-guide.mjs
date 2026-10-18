@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const stem = process.argv[2] || "runtime";
-if (!/^[a-z-]+$/.test(stem)) throw new Error("Invalid benchmark filename.");
+if (!/^[a-z0-9-]+$/.test(stem)) throw new Error("Invalid benchmark filename.");
 const guidePath = `docs/panel/${stem === "runtime" ? "runtime-benchmarks" : stem}.mdx`;
 const report = JSON.parse(
   fs.readFileSync(`public/benchmarks/${stem}.json`, "utf8"),
@@ -10,6 +10,29 @@ const report = JSON.parse(
 if (!report.completedAt)
   throw new Error("Runtime benchmark has not completed.");
 const { aquadactyl: aqua, pterodactyl: ptero } = report.panels;
+const v2 = ptero.release === "v2.0.0-beta.2";
+const builds = v2
+  ? JSON.parse(
+      fs.readFileSync("public/benchmarks/panel-v2-builds.json", "utf8"),
+    )
+  : null;
+const buildSection = builds
+  ? `
+## Production frontend builds
+
+${builds.methodology}
+
+| Measurement | Pterodactyl v2 beta 2 | Aquadactyl |
+| --- | ---: | ---: |
+| Build duration, median | ${(builds.panels.pterodactyl.buildMs.median / 1000).toFixed(2)} s | ${(builds.panels.aquadactyl.buildMs.median / 1000).toFixed(2)} s |
+| Build duration, range | ${(builds.panels.pterodactyl.buildMs.min / 1000).toFixed(2)}–${(builds.panels.pterodactyl.buildMs.max / 1000).toFixed(2)} s | ${(builds.panels.aquadactyl.buildMs.min / 1000).toFixed(2)}–${(builds.panels.aquadactyl.buildMs.max / 1000).toFixed(2)} s |
+| All manifest JS/CSS, gzip estimate | ${(builds.panels.pterodactyl.totalGzipBytes / 1024).toFixed(1)} KiB | ${(builds.panels.aquadactyl.totalGzipBytes / 1024).toFixed(1)} KiB |
+
+Both projects use Vite. v2's command also generates its extension SDK and runs extension-runtime checks; Aquadactyl's command builds its bundled Blueprint compatibility support. This measures their complete frontend build commands, rather than isolating the bundlers. The recorded total assets cover all routes; the browser transfer table above measures the actual dashboard.
+
+[Build samples and asset hashes](/benchmarks/panel-v2-builds.json) · [Build logs](/benchmarks/panel-v2-build-logs.txt) · [Build runner](/benchmarks/panel-v2-build-runner.txt).
+`
+  : "";
 const ms = (value) => `${value.toFixed(1)} ms`;
 const mib = (value) => `${(value / 2 ** 20).toFixed(1)} MiB`;
 const rps = (value) => `${value.toFixed(1)} req/s`;
@@ -117,11 +140,11 @@ const blocked = [
   ...new Set(report.browserRuns.flatMap((run) => run.blockedExternal)),
 ];
 const doc = `---
-title: ${stem === "runtime" ? "Browser, API and memory benchmarks" : "Panel vs Pterodactyl benchmarks"}
+title: ${v2 ? "Aquadactyl vs Pterodactyl v2 beta benchmarks" : stem === "runtime" ? "Browser, API and memory benchmarks" : "Panel vs Pterodactyl benchmarks"}
 description: Measured browser timing, authenticated API throughput and memory use from matching local Aquadactyl and Pterodactyl stacks.
 ---
 
-Measured **${report.measuredOn}**. These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks). All values below come from running panels and a real headless browser.
+Measured **${report.measuredOn}**. ${v2 ? "This compares current Aquadactyl with **Pterodactyl v2.0.0-beta.2**, a prerelease. It is separate from the [Pterodactyl v1 comparison](/docs/panel/panel-comparison); values from those runs must not be mixed. Beta performance and features can change before release." : "These runtime tests extend the separate [frontend build and asset comparison](/docs/panel/benchmarks)."} All runtime values below come from running panels and a real headless browser.
 
 [Homepage comparison](/#benchmarks) · [Raw samples](/benchmarks/${stem}.json) · [Summary](/benchmarks/${stem}-summary.json) · [Measured runner source](/benchmarks/${stem}-runner.txt)
 
@@ -138,7 +161,7 @@ ${report.methodology.fixture}
 
 ${report.methodology.sharedConfiguration}
 
-Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. ${aqua.sourcePatchSha256 ? `Aquadactyl includes the recorded local performance and SFTP compatibility changes on top of the linked base commit. [Download the exact source patch](/benchmarks/${stem}-aquadactyl.patch) (SHA-256: ${aqua.sourcePatchSha256}). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions.` : "No application source was patched."} Configuration, caches and fixture data were created only in disposable containers. The common runtime base was built from Aquadactyl's Dockerfile; both panels run from a separate /bench directory with their own vendor trees and the identical benchmark web-server configuration. The inherited /app tree is not served or loaded.
+Both applications use their own locked production Composer dependencies and freshly built production frontend artifacts. ${aqua.sourcePatchSha256 ? `Aquadactyl includes recorded local changes${v2 ? " including personal server folders and owner search" : " for performance and SFTP compatibility"} on top of the linked base commit. [Download the exact source patch](/benchmarks/${stem}-aquadactyl.patch) (SHA-256: ${aqua.sourcePatchSha256}). The raw report records changed-file and frontend artifact hashes. These changes were included in both its frontend and backend; this is a comparison of the complete tested distributions.` : "No application source was patched."} Configuration, caches and fixture data were created only in disposable containers. ${v2 ? "The common PHP 8.4 runtime was built from scripts/runtime-benchmark/Dockerfile.runtime, a version accepted by both panels. Neither application inherits the other's application code." : "The common runtime base was built from Aquadactyl's Dockerfile; the inherited /app tree is not served or loaded."} Both panels run from /bench with their own vendor trees and the identical benchmark web-server configuration.
 
 These controlled settings differ from default deployments: PHP-FPM is fixed at four workers, both panels use the native Redis driver, and API throttles are raised equally. Results compare these tested distributions and settings; they do not isolate a single code change or framework version.
 
@@ -168,7 +191,7 @@ External resource URLs blocked during the measured loads: ${blocked.length ? blo
 | --- | --- | --- |
 ${transferRows}
 
-This sums Resource Timing transferSize values observed by the end of each settling window, including fonts, styles, scripts and API responses, and excluding the main HTML navigation. Warm cache hits can report zero transfer bytes. These browser observations have a wider scope than the build benchmark's JavaScript/CSS-only gzip estimate. Aquadactyl's smaller script/style bundle does not imply less total page transfer or faster dashboard readiness.
+This sums Resource Timing transferSize values observed by the end of each settling window, including fonts, styles, scripts and API responses, and excluding the main HTML navigation. Warm cache hits can report zero transfer bytes. These browser observations have a different scope from the build benchmark's JavaScript/CSS-only gzip estimate. Asset size alone does not establish faster dashboard readiness.
 
 The timing APIs follow [Navigation Timing](https://www.w3.org/TR/navigation-timing-2/), [Paint Timing](https://www.w3.org/TR/paint-timing/) and [Largest Contentful Paint](https://www.w3.org/TR/largest-contentful-paint/). Browser collection uses [Playwright CDP sessions](https://playwright.dev/docs/api/class-cdpsession).
 
@@ -197,6 +220,8 @@ The panel container includes nginx, supervisor, the FPM master and its four PHP 
 ${memoryRows}
 
 Each state has 30 samples per panel across three windows. Loaded samples use the authenticated 50-server-list endpoint at concurrency 16. The Docker working-set calculation follows [Docker's documented cache subtraction](https://docs.docker.com/reference/cli/docker/container/stats/). These are short steady-state observations, not a leak or long-running capacity test.
+
+Small working-set differences can reflect file-cache accounting and shared-host variation. They do not establish a persistent reduction in production RAM use.
 
 ${report.projection ? `Aquadactyl's measured loaded container working set was higher (${mib(aqua.memory.loaded.panelWorkingSetBytes.median)} versus ${mib(ptero.memory.loaded.panelWorkingSetBytes.median)}); this is **not a memory improvement**. [Supplementary idle diagnostics](/benchmarks/panel-comparison-diagnostics.json), collected after the timed run, showed 82.5/82.9 MiB of anonymous memory in the previous/candidate Aquadactyl containers, but 0.9/24.9 MiB of active file cache and 3.3/7.3 MiB of reclaimable slab. Cache accounting dominates that before/after difference. Shared image pages and cgroup ownership limit container-memory comparisons; these observations do not establish a leak or a general RAM reduction.` : ""}
 
@@ -228,11 +253,13 @@ ${report.methodology.limitations}
 
 Browser observations, API windows and memory windows ran in separate phases. Panels were tested sequentially within each phase, alternating which panel ran first by repetition. The measured panel stacks do not run game servers; existing unrelated containers were left untouched. Changing CPU quotas, PHP worker counts, dataset, caching, browser, network or optional features can change the outcome. Differences should be read per metric, without combining them into an overall performance score.
 
+${buildSection}
+
 ## Reproduce
 
 ${report.projection ? "The commands below collect a **new two-way comparison** with the same fixture and resource limits. They do not recreate the original third Aquadactyl baseline or its alternating three-stack order. Keep the full three-way record and its measured runner when citing the published results." : ""}
 
-Check out the exact source commits above. ${aqua.sourcePatchSha256 ? `Apply the linked patch to Aquadactyl with git apply, then include --include-working-tree when preparing the stacks.` : "Use clean source checkouts."} Install each panel's locked dependencies and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: yarn build:production) before preparing the stacks. The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately. Build Aquadactyl's runtime image first (the test reuses its PHP extensions and OS packages for **both** panels), then run these commands from the website repository:
+Check out the exact source commits above. ${aqua.sourcePatchSha256 ? `Apply the linked patch to Aquadactyl with git apply, then include --include-working-tree when preparing the stacks.` : "Use clean source checkouts."} Install each panel's locked dependencies (${v2 ? "Aquadactyl: pnpm install --frozen-lockfile; Pterodactyl v2: npm ci" : "using each project's package manager"}) and run its production frontend build (Aquadactyl: pnpm build; Pterodactyl: ${v2 ? "npm run build" : "yarn build:production"}) before preparing the stacks. ${v2 ? "The build runner below repeats those full commands and writes separate samples." : "The [historical build comparison](/docs/panel/benchmarks#reproduce) describes asset collection separately."} Run these commands from the website repository:
 
 FIRST_COMMANDS
 
@@ -240,12 +267,19 @@ The preparation script prints a temporary directory. Replace WORKDIR below with 
 
 RUN_COMMANDS
 
-The generated Compose file binds only to 127.0.0.1:8091 and :8092 and has its own network, volumes and random disposable credentials. Never point this harness at a production database. The raw public report omits credentials and sessions. Keep its Composer lock hashes, image IDs and individual samples with any published comparison. The headline chart imports only the smaller summary, not the per-request latency arrays.
+The generated Compose file binds only to 127.0.0.1:${v2 ? "8101 and :8102" : "8091 and :8092"} and has its own network, volumes and random disposable credentials. Never point this harness at a production database. The raw public report omits credentials and sessions. Keep its Composer lock hashes, image IDs and individual samples with any published comparison. The headline chart imports only the smaller summary, not the per-request latency arrays.
 `;
 const firstCommands = [
-  "docker build -t aquadactyl:test /path/to/aquadactyl-bench",
+  v2
+    ? "docker build -f scripts/runtime-benchmark/Dockerfile.runtime -t panel-v2-benchmark:runtime scripts/runtime-benchmark"
+    : "docker build -t aquadactyl:test /path/to/aquadactyl-bench",
   "pnpm exec playwright install chromium",
-  `node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench${aqua.sourcePatchSha256 ? " --include-working-tree" : ""}`,
+  ...(v2
+    ? [
+        "node scripts/benchmark-v2-builds.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench",
+      ]
+    : []),
+  `${v2 ? "BENCHMARK_RUNTIME_IMAGE=panel-v2-benchmark:runtime " : ""}node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl-bench /path/to/pterodactyl-bench${aqua.sourcePatchSha256 ? " --include-working-tree" : ""}${v2 ? " --pterodactyl-v2" : ""}`,
 ].join("\n");
 const runCommands = [
   "docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240",

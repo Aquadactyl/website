@@ -1,6 +1,6 @@
 export const panelReview = {
-  reviewedOn: "16 October 2026",
-  aquadactyl: "b5cc74ecb11d031c33582ef257a189efc9f3178c",
+  reviewedOn: "18 October 2026",
+  aquadactyl: "f2680179b5ebdf508e45bfd7006d5954b95b0df7",
   pterodactyl: "e98678c5a1d07a74036660a459d87a4eb7c105c1",
   pterodactylRelease: "v1.15.1",
 };
@@ -27,6 +27,55 @@ export interface PanelFeature {
 
 // The cards and comparison table share this catalogue so their claims stay aligned.
 export const panelFeatures: PanelFeature[] = [
+  {
+    id: "server-folders",
+    icon: "Folder",
+    category: "Everyday use",
+    title: "Personal server folders",
+    text: "Organise owned and shared servers into personal folders, saved across devices. Admins can disable folders without deleting saved organisation.",
+    upstream:
+      "A flat server list with ownership filters; no personal server folders.",
+    availability: "Configurable",
+    href: "/docs/panel/features#server-folders",
+    source: "/benchmarks/panel-v2-comparison-aquadactyl.patch",
+  },
+  {
+    id: "owner-search",
+    icon: "Search",
+    category: "Operations",
+    title: "Search servers by owner",
+    text: "Administrators can search Other servers by owner username, email or full name alongside server names and addresses. Existing access permissions apply.",
+    upstream:
+      "Client server search matches server details; owner lookup is separate in the admin area.",
+    availability: "Included",
+    href: "/docs/panel/features#owner-search",
+    source: "/benchmarks/panel-v2-comparison-aquadactyl.patch",
+  },
+  {
+    id: "file-previews",
+    icon: "Image",
+    category: "Everyday use",
+    title: "Larger files & image previews",
+    text: "Edit text files up to the configurable 32 MiB default and preview supported images directly from the file list, with existing file permissions.",
+    upstream:
+      "A smaller default editor limit; images are downloaded rather than previewed within the file list.",
+    availability: "Included",
+    href: "/docs/panel/features#file-access",
+    source: "resources/scripts/lib/filePreview.ts",
+  },
+  {
+    id: "browser-uploads",
+    icon: "Upload",
+    category: "Everyday use",
+    title: "Larger browser uploads",
+    text: "New nodes default to a configurable 2,048 MiB upload limit, with clearer progress and error handling. Existing node, Wings and proxy limits still apply.",
+    upstream:
+      "Browser uploads are supported, with a 100 MiB default node limit in the reviewed release.",
+    availability: "Configurable",
+    href: "/docs/panel/features#file-access",
+    source:
+      "database/migrations/2026_10_14_000000_increase_default_node_upload_limit.php",
+  },
   {
     id: "appearance",
     icon: "Palette",
@@ -320,6 +369,7 @@ export const panelFeatures: PanelFeature[] = [
 ];
 
 export function panelSource(project: "aquadactyl" | "pterodactyl", file = "") {
+  if (file.startsWith("/")) return file;
   const repository =
     project === "aquadactyl" ? "Aquadactyl/aquadactyl" : "pterodactyl/panel";
   const revision = panelReview[project];

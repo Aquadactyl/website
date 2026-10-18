@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "measuredOn": "2026-10-16 / 2026-10-15",
+  "measuredOn": "2026-10-16 / 2026-10-18 / 2026-10-15",
   "sources": {
     "panel": {
       "file": "panel-comparison.json",
@@ -13,11 +13,15 @@
     "build": {
       "file": "panels.json",
       "sha256": "637ee19aac2897c84190d6baf1fde16324bb095d16c6d313bc0c38d9232d9923"
+    },
+    "panel-v2": {
+      "file": "panel-v2-comparison.json",
+      "sha256": "7f205e6a6160ed94339d576269613677016eeef379c0fe5eddf83d0ccde47340"
     }
   },
   "comparisons": {
     "panel": {
-      "label": "Panel vs Pterodactyl",
+      "label": "Panel v1",
       "measuredOn": "2026-10-16",
       "baseline": "Pterodactyl",
       "candidate": "Aquadactyl",
@@ -53,6 +57,46 @@
           "changeLabel": "memory",
           "baseline": 148.072265625,
           "candidate": 155.541015625
+        }
+      ]
+    },
+    "panel-v2": {
+      "label": "Panel v2 (beta)",
+      "measuredOn": "2026-10-18",
+      "baseline": "Pterodactyl v2 beta 2",
+      "candidate": "Aquadactyl",
+      "href": "/docs/panel/panel-v2-comparison",
+      "description": "50-server dashboard · 2 CPU cores per panel.",
+      "metrics": [
+        {
+          "id": "browser",
+          "label": "Browser load",
+          "context": "Cold-cache dashboard ready · median",
+          "unit": "ms",
+          "better": "lower",
+          "changeLabel": "time",
+          "baseline": 506.40000000596046,
+          "candidate": 213.40000000596046
+        },
+        {
+          "id": "api",
+          "label": "API throughput",
+          "context": "50-server list · 16 concurrent requests",
+          "unit": "req/s",
+          "better": "higher",
+          "changeLabel": "throughput",
+          "baseline": 60.030914647957516,
+          "candidate": 66.56023303100295
+        },
+        {
+          "id": "memory",
+          "label": "Memory use",
+          "context": "Panel container under API load · median",
+          "unit": "MiB",
+          "better": "lower",
+          "changeLabel": "memory",
+          "baseline": 125.615234375,
+          "candidate": 124.740234375
         }
       ]
     },

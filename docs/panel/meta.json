@@ -4,6 +4,7 @@
     "index",
     "features",
     "panel-comparison",
+    "panel-v2-comparison",
     "benchmarks",
     "runtime-benchmarks",
     "optimization-benchmarks",

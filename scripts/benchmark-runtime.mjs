@@ -64,8 +64,7 @@ const report = {
   methodology: {
     fixture:
       "One non-admin user owning 50 suspended server records, one node, one nest, one egg, one allocation per server. No Wings calls or running game containers in the measured stacks.",
-    sharedConfiguration:
-      "PHP 8.5, four static FPM workers, OPcache 128 MiB, PHP memory_limit 256 MiB; nginx one worker with gzip level 6; config/route/view caches; one queue worker. Each panel 2 CPU quota cores/1 GiB; each MariaDB 1 core/512 MiB; each Redis 0.5 core/128 MiB. REDIS_CLIENT=phpredis on both. Production mode, debug and telemetry off, no extra addons.",
+    sharedConfiguration: `PHP ${manifest.runtimeMajor ?? "8.5"}, four static FPM workers, OPcache 128 MiB, PHP memory_limit 256 MiB; nginx one worker with gzip level 6; config/route/view caches; one queue worker. Each panel 2 CPU quota cores/1 GiB; each MariaDB 1 core/512 MiB; each Redis 0.5 core/128 MiB. REDIS_CLIENT=phpredis on both. Production mode, debug and telemetry off, no extra addons.`,
     browser:
       "Headless Chromium, 1440x900, deviceScaleFactor 1, no CPU or network throttling, localhost Docker port forwarding. One warm-up pair discarded; ten measured pairs per panel in alternating order. Cold uses a new context restored from an authenticated session; warm reloads the same page/context. Server/OS caches remain warm. Wait for all 50 server names, then 2 seconds to observe paints. Third-party requests are blocked identically to isolate the local panel; blocked URLs are recorded. FCP/LCP are navigation-to-paint; dashboardReady is measured when all server names exist in DOM, a custom application milestone. Heap is CDP JSHeapUsedSize after an explicit garbage collection; not total browser RAM.",
     api: "GET /api/client/account and GET /api/client?per_page=50, valid user API key, HTTP/1.1 persistent connections, uncompressed response bodies, concurrency 1/8/16; 10-second closed-loop windows, three repetitions with alternating panel order. Two-second warm-up before each run. No new requests after the window, in-flight requests drained and included in elapsed time. Validate every HTTP status and JSON result. Rate limits raised to 1,000,000/min on both disposable panels. Successes per actual elapsed second, not offered requests per second or a maximum capacity claim.",
@@ -74,6 +73,7 @@ const report = {
     limitations:
       "Single shared Windows/WSL2 workstation; existing unrelated game containers remain running. No CPU pinning, controlled network emulation, TLS, WAN latency, mobile device, endurance test or real-player load. This is a controlled local configuration comparison of pinned distributions, not their default deployment presets or proof of general production capacity.",
   },
+  setupFiles: manifest.harnessFiles,
   panels: {},
   apiRuns: [],
   browserRuns: [],
@@ -81,6 +81,33 @@ const report = {
 };
 for (const family of families) {
   const panel = manifest.panels[family];
+  const containers = {
+    panel: panel.container,
+    database:
+      panel.databaseContainer ?? `panel-runtime-benchmark-${family}-database-1`,
+    redis: panel.cacheContainer ?? `panel-runtime-benchmark-${family}-cache-1`,
+  };
+  const resources = Object.fromEntries(
+    Object.entries(containers).map(([role, container]) => {
+      const config = JSON.parse(
+        docker("inspect", container, "--format", "{{json .HostConfig}}"),
+      );
+      return [
+        role,
+        {
+          imageId: docker("inspect", container, "--format", "{{.Image}}"),
+          nanoCpus: config.NanoCpus,
+          memoryBytes: config.Memory,
+        },
+      ];
+    }),
+  );
+  assert.equal(resources.panel.nanoCpus, 2e9);
+  assert.equal(resources.panel.memoryBytes, 2 ** 30);
+  assert.equal(resources.database.nanoCpus, 1e9);
+  assert.equal(resources.database.memoryBytes, 512 * 2 ** 20);
+  assert.equal(resources.redis.nanoCpus, 0.5e9);
+  assert.equal(resources.redis.memoryBytes, 128 * 2 ** 20);
   report.panels[family] = {
     ...panel,
     container: undefined,
@@ -88,6 +115,19 @@ for (const family of families) {
     imageId: docker("inspect", panel.container, "--format", "{{.Image}}"),
     php: docker("exec", panel.container, "php", "-r", "echo PHP_VERSION;"),
     nginx: docker("exec", panel.container, "sh", "-c", "nginx -v 2>&1"),
+    resources,
+    phpFpmConfigSha256: docker(
+      "exec",
+      panel.container,
+      "sha256sum",
+      "/usr/local/etc/php-fpm.conf",
+    ).split(" ")[0],
+    nginxConfigSha256: docker(
+      "exec",
+      panel.container,
+      "sha256sum",
+      "/etc/nginx/nginx.conf",
+    ).split(" ")[0],
   };
 }
 const save = () => {

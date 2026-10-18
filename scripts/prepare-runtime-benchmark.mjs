@@ -10,6 +10,12 @@ const harness = path.join(
   "runtime-benchmark",
 );
 const includeWorkingTree = process.argv.includes("--include-working-tree");
+const v2 = process.argv.includes("--pterodactyl-v2");
+const project =
+  process.env.BENCHMARK_PROJECT ||
+  (v2 ? "panel-v2-benchmark" : "panel-runtime-benchmark");
+if (!/^[a-z0-9][a-z0-9-]*$/.test(project))
+  throw new Error("Invalid benchmark project name.");
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "panel-runtime-benchmark-"));
 const runtimeImage = process.env.BENCHMARK_RUNTIME_IMAGE || "aquadactyl:test";
 const run = (command, args, options = {}) =>
@@ -30,12 +36,35 @@ const manifest = {
     "{{.Id}}",
   ]).trim(),
   panels: {},
+  harnessFiles: fs
+    .readdirSync(harness)
+    .sort()
+    .map((file) => ({
+      file,
+      sha256: createHash("sha256")
+        .update(fs.readFileSync(path.join(harness, file)))
+        .digest("hex"),
+    })),
 };
+if (v2) {
+  manifest.comparison = "Aquadactyl vs Pterodactyl v2.0.0-beta.2";
+  manifest.runtimeMajor = "8.4";
+}
 for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
   const checkout = path.resolve(process.argv[index + 2] || "");
   if (!process.argv[index + 2])
     throw new Error("Provide two clean, previously built source checkouts.");
   const revision = run("git", ["rev-parse", "HEAD"], { cwd: checkout }).trim();
+  if (
+    v2 &&
+    family === "pterodactyl" &&
+    run("git", ["describe", "--tags", "--exact-match"], {
+      cwd: checkout,
+    }).trim() !== "v2.0.0-beta.2"
+  )
+    throw new Error(
+      "The v2 comparison requires the exact v2.0.0-beta.2 release.",
+    );
   const changed = run("git", ["diff", "--name-only", "HEAD"], { cwd: checkout })
     .trim()
     .split(/\r?\n/)
@@ -103,7 +132,7 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
     path.join(context, ".dockerignore"),
     "panel/.git\npanel/node_modules\npanel/vendor\n",
   );
-  const port = 8091 + index;
+  const port = (v2 ? 8101 : 8091) + index;
   const database = `${family}-database`;
   const cache = `${family}-cache`;
   services[database] = {
@@ -140,8 +169,8 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
       context: context.replaceAll("\\", "/"),
       args: { RUNTIME_IMAGE: runtimeImage },
     },
-    image: `panel-runtime-benchmark:${family}`,
-    container_name: `panel-runtime-benchmark-${family}`,
+    image: `${project}:${family}`,
+    container_name: `${project}-${family}`,
     cpus: 2,
     mem_limit: "1g",
     ports: [`127.0.0.1:${port}:80`],
@@ -183,6 +212,8 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
       APP_API_CLIENT_RATELIMIT: "1000000",
       APP_API_APPLICATION_RATELIMIT: "1000000",
       ADDONS_HOOKS_ENABLED: "false",
+      SESSION_ENCRYPT: "true",
+      PTERODACTYL_EXTENSIONS_ENABLED: "false",
     },
     healthcheck: {
       test: [
@@ -220,6 +251,9 @@ for (const [index, family] of ["aquadactyl", "pterodactyl"].entries()) {
       })),
     port,
     container: services[family].container_name,
+    databaseContainer: `${project}-${database}-1`,
+    cacheContainer: `${project}-${cache}-1`,
+    release: v2 && family === "pterodactyl" ? "v2.0.0-beta.2" : undefined,
     composerLockSha256: createHash("sha256")
       .update(fs.readFileSync(path.join(panel, "composer.lock")))
       .digest("hex"),
@@ -229,7 +263,7 @@ fs.writeFileSync(
   path.join(work, "compose.json"),
   JSON.stringify(
     {
-      name: "panel-runtime-benchmark",
+      name: project,
       services,
       volumes: { "aquadactyl-database": {}, "pterodactyl-database": {} },
     },

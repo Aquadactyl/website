@@ -12,7 +12,7 @@ Most panel-wide settings use **Admin → Settings**. Set
 open panel pages after saving. OAuth and passkey settings are stored in the
 database even when other settings use environment-only configuration.
 
-The homepage [feature catalogue and comparison](/#features) cover 24 documented
+The homepage [feature catalogue and comparison](/#features) cover 28 documented
 feature areas against stock Pterodactyl v1.15.1. This guide describes how to use
 the additions. See [frontend benchmarks](/docs/panel/benchmarks) for the measured
 build-time and asset-size comparison, including the pinned source revisions.
@@ -136,6 +136,43 @@ On the Console page, click the UUID beneath the server name to copy the full
 identifier. The scroll-to-latest control uses a Lucide down arrow and supports
 mouse and keyboard activation. CPU, memory and outbound network graphs follow
 the configured primary colour.
+
+## Personal server folders [#server-folders]
+
+Use **New folder** above the server list to create a personal folder. The compact
+folder control on each server row moves it into a folder or back to **Unfiled**.
+Select a folder to filter the list, and use its rename or delete controls to
+manage it. Removing a folder keeps its servers and files.
+
+Folders belong to the account and are saved across devices. Owners, subusers and
+administrators can organise servers they can already access independently;
+putting a server in a folder does not grant access or change its owner.
+
+**Admin → Settings → General → Server folders** enables or disables the feature
+for everyone. It is enabled by default. Disabling it hides the folder bar and row
+controls, blocks folder API actions and ignores old folder filters. Saved folders
+and assignments are retained for when the feature is enabled again. Reload open
+pages after changing the setting.
+
+## Search servers by owner [#owner-search]
+
+In the client dashboard's **Other servers** view, administrators can search by
+owner username, email or full name, as well as server details. Results are filtered
+before pagination. Regular users retain their existing server search and access
+permissions; the owner lookup is restricted to administrators.
+
+## Larger files and browser uploads [#file-access]
+
+Open a supported image from the Files list to preview it inside the panel.
+Text editing and image previews default to a **32 MiB** limit, configurable with
+`PTERODACTYL_FILES_MAX_EDIT_SIZE` in bytes. Existing file read/edit permissions
+still apply. Download larger files when a preview would exceed the limit.
+
+New nodes default to a **2,048 MiB** browser upload limit. Existing node limits
+are preserved; administrators can change them in the node settings and apply the
+corresponding Wings configuration. Wings, reverse proxies and available server
+disk space can impose additional limits. Browser upload progress and errors are
+shown in the file manager. SFTP remains available for other workflows.
 
 ## Profile pictures and moderation [#profile-pictures]
 
@@ -308,7 +345,7 @@ for file, size and expiry options.
 ## Administrator feature controls [#feature-controls]
 
 Under **Admin → Settings → General**, admins can enable or disable player counts,
-custom profile pictures, sensitive data blur and server list quick actions.
+custom profile pictures, sensitive data blur, server folders and server list quick actions.
 Disabled features disappear from the relevant account or server screens; saved
 preferences are retained. Admins can remove a user's uploaded profile picture
 from **Admin → Users → View**.

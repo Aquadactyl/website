@@ -4,6 +4,7 @@ cd /bench
 php artisan package:discover --no-interaction
 php artisan migrate --force --no-interaction
 php /harness/seed.php
+test -s storage/benchmark-access.json
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

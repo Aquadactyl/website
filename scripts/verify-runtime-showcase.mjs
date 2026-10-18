@@ -36,7 +36,10 @@ try {
     await page.locator("#runtime-benchmarks, #optimization-benchmarks").count(),
     0,
   );
-  assert.equal(await section.getByRole("button").count(), 2);
+  assert.equal(
+    await section.getByRole("button").count(),
+    Object.keys(report.comparisons).length,
+  );
   assert.equal(await section.getByRole("heading").count(), 1);
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -55,6 +58,13 @@ try {
             .getByRole("link", { name: "Build times & asset sizes" })
             .getAttribute("href"),
           "/docs/panel/benchmarks",
+        );
+      if (id === "panel-v2")
+        assert.equal(
+          await section
+            .getByRole("link", { name: "Build times & asset sizes" })
+            .getAttribute("href"),
+          "/docs/panel/panel-v2-comparison#production-frontend-builds",
         );
       assert.equal(
         await section.locator('button[aria-pressed="true"]').count(),
@@ -123,6 +133,10 @@ try {
   assert.ok(await page.getByRole("heading", { level: 1 }).count());
   for (const path of [
     "/benchmarks/panel-comparison.json",
+    "/benchmarks/panel-v2-comparison.json",
+    "/benchmarks/panel-v2-comparison-aquadactyl.patch",
+    "/benchmarks/panel-v2-builds.json",
+    "/benchmarks/panel-v2-build-runner.txt",
     "/benchmarks/daemon-comparison.json",
     "/benchmarks/comparison-summary.json",
     "/benchmarks/panel-comparison-aquadactyl.patch",
@@ -139,7 +153,7 @@ try {
   }
   assert.deepEqual(errors, []);
   console.log(
-    "Verified one compact section, both comparisons and all measured values; keyboard controls, method links and 1440/390/320px layouts pass.",
+    "Verified one compact section, three comparisons and all measured values; keyboard controls, method links and 1440/390/320px layouts pass.",
   );
 } finally {
   await browser.close();

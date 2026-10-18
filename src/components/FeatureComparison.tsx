@@ -13,6 +13,9 @@ import {
   Container,
   EyeOff,
   Gauge,
+  Folder,
+  Image,
+  Upload,
   KeyRound,
   Languages,
   Link2,
@@ -38,6 +41,9 @@ import {
 } from "@/lib/panel-features";
 
 const icons = {
+  Folder,
+  Image,
+  Upload,
   Blocks,
   BookOpen,
   Bug,
@@ -317,7 +323,15 @@ export default function FeatureComparison() {
           >
             Aquadactyl {panelReview.aquadactyl.slice(0, 12)}
           </a>
-          . Feature defaults and setup details are in the{" "}
+          . Current folder controls and owner search are recorded in the{" "}
+          <a
+            href="/benchmarks/panel-v2-comparison-aquadactyl.patch"
+            className="text-[#b7c3cc] underline underline-offset-3"
+          >
+            source patch
+          </a>
+          . This feature table reviews v1; the benchmarks also compare v2 beta
+          2. Feature defaults and setup details are in the{" "}
           <Link
             href="/docs/panel/features"
             className="text-[#b7c3cc] underline underline-offset-3"

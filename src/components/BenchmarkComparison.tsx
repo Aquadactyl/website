@@ -13,14 +13,14 @@ const formatValue = (value: number, unit: string) =>
     : number.format(value);
 
 export default function BenchmarkComparison() {
-  const [selected, setSelected] = useState<Comparison>("panel");
+  const [selected, setSelected] = useState<Comparison>("panel-v2");
   const comparison = results.comparisons[selected];
 
   return (
     <section
       id="benchmarks"
       aria-labelledby="benchmark-heading"
-      className="border-y border-[#303b45] bg-[#131c21] py-10 sm:py-12"
+      className="border-y border-[#303b45] bg-[#131c21] py-8 sm:py-12"
     >
       <div className="mx-auto w-full max-w-296 px-5 sm:px-6 md:px-8">
         <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -38,7 +38,7 @@ export default function BenchmarkComparison() {
           <div
             role="group"
             aria-label="Benchmark comparison"
-            className="flex w-fit max-w-full gap-1 rounded-lg border border-[#303b45] bg-[#10171c] p-1"
+            className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border border-[#303b45] bg-[#10171c] p-1"
           >
             {Object.entries(results.comparisons).map(([id, item]) => (
               <button
@@ -146,9 +146,13 @@ export default function BenchmarkComparison() {
             Results vary by workload.
           </p>
           <div className="flex shrink-0 flex-wrap gap-x-4 gap-y-1">
-            {selected === "panel" && (
+            {selected !== "daemon" && (
               <Link
-                href="/docs/panel/benchmarks"
+                href={
+                  selected === "panel-v2"
+                    ? "/docs/panel/panel-v2-comparison#production-frontend-builds"
+                    : "/docs/panel/benchmarks"
+                }
                 className="text-[#a4e3dc] hover:text-white"
               >
                 Build times &amp; asset sizes

@@ -1,0 +1,15 @@
+# Common runtime for both applications; application sources are installed separately.
+FROM php:8.4-fpm-alpine
+RUN apk add --no-cache nginx supervisor curl git unzip icu-dev libzip-dev \
+      libpng-dev libjpeg-turbo-dev libwebp-dev oniguruma-dev $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install -j4 bcmath gd intl mbstring pdo_mysql zip opcache \
+    && pecl install redis-6.3.0 \
+    && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS
+RUN apk add --no-cache mariadb-client
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+RUN printf '%s\n' 'memory_limit=256M' 'opcache.enable=1' \
+      'opcache.memory_consumption=128' 'opcache.interned_strings_buffer=16' \
+      'opcache.max_accelerated_files=20000' 'opcache.validate_timestamps=0' \
+      > /usr/local/etc/php/conf.d/99-benchmark.ini

@@ -1,0 +1,2147 @@
+diff --git a/BUILDING.md b/BUILDING.md
+index 3caa48d68..3b42abfa9 100644
+--- a/BUILDING.md
++++ b/BUILDING.md
+@@ -320,6 +320,18 @@ quick actions hides the shortcuts while leaving controls on server pages availab
+ 
+ ## Server list and game queries
+ 
++Enable or disable **Server folders** under **Admin → Settings → General**.
++It is enabled by default. Disabling hides the controls and blocks folder API
++actions while preserving saved folders and assignments for when it is enabled again.
++Use **New folder** on the server list to create personal server categories.
++Choose a folder on a server card to move that server; choose **Unfiled** to remove
++its assignment. Folder tabs filter the full list, including across pages. Select
++a folder to rename or delete it. Deleting a folder preserves all servers and files.
++Folders belong to the signed-in account, including when organising shared servers
++or using the admin **Other servers** view. They sync across devices and do not
++change permissions or server ownership. In **Other servers**, the search field
++also matches owner usernames, emails and full names.
++
+ Click anywhere on a server card to open its console. Individual shortcuts remain
+ independently accessible, and server links support opening in a new tab.
+ 
+diff --git a/README.md b/README.md
+index 4189c4a3b..5f52d2246 100644
+--- a/README.md
++++ b/README.md
+@@ -35,6 +35,9 @@ using server definitions from the Pterodactyl egg ecosystem.
+   adapters for supported legacy Pterodactyl addons and themes.
+ - **Server tools:** Guided schedules, an admin Egg Library, player counts, image
+   previews, larger file uploads, optional file trash and redacted console sharing.
++- **Server organisation:** Personal folders with account sync and pagination-aware
++  filtering, with an admin toggle that preserves saved folders when disabled.
++  Admins can search Other servers by owner username, email or name.
+ - **Administration:** Branding, SMTP/Mailgun/Postmark/SES delivery and optional
+   features configured in the admin area. Unconfigured sign-in methods stay hidden.
+ - **Deployment:** Locked Composer/pnpm dependencies, managed backups and updates,
+diff --git a/app/Http/Controllers/Api/Client/ClientController.php b/app/Http/Controllers/Api/Client/ClientController.php
+index 706656a96..77dc3d855 100644
+--- a/app/Http/Controllers/Api/Client/ClientController.php
++++ b/app/Http/Controllers/Api/Client/ClientController.php
+@@ -3,6 +3,7 @@
+ namespace Pterodactyl\Http\Controllers\Api\Client;
+ 
+ use Pterodactyl\Models\Server;
++use Illuminate\Support\Facades\DB;
+ use Pterodactyl\Models\Permission;
+ use Spatie\QueryBuilder\QueryBuilder;
+ use Spatie\QueryBuilder\AllowedFilter;
+@@ -28,6 +29,7 @@ class ClientController extends ClientApiController
+     public function index(GetServersRequest $request): array
+     {
+         $user = $request->user();
++        $type = $request->input('type');
+         $transformer = $this->getTransformer(ServerTransformer::class);
+ 
+         // Start the query builder and ensure we eager load any requested relationships from the request.
+@@ -38,10 +40,9 @@ class ClientController extends ClientApiController
+             'name',
+             'description',
+             'external_id',
+-            AllowedFilter::custom('*', new MultiFieldServerFilter()),
++            AllowedFilter::custom('*', new MultiFieldServerFilter($user->root_admin && in_array($type, ['admin', 'admin-all']))),
+         );
+ 
+-        $type = $request->input('type');
+         // Either return all the servers the user has access to because they are an admin `?type=admin` or
+         // just return all the servers the user has access to because they are the owner or a subuser of the
+         // server. If ?type=admin-all is passed all servers on the system will be returned to the user, rather
+@@ -62,8 +63,23 @@ class ClientController extends ClientApiController
+             $builder = $builder->whereIn('servers.id', $user->accessibleServers()->select('servers.id'));
+         }
+ 
++        $foldersEnabled = config('aquadactyl.features.server_folders', true) === true;
++        if ($foldersEnabled && ($folder = $request->query('folder'))) {
++            $assignments = DB::table('server_folder_assignments')->select('server_id')->where('user_id', $user->id);
++            if ($folder === 'unfiled') {
++                $builder->whereNotIn('servers.id', $assignments);
++            } else {
++                abort_unless(DB::table('server_folders')->where('user_id', $user->id)->where('id', $folder)->exists(), 404);
++                $builder->whereIn('servers.id', $assignments->where('server_folder_id', $folder));
++            }
++        }
+         $servers = $builder->paginate(min($request->query('per_page', 50), 100))->appends($request->query());
+         app(ServerListRelationsService::class)->handle($servers->getCollection());
++        $folders = $foldersEnabled ? DB::table('server_folder_assignments')->where('user_id', $user->id)
++            ->whereIn('server_id', $servers->getCollection()->modelKeys())->pluck('server_folder_id', 'server_id') : collect();
++        foreach ($servers as $server) {
++            $server->setAttribute('user_folder_id', $folders->get($server->id));
++        }
+ 
+         return $this->fractal->transformWith($transformer)->collection($servers)->toArray();
+     }
+diff --git a/app/Http/Controllers/Api/Client/ServerFolderController.php b/app/Http/Controllers/Api/Client/ServerFolderController.php
+new file mode 100644
+index 000000000..a6421cd17
+--- /dev/null
++++ b/app/Http/Controllers/Api/Client/ServerFolderController.php
+@@ -0,0 +1,75 @@
++<?php
++
++namespace Pterodactyl\Http\Controllers\Api\Client;
++
++use Illuminate\Http\Response;
++use Pterodactyl\Models\Server;
++use Illuminate\Validation\Rule;
++use Illuminate\Support\Facades\DB;
++use Pterodactyl\Http\Requests\Api\Client\ServerFolderRequest;
++
++class ServerFolderController extends ClientApiController
++{
++    public function index(ServerFolderRequest $request): array
++    {
++        return ['data' => DB::table('server_folders')->where('user_id', $request->user()->id)
++            ->orderBy('name')->get(['id', 'name'])->all()];
++    }
++
++    public function store(ServerFolderRequest $request): array
++    {
++        $data = $request->validate($this->nameRules($request->user()->id));
++        $id = DB::table('server_folders')->insertGetId([
++            'user_id' => $request->user()->id, 'name' => $data['name'],
++            'created_at' => now(), 'updated_at' => now(),
++        ]);
++
++        return ['id' => $id, 'name' => $data['name']];
++    }
++
++    public function update(ServerFolderRequest $request, string $folder): array
++    {
++        $query = DB::table('server_folders')->where('user_id', $request->user()->id)->where('id', $folder);
++        abort_unless($query->exists(), 404);
++        $data = $request->validate($this->nameRules($request->user()->id, $folder));
++        $query->update(['name' => $data['name'], 'updated_at' => now()]);
++
++        return ['id' => (int) $folder, 'name' => $data['name']];
++    }
++
++    public function destroy(ServerFolderRequest $request, string $folder): Response
++    {
++        $query = DB::table('server_folders')->where('user_id', $request->user()->id)->where('id', $folder);
++        abort_unless($query->exists(), 404);
++        $query->delete();
++
++        return $this->returnNoContent();
++    }
++
++    public function assign(ServerFolderRequest $request, Server $server): Response
++    {
++        $user = $request->user();
++        abort_unless($user->root_admin || $user->accessibleServers()->where('servers.id', $server->id)->exists(), 404);
++        $data = $request->validate(['folder_id' => ['present', 'nullable', 'integer',
++            Rule::exists('server_folders', 'id')->where('user_id', $user->id),
++        ]]);
++        $query = DB::table('server_folder_assignments')->where('user_id', $user->id)->where('server_id', $server->id);
++        if ($data['folder_id'] === null) {
++            $query->delete();
++        } else {
++            DB::table('server_folder_assignments')->updateOrInsert(
++                ['user_id' => $user->id, 'server_id' => $server->id],
++                ['server_folder_id' => $data['folder_id']],
++            );
++        }
++
++        return $this->returnNoContent();
++    }
++
++    private function nameRules(int $userId, ?string $folder = null): array
++    {
++        return ['name' => ['required', 'string', 'max:64',
++            Rule::unique('server_folders')->where('user_id', $userId)->ignore($folder),
++        ]];
++    }
++}
+diff --git a/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php b/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
+index 1177dec88..a1eac128e 100644
+--- a/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
++++ b/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
+@@ -19,6 +19,7 @@ class BaseSettingsFormRequest extends AdminFormRequest
+             'aquadactyl:features:custom_profile_pictures' => 'sometimes|required|in:true,false',
+             'aquadactyl:features:privacy_mode' => 'sometimes|required|in:true,false',
+             'aquadactyl:features:server_quick_actions' => 'sometimes|required|in:true,false',
++            'aquadactyl:features:server_folders' => 'sometimes|required|in:true,false',
+             'aquadactyl:features:registration' => 'sometimes|required|in:true,false',
+             'aquadactyl:features:console_log_sharing' => 'sometimes|required|in:true,false',
+             'aquadactyl:features:file_trash' => 'sometimes|required|in:true,false',
+@@ -37,6 +38,7 @@ class BaseSettingsFormRequest extends AdminFormRequest
+             'aquadactyl:features:custom_profile_pictures' => __('admin/ui.feature_custom_profile_pictures'),
+             'aquadactyl:features:privacy_mode' => __('admin/ui.feature_privacy_mode'),
+             'aquadactyl:features:server_quick_actions' => __('admin/ui.feature_server_quick_actions'),
++            'aquadactyl:features:server_folders' => __('admin/custom.server_folders'),
+             'aquadactyl:features:registration' => __('admin/ui.feature_registration'),
+             'aquadactyl:features:console_log_sharing' => __('admin/custom.console_log_sharing'),
+             'aquadactyl:features:file_trash' => __('admin/custom.file_trash'),
+diff --git a/app/Http/Requests/Api/Client/GetServersRequest.php b/app/Http/Requests/Api/Client/GetServersRequest.php
+index 28b4c2ded..e5fe5db88 100644
+--- a/app/Http/Requests/Api/Client/GetServersRequest.php
++++ b/app/Http/Requests/Api/Client/GetServersRequest.php
+@@ -4,6 +4,11 @@ namespace Pterodactyl\Http\Requests\Api\Client;
+ 
+ class GetServersRequest extends ClientApiRequest
+ {
++    public function rules(): array
++    {
++        return ['folder' => ['sometimes', 'string', 'regex:/^(?:unfiled|[1-9][0-9]*)$/']];
++    }
++
+     public function authorize(): bool
+     {
+         return true;
+diff --git a/app/Http/Requests/Api/Client/ServerFolderRequest.php b/app/Http/Requests/Api/Client/ServerFolderRequest.php
+new file mode 100644
+index 000000000..7491a194d
+--- /dev/null
++++ b/app/Http/Requests/Api/Client/ServerFolderRequest.php
+@@ -0,0 +1,11 @@
++<?php
++
++namespace Pterodactyl\Http\Requests\Api\Client;
++
++class ServerFolderRequest extends ClientApiRequest
++{
++    public function authorize(): bool
++    {
++        return config('aquadactyl.features.server_folders', true) === true;
++    }
++}
+diff --git a/app/Http/ViewComposers/AssetComposer.php b/app/Http/ViewComposers/AssetComposer.php
+index e525cc4bb..eaf7c82ff 100644
+--- a/app/Http/ViewComposers/AssetComposer.php
++++ b/app/Http/ViewComposers/AssetComposer.php
+@@ -54,6 +54,7 @@ class AssetComposer
+                 'customProfilePictures' => (bool) config('aquadactyl.features.custom_profile_pictures', true),
+                 'privacyMode' => (bool) config('aquadactyl.features.privacy_mode', true),
+                 'serverQuickActions' => (bool) config('aquadactyl.features.server_quick_actions', true),
++                'serverFolders' => (bool) config('aquadactyl.features.server_folders', true),
+                 'registration' => (bool) config('aquadactyl.features.registration', false),
+                 'consoleLogSharing' => (bool) config('aquadactyl.features.console_log_sharing', false),
+                 'fileTrash' => (bool) config('aquadactyl.features.file_trash', false),
+diff --git a/app/Models/Filters/MultiFieldServerFilter.php b/app/Models/Filters/MultiFieldServerFilter.php
+index 7616cb5fe..c2da0e082 100644
+--- a/app/Models/Filters/MultiFieldServerFilter.php
++++ b/app/Models/Filters/MultiFieldServerFilter.php
+@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Builder;
+ 
+ class MultiFieldServerFilter implements Filter
+ {
++    public function __construct(private bool $searchOwners = false)
++    {
++    }
++
+     /**
+      * If we detect that the value matches an IPv4 address we will use a different type of filtering
+      * to look at the allocations.
+@@ -67,6 +71,14 @@ class MultiFieldServerFilter implements Filter
+                 if (str_starts_with($value, 'serv_')) {
+                     $builder->orWhere(fn (Builder $b) => $b->whereIdentifier($value));
+                 }
++                if ($this->searchOwners) {
++                    $builder->orWhereHas('user', function (Builder $owner) use ($value) {
++                        $pattern = '%' . mb_strtolower($value) . '%';
++                        $owner->whereRaw('LOWER(users.username) LIKE ?', [$pattern])
++                            ->orWhereRaw('LOWER(users.email) LIKE ?', [$pattern])
++                            ->orWhereRaw("LOWER(CONCAT(users.name_first, ' ', users.name_last)) LIKE ?", [$pattern]);
++                    });
++                }
+             });
+     }
+ }
+diff --git a/app/Providers/SettingsServiceProvider.php b/app/Providers/SettingsServiceProvider.php
+index 8edb559a2..539d979a1 100644
+--- a/app/Providers/SettingsServiceProvider.php
++++ b/app/Providers/SettingsServiceProvider.php
+@@ -35,6 +35,7 @@ class SettingsServiceProvider extends ServiceProvider
+         'aquadactyl:features:custom_profile_pictures',
+         'aquadactyl:features:privacy_mode',
+         'aquadactyl:features:server_quick_actions',
++        'aquadactyl:features:server_folders',
+         'aquadactyl:features:registration',
+         'aquadactyl:features:console_log_sharing',
+         'aquadactyl:features:file_trash',
+diff --git a/app/Transformers/Api/Client/ServerTransformer.php b/app/Transformers/Api/Client/ServerTransformer.php
+index 0c46a0101..41a935a62 100644
+--- a/app/Transformers/Api/Client/ServerTransformer.php
++++ b/app/Transformers/Api/Client/ServerTransformer.php
+@@ -46,6 +46,7 @@ class ServerTransformer extends BaseClientTransformer
+             'internal_id' => $server->id,
+             'uuid' => $server->uuid,
+             'name' => $server->name,
++            'folder_id' => $server->getAttribute('user_folder_id'),
+             'node' => $server->node->name,
+             'node_country' => $server->node->country_code,
+             'node_country_name' => Countries::name($server->node->country_code),
+diff --git a/config/aquadactyl.php b/config/aquadactyl.php
+index 2463acee7..f37e1098f 100644
+--- a/config/aquadactyl.php
++++ b/config/aquadactyl.php
+@@ -10,6 +10,7 @@ return [
+         'custom_profile_pictures' => true,
+         'privacy_mode' => true,
+         'server_quick_actions' => true,
++        'server_folders' => true,
+         'registration' => false,
+         'console_log_sharing' => false,
+         'file_trash' => false,
+diff --git a/database/migrations/2026_10_16_200000_create_personal_server_folders.php b/database/migrations/2026_10_16_200000_create_personal_server_folders.php
+new file mode 100644
+index 000000000..036c63902
+--- /dev/null
++++ b/database/migrations/2026_10_16_200000_create_personal_server_folders.php
+@@ -0,0 +1,36 @@
++<?php
++
++use Illuminate\Support\Facades\Schema;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Database\Migrations\Migration;
++
++return new class extends Migration {
++    public function up(): void
++    {
++        Schema::create('server_folders', function (Blueprint $table) {
++            $table->increments('id');
++            $table->unsignedInteger('user_id');
++            $table->string('name', 64);
++            $table->timestamps();
++            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
++            $table->unique(['user_id', 'name']);
++            $table->unique(['id', 'user_id']);
++        });
++        Schema::create('server_folder_assignments', function (Blueprint $table) {
++            $table->unsignedInteger('user_id');
++            $table->unsignedInteger('server_id');
++            $table->unsignedInteger('server_folder_id');
++            $table->primary(['user_id', 'server_id']);
++            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
++            $table->foreign('server_id')->references('id')->on('servers')->cascadeOnDelete();
++            $table->foreign(['server_folder_id', 'user_id'], 'server_folder_assignment_owner_fk')
++                ->references(['id', 'user_id'])->on('server_folders')->cascadeOnDelete();
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::dropIfExists('server_folder_assignments');
++        Schema::dropIfExists('server_folders');
++    }
++};
+diff --git a/docs/TESTING.md b/docs/TESTING.md
+index b6ba1735a..a8e6595af 100644
+--- a/docs/TESTING.md
++++ b/docs/TESTING.md
+@@ -7,8 +7,8 @@ last verified on 13 October 2026.
+ 
+ | Suite                | Passing tests | Coverage                                                       |
+ | -------------------- | ------------: | -------------------------------------------------------------- |
+-| Panel frontend       |         1,526 | 100% statements, branches, functions and lines                 |
+-| Panel PHP            |         1,782 | 100% executable lines; 25,142 assertions                       |
++| Panel frontend       |         1,541 | 100% statements, branches, functions and lines                 |
++| Panel PHP            |         1,809 | 100% executable lines; 25,423 assertions                       |
+ | Separate API backend |           330 | 100% statements, branches, functions and lines across 32 files |
+ 
+ The complete PHP suite was measured using PHP 8.5 and MariaDB 11; the remaining
+diff --git a/resources/lang/de/admin.json b/resources/lang/de/admin.json
+index 019da62d7..c88607e97 100644
+--- a/resources/lang/de/admin.json
++++ b/resources/lang/de/admin.json
+@@ -104,7 +104,9 @@
+     "file_trash": "Papierkorb für Serverdateien",
+     "file_trash_help": "Zusätzlich zum endgültigen Löschen das Verschieben in den Papierkorb und einen Papierkorb pro Server anbieten. Standardmäßig deaktiviert. Die Deaktivierung blendet die Funktionen aus und sperrt den Zugriff; vorhandene Elemente laufen weiterhin ab.",
+     "trash_retention": "Aufbewahrung im Papierkorb (Tage)",
+-    "trash_retention_help": "Neue Elemente 1–365 Tage aufbewahren. Änderungen gelten für neue Löschvorgänge; bestehende Ablaufdaten bleiben erhalten. Die Bereinigung läuft alle 15 Minuten und versucht nicht erreichbare Nodes später erneut."
++    "trash_retention_help": "Neue Elemente 1–365 Tage aufbewahren. Änderungen gelten für neue Löschvorgänge; bestehende Ablaufdaten bleiben erhalten. Die Bereinigung läuft alle 15 Minuten und versucht nicht erreichbare Nodes später erneut.",
++    "server_folders": "Serverordner",
++    "server_folders_help": "Benutzer können ihre Serverliste in persönlichen Ordnern organisieren. Beim Deaktivieren werden die Bedienelemente ausgeblendet und gespeicherte Ordner beibehalten."
+   },
+   "nests": {
+     "notices": {
+diff --git a/resources/lang/de/panel.json b/resources/lang/de/panel.json
+index 39bdcd4a4..60062ab62 100644
+--- a/resources/lang/de/panel.json
++++ b/resources/lang/de/panel.json
+@@ -1,4 +1,27 @@
+ {
++  "folders": {
++    "add": "Zum Ordner hinzufügen",
++    "choose": "In Ordner verschieben",
++    "title": "Serverordner",
++    "folder": "Ordner",
++    "filter": "Nach Ordner filtern",
++    "all": "Alle Server",
++    "unfiled": "Ohne Ordner",
++    "create": "Neuer Ordner",
++    "rename": "Ordner umbenennen",
++    "delete": "Ordner löschen",
++    "name": "Ordnername",
++    "save": "Speichern",
++    "saving": "Wird gespeichert...",
++    "cancel": "Abbrechen",
++    "move_server": "Ordner für :name",
++    "personal_help": "Ordner sind persönlich und auf allen Ihren Geräten verfügbar.",
++    "delete_help": "Nur der Ordner wird entfernt. Ihre Server und deren Dateien bleiben erhalten.",
++    "empty": "Keine Server in diesem Ordner",
++    "empty_help": "Wählen Sie Alle Server und verwenden Sie die Ordnerauswahl eines Servers, um Ihre Liste zu organisieren.",
++    "owner_search": "Server, Benutzername oder E-Mail suchen…",
++    "owner_no_matches": "Keine passenden Server gefunden. Versuchen Sie einen Servernamen, eine Adresse, einen Benutzernamen oder eine E-Mail-Adresse."
++  },
+   "language": {
+     "title": "Sprache",
+     "description": "Wählen Sie die Anzeigesprache des Panels für Ihr Konto.",
+diff --git a/resources/lang/en/admin.json b/resources/lang/en/admin.json
+index 2ec839806..ad46e2509 100644
+--- a/resources/lang/en/admin.json
++++ b/resources/lang/en/admin.json
+@@ -104,7 +104,9 @@
+     "file_trash": "Server file trash",
+     "file_trash_help": "Offer Move to trash alongside permanent deletion and show a trash page for each server. Disabled by default. Disabling it hides the controls and blocks access; existing items still expire.",
+     "trash_retention": "Trash retention (days)",
+-    "trash_retention_help": "Keep new trash items for 1–365 days. Changes apply to new deletions; existing expiry dates remain unchanged. Cleanup runs every 15 minutes and retries unavailable nodes."
++    "trash_retention_help": "Keep new trash items for 1–365 days. Changes apply to new deletions; existing expiry dates remain unchanged. Cleanup runs every 15 minutes and retries unavailable nodes.",
++    "server_folders": "Server folders",
++    "server_folders_help": "Allow users to organise their server list into personal folders. Disabling hides folder controls and retains saved folders."
+   },
+   "nests": {
+     "notices": {
+diff --git a/resources/lang/en/panel.json b/resources/lang/en/panel.json
+index f1e384cf0..eed4ccbd6 100644
+--- a/resources/lang/en/panel.json
++++ b/resources/lang/en/panel.json
+@@ -1,4 +1,27 @@
+ {
++  "folders": {
++    "add": "Add to folder",
++    "choose": "Move to folder",
++    "title": "Server folders",
++    "folder": "Folder",
++    "filter": "Filter by folder",
++    "all": "All servers",
++    "unfiled": "Unfiled",
++    "create": "New folder",
++    "rename": "Rename folder",
++    "delete": "Delete folder",
++    "name": "Folder name",
++    "save": "Save",
++    "saving": "Saving...",
++    "cancel": "Cancel",
++    "move_server": "Folder for :name",
++    "personal_help": "Folders are personal to your account and available on all your devices.",
++    "delete_help": "Only the folder is removed. Your servers and their files will remain unchanged.",
++    "empty": "No servers in this folder",
++    "empty_help": "Choose All servers, then use a server’s folder control to organise your list.",
++    "owner_search": "Search servers, username or email…",
++    "owner_no_matches": "No servers match this search. Try a server name, address, owner username or email."
++  },
+   "language": {
+     "title": "Language",
+     "description": "Choose how the panel is displayed for your account.",
+diff --git a/resources/lang/fr/admin.json b/resources/lang/fr/admin.json
+index eae3fd106..dcc1c8eed 100644
+--- a/resources/lang/fr/admin.json
++++ b/resources/lang/fr/admin.json
+@@ -104,7 +104,9 @@
+     "file_trash": "Corbeille des fichiers du serveur",
+     "file_trash_help": "Proposer le déplacement vers la corbeille en plus de la suppression définitive, avec une corbeille par serveur. Désactivé par défaut. La désactivation masque les commandes et bloque l’accès ; les éléments existants expirent toujours.",
+     "trash_retention": "Conservation dans la corbeille (jours)",
+-    "trash_retention_help": "Conserver les nouveaux éléments pendant 1 à 365 jours. Les modifications s’appliquent aux nouvelles suppressions ; les dates d’expiration existantes restent inchangées. Le nettoyage s’exécute toutes les 15 minutes et réessaie les nœuds indisponibles."
++    "trash_retention_help": "Conserver les nouveaux éléments pendant 1 à 365 jours. Les modifications s’appliquent aux nouvelles suppressions ; les dates d’expiration existantes restent inchangées. Le nettoyage s’exécute toutes les 15 minutes et réessaie les nœuds indisponibles.",
++    "server_folders": "Dossiers de serveurs",
++    "server_folders_help": "Autoriser les utilisateurs à organiser leur liste de serveurs en dossiers personnels. La désactivation masque les contrôles et conserve les dossiers enregistrés."
+   },
+   "nests": {
+     "notices": {
+diff --git a/resources/lang/fr/panel.json b/resources/lang/fr/panel.json
+index 1cdb54780..85e947c90 100644
+--- a/resources/lang/fr/panel.json
++++ b/resources/lang/fr/panel.json
+@@ -1,4 +1,27 @@
+ {
++  "folders": {
++    "add": "Ajouter à un dossier",
++    "choose": "Déplacer vers un dossier",
++    "title": "Dossiers des serveurs",
++    "folder": "Dossier",
++    "filter": "Filtrer par dossier",
++    "all": "Tous les serveurs",
++    "unfiled": "Sans dossier",
++    "create": "Nouveau dossier",
++    "rename": "Renommer le dossier",
++    "delete": "Supprimer le dossier",
++    "name": "Nom du dossier",
++    "save": "Enregistrer",
++    "saving": "Enregistrement...",
++    "cancel": "Annuler",
++    "move_server": "Dossier de :name",
++    "personal_help": "Les dossiers sont personnels et disponibles sur tous vos appareils.",
++    "delete_help": "Seul le dossier est supprimé. Vos serveurs et leurs fichiers sont conservés.",
++    "empty": "Aucun serveur dans ce dossier",
++    "empty_help": "Choisissez Tous les serveurs, puis utilisez le sélecteur de dossier d’un serveur pour organiser votre liste.",
++    "owner_search": "Rechercher un serveur, un utilisateur ou un e-mail…",
++    "owner_no_matches": "Aucun serveur ne correspond. Essayez un nom de serveur, une adresse, un nom d’utilisateur ou un e-mail."
++  },
+   "language": {
+     "title": "Langue",
+     "description": "Choisissez la langue d’affichage du panel pour votre compte.",
+diff --git a/resources/scripts/api/getServers.spec.ts b/resources/scripts/api/getServers.spec.ts
+index 2555406eb..0adb71d02 100644
+--- a/resources/scripts/api/getServers.spec.ts
++++ b/resources/scripts/api/getServers.spec.ts
+@@ -29,6 +29,7 @@ describe("api/getServers and getSystemPermissions", () => {
+                 internal_id: 1,
+                 uuid: "srv-uuid-1",
+                 name: "Server One",
++                folder_id: 7,
+                 node: "Node 1",
+                 user_permissions: [],
+                 status: "running",
+@@ -67,6 +68,7 @@ describe("api/getServers and getSystemPermissions", () => {
+       });
+       expect(result.items.length).toBe(1);
+       expect(result.items[0].name).toBe("Server One");
++      expect(result.items[0].folderId).toBe(7);
+       expect(result.pagination.total).toBe(1);
+     });
+ 
+diff --git a/resources/scripts/api/getServers.ts b/resources/scripts/api/getServers.ts
+index 19691250e..b39ef758b 100644
+--- a/resources/scripts/api/getServers.ts
++++ b/resources/scripts/api/getServers.ts
+@@ -5,6 +5,7 @@ interface QueryParams {
+   query?: string;
+   page?: number;
+   type?: string;
++  folder?: string;
+ }
+ 
+ export default ({
+diff --git a/resources/scripts/api/server/getServer.ts b/resources/scripts/api/server/getServer.ts
+index 0c9a1bcf9..22c6cfff8 100644
+--- a/resources/scripts/api/server/getServer.ts
++++ b/resources/scripts/api/server/getServer.ts
+@@ -20,6 +20,7 @@ export interface Server {
+   internalId: number | string;
+   uuid: string;
+   name: string;
++  folderId?: number | null;
+   node: string;
+   nodeCountry?: string | null;
+   nodeCountryName?: string | null;
+@@ -64,6 +65,7 @@ export const rawDataToServerObject = ({
+   internalId: data.internal_id,
+   uuid: data.uuid,
+   name: data.name,
++  folderId: data.folder_id ?? null,
+   node: data.node,
+   nodeCountry: data.node_country ?? null,
+   nodeCountryName: data.node_country_name ?? null,
+diff --git a/resources/scripts/api/serverFolders.spec.ts b/resources/scripts/api/serverFolders.spec.ts
+new file mode 100644
+index 000000000..e3c3661db
+--- /dev/null
++++ b/resources/scripts/api/serverFolders.spec.ts
+@@ -0,0 +1,45 @@
++import http from "@/api/http";
++import {
++  getServerFolders,
++  saveServerFolder,
++  deleteServerFolder,
++  assignServerFolder,
++} from "./serverFolders";
++vi.mock("@/api/http");
++afterEach(() => vi.clearAllMocks());
++it("loads personal folders", async () => {
++  vi.mocked(http.get).mockResolvedValue({
++    data: { data: [{ id: 1, name: "Games" }] },
++  });
++  expect(await getServerFolders()).toEqual([{ id: 1, name: "Games" }]);
++  expect(http.get).toHaveBeenCalledWith("/api/client/account/server-folders");
++});
++it("creates renames deletes and clears server folders", async () => {
++  await saveServerFolder("Games");
++  expect(http.post).toHaveBeenCalledWith("/api/client/account/server-folders", {
++    name: "Games",
++  });
++  await saveServerFolder("Updated", 1);
++  expect(http.put).toHaveBeenCalledWith(
++    "/api/client/account/server-folders/1",
++    { name: "Updated" },
++  );
++  await deleteServerFolder(1);
++  expect(http.delete).toHaveBeenCalledWith(
++    "/api/client/account/server-folders/1",
++  );
++  await assignServerFolder("uuid", 1);
++  expect(http.put).toHaveBeenCalledWith(
++    "/api/client/account/server-folders/servers/uuid",
++    { folder_id: 1 },
++  );
++  await assignServerFolder("uuid", null);
++  expect(http.put).toHaveBeenLastCalledWith(
++    "/api/client/account/server-folders/servers/uuid",
++    { folder_id: null },
++  );
++});
++it("propagates request failures", async () => {
++  vi.mocked(http.post).mockRejectedValueOnce(new Error("Failed"));
++  await expect(saveServerFolder("Games")).rejects.toThrow("Failed");
++});
+diff --git a/resources/scripts/api/serverFolders.ts b/resources/scripts/api/serverFolders.ts
+new file mode 100644
+index 000000000..fd987dee0
+--- /dev/null
++++ b/resources/scripts/api/serverFolders.ts
+@@ -0,0 +1,28 @@
++import http from "@/api/http";
++
++export interface ServerFolder {
++  id: number;
++  name: string;
++}
++const endpoint = "/api/client/account/server-folders";
++
++export async function getServerFolders(): Promise<ServerFolder[]> {
++  const { data } = await http.get(endpoint);
++  return data.data;
++}
++export async function saveServerFolder(
++  name: string,
++  id?: number,
++): Promise<void> {
++  if (id === undefined) await http.post(endpoint, { name });
++  else await http.put(`${endpoint}/${id}`, { name });
++}
++export async function deleteServerFolder(id: number): Promise<void> {
++  await http.delete(`${endpoint}/${id}`);
++}
++export async function assignServerFolder(
++  uuid: string,
++  folderId: number | null,
++): Promise<void> {
++  await http.put(`${endpoint}/servers/${uuid}`, { folder_id: folderId });
++}
+diff --git a/resources/scripts/assets/index.css b/resources/scripts/assets/index.css
+index eb4ab8856..8aea9aa50 100644
+--- a/resources/scripts/assets/index.css
++++ b/resources/scripts/assets/index.css
+@@ -715,6 +715,164 @@
+   display: grid;
+   gap: 12px;
+ }
++.server-folders {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  flex-wrap: wrap;
++  margin-bottom: 20px;
++}
++.server-folder-tabs {
++  display: flex;
++  flex: 1 1 240px;
++  gap: 6px;
++  min-width: 0;
++  overflow-x: auto;
++  padding-bottom: 4px;
++}
++.server-folder-tabs button {
++  display: inline-flex;
++  align-items: center;
++  gap: 7px;
++  flex-shrink: 0;
++  max-width: 240px;
++  overflow-wrap: anywhere;
++  padding: 8px 12px;
++  border: 1px solid #303942;
++  border-radius: 6px;
++  color: var(--panel-muted);
++  background: #151b21;
++  font-size: 13px;
++}
++.server-folder-tabs button[aria-pressed="true"] {
++  border-color: var(--color-primary-400);
++  color: var(--color-primary-200);
++  background: color-mix(in srgb, var(--panel-accent) 12%, #151b21);
++}
++.server-folder-tabs svg {
++  flex-shrink: 0;
++}
++.server-folder-actions {
++  display: flex;
++  gap: 6px;
++  flex-wrap: wrap;
++}
++.server-folder-control {
++  position: relative;
++  z-index: 3;
++  max-width: min(100%, 180px);
++  cursor: default;
++}
++.server-folder-chip {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  max-width: 100%;
++  min-height: 28px;
++  padding: 3px 7px;
++  border: 1px dashed #39434d;
++  border-radius: 5px;
++  color: var(--panel-muted);
++  background: transparent;
++  font-size: 12px;
++  line-height: 1.4;
++  text-align: start;
++  transition:
++    background 150ms,
++    border-color 150ms,
++    color 150ms;
++}
++.server-folder-chip[data-assigned="true"] {
++  border-style: solid;
++  border-color: color-mix(in srgb, var(--panel-accent) 22%, #303942);
++  background: color-mix(in srgb, var(--panel-accent) 6%, transparent);
++  color: var(--color-primary-200);
++}
++.server-folder-chip:hover,
++.server-folder-chip[aria-expanded="true"] {
++  background: #26323a;
++  border-color: var(--color-primary-400);
++  color: var(--color-primary-200);
++}
++.server-folder-chip:focus-visible {
++  outline: 2px solid var(--color-primary-300);
++  outline-offset: 3px;
++}
++.server-folder-chip:disabled {
++  opacity: 0.6;
++  cursor: wait;
++}
++.server-folder-chip svg {
++  flex-shrink: 0;
++}
++.server-folder-chip > span {
++  min-width: 0;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++}
++.server-folder-chevron {
++  opacity: 0.65;
++}
++.server-folder-menu {
++  width: 230px;
++  max-width: calc(100vw - 24px);
++  max-height: min(320px, var(--available-height, 320px));
++  overflow-y: auto;
++  padding: 5px;
++  border: 1px solid #39434d;
++  border-radius: 8px;
++  background: #1c232a;
++  box-shadow: 0 12px 30px #0006;
++  outline: none;
++}
++.server-folder-menu-title {
++  padding: 7px 9px;
++  font-size: 11px;
++  font-weight: 600;
++  color: var(--panel-muted);
++}
++.server-folder-option {
++  display: flex;
++  align-items: center;
++  gap: 9px;
++  min-height: 36px;
++  padding: 8px 9px;
++  border-radius: 4px;
++  color: #bbc2ca;
++  cursor: pointer;
++  outline: none;
++  font-size: 13px;
++}
++.server-folder-option > span:first-of-type {
++  flex: 1;
++  min-width: 0;
++  overflow-wrap: anywhere;
++}
++.server-folder-option > svg {
++  flex-shrink: 0;
++}
++.server-folder-option[data-highlighted] {
++  background: #2a343e;
++  color: #f5f6f7;
++}
++.server-folder-option[data-checked] {
++  color: var(--color-primary-200);
++}
++.server-folder-option[data-disabled] {
++  opacity: 0.5;
++  cursor: wait;
++}
++.server-row-metadata {
++  display: flex;
++  align-items: center;
++  flex-wrap: wrap;
++  gap: 8px 12px;
++  margin-top: 8px;
++}
++.server-row-metadata .server-metadata {
++  margin-top: 0;
++}
+ .server-row {
+   position: relative;
+   cursor: pointer;
+@@ -1985,7 +2143,10 @@
+   font-weight: 600;
+   line-height: 1.4;
+   box-shadow: 0 1px 3px rgb(0 0 0 / 15%);
+-  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
++  transition:
++    background-color 150ms ease,
++    border-color 150ms ease,
++    color 150ms ease;
+ }
+ 
+ .console-power-button svg {
+@@ -2020,14 +2181,26 @@
+ }
+ 
+ .console-power-actions > .console-power-button--stop {
+-  border-color: color-mix(in srgb, var(--color-red-400) 40%, var(--panel-border));
+-  background: color-mix(in srgb, var(--color-red-500) 10%, var(--panel-surface));
++  border-color: color-mix(
++    in srgb,
++    var(--color-red-400) 40%,
++    var(--panel-border)
++  );
++  background: color-mix(
++    in srgb,
++    var(--color-red-500) 10%,
++    var(--panel-surface)
++  );
+   color: var(--color-red-300);
+ }
+ 
+ .console-power-actions > .console-power-button--stop:hover:not(:disabled) {
+   border-color: var(--color-red-400);
+-  background: color-mix(in srgb, var(--color-red-500) 20%, var(--panel-surface));
++  background: color-mix(
++    in srgb,
++    var(--color-red-500) 20%,
++    var(--panel-surface)
++  );
+   color: var(--color-red-200);
+ }
+ 
+@@ -2042,7 +2215,7 @@
+   background: var(--color-neutral-800);
+   color: var(--color-neutral-400);
+   box-shadow: none;
+-  opacity: .65;
++  opacity: 0.65;
+ }
+ 
+ .console-power-actions > .console-power-button:focus-visible {
+@@ -2324,7 +2497,7 @@ code[data-sensitive] {
+   @apply flex flex-wrap items-center gap-2.5;
+ }
+ .trash-status {
+-  @apply inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-2xs leading-4 font-medium;
++  @apply text-2xs inline-flex items-center gap-1 rounded border px-1.5 py-0.5 leading-4 font-medium;
+ }
+ .trash-status--ready {
+   @apply border-primary-500/20 bg-primary-500/10 text-primary-200;
+diff --git a/resources/scripts/components/dashboard/DashboardContainer.spec.tsx b/resources/scripts/components/dashboard/DashboardContainer.spec.tsx
+index f02b5d7ff..cc91ca229 100644
+--- a/resources/scripts/components/dashboard/DashboardContainer.spec.tsx
++++ b/resources/scripts/components/dashboard/DashboardContainer.spec.tsx
+@@ -19,8 +19,25 @@ vi.mock("@/api/getServers", () => ({
+ }));
+ 
+ vi.mock("@/components/dashboard/ServerRow", () => ({
+-  default: ({ server }: any) => (
+-    <div data-testid="server-row">{server.name}</div>
++  default: ({ server, folders }: any) => (
++    <div
++      data-testid="server-row"
++      data-folders={folders === undefined ? "hidden" : "visible"}
++    >
++      {server.name}
++    </div>
++  ),
++}));
++vi.mock("@/api/serverFolders", () => ({
++  getServerFolders: vi.fn().mockResolvedValue([]),
++}));
++vi.mock("./ServerFolderBar", () => ({
++  default: ({ onSelect, onChange }: any) => (
++    <>
++      <button onClick={() => onSelect("1")}>Filter folder</button>
++      <button onClick={() => onSelect("all")}>Filter all</button>
++      <button onClick={onChange}>Refresh folders</button>
++    </>
+   ),
+ }));
+ 
+@@ -75,10 +92,26 @@ let mockServersData: any = {
+ let mockIsLoading = false;
+ let mockIsValidating = false;
+ let mockError: any = null;
++let mockFolderError: any = null;
++let mockFoldersData: any = [];
++const mockRefreshFolders = vi.fn().mockResolvedValue(undefined);
+ const mockMutate = vi.fn();
++const mockFolderQuery = vi.fn();
+ 
+ vi.mock("@/lib/queryClient", () => ({
+   useTanStackQuery: (_key: any, fetcher?: () => any) => {
++    if (_key === null) {
++      mockFolderQuery(null);
++      return { data: undefined, error: null, mutate: mockRefreshFolders };
++    }
++    if (_key[0] === "/api/client/server-folders") {
++      mockFolderQuery(_key);
++      return {
++        data: mockFoldersData,
++        error: mockFolderError,
++        mutate: mockRefreshFolders,
++      };
++    }
+     if (fetcher) {
+       fetcher();
+     }
+@@ -93,9 +126,11 @@ vi.mock("@/lib/queryClient", () => ({
+ }));
+ 
+ let mockRootAdmin = true;
++let mockSettings: any;
+ vi.mock("@/state", () => ({
+   useAppStore: (selector: any) =>
+     selector({
++      settings: { data: mockSettings },
+       user: {
+         data: {
+           uuid: "user-uuid-1",
+@@ -126,10 +161,13 @@ describe("components/dashboard/DashboardContainer", () => {
+   beforeEach(() => {
+     vi.clearAllMocks();
+     mockRootAdmin = true;
++    mockSettings = undefined;
+     mockShowOnlyAdmin = false;
+     mockIsLoading = false;
+     mockIsValidating = false;
+     mockError = null;
++    mockFolderError = null;
++    mockFoldersData = [];
+     mockServersData = {
+       items: [
+         {
+@@ -171,6 +209,38 @@ describe("components/dashboard/DashboardContainer", () => {
+     expect(getServers).toHaveBeenCalled();
+   });
+ 
++  it.each([
++    undefined,
++    {},
++    { features: {} },
++    { features: { serverFolders: true } },
++  ])("keeps folders available by default and when enabled (%j)", (settings) => {
++    mockSettings = settings;
++    renderComponent();
++    expect(screen.getByText("Filter folder")).toBeDefined();
++    expect(mockFolderQuery).toHaveBeenCalledWith([
++      "/api/client/server-folders",
++      "user-uuid-1",
++    ]);
++  });
++
++  it("hides folder controls and ignores saved folder links when disabled", () => {
++    mockSettings = { features: { serverFolders: false } };
++    mockFoldersData = [{ id: 1, name: "Existing" }];
++    renderComponent("?folder=1");
++    expect(mockFolderQuery).toHaveBeenCalledWith(null);
++    expect(screen.queryByText("Filter folder")).toBeNull();
++    expect(screen.getByTestId("server-row").getAttribute("data-folders")).toBe(
++      "hidden",
++    );
++    expect(getServers).toHaveBeenLastCalledWith(
++      expect.objectContaining({ folder: undefined }),
++    );
++    expect(new URLSearchParams(window.location.search).has("folder")).toBe(
++      false,
++    );
++  });
++
+   it("filters search input, triggers debounced search, and clears search text", () => {
+     vi.useFakeTimers();
+     renderComponent("?q=initial");
+@@ -344,4 +414,52 @@ describe("components/dashboard/DashboardContainer", () => {
+     const refreshBtn = screen.getByLabelText("Refresh servers");
+     expect(refreshBtn).toHaveProperty("disabled", true);
+   });
++
++  it("preserves folder links and resets pagination when changing folders", async () => {
++    renderComponent("?folder=2&page=3");
++    expect(getServers).toHaveBeenLastCalledWith(
++      expect.objectContaining({ folder: "2", page: 3 }),
++    );
++    fireEvent.click(screen.getByText("Filter folder"));
++    expect(getServers).toHaveBeenLastCalledWith(
++      expect.objectContaining({ folder: "1", page: 1 }),
++    );
++    expect(new URLSearchParams(window.location.search).get("folder")).toBe("1");
++    await act(async () => fireEvent.click(screen.getByText("Refresh folders")));
++    expect(mockRefreshFolders).toHaveBeenCalled();
++    expect(mockMutate).toHaveBeenCalled();
++    fireEvent.click(screen.getByText("Filter all"));
++    expect(getServers).toHaveBeenLastCalledWith(
++      expect.objectContaining({ folder: undefined }),
++    );
++  });
++
++  it("explains how to add servers to an empty folder", () => {
++    mockServersData.items = [];
++    renderComponent("?folder=1");
++    expect(screen.getByText("No servers in this folder")).toBeDefined();
++    expect(screen.getByText(/Choose All servers/)).toBeDefined();
++  });
++
++  it("reports folder loading failures", () => {
++    mockFoldersData = undefined;
++    mockFolderError = new Error("Folders unavailable");
++    renderComponent();
++    expect(mockClearAndAddHttpError).toHaveBeenCalledWith({
++      key: "dashboard",
++      error: mockFolderError,
++    });
++  });
++
++  it("advertises owner searches only in the admin view", () => {
++    mockShowOnlyAdmin = true;
++    mockServersData.items = [];
++    renderComponent("?q=nobody@example.test");
++    expect(screen.getByRole("searchbox").getAttribute("placeholder")).toContain(
++      "username or email",
++    );
++    expect(
++      screen.getByText(/Try a server name, address, owner username or email/),
++    ).toBeDefined();
++  });
+ });
+diff --git a/resources/scripts/components/dashboard/DashboardContainer.tsx b/resources/scripts/components/dashboard/DashboardContainer.tsx
+index d452c05b4..fe3efdcf4 100644
+--- a/resources/scripts/components/dashboard/DashboardContainer.tsx
++++ b/resources/scripts/components/dashboard/DashboardContainer.tsx
+@@ -20,6 +20,8 @@ import { usePersistedState } from "@/plugins/usePersistedState";
+ import { useTanStackQuery } from "@/lib/queryClient";
+ import { PaginatedResult } from "@/api/http";
+ import Pagination from "@/components/elements/Pagination";
++import ServerFolderBar from "./ServerFolderBar";
++import { getServerFolders, ServerFolder } from "@/api/serverFolders";
+ 
+ import BeforeContent from "@blueprint/components/Dashboard/Serverlist/BeforeContent";
+ import AfterContent from "@blueprint/components/Dashboard/Serverlist/AfterContent";
+@@ -28,12 +30,17 @@ export default () => {
+   const { t } = usePanelTranslation();
+   const { search } = useLocation();
+   const params = new URLSearchParams(search);
++  const foldersEnabled = useAppStore(
++    (state) => state.settings.data?.features?.serverFolders !== false,
++  );
+   const defaultPage = Number(params.get("page") || "1");
+   const [page, setPage] = useState(
+     Number.isInteger(defaultPage) && defaultPage > 0 ? defaultPage : 1,
+   );
+   const [searchText, setSearchText] = useState(params.get("q") || "");
+   const [query, setQuery] = useState(searchText.trim());
++  const [storedFolder, setFolder] = useState(params.get("folder") || "all");
++  const folder = foldersEnabled ? storedFolder : "all";
+   const [, startTransition] = useTransition();
+   const { clearFlashes, clearAndAddHttpError } = useFlash();
+   const uuid = useAppStore((state) => state.user.data!.uuid);
+@@ -42,6 +49,14 @@ export default () => {
+     uuid + ":show_all_servers",
+     false,
+   );
++  const {
++    data: folders,
++    error: folderError,
++    mutate: refreshFolders,
++  } = useTanStackQuery<ServerFolder[]>(
++    foldersEnabled ? ["/api/client/server-folders", uuid] : null,
++    getServerFolders,
++  );
+ 
+   const {
+     data: servers,
+@@ -49,12 +64,13 @@ export default () => {
+     mutate,
+     isValidating,
+   } = useTanStackQuery<PaginatedResult<Server>>(
+-    ["/api/client/servers", showOnlyAdmin && rootAdmin, page, query],
++    ["/api/client/servers", showOnlyAdmin && rootAdmin, page, query, folder],
+     () =>
+       getServers({
+         page,
+         query: query || undefined,
+         type: showOnlyAdmin && rootAdmin ? "admin" : undefined,
++        folder: folder === "all" ? undefined : folder,
+       }),
+   );
+ 
+@@ -80,18 +96,21 @@ export default () => {
+     else params.delete("page");
+     if (query) params.set("q", query);
+     else params.delete("q");
++    if (folder !== "all") params.set("folder", folder);
++    else params.delete("folder");
+     const suffix = params.toString();
+     window.history.replaceState(
+       null,
+       document.title,
+       "/" + (suffix ? "?" + suffix : ""),
+     );
+-  }, [page, query]);
++  }, [page, query, folder]);
+ 
+   useEffect(() => {
+-    if (error) clearAndAddHttpError({ key: "dashboard", error });
++    if (error || folderError)
++      clearAndAddHttpError({ key: "dashboard", error: error || folderError });
+     else clearFlashes("dashboard");
+-  }, [error]);
++  }, [error, folderError]);
+ 
+   const changeScope = (otherServers: boolean) => {
+     setShowOnlyAdmin(otherServers);
+@@ -166,7 +185,14 @@ export default () => {
+             value={searchText}
+             onChange={(event) => setSearchText(event.target.value)}
+             aria-label={t("dashboard.search_servers", "Search servers")}
+-            placeholder={t("dashboard.search_servers_2", "Search servers…")}
++            placeholder={
++              showOnlyAdmin && rootAdmin
++                ? t(
++                    "folders.owner_search",
++                    "Search servers, username or email…",
++                  )
++                : t("dashboard.search_servers_2", "Search servers…")
++            }
+           />
+           {searchText && (
+             <button
+@@ -199,6 +225,20 @@ export default () => {
+           />
+         </button>
+       </div>
++      {foldersEnabled && (
++        <ServerFolderBar
++          folders={folders ?? []}
++          active={folder}
++          onSelect={(value) => {
++            setFolder(value);
++            setPage(1);
++          }}
++          onChange={async () => {
++            await refreshFolders();
++            await mutate();
++          }}
++        />
++      )}
+       <div className={"server-results"} aria-busy={isValidating}>
+         {error && !servers ? (
+           <div className={"server-empty"}>
+@@ -231,7 +271,11 @@ export default () => {
+               items.length > 0 ? (
+                 <div className={"server-list"}>
+                   {items.map((server) => (
+-                    <ServerRow key={server.uuid} server={server} />
++                    <ServerRow
++                      key={server.uuid}
++                      server={server}
++                      folders={foldersEnabled ? folders : undefined}
++                    />
+                   ))}
+                 </div>
+               ) : (
+@@ -249,31 +293,43 @@ export default () => {
+                           "dashboard.no_matching_servers",
+                           "No matching servers",
+                         )
+-                      : showOnlyAdmin
+-                        ? t("dashboard.no_other_servers", "No other servers")
+-                        : t("dashboard.no_servers_yet", "No servers yet")}
++                      : folder !== "all"
++                        ? t("folders.empty", "No servers in this folder")
++                        : showOnlyAdmin
++                          ? t("dashboard.no_other_servers", "No other servers")
++                          : t("dashboard.no_servers_yet", "No servers yet")}
+                   </h2>
+                   <p>
+                     {query
+-                      ? t(
+-                          "dashboard.no_search_matches",
+-                          "We couldn’t find a server matching “{{query}}”. Try a different name or address.",
+-                          { query },
+-                        )
+-                      : showOnlyAdmin
++                      ? showOnlyAdmin && rootAdmin
++                        ? t(
++                            "folders.owner_no_matches",
++                            "No servers match this search. Try a server name, address, owner username or email.",
++                          )
++                        : t(
++                            "dashboard.no_search_matches",
++                            "We couldn’t find a server matching “{{query}}”. Try a different name or address.",
++                            { query },
++                          )
++                      : folder !== "all"
+                         ? t(
+-                            "dashboard.servers_belonging_to_other_users_will_appear_here",
+-                            "Servers belonging to other users will appear here.",
++                            "folders.empty_help",
++                            "Choose All servers, then use a server’s folder control to organise your list.",
+                           )
+-                        : rootAdmin
++                        : showOnlyAdmin
+                           ? t(
+-                              "dashboard.create_a_server_in_the_admin_panel_or_assign_an",
+-                              "Create a server in the admin panel, or assign an existing server to your account.",
++                              "dashboard.servers_belonging_to_other_users_will_appear_here",
++                              "Servers belonging to other users will appear here.",
+                             )
+-                          : t(
+-                              "dashboard.when_a_server_is_assigned_to_your_account_you_ll",
+-                              "When a server is assigned to your account, you’ll find it here. Contact your administrator to get started.",
+-                            )}
++                          : rootAdmin
++                            ? t(
++                                "dashboard.create_a_server_in_the_admin_panel_or_assign_an",
++                                "Create a server in the admin panel, or assign an existing server to your account.",
++                              )
++                            : t(
++                                "dashboard.when_a_server_is_assigned_to_your_account_you_ll",
++                                "When a server is assigned to your account, you’ll find it here. Contact your administrator to get started.",
++                              )}
+                   </p>
+                   {query ? (
+                     <button
+diff --git a/resources/scripts/components/dashboard/ServerFolderBar.tsx b/resources/scripts/components/dashboard/ServerFolderBar.tsx
+new file mode 100644
+index 000000000..09169779c
+--- /dev/null
++++ b/resources/scripts/components/dashboard/ServerFolderBar.tsx
+@@ -0,0 +1,208 @@
++import React, { useState } from "react";
++import { Folder, FolderOpen, FolderPlus, Pencil, Trash2 } from "lucide-react";
++import {
++  ServerFolder,
++  saveServerFolder,
++  deleteServerFolder,
++} from "@/api/serverFolders";
++import { httpErrorToHuman } from "@/api/http";
++import { Dialog } from "@/components/elements/dialog";
++import Input from "@/components/elements/Input";
++import { Button } from "@/components/elements/button/index";
++import usePanelTranslation from "@/plugins/usePanelTranslation";
++
++interface Props {
++  folders: ServerFolder[];
++  active: string;
++  onSelect: (folder: string) => void;
++  onChange: () => Promise<unknown>;
++}
++export default function ServerFolderBar({
++  folders,
++  active,
++  onSelect,
++  onChange,
++}: Props) {
++  const { t } = usePanelTranslation();
++  const [dialog, setDialog] = useState<{
++    kind: "create" | "rename" | "delete";
++    folder?: ServerFolder;
++  } | null>(null);
++  const [name, setName] = useState("");
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState("");
++  const current = folders.find((folder) => String(folder.id) === active);
++  const open = (
++    kind: "create" | "rename" | "delete",
++    folder?: ServerFolder,
++  ) => {
++    setName(folder?.name ?? "");
++    setError("");
++    setDialog({ kind, folder });
++  };
++  const save = async (event: React.FormEvent) => {
++    event.preventDefault();
++    const operation = dialog!;
++    setBusy(true);
++    setError("");
++    try {
++      if (operation.kind === "delete") {
++        await deleteServerFolder(operation.folder!.id);
++        onSelect("all");
++      } else await saveServerFolder(name.trim(), operation.folder?.id);
++      await onChange();
++      setDialog(null);
++    } catch (error) {
++      setError(httpErrorToHuman(error));
++    } finally {
++      setBusy(false);
++    }
++  };
++  return (
++    <>
++      <div
++        className="server-folders"
++        aria-label={t("folders.title", "Server folders")}
++      >
++        <div
++          className="server-folder-tabs"
++          role="group"
++          aria-label={t("folders.filter", "Filter by folder")}
++        >
++          <button
++            type="button"
++            aria-pressed={active === "all"}
++            onClick={() => onSelect("all")}
++          >
++            <FolderOpen size={15} aria-hidden />
++            {t("folders.all", "All servers")}
++          </button>
++          <button
++            type="button"
++            aria-pressed={active === "unfiled"}
++            onClick={() => onSelect("unfiled")}
++          >
++            {t("folders.unfiled", "Unfiled")}
++          </button>
++          {folders.map((folder) => (
++            <button
++              type="button"
++              key={folder.id}
++              aria-pressed={active === String(folder.id)}
++              onClick={() => onSelect(String(folder.id))}
++            >
++              <Folder size={14} aria-hidden />
++              {folder.name}
++            </button>
++          ))}
++        </div>
++        <div className="server-folder-actions">
++          {current && (
++            <>
++              <button
++                type="button"
++                className="refresh-servers"
++                aria-label={t("folders.rename", "Rename folder")}
++                title={t("folders.rename", "Rename folder")}
++                onClick={() => open("rename", current)}
++              >
++                <Pencil size={15} aria-hidden />
++              </button>
++              <button
++                type="button"
++                className="refresh-servers"
++                aria-label={t("folders.delete", "Delete folder")}
++                title={t("folders.delete", "Delete folder")}
++                onClick={() => open("delete", current)}
++              >
++                <Trash2 size={15} aria-hidden />
++              </button>
++            </>
++          )}
++          <button
++            type="button"
++            className="panel-link-button"
++            onClick={() => open("create")}
++          >
++            <FolderPlus size={15} aria-hidden />
++            {t("folders.create", "New folder")}
++          </button>
++        </div>
++      </div>
++      <Dialog
++        open={dialog !== null}
++        onClose={() => {
++          if (!busy) setDialog(null);
++        }}
++        preventExternalClose={busy}
++        title={
++          dialog?.kind === "delete"
++            ? t("folders.delete", "Delete folder")
++            : dialog?.kind === "rename"
++              ? t("folders.rename", "Rename folder")
++              : t("folders.create", "New folder")
++        }
++      >
++        <form id="server-folder-form" onSubmit={save}>
++          {dialog?.kind === "delete" ? (
++            <p className="text-sm text-neutral-300">
++              {t(
++                "folders.delete_help",
++                "Only the folder is removed. Your servers and their files will remain unchanged.",
++              )}
++            </p>
++          ) : (
++            <>
++              <label
++                htmlFor="server-folder-name"
++                className="mb-2 block text-sm"
++              >
++                {t("folders.name", "Folder name")}
++              </label>
++              <Input
++                id="server-folder-name"
++                value={name}
++                onChange={(event) => setName(event.target.value)}
++                maxLength={64}
++                required
++                disabled={busy}
++                autoFocus
++              />
++              <p className="mt-2 text-xs text-neutral-400">
++                {t(
++                  "folders.personal_help",
++                  "Folders are personal to your account and available on all your devices.",
++                )}
++              </p>
++            </>
++          )}
++          {error && (
++            <p role="alert" className="mt-3 text-sm text-red-300">
++              {error}
++            </p>
++          )}
++          <div className="mt-6 flex justify-end gap-3">
++            <Button.Text
++              type="button"
++              disabled={busy}
++              onClick={() => setDialog(null)}
++            >
++              {t("folders.cancel", "Cancel")}
++            </Button.Text>
++            <Button
++              type="submit"
++              form="server-folder-form"
++              disabled={busy || (dialog?.kind !== "delete" && !name.trim())}
++            >
++              {busy
++                ? t("folders.saving", "Saving...")
++                : dialog?.kind === "delete"
++                  ? t("folders.delete", "Delete folder")
++                  : t("folders.save", "Save")}
++            </Button>
++          </div>
++        </form>
++      </Dialog>
++    </>
++  );
++}
+diff --git a/resources/scripts/components/dashboard/ServerFolderSelect.tsx b/resources/scripts/components/dashboard/ServerFolderSelect.tsx
+new file mode 100644
+index 000000000..8091b45b1
+--- /dev/null
++++ b/resources/scripts/components/dashboard/ServerFolderSelect.tsx
+@@ -0,0 +1,122 @@
++import React, { useState } from "react";
++import { useQueryClient } from "@tanstack/react-query";
++import {
++  Check,
++  ChevronDown,
++  Folder,
++  FolderOpen,
++  LoaderCircle,
++} from "lucide-react";
++import { Menu } from "@base-ui/react/menu";
++import { Server } from "@/api/server/getServer";
++import { assignServerFolder, ServerFolder } from "@/api/serverFolders";
++import { httpErrorToHuman } from "@/api/http";
++import usePanelTranslation from "@/plugins/usePanelTranslation";
++
++export default function ServerFolderSelect({
++  server,
++  folders,
++}: {
++  server: Server;
++  folders: ServerFolder[];
++}) {
++  const { t } = usePanelTranslation();
++  const client = useQueryClient();
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState("");
++  const current = folders.find((folder) => folder.id === server.folderId);
++  const label = current?.name ?? t("folders.add", "Add to folder");
++  const change = async (value: string) => {
++    setBusy(true);
++    setError("");
++    try {
++      await assignServerFolder(server.uuid, value ? Number(value) : null);
++      await client.invalidateQueries({ queryKey: ["/api/client/servers"] });
++    } catch (error) {
++      setError(httpErrorToHuman(error));
++    } finally {
++      setBusy(false);
++    }
++  };
++  return (
++    <div className="server-folder-control">
++      <Menu.Root>
++        <Menu.Trigger
++          className="server-folder-chip"
++          disabled={busy}
++          data-assigned={!!current}
++          title={label}
++          aria-label={t("folders.move_server", "Folder for {{name}}", {
++            name: server.name,
++          })}
++        >
++          {busy ? (
++            <LoaderCircle size={13} className="is-refreshing" aria-hidden />
++          ) : (
++            <Folder size={13} aria-hidden />
++          )}
++          <span>{label}</span>
++          <ChevronDown
++            size={11}
++            className="server-folder-chevron"
++            aria-hidden
++          />
++        </Menu.Trigger>
++        <Menu.Portal>
++          <Menu.Positioner
++            side="bottom"
++            align="start"
++            sideOffset={6}
++            collisionPadding={12}
++            className="z-50"
++          >
++            <Menu.Popup
++              className="server-folder-menu"
++              aria-label={t("folders.choose", "Move to folder")}
++            >
++              <p className="server-folder-menu-title" aria-hidden>
++                {t("folders.choose", "Move to folder")}
++              </p>
++              <Menu.RadioGroup
++                value={String(server.folderId ?? "")}
++                onValueChange={change}
++                disabled={busy}
++              >
++                <Menu.RadioItem
++                  value=""
++                  closeOnClick
++                  className="server-folder-option"
++                >
++                  <FolderOpen size={14} aria-hidden />
++                  <span>{t("folders.unfiled", "Unfiled")}</span>
++                  <Menu.RadioItemIndicator>
++                    <Check size={14} aria-hidden />
++                  </Menu.RadioItemIndicator>
++                </Menu.RadioItem>
++                {folders.map((folder) => (
++                  <Menu.RadioItem
++                    key={folder.id}
++                    value={String(folder.id)}
++                    closeOnClick
++                    className="server-folder-option"
++                  >
++                    <Folder size={14} aria-hidden />
++                    <span>{folder.name}</span>
++                    <Menu.RadioItemIndicator>
++                      <Check size={14} aria-hidden />
++                    </Menu.RadioItemIndicator>
++                  </Menu.RadioItem>
++                ))}
++              </Menu.RadioGroup>
++            </Menu.Popup>
++          </Menu.Positioner>
++        </Menu.Portal>
++      </Menu.Root>
++      {error && (
++        <p className="server-quick-error" role="alert">
++          {error}
++        </p>
++      )}
++    </div>
++  );
++}
+diff --git a/resources/scripts/components/dashboard/ServerFolders.spec.tsx b/resources/scripts/components/dashboard/ServerFolders.spec.tsx
+new file mode 100644
+index 000000000..0d9c316dc
+--- /dev/null
++++ b/resources/scripts/components/dashboard/ServerFolders.spec.tsx
+@@ -0,0 +1,228 @@
++import React from "react";
++import {
++  act,
++  fireEvent,
++  render,
++  screen,
++  waitFor,
++  within,
++} from "@testing-library/react";
++import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
++import { MemoryRouter } from "react-router";
++import ServerFolderBar from "./ServerFolderBar";
++import ServerFolderSelect from "./ServerFolderSelect";
++import ServerRow from "./ServerRow";
++import { Server } from "@/api/server/getServer";
++import {
++  saveServerFolder,
++  deleteServerFolder,
++  assignServerFolder,
++} from "@/api/serverFolders";
++
++vi.mock("@/api/serverFolders", () => ({
++  saveServerFolder: vi.fn(),
++  deleteServerFolder: vi.fn(),
++  assignServerFolder: vi.fn(),
++}));
++vi.mock("@/plugins/usePanelTranslation", () => ({
++  default: () => ({
++    t: (_key: string, fallback: string, values?: any) =>
++      fallback.replace("{{name}}", values?.name),
++  }),
++}));
++vi.mock("./ServerPlayerCount", () => ({ default: () => null }));
++vi.mock("@/api/server/getServerResourceUsage", () => ({
++  default: vi.fn().mockResolvedValue({
++    status: "running",
++    cpuUsagePercent: 1,
++    memoryUsageInBytes: 1,
++    diskUsageInBytes: 1,
++  }),
++}));
++
++const folders = [
++  { id: 1, name: "Minecraft" },
++  { id: 2, name: "Other games" },
++];
++const onSelect = vi.fn();
++const onChange = vi.fn().mockResolvedValue(undefined);
++beforeEach(() => vi.clearAllMocks());
++
++const bar = (active = "all") =>
++  render(
++    <ServerFolderBar
++      folders={folders}
++      active={active}
++      onSelect={onSelect}
++      onChange={onChange}
++    />,
++  );
++const click = (name: string) =>
++  fireEvent.click(screen.getByRole("button", { name }));
++const dialog = () => within(screen.getByRole("dialog"));
++
++it("filters folders and allows cancelling a new folder", async () => {
++  bar();
++  click("All servers");
++  click("Unfiled");
++  click("Minecraft");
++  expect(onSelect.mock.calls.map(([value]) => value)).toEqual([
++    "all",
++    "unfiled",
++    "1",
++  ]);
++  click("New folder");
++  expect(dialog().getByRole("button", { name: "Save" })).toHaveProperty(
++    "disabled",
++    true,
++  );
++  click("Cancel");
++  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
++});
++
++it("creates trimmed folder names and keeps a pending dialog open", async () => {
++  let resolve!: () => void;
++  vi.mocked(saveServerFolder).mockReturnValueOnce(
++    new Promise<void>((done) => {
++      resolve = done;
++    }),
++  );
++  bar();
++  click("New folder");
++  fireEvent.change(screen.getByLabelText("Folder name"), {
++    target: { value: "  Survival  " },
++  });
++  click("Save");
++  await waitFor(() =>
++    expect(saveServerFolder).toHaveBeenCalledWith("Survival", undefined),
++  );
++  expect(screen.getByRole("button", { name: "Saving..." })).toHaveProperty(
++    "disabled",
++    true,
++  );
++  fireEvent.keyDown(document.activeElement!, { key: "Escape" });
++  fireEvent.click(document.querySelector(".dialog_close_icon")!);
++  expect(screen.getByRole("dialog")).toBeDefined();
++  await act(async () => resolve());
++  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
++  expect(onChange).toHaveBeenCalled();
++});
++
++it("renames the selected folder", async () => {
++  bar("1");
++  click("Rename folder");
++  expect(screen.getByLabelText("Folder name")).toHaveProperty(
++    "value",
++    "Minecraft",
++  );
++  fireEvent.change(screen.getByLabelText("Folder name"), {
++    target: { value: "Production" },
++  });
++  click("Save");
++  await waitFor(() =>
++    expect(saveServerFolder).toHaveBeenCalledWith("Production", 1),
++  );
++});
++
++it("deletes only a folder after confirmation and resets the filter", async () => {
++  bar("1");
++  click("Delete folder");
++  expect(screen.getByText(/Only the folder is removed/)).toBeDefined();
++  fireEvent.click(dialog().getByRole("button", { name: "Delete folder" }));
++  await waitFor(() => expect(deleteServerFolder).toHaveBeenCalledWith(1));
++  expect(onSelect).toHaveBeenCalledWith("all");
++});
++
++it("shows saving errors and closes on Escape when idle", async () => {
++  vi.mocked(saveServerFolder).mockRejectedValueOnce(
++    new Error("Duplicate folder"),
++  );
++  bar();
++  click("New folder");
++  fireEvent.change(screen.getByLabelText("Folder name"), {
++    target: { value: "Minecraft" },
++  });
++  click("Save");
++  await waitFor(() =>
++    expect(screen.getByRole("alert").textContent).toContain("Duplicate folder"),
++  );
++  fireEvent.keyDown(document.activeElement!, { key: "Escape" });
++  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
++});
++
++const server = {
++  uuid: "uuid-folder",
++  id: "serv_folder",
++  name: "Survival",
++  node: "Local",
++  folderId: 1,
++  status: null,
++  allocations: [],
++  limits: { cpu: 100, memory: 1024, disk: 1024 },
++  userPermissions: [],
++} as unknown as Server;
++const move = (element: React.ReactNode) => {
++  const client = new QueryClient({
++    defaultOptions: { queries: { retry: false } },
++  });
++  const invalidate = vi.spyOn(client, "invalidateQueries");
++  const view = render(
++    <QueryClientProvider client={client}>
++      <MemoryRouter>{element}</MemoryRouter>
++    </QueryClientProvider>,
++  );
++  return { ...view, invalidate };
++};
++it("moves a server and removes it from its folder", async () => {
++  const { invalidate } = move(
++    <ServerFolderSelect server={server} folders={folders} />,
++  );
++  fireEvent.click(screen.getByRole("button", { name: "Folder for Survival" }));
++  fireEvent.click(
++    await screen.findByRole("menuitemradio", { name: "Other games" }),
++  );
++  await waitFor(() =>
++    expect(assignServerFolder).toHaveBeenCalledWith(server.uuid, 2),
++  );
++  await waitFor(() =>
++    expect(invalidate).toHaveBeenCalledWith({
++      queryKey: ["/api/client/servers"],
++    }),
++  );
++  await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
++  fireEvent.click(screen.getByRole("button", { name: "Folder for Survival" }));
++  fireEvent.click(
++    await screen.findByRole("menuitemradio", { name: "Unfiled" }),
++  );
++  await waitFor(() =>
++    expect(assignServerFolder).toHaveBeenLastCalledWith(server.uuid, null),
++  );
++});
++it("shows assignment failures without losing the current folder", async () => {
++  vi.mocked(assignServerFolder).mockRejectedValueOnce(
++    new Error("Access changed"),
++  );
++  move(<ServerFolderSelect server={server} folders={folders} />);
++  fireEvent.click(screen.getByRole("button", { name: "Folder for Survival" }));
++  fireEvent.click(
++    await screen.findByRole("menuitemradio", { name: "Other games" }),
++  );
++  await waitFor(() =>
++    expect(screen.getByRole("alert").textContent).toContain("Access changed"),
++  );
++  expect(
++    screen.getByRole("button", { name: "Folder for Survival" }).textContent,
++  ).toContain("Minecraft");
++});
++it("offers folder assignment on server rows including unfiled servers", async () => {
++  move(<ServerRow server={{ ...server, folderId: null }} folders={folders} />);
++  expect(
++    screen.getByRole("button", { name: "Folder for Survival" }).textContent,
++  ).toContain("Add to folder");
++  fireEvent.click(screen.getByRole("button", { name: "Folder for Survival" }));
++  expect(
++    (
++      await screen.findByRole("menuitemradio", { name: "Unfiled" })
++    ).getAttribute("aria-checked"),
++  ).toBe("true");
++});
+diff --git a/resources/scripts/components/dashboard/ServerRow.tsx b/resources/scripts/components/dashboard/ServerRow.tsx
+index a0646fa8e..4633b995d 100644
+--- a/resources/scripts/components/dashboard/ServerRow.tsx
++++ b/resources/scripts/components/dashboard/ServerRow.tsx
+@@ -6,6 +6,8 @@ import { useTanStackQuery } from "@/lib/queryClient";
+ import CountryFlag from "@/components/elements/CountryFlag";
+ import ServerPlayerCount from "./ServerPlayerCount";
+ import ServerQuickActions from "./ServerQuickActions";
++import ServerFolderSelect from "./ServerFolderSelect";
++import { ServerFolder } from "@/api/serverFolders";
+ import {
+   ArrowRight,
+   Cpu,
+@@ -35,9 +37,11 @@ const isAlarmState = (current: number, limit: number): boolean =>
+ export default ({
+   server,
+   className,
++  folders,
+ }: {
+   server: Server;
+   className?: string;
++  folders?: ServerFolder[];
+ }) => {
+   const { t } = usePanelTranslation();
+   const features = useAppStore((state) => state.settings.data?.features);
+@@ -194,29 +198,38 @@ export default ({
+             <Network size={12} aria-hidden />
+             <SensitiveValue>{address}</SensitiveValue>
+           </Link>
+-          <Link
+-            to={"/server/" + server.id}
+-            className={"server-metadata"}
+-            aria-label={t("server_list.open_node", "Open server on {{node}}", {
+-              node: server.node,
+-            })}
+-          >
+-            <span className={"server-node"}>
+-              <MapPin size={12} aria-hidden />
+-              <span>{server.node}</span>
+-              <CountryFlag
+-                code={server.nodeCountry}
+-                name={server.nodeCountryName}
+-              />
+-            </span>
+-            {features?.playerCounts !== false && (
+-              <ServerPlayerCount
+-                server={server}
+-                state={state}
+-                active={visible}
+-              />
++          <div className="server-row-metadata">
++            <Link
++              to={"/server/" + server.id}
++              className={"server-metadata"}
++              aria-label={t(
++                "server_list.open_node",
++                "Open server on {{node}}",
++                {
++                  node: server.node,
++                },
++              )}
++            >
++              <span className={"server-node"}>
++                <MapPin size={12} aria-hidden />
++                <span>{server.node}</span>
++                <CountryFlag
++                  code={server.nodeCountry}
++                  name={server.nodeCountryName}
++                />
++              </span>
++              {features?.playerCounts !== false && (
++                <ServerPlayerCount
++                  server={server}
++                  state={state}
++                  active={visible}
++                />
++              )}
++            </Link>
++            {folders && (
++              <ServerFolderSelect server={server} folders={folders} />
+             )}
+-          </Link>
++          </div>
+         </div>
+       </div>
+       <div className={"server-resources"}>
+diff --git a/resources/scripts/state/settings.ts b/resources/scripts/state/settings.ts
+index e73ee3f42..80269a2a4 100644
+--- a/resources/scripts/state/settings.ts
++++ b/resources/scripts/state/settings.ts
+@@ -18,6 +18,7 @@ export interface SiteSettings {
+     customProfilePictures: boolean;
+     privacyMode: boolean;
+     serverQuickActions: boolean;
++    serverFolders?: boolean;
+     registration: boolean;
+     consoleLogSharing?: boolean;
+     fileTrash?: boolean;
+diff --git a/resources/views/admin/settings/index.blade.php b/resources/views/admin/settings/index.blade.php
+index 43cf5c7d1..06701e553 100644
+--- a/resources/views/admin/settings/index.blade.php
++++ b/resources/views/admin/settings/index.blade.php
+@@ -66,6 +66,7 @@
+                                 'custom_profile_pictures' => [__('admin/ui.feature_custom_profile_pictures'), __('admin/ui.feature_custom_profile_pictures_description')],
+                                 'privacy_mode' => [__('admin/ui.feature_privacy_mode'), __('admin/ui.feature_privacy_mode_description')],
+                                 'server_quick_actions' => [__('admin/ui.feature_server_quick_actions'), __('admin/ui.feature_server_quick_actions_description')],
++                                'server_folders' => [__('admin/custom.server_folders'), __('admin/custom.server_folders_help')],
+                                 'registration' => [__('admin/ui.feature_registration'), __('admin/ui.feature_registration_description')],
+                                 'console_log_sharing' => [__('admin/custom.console_log_sharing'), __('admin/custom.console_log_sharing_help')],
+                                 'file_trash' => [__('admin/custom.file_trash'), __('admin/custom.file_trash_help')],
+diff --git a/routes/api-client.php b/routes/api-client.php
+index b85a79527..d53c35cf5 100644
+--- a/routes/api-client.php
++++ b/routes/api-client.php
+@@ -21,6 +21,12 @@ Route::get('/', [Client\ClientController::class, 'index'])->name('api:client.ind
+ Route::get('/permissions', [Client\ClientController::class, 'permissions']);
+ 
+ Route::prefix('/account')->middleware(AccountSubject::class)->group(function () {
++    Route::get('/server-folders', [Client\ServerFolderController::class, 'index']);
++    Route::post('/server-folders', [Client\ServerFolderController::class, 'store']);
++    Route::put('/server-folders/{folder}', [Client\ServerFolderController::class, 'update'])->whereNumber('folder');
++    Route::delete('/server-folders/{folder}', [Client\ServerFolderController::class, 'destroy'])->whereNumber('folder');
++    Route::put('/server-folders/servers/{server}', [Client\ServerFolderController::class, 'assign']);
++
+     Route::prefix('/')->withoutMiddleware(RequireTwoFactorAuthentication::class)->group(function () {
+         Route::get('/', [Client\AccountController::class, 'index'])->name('api:client.account');
+         Route::get('/two-factor', [Client\TwoFactorController::class, 'index']);
+diff --git a/tests/Integration/Api/Client/ServerFoldersTest.php b/tests/Integration/Api/Client/ServerFoldersTest.php
+new file mode 100644
+index 000000000..9df54a1df
+--- /dev/null
++++ b/tests/Integration/Api/Client/ServerFoldersTest.php
+@@ -0,0 +1,148 @@
++<?php
++
++use Pterodactyl\Models\User;
++use Pterodactyl\Models\Subuser;
++use Illuminate\Support\Facades\DB;
++
++test('personal folders can be created renamed and listed across requests', function () {
++    $user = User::factory()->create();
++    $other = User::factory()->create();
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => '  Production  '])
++        ->assertOk()->assertJsonPath('name', 'Production')->json('id');
++    $this->actingAs($other)->postJson('/api/client/account/server-folders', ['name' => 'Production'])->assertOk();
++    $this->actingAs($user)->putJson("/api/client/account/server-folders/$id", ['name' => 'Minecraft'])->assertOk();
++    $this->getJson('/api/client/account/server-folders')->assertOk()->assertExactJson(['data' => [['id' => $id, 'name' => 'Minecraft']]]);
++});
++
++test('folder names are validated', function (mixed $name) {
++    $user = User::factory()->create();
++    $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => $name])
++        ->assertUnprocessable()->assertJsonPath('errors.0.meta.source_field', 'name');
++})->with(['empty' => [' '], 'long' => [str_repeat('a', 65)], 'array' => [[]]]);
++
++test('duplicate personal folder names are rejected', function () {
++    $user = User::factory()->create();
++    $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Games'])->assertOk();
++    $this->postJson('/api/client/account/server-folders', ['name' => 'Games'])->assertUnprocessable();
++});
++
++test('another users folders cannot be renamed deleted or used as a filter', function (string $operation) {
++    $users = User::factory()->count(2)->create();
++    $id = $this->actingAs($users[0])->postJson('/api/client/account/server-folders', ['name' => 'Private'])->json('id');
++    $this->actingAs($users[1]);
++    (match ($operation) {
++        'rename' => $this->putJson("/api/client/account/server-folders/$id", ['name' => 'Changed']),
++        'delete' => $this->deleteJson("/api/client/account/server-folders/$id"),
++        'filter' => $this->getJson("/api/client?folder=$id"),
++    })->assertNotFound();
++})->with(['rename', 'delete', 'filter']);
++
++test('server folders filter before pagination and can be cleared', function () {
++    [$user, $first] = $this->generateTestAccount();
++    $second = $this->createServerModel(['user_id' => $user->id]);
++    $third = $this->createServerModel(['user_id' => $user->id]);
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Games'])->json('id');
++    foreach ([$first, $second] as $server) {
++        $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])->assertNoContent();
++    }
++    $this->getJson("/api/client?folder=$id&per_page=1&page=2")->assertOk()
++        ->assertJsonPath('meta.pagination.total', 2)->assertJsonCount(1, 'data')
++        ->assertJsonPath('data.0.attributes.uuid', $second->uuid)->assertJsonPath('data.0.attributes.folder_id', $id);
++    $this->getJson('/api/client?folder=unfiled')->assertOk()->assertJsonCount(1, 'data')
++        ->assertJsonPath('data.0.attributes.uuid', $third->uuid)->assertJsonPath('data.0.attributes.folder_id', null);
++    $this->putJson("/api/client/account/server-folders/servers/$second->uuid", ['folder_id' => null])->assertNoContent();
++    $this->getJson('/api/client?folder=unfiled')->assertOk()->assertJsonCount(2, 'data');
++});
++
++test('subusers can organise a shared server independently of its owner', function () {
++    [$owner, $server] = $this->generateTestAccount();
++    $subuser = User::factory()->create();
++    Subuser::query()->create(['user_id' => $subuser->id, 'server_id' => $server->id, 'permissions' => []]);
++    foreach ([$owner, $subuser] as $user) {
++        $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'My games'])->json('id');
++        $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])->assertNoContent();
++        $this->getJson('/api/client')->assertOk()->assertJsonPath('data.0.attributes.folder_id', $id);
++    }
++    $ownerFolder = DB::table('server_folders')->where('user_id', $owner->id)->value('id');
++    $this->actingAs($owner)->getJson('/api/client')->assertOk()->assertJsonPath('data.0.attributes.folder_id', $ownerFolder);
++    $this->deleteJson("/api/client/account/server-folders/$ownerFolder")->assertNoContent();
++    $this->assertDatabaseHas('servers', ['id' => $server->id]);
++    expect(DB::table('server_folder_assignments')->where('user_id', $owner->id)->count())->toBe(0)
++        ->and(DB::table('server_folder_assignments')->where('user_id', $subuser->id)->count())->toBe(1);
++});
++
++test('folder assignments cannot use another accounts folder', function () {
++    [$user, $server] = $this->generateTestAccount();
++    $other = User::factory()->create();
++    $id = $this->actingAs($other)->postJson('/api/client/account/server-folders', ['name' => 'Private'])->json('id');
++    $this->actingAs($user)->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])
++        ->assertUnprocessable()->assertJsonPath('errors.0.meta.source_field', 'folder_id');
++});
++
++test('folder assignment requires access to the server even when removing an assignment', function (bool $remove) {
++    [$owner, $server] = $this->generateTestAccount();
++    $user = User::factory()->create();
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Mine'])->json('id');
++    $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $remove ? null : $id])->assertNotFound();
++})->with([false, true]);
++
++test('revoking subuser access also removes that server from folder results', function () {
++    [$owner, $server] = $this->generateTestAccount();
++    $user = User::factory()->create();
++    $subuser = Subuser::query()->create(['user_id' => $user->id, 'server_id' => $server->id, 'permissions' => []]);
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Shared'])->json('id');
++    $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])->assertNoContent();
++    $subuser->delete();
++    $this->getJson("/api/client?folder=$id")->assertOk()->assertJsonCount(0, 'data');
++    $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => null])->assertNotFound();
++});
++
++test('admins can organise other servers without changing their owner', function () {
++    [$owner, $server] = $this->generateTestAccount();
++    $admin = User::factory()->create(['root_admin' => true]);
++    $id = $this->actingAs($admin)->postJson('/api/client/account/server-folders', ['name' => 'Customers'])->json('id');
++    $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])->assertNoContent();
++    $this->getJson("/api/client?type=admin&folder=$id")->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.attributes.folder_id', $id);
++    expect($server->fresh()->owner_id)->toBe($owner->id);
++    $this->actingAs($owner)->getJson('/api/client')->assertOk()->assertJsonPath('data.0.attributes.folder_id', null);
++    $server->delete();
++    $this->assertDatabaseCount('server_folder_assignments', 0);
++});
++
++test('invalid folder query parameters are rejected', function (string $folder) {
++    $user = User::factory()->create();
++    $this->actingAs($user)->getJson('/api/client?folder=' . urlencode($folder))->assertUnprocessable();
++})->with(['0', '-1', 'abc', '1 OR 1=1']);
++
++test('disabled folders reject all folder operations for users and admins', function (bool $admin) {
++    [$user, $server] = $this->generateTestAccount();
++    $user->forceFill(['root_admin' => $admin])->save();
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Saved'])->json('id');
++    config()->set('aquadactyl.features.server_folders', false);
++    $this->getJson('/api/client/account/server-folders')->assertForbidden();
++    $this->postJson('/api/client/account/server-folders', ['name' => 'New'])->assertForbidden();
++    $this->putJson("/api/client/account/server-folders/$id", ['name' => 'Changed'])->assertForbidden();
++    $this->deleteJson("/api/client/account/server-folders/$id")->assertForbidden();
++    $this->putJson("/api/client/account/server-folders/servers/$server->uuid", ['folder_id' => $id])->assertForbidden();
++    $this->assertDatabaseHas('server_folders', ['id' => $id, 'name' => 'Saved']);
++})->with([false, true]);
++
++test('disabling folders ignores old filters hides assignments and preserves saved organisation', function () {
++    [$user, $first] = $this->generateTestAccount();
++    $this->createServerModel(['user_id' => $user->id]);
++    $id = $this->actingAs($user)->postJson('/api/client/account/server-folders', ['name' => 'Keep'])->json('id');
++    $this->putJson("/api/client/account/server-folders/servers/$first->uuid", ['folder_id' => $id])->assertNoContent();
++    config()->set('aquadactyl.features.server_folders', false);
++    foreach ([$id, 'unfiled'] as $filter) {
++        DB::enableQueryLog();
++        $this->getJson("/api/client?folder=$filter")->assertOk()->assertJsonCount(2, 'data')
++            ->assertJsonPath('data.0.attributes.folder_id', null);
++        expect(collect(DB::getQueryLog())->pluck('query')->filter(fn ($sql) => str_contains($sql, 'server_folder')))->toBeEmpty();
++        DB::disableQueryLog();
++        DB::flushQueryLog();
++    }
++    config()->set('aquadactyl.features.server_folders', true);
++    $this->getJson('/api/client/account/server-folders')->assertOk()->assertJsonPath('data.0.name', 'Keep');
++    $this->getJson("/api/client?folder=$id")->assertOk()->assertJsonCount(1, 'data')
++        ->assertJsonPath('data.0.attributes.folder_id', $id);
++});
+diff --git a/tests/Integration/Api/Client/ServerOwnerSearchTest.php b/tests/Integration/Api/Client/ServerOwnerSearchTest.php
+new file mode 100644
+index 000000000..f9575ed2d
+--- /dev/null
++++ b/tests/Integration/Api/Client/ServerOwnerSearchTest.php
+@@ -0,0 +1,19 @@
++<?php
++
++use Pterodactyl\Models\User;
++
++test('admins can search other servers by owner username email and full name', function (string $query) {
++    $owner = User::factory()->create(['username' => 'uniquecustomer', 'email' => 'customer@example.test', 'name_first' => 'Alice', 'name_last' => 'Winters']);
++    $server = $this->createServerModel(['user_id' => $owner->id, 'name' => 'Survival']);
++    $this->createServerModel(['name' => 'Unrelated']);
++    $admin = User::factory()->create(['root_admin' => true]);
++    $this->actingAs($admin)->getJson('/api/client?type=admin&filter[*]=' . urlencode($query))->assertOk()
++        ->assertJsonCount(1, 'data')->assertJsonPath('data.0.attributes.uuid', $server->uuid);
++})->with(['UNIQUECUSTOMER', 'CUSTOMER@EXAMPLE.TEST', 'Alice Winters', 'winter']);
++
++test('owner searches never expose extra servers to regular users', function (string $type) {
++    [$user, $server] = $this->generateTestAccount();
++    $server->user->update(['username' => 'searchowner', 'email' => 'searchowner@example.test']);
++    $this->actingAs($user)->getJson('/api/client?type=' . $type . '&filter[*]=searchowner@example.test')
++        ->assertOk()->assertJsonCount(0, 'data');
++})->with(['admin', 'admin-all', 'owner', '']);
+diff --git a/tests/Integration/Api/Client/SiteSettingsControllerTest.php b/tests/Integration/Api/Client/SiteSettingsControllerTest.php
+index b5b6cd3be..6dcd5b906 100644
+--- a/tests/Integration/Api/Client/SiteSettingsControllerTest.php
++++ b/tests/Integration/Api/Client/SiteSettingsControllerTest.php
+@@ -8,7 +8,7 @@ use Pterodactyl\Providers\SettingsServiceProvider;
+ use Pterodactyl\Services\Settings\SiteLogoService;
+ use Pterodactyl\Contracts\Repository\SettingsRepositoryInterface;
+ 
+-const FEATURES = ['player_counts', 'custom_profile_pictures', 'privacy_mode', 'server_quick_actions', 'registration', 'console_log_sharing', 'file_trash'];
++const FEATURES = ['player_counts', 'custom_profile_pictures', 'privacy_mode', 'server_quick_actions', 'server_folders', 'registration', 'console_log_sharing', 'file_trash'];
+ 
+ beforeEach(function () {
+     Storage::fake('public');
+@@ -59,6 +59,7 @@ test('feature settings persist as booleans and reach the client', function () us
+             ->assertSee('"customProfilePictures":' . $input, false)
+             ->assertSee('"privacyMode":' . $input, false)
+             ->assertSee('"serverQuickActions":' . $input, false)
++            ->assertSee('"serverFolders":' . $input, false)
+             ->assertSee('"registration":' . $input, false)
+             ->assertSee('"consoleLogSharing":' . $input, false)
+             ->assertSee('"fileTrash":' . $input, false);

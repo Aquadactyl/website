@@ -6,8 +6,9 @@ import { createHash } from "node:crypto";
 const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const panel = read("public/benchmarks/panel-comparison.json");
 const daemon = read("public/benchmarks/daemon-comparison.json");
+const panelV2 = read("public/benchmarks/panel-v2-comparison.json");
 assert.ok(
-  panel.completedAt && daemon.completedAt,
+  panel.completedAt && daemon.completedAt && panelV2.completedAt,
   "Both comparisons must finish before publication.",
 );
 const median = (values) => {
@@ -45,12 +46,11 @@ const status = api("api_status", 16, "requests_per_second");
 const directory = api("directory_1000", 16, "p50_ms");
 const summary = {
   schemaVersion: 1,
-  measuredOn:
-    panel.measuredOn === daemon.measuredOn
-      ? panel.measuredOn
-      : `${panel.measuredOn} / ${daemon.measuredOn}`,
+  measuredOn: [
+    ...new Set([panel.measuredOn, panelV2.measuredOn, daemon.measuredOn]),
+  ].join(" / "),
   sources: Object.fromEntries(
-    ["panel", "daemon", "build"].map((id) => [
+    ["panel", "daemon", "build", "panel-v2"].map((id) => [
       id,
       {
         file: id === "build" ? "panels.json" : `${id}-comparison.json`,
@@ -66,7 +66,7 @@ const summary = {
   ),
   comparisons: {
     panel: {
-      label: "Panel vs Pterodactyl",
+      label: "Panel v1",
       measuredOn: panel.measuredOn,
       baseline: "Pterodactyl",
       candidate: "Aquadactyl",
@@ -102,6 +102,56 @@ const summary = {
           changeLabel: "memory",
           baseline: p.memory.loaded.panelWorkingSetBytes.median / 2 ** 20,
           candidate: a.memory.loaded.panelWorkingSetBytes.median / 2 ** 20,
+        },
+      ],
+    },
+    "panel-v2": {
+      label: "Panel v2 (beta)",
+      measuredOn: panelV2.measuredOn,
+      baseline: "Pterodactyl v2 beta 2",
+      candidate: "Aquadactyl",
+      href: "/docs/panel/panel-v2-comparison",
+      description: "50-server dashboard · 2 CPU cores per panel.",
+      metrics: [
+        {
+          id: "browser",
+          label: "Browser load",
+          context: "Cold-cache dashboard ready · median",
+          unit: "ms",
+          better: "lower",
+          changeLabel: "time",
+          baseline:
+            panelV2.panels.pterodactyl.browser.cold.dashboardReadyMs.median,
+          candidate:
+            panelV2.panels.aquadactyl.browser.cold.dashboardReadyMs.median,
+        },
+        {
+          id: "api",
+          label: "API throughput",
+          context: "50-server list · 16 concurrent requests",
+          unit: "req/s",
+          better: "higher",
+          changeLabel: "throughput",
+          baseline:
+            panelV2.panels.pterodactyl.api.servers[16].requestsPerSecond.median,
+          candidate:
+            panelV2.panels.aquadactyl.api.servers[16].requestsPerSecond.median,
+        },
+        {
+          id: "memory",
+          label: "Memory use",
+          context: "Panel container under API load · median",
+          unit: "MiB",
+          better: "lower",
+          changeLabel: "memory",
+          baseline:
+            panelV2.panels.pterodactyl.memory.loaded.panelWorkingSetBytes
+              .median /
+            2 ** 20,
+          candidate:
+            panelV2.panels.aquadactyl.memory.loaded.panelWorkingSetBytes
+              .median /
+            2 ** 20,
         },
       ],
     },
@@ -340,8 +390,9 @@ Keep the private manifest out of published artifacts. The runner creates a tempo
 `;
 const commands =
   "```powershell\n.\\benchmarks\\Run-Benchmark.ps1 -Phases lifecycle,performance,resources,security -OutputDirectory C:\\path\\to\\fresh-results\n```";
-fs.writeFileSync(
-  "docs/wings/benchmarks.mdx",
-  doc.replace("COMMANDS", commands),
-);
-console.log("Updated the two compact comparisons and full daemon methodology.");
+if (!process.argv.includes("--panel-only"))
+  fs.writeFileSync(
+    "docs/wings/benchmarks.mdx",
+    doc.replace("COMMANDS", commands),
+  );
+console.log("Updated three compact comparisons and the daemon methodology.");

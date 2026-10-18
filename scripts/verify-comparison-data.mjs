@@ -8,13 +8,15 @@ const hash = (file) =>
 const summary = read("public/benchmarks/comparison-summary.json");
 const panel = read("public/benchmarks/panel-comparison.json");
 const daemon = read("public/benchmarks/daemon-comparison.json");
+const panelV2 = read("public/benchmarks/panel-v2-comparison.json");
+const buildsV2 = read("public/benchmarks/panel-v2-builds.json");
 assert.ok(panel.completedAt && daemon.completedAt);
 assert.ok(
   Date.parse(daemon.completedAt) <= Date.parse(panel.startedAt) ||
     Date.parse(panel.completedAt) <= Date.parse(daemon.startedAt),
   "Measured workloads must not overlap.",
 );
-for (const id of ["panel", "daemon", "build"])
+for (const id of ["panel", "daemon", "build", "panel-v2"])
   assert.equal(
     summary.sources[id].sha256,
     hash(`public/benchmarks/${summary.sources[id].file}`),
@@ -111,6 +113,79 @@ assert.deepEqual(
     ],
   ],
 );
+assert.equal(panelV2.panels.pterodactyl.release, "v2.0.0-beta.2");
+assert.equal(panelV2.panels.aquadactyl.php, panelV2.panels.pterodactyl.php);
+assert.equal(
+  panelV2.panels.aquadactyl.phpFpmConfigSha256,
+  panelV2.panels.pterodactyl.phpFpmConfigSha256,
+);
+assert.equal(
+  panelV2.panels.aquadactyl.nginxConfigSha256,
+  panelV2.panels.pterodactyl.nginxConfigSha256,
+);
+assert.equal(
+  panelV2.panels.pterodactyl.revision,
+  "ea742d332f5861a81e502857446b8df9cb9f0254",
+);
+assert.equal(
+  hash("public/benchmarks/panel-v2-comparison-aquadactyl.patch"),
+  panelV2.panels.aquadactyl.sourcePatchSha256,
+);
+assert.equal(
+  hash("public/benchmarks/panel-v2-build-runner.txt"),
+  buildsV2.harnessSha256,
+);
+assert.ok(
+  buildsV2.completedAt <= panelV2.startedAt,
+  "Build timings must precede runtime measurements.",
+);
+for (const family of ["aquadactyl", "pterodactyl"]) {
+  const runtime = panelV2.panels[family],
+    build = buildsV2.panels[family];
+  assert.equal(runtime.revision, build.revision);
+  assert.match(runtime.php, /^8\.4\./);
+  assert.equal(runtime.resources.panel.nanoCpus, 2e9);
+  assert.equal(runtime.resources.panel.memoryBytes, 2 ** 30);
+  const samples = buildsV2.runs
+    .filter((row) => row.family === family)
+    .map((row) => row.elapsedMs);
+  assert.equal(samples.length, 5);
+  assert.deepEqual(build.buildMs.samples, samples);
+  assert.equal(build.buildMs.median, [...samples].sort((a, b) => a - b)[2]);
+  for (const asset of build.assets)
+    assert.equal(
+      runtime.frontendFiles.find((file) => file.file === asset.file)?.sha256,
+      asset.sha256,
+      `Served build differs: ${family} ${asset.file}`,
+    );
+  assert.equal(
+    build.totalBytes,
+    build.assets.reduce((n, file) => n + file.bytes, 0),
+  );
+  assert.equal(
+    build.totalGzipBytes,
+    build.assets.reduce((n, file) => n + file.gzipBytes, 0),
+  );
+}
+assert.deepEqual(
+  summary.comparisons["panel-v2"].metrics.map((m) => [m.baseline, m.candidate]),
+  [
+    [
+      panelV2.panels.pterodactyl.browser.cold.dashboardReadyMs.median,
+      panelV2.panels.aquadactyl.browser.cold.dashboardReadyMs.median,
+    ],
+    [
+      panelV2.panels.pterodactyl.api.servers[16].requestsPerSecond.median,
+      panelV2.panels.aquadactyl.api.servers[16].requestsPerSecond.median,
+    ],
+    [
+      panelV2.panels.pterodactyl.memory.loaded.panelWorkingSetBytes.median /
+        2 ** 20,
+      panelV2.panels.aquadactyl.memory.loaded.panelWorkingSetBytes.median /
+        2 ** 20,
+    ],
+  ],
+);
 const median = (values) => {
   const v = values.sort((a, b) => a - b);
   return v.length % 2
@@ -149,7 +224,9 @@ for (const comparison of Object.values(summary.comparisons)) {
     comparison.measuredOn,
     comparison === summary.comparisons.panel
       ? panel.measuredOn
-      : daemon.measuredOn,
+      : comparison === summary.comparisons["panel-v2"]
+        ? panelV2.measuredOn
+        : daemon.measuredOn,
   );
   assert.equal(comparison.metrics.length, 3);
   const doc = fs.readFileSync(
