@@ -298,6 +298,7 @@ const requests = daemon.phases.performance.filter((r) =>
   ["api_status", "directory_1000"].includes(r.test),
 );
 const checks = daemon.phases.security.filter((r) => r.type === "check");
+const coverage = read(`public/benchmarks/${daemon.verification.coverage.file}`);
 const securityRows = [...new Set(checks.map((r) => r.test))]
   .map(
     (test) =>
@@ -367,6 +368,22 @@ The command workload alternates a 4,096-block area between stone and air at five
 
 ${tableHeader}
 ${resourceRows}
+
+## Isolated Manta measurements
+
+A separate run repeated ${daemon.verification.microbenchmarks.cases} isolated cases five times each with a 500 ms target per sample, using Go 1.26.9 Linux amd64, a 4-core quota, 2 GiB memory and \`GOMAXPROCS=4\`. It covers Docker stats decoding, console inspection, UUID lookup, resource-event handling, directory encoding, file streaming, API routing, WebSocket encoding, request bodies and ready event sinks. [Every timing/allocation sample](/benchmarks/daemon-microbenchmarks.txt) is retained. These are current Manta measurements; they do not supply a new isolated Wings baseline or establish game TPS/player capacity. They ran separately from the live comparison and test suite.
+
+## Resource-event delivery
+
+The automatic stats check connected 16 authenticated WebSocket viewers to each of the four benchmark games. All 64 viewers received three unsolicited stats samples each (192 samples total), with the expected API fields, valid counters and advancing uptime. This checks the periodic event path rather than requested \`send stats\` replies; it is a correctness check, not a player-capacity measurement. Per-viewer observations are retained in the raw report.
+
+## Tests and coverage
+
+The Manta verification run passed **${daemon.verification.passedCases} Go cases/subtests in ${daemon.verification.passedPackages} packages** with the race detector; ${daemon.verification.failed} failures and ${daemon.verification.skipped} skips. Go vet passed. Tests used ${daemon.verification.testToolchain} against an isolated Docker engine; the production compiler is recorded above.
+
+Statement coverage is **${coverage.percent.toFixed(2)}% (${coverage.covered.toLocaleString("en-GB")} of ${coverage.statements.toLocaleString("en-GB")} statements)** across all Go packages, including the CLI and benchmark runner. **${coverage.targetMet ? "The 100% statement-coverage target is met." : `The 100% statement-coverage target is not met: ${coverage.uncovered.toLocaleString("en-GB")} statements remain uncovered.`}** No source files were excluded to raise the percentage. Passing the full suite is separate from reaching full statement coverage.
+
+[Coverage counts and uncovered blocks](/benchmarks/daemon-coverage.json) · [Unfiltered Go coverage profile, gzip](/benchmarks/daemon-coverage.out.gz). The profile was collected with \`go test -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out ./...\`; the report records exact counts and hashes. Manta's \`benchmarks/coverage_report.py\` checks the exact 100% threshold and exits nonzero while any statements remain uncovered.
 
 ## Compatibility checks
 

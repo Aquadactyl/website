@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { gunzipSync } from "node:zlib";
 
 const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const hash = (file) =>
@@ -8,6 +9,42 @@ const hash = (file) =>
 const summary = read("public/benchmarks/comparison-summary.json");
 const panel = read("public/benchmarks/panel-comparison.json");
 const daemon = read("public/benchmarks/daemon-comparison.json");
+const coverage = read(`public/benchmarks/${daemon.verification.coverage.file}`);
+assert.equal(daemon.verification.race, "passed");
+assert.equal(daemon.verification.vet, "passed");
+assert.equal(daemon.verification.failed, 0);
+assert.equal(daemon.verification.skipped, 0);
+assert.equal(coverage.minimumPercent, 100);
+assert.equal(coverage.targetMet, coverage.covered === coverage.statements);
+assert.equal(daemon.verification.coverage.targetMet, coverage.targetMet);
+assert.equal(daemon.verification.coverage.percent, coverage.percent);
+assert.equal(coverage.statements - coverage.covered, coverage.uncovered);
+assert.equal(
+  coverage.files.reduce((n, row) => n + row.covered, 0),
+  coverage.covered,
+);
+assert.equal(
+  coverage.files.reduce((n, row) => n + row.statements, 0),
+  coverage.statements,
+);
+for (const item of [
+  daemon.verification.coverage,
+  daemon.verification.profile,
+  daemon.verification.microbenchmarks,
+])
+  assert.equal(hash(`public/benchmarks/${item.file}`), item.sha256);
+assert.equal(
+  createHash("sha256")
+    .update(
+      gunzipSync(
+        fs.readFileSync(
+          `public/benchmarks/${daemon.verification.profile.file}`,
+        ),
+      ),
+    )
+    .digest("hex"),
+  daemon.verification.profile.uncompressedSha256,
+);
 const panelV2 = read("public/benchmarks/panel-v2-comparison.json");
 const buildsV2 = read("public/benchmarks/panel-v2-builds.json");
 assert.ok(panel.completedAt && daemon.completedAt);
@@ -47,8 +84,10 @@ for (const game of ["paper", "bedrock"]) {
     "cpuPeriod",
     "memoryLimit",
     "binarySha256",
+    "startupSha256",
   ])
     assert.equal(pair[0][key], pair[1][key]);
+  assert.deepEqual(pair[0].configuredSettings, pair[1].configuredSettings);
 }
 for (const variant of ["wings", "manta"]) {
   assert.match(daemon.source[variant].binarySha256, /^[a-f0-9]{64}$/);
@@ -88,6 +127,17 @@ for (const row of daemon.phases.performance) {
 assert.equal(
   daemon.phases.security.filter((row) => row.type === "check").length,
   32,
+);
+const automaticStats = daemon.phases.events.filter(
+  (row) => row.test === "automatic_stats_16_viewers",
+);
+assert.equal(automaticStats.length, 64);
+assert.equal(
+  automaticStats.reduce((n, row) => n + row.samples, 0),
+  192,
+);
+assert.ok(
+  automaticStats.every((row) => row.pass && row.last_uptime > row.first_uptime),
 );
 assert.ok(
   !/"(?:password|authorization|token)"\s*:/i.test(

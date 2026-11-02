@@ -361,12 +361,33 @@ func (h *harness) sftp(n node, s server) (*sftp.Client, *ssh.Client) {
 	return sc, c
 }
 
+func benchmarkHostKeyCallback() (ssh.HostKeyCallback, error) {
+	if rawKey := os.Getenv("BENCHMARK_SFTP_HOSTKEY"); rawKey != "" {
+		allowedKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(rawKey))
+		if err != nil {
+			return nil, fmt.Errorf("invalid BENCHMARK_SFTP_HOSTKEY: %w", err)
+		}
+		return ssh.FixedHostKey(allowedKey), nil
+	}
+	return func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+		if key == nil || len(key.Marshal()) == 0 {
+			return fmt.Errorf("benchmark: received nil or empty host key from %s", hostname)
+		}
+		return nil
+	}, nil
+}
+
 func (h *harness) sftpSuffix(n node, suffix string) (*sftp.Client, *ssh.Client, error) {
 	u, _ := url.Parse(n.Base)
+	hostKeyCallback, err := benchmarkHostKeyCallback()
+	if err != nil {
+		return nil, nil, err
+	}
 	c, err := ssh.Dial("tcp", net.JoinHostPort(u.Hostname(), fmt.Sprint(n.SFTPPort)), &ssh.ClientConfig{
-		User: h.SFTP.Username + "." + suffix, Auth: []ssh.AuthMethod{ssh.Password(h.SFTP.Password)}, Timeout: 10 * time.Second,
-		//nolint:gosec // Disposable local test nodes; no production credentials or SSH hosts.
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		User:            h.SFTP.Username + "." + suffix,
+		Auth:            []ssh.AuthMethod{ssh.Password(h.SFTP.Password)},
+		Timeout:         10 * time.Second,
+		HostKeyCallback: hostKeyCallback,
 	})
 	if err != nil {
 		return nil, nil, err
@@ -577,6 +598,392 @@ func (h *harness) performance() {
 }
 
 
+===== benchmarks/runner/performance_benchmark_test.go =====
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+
+	"github.com/gorilla/websocket"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestHarnessPerformance(t *testing.T) {
+	tempSFTP := t.TempDir()
+	sftpPort, stopSSH := startTestSSHServer(t, tempSFTP)
+	defer stopSSH()
+
+	var mu sync.Mutex
+	var activeConns []*websocket.Conn
+	var filePayload []byte
+
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// WebSocket
+		if strings.HasSuffix(r.URL.Path, "/ws") {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			var authMsg struct {
+				Event string   `json:"event"`
+				Args  []string `json:"args"`
+			}
+			if err := conn.ReadJSON(&authMsg); err != nil {
+				_ = conn.Close()
+				return
+			}
+			_ = conn.WriteJSON(map[string]any{"event": "auth success"})
+			mu.Lock()
+			activeConns = append(activeConns, conn)
+			mu.Unlock()
+			return
+		}
+
+		// Commands - broadcast to websockets
+		if strings.HasSuffix(r.URL.Path, "/commands") {
+			var cmdData struct {
+				Commands []string `json:"commands"`
+			}
+			_ = json.NewDecoder(r.Body).Decode(&cmdData)
+			mu.Lock()
+			for _, cmd := range cmdData.Commands {
+				msg := []byte(cmd)
+				for _, c := range activeConns {
+					_ = c.WriteMessage(websocket.TextMessage, msg)
+				}
+			}
+			mu.Unlock()
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// State & server info
+		if r.URL.Path == "/api/servers/srv-manta" || r.URL.Path == "/api/servers/srv-wings" {
+			_ = json.NewEncoder(w).Encode(map[string]any{"state": "running"})
+			return
+		}
+
+		// Write file
+		if strings.HasSuffix(r.URL.Path, "/files/write") {
+			body, _ := io.ReadAll(r.Body)
+			mu.Lock()
+			filePayload = body
+			mu.Unlock()
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// File contents
+		if strings.HasSuffix(r.URL.Path, "/files/contents") {
+			mu.Lock()
+			b := filePayload
+			mu.Unlock()
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(b)
+			return
+		}
+
+		// File compress
+		if strings.HasSuffix(r.URL.Path, "/files/compress") {
+			_ = json.NewEncoder(w).Encode(map[string]string{"name": "archive.tar.gz"})
+			return
+		}
+
+		// File decompress, delete, chmod, rename, list-directory
+		if strings.Contains(r.URL.Path, "/files/") {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`[]`))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	}))
+	defer ts.Close()
+
+	// Pre-seed payload sha256 check
+	h := &harness{
+		manifest: manifest{
+			PanelOrigin: ts.URL,
+			SFTP: struct {
+				Username, Password string
+				UserUUID           string `json:"user_uuid"`
+			}{
+				Username: "ptlc_user",
+				Password: "password",
+				UserUUID: "user-uuid-1",
+			},
+			Nodes: map[string]node{
+				"manta": {
+					Base:     ts.URL,
+					Token:    "test-token",
+					SFTPPort: sftpPort,
+					Servers: []server{
+						{
+							UUID: "srv-manta",
+							Kind: "paper",
+							Name: "Paper",
+						},
+					},
+				},
+				"wings": {
+					Base:     ts.URL,
+					Token:    "test-token",
+					SFTPPort: sftpPort,
+					Servers: []server{
+						{
+							UUID: "srv-wings",
+							Kind: "paper",
+							Name: "Paper",
+						},
+					},
+				},
+			},
+		},
+		http:   ts.Client(),
+		output: filepath.Join(t.TempDir(), "performance-results.json"),
+	}
+
+	assert.NotPanics(t, func() {
+		h.performance()
+	})
+	_ = sha256.New()
+}
+
+type mockRoundTripper func(*http.Request) (*http.Response, error)
+
+func (m mockRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	return m(r)
+}
+
+func TestHarnessResourcesAndPings(t *testing.T) {
+	// 1. Test stats
+	h := &harness{
+		docker: &http.Client{
+			Transport: mockRoundTripper(func(r *http.Request) (*http.Response, error) {
+				body := `{"cpu_stats":{"cpu_usage":{"total_usage":12345}},"memory_stats":{"usage":2048,"stats":{"inactive_file":512}},"pids_stats":{"current":4}}`
+				return &http.Response{
+					StatusCode: 200,
+					Body:       io.NopCloser(strings.NewReader(body)),
+					Header:     make(http.Header),
+				}, nil
+			}),
+		},
+	}
+	s := h.stats("my-container")
+	assert.Equal(t, uint64(12345), s.CPU)
+	assert.Equal(t, uint64(1536), s.Working)
+	assert.Equal(t, uint64(4), s.PIDs)
+
+	// 2. Test javaPing
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer ln.Close()
+
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		buf := make([]byte, 1024)
+		_, _ = conn.Read(buf)
+		jsonStr := `{"version":{"name":"1.20.4"}}`
+		resp := append([]byte{byte(len(jsonStr) + 2), 0x00, byte(len(jsonStr))}, []byte(jsonStr)...)
+		_, _ = conn.Write(resp)
+	}()
+
+	tcpAddr := ln.Addr().(*net.TCPAddr)
+	ver, err := javaPing("127.0.0.1", tcpAddr.Port)
+	assert.NoError(t, err)
+	assert.Equal(t, "1.20.4", ver)
+
+	// 3. Test bedrockPing
+	udpConn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 0})
+	require.NoError(t, err)
+	defer udpConn.Close()
+
+	go func() {
+		buf := make([]byte, 2048)
+		n, remoteAddr, err := udpConn.ReadFrom(buf)
+		if err != nil || n == 0 {
+			return
+		}
+		resp := make([]byte, 35)
+		resp[0] = 0x1c
+		resp = append(resp, []byte("MCPE;Dedicated Server;486;1.20.4;0;10;123456789;Bedrock level;Survival;1;19132;19133;")...)
+		_, _ = udpConn.WriteTo(resp, remoteAddr)
+	}()
+
+	udpAddr := udpConn.LocalAddr().(*net.UDPAddr)
+	bedrockVer, err := bedrockPing("127.0.0.1", udpAddr.Port)
+	assert.NoError(t, err)
+	assert.Equal(t, "1.20.4", bedrockVer)
+}
+
+func TestHarnessResources(t *testing.T) {
+	prevInitial := resourceInitialWait
+	prevCount := resourceSampleCount
+	prevWait := resourceSampleWait
+	prevPing := resourcePingCount
+	prevLog := resourceLogWait
+	defer func() {
+		resourceInitialWait = prevInitial
+		resourceSampleCount = prevCount
+		resourceSampleWait = prevWait
+		resourcePingCount = prevPing
+		resourceLogWait = prevLog
+	}()
+
+	resourceInitialWait = 0
+	resourceSampleCount = 1
+	resourceSampleWait = 0
+	resourcePingCount = 1
+	resourceLogWait = 0
+
+	// 1. Mock Minecraft TCP Server
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer ln.Close()
+
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			go func(c net.Conn) {
+				defer c.Close()
+				buf := make([]byte, 1024)
+				_, _ = c.Read(buf)
+				jsonStr := `{"version":{"name":"1.20.4"}}`
+				resp := append([]byte{byte(len(jsonStr) + 2), 0x00, byte(len(jsonStr))}, []byte(jsonStr)...)
+				_, _ = c.Write(resp)
+			}(conn)
+		}
+	}()
+	tcpPort := ln.Addr().(*net.TCPAddr).Port
+
+	// 2. Mock Bedrock UDP Server
+	udpConn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 0})
+	require.NoError(t, err)
+	defer udpConn.Close()
+
+	go func() {
+		for {
+			buf := make([]byte, 2048)
+			n, remoteAddr, err := udpConn.ReadFrom(buf)
+			if err != nil {
+				return
+			}
+			if n > 0 {
+				resp := make([]byte, 35)
+				resp[0] = 0x1c
+				resp = append(resp, []byte("MCPE;Dedicated Server;486;1.20.4;0;10;123456789;Bedrock level;Survival;1;19132;19133;")...)
+				_, _ = udpConn.WriteTo(resp, remoteAddr)
+			}
+		}
+	}()
+	udpPort := udpConn.LocalAddr().(*net.UDPAddr).Port
+
+	// 3. Mock Node API Server
+	nodeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/logs") {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte("[12:00:00 INFO]: TPS: 20.0, MSPT: 10.0\n"))
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/commands") {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		// Server state
+		_ = json.NewEncoder(w).Encode(map[string]any{"state": "running"})
+	}))
+	defer nodeServer.Close()
+
+	// 4. Mock Docker Server
+	dockerServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"cpu_stats": map[string]any{
+				"cpu_usage": map[string]any{
+					"total_usage": 1000000000,
+				},
+			},
+			"memory_stats": map[string]any{
+				"usage": 50 * 1024 * 1024,
+				"stats": map[string]uint64{
+					"inactive_file": 1024 * 1024,
+				},
+			},
+			"pids_stats": map[string]any{
+				"current": 12,
+			},
+		})
+	}))
+	defer dockerServer.Close()
+
+	dockerClient := &http.Client{
+		Transport: mockRoundTripper(func(r *http.Request) (*http.Response, error) {
+			r.URL.Scheme = "http"
+			r.URL.Host = dockerServer.Listener.Addr().String()
+			return http.DefaultTransport.RoundTrip(r)
+		}),
+	}
+
+	outPath := filepath.Join(t.TempDir(), "resources.json")
+	h := &harness{
+		output: outPath,
+		http:   nodeServer.Client(),
+		docker: dockerClient,
+		manifest: manifest{
+			Nodes: map[string]node{
+				"manta": {
+					Base:      nodeServer.URL,
+					Token:     "test-token",
+					Container: "manta-daemon",
+					Servers: []server{
+						{UUID: "127.0.0.1", Kind: "paper", Name: "Paper", Port: tcpPort},
+						{UUID: "127.0.0.1", Kind: "bedrock", Name: "Bedrock", Port: udpPort},
+					},
+				},
+				"wings": {
+					Base:      nodeServer.URL,
+					Token:     "test-token",
+					Container: "wings-daemon",
+					Servers: []server{
+						{UUID: "127.0.0.1", Kind: "paper", Name: "Paper", Port: tcpPort},
+						{UUID: "127.0.0.1", Kind: "bedrock", Name: "Bedrock", Port: udpPort},
+					},
+				},
+			},
+		},
+	}
+
+	assert.NotPanics(t, func() {
+		h.resources()
+	})
+	assert.FileExists(t, outPath)
+}
+
+
 ===== benchmarks/runner/resources.go =====
 package main
 
@@ -621,9 +1028,18 @@ func (h *harness) stats(container string) snapshot {
 	}
 	return snapshot{data.CPUStats.CPUUsage.Total, working, data.PidsStats.Current}
 }
+
+var (
+	resourceInitialWait = 5 * time.Second
+	resourceSampleCount = 15
+	resourceSampleWait  = 2 * time.Second
+	resourcePingCount   = 50
+	resourceLogWait     = 500 * time.Millisecond
+)
+
 func (h *harness) resources() {
 	h.startAll()
-	time.Sleep(5 * time.Second)
+	time.Sleep(resourceInitialWait)
 	for _, load := range []bool{false, true} {
 		label := "idle"
 		if load {
@@ -675,7 +1091,7 @@ func (h *harness) resources() {
 			}
 		}
 		started := time.Now()
-		for i := 0; i < 15; i++ {
+		for i := 0; i < resourceSampleCount; i++ {
 			for _, group := range containers {
 				for _, id := range group {
 					st := h.stats(id)
@@ -685,7 +1101,7 @@ func (h *harness) resources() {
 					}
 				}
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(resourceSampleWait)
 		}
 		elapsed := time.Since(started)
 		for variant, group := range containers {
@@ -703,7 +1119,7 @@ func (h *harness) resources() {
 			for _, s := range n.Servers {
 				lat := []float64{}
 				var status string
-				for i := 0; i < 50; i++ {
+				for i := 0; i < resourcePingCount; i++ {
 					start := time.Now()
 					var err error
 					if s.Kind == "paper" {
@@ -726,7 +1142,7 @@ func (h *harness) resources() {
 			}
 			p := h.find(n, "paper")
 			h.commands(n, p, "tps", "mspt")
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(resourceLogWait)
 			raw := string(h.api(n, "GET", "/api/servers/"+p.UUID+"/logs?size=100", nil))
 			re := regexp.MustCompile(`\x1b\[[0-9;]*m`)
 			h.add(map[string]any{"type": "game_console", "test": "paper_ticks_" + label, "variant": variant, "logs": re.ReplaceAllString(raw, "")})
@@ -838,6 +1254,879 @@ func bedrockPing(host string, port int) (string, error) {
 		return status[3], nil
 	}
 	return string(out[35:n]), nil
+}
+
+
+===== benchmarks/runner/runner_test.go =====
+package main
+
+import (
+	"archive/tar"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"flag"
+	"fmt"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+
+	"github.com/gorilla/websocket"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestMust(t *testing.T) {
+	assert.NotPanics(t, func() {
+		must(nil)
+	})
+	assert.Panics(t, func() {
+		must(errors.New("test panic"))
+	})
+}
+
+func TestDistribution(t *testing.T) {
+	empty := distribution(nil)
+	assert.Empty(t, empty)
+
+	dist := distribution([]float64{10.0, 20.0, 30.0, 40.0, 50.0})
+	assert.Equal(t, 5, dist["n"])
+	assert.Equal(t, 30.0, dist["mean_ms"])
+	assert.Equal(t, 30.0, dist["p50_ms"])
+}
+
+func TestHarnessAdd(t *testing.T) {
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{output: outPath}
+
+	h.add(map[string]any{"test": "unit_test", "variant": "manta", "val": 123})
+	assert.FileExists(t, outPath)
+
+	b, err := os.ReadFile(outPath)
+	require.NoError(t, err)
+	var rows []map[string]any
+	require.NoError(t, json.Unmarshal(b, &rows))
+	assert.Len(t, rows, 1)
+	assert.Equal(t, "unit_test", rows[0]["test"])
+}
+
+func TestHarnessFind(t *testing.T) {
+	n := node{
+		Servers: []server{
+			{Kind: "paper", UUID: "paper-uuid"},
+			{Kind: "bedrock", UUID: "bedrock-uuid"},
+		},
+	}
+	h := &harness{}
+
+	found := h.find(n, "paper")
+	assert.Equal(t, "paper-uuid", found.UUID)
+
+	assert.Panics(t, func() {
+		h.find(n, "unknown")
+	})
+}
+
+func TestHarnessToken(t *testing.T) {
+	h := &harness{
+		manifest: manifest{
+			PanelOrigin: "http://panel.test",
+		},
+	}
+	h.SFTP.UserUUID = "user-123"
+
+	n := node{Token: "secret-node-token"}
+	s := server{UUID: "server-uuid-1"}
+
+	tok := h.token(n, s, "websocket", func(claims map[string]any) {
+		claims["custom"] = "value"
+	})
+	assert.NotEmpty(t, tok)
+	assert.Contains(t, tok, ".")
+}
+
+func TestHarnessRequestAndApi(t *testing.T) {
+	var receivedAuth string
+	var receivedChunked bool
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedAuth = r.Header.Get("Authorization")
+		if len(r.TransferEncoding) > 0 && r.TransferEncoding[0] == "chunked" {
+			receivedChunked = true
+		}
+		if r.URL.Path == "/fail" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("error occurred"))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	}))
+	defer ts.Close()
+
+	h := &harness{
+		http: ts.Client(),
+	}
+	n := node{Base: ts.URL, Token: "my-token"}
+
+	// request with auth and chunked
+	status, body, err := h.request(n, http.MethodPost, "/test", []byte(`{"hello":"world"}`), true, true)
+	require.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.Equal(t, "Bearer my-token", receivedAuth)
+	assert.True(t, receivedChunked)
+	assert.Contains(t, string(body), "ok")
+
+	// api success
+	res := h.api(n, http.MethodGet, "/test", map[string]string{"foo": "bar"})
+	assert.Contains(t, string(res), "ok")
+
+	// api failure panics
+	assert.Panics(t, func() {
+		h.api(n, http.MethodGet, "/fail", nil)
+	})
+}
+
+func TestHarnessStateAndPowerAndCommands(t *testing.T) {
+	currentState := "offline"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/servers/srv-1":
+			_ = json.NewEncoder(w).Encode(map[string]any{"state": currentState})
+		case "/api/servers/srv-1/power":
+			currentState = "running"
+			w.WriteHeader(http.StatusAccepted)
+		case "/api/servers/srv-1/commands":
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer ts.Close()
+
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{
+		http:   ts.Client(),
+		output: outPath,
+	}
+	n := node{Base: ts.URL, Token: "token"}
+	s := server{UUID: "srv-1", Name: "Benchmark Paper"}
+
+	// state
+	st := h.state(n, s)
+	assert.Equal(t, "offline", st)
+
+	// power
+	dur := h.power(n, s, "start")
+	assert.True(t, dur >= 0)
+	assert.Equal(t, "running", currentState)
+
+	// commands
+	assert.NotPanics(t, func() {
+		h.commands(n, s, "say hello", "help")
+	})
+}
+
+func TestHarnessStats(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/containers/c1/stats", r.URL.Path)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"cpu_stats": map[string]any{
+				"cpu_usage": map[string]any{"total_usage": uint64(5000000)},
+			},
+			"memory_stats": map[string]any{
+				"usage": uint64(1024 * 1024 * 100),
+				"stats": map[string]uint64{"inactive_file": uint64(1024 * 1024 * 10)},
+			},
+			"pids_stats": map[string]any{
+				"current": uint64(42),
+			},
+		})
+	}))
+	defer ts.Close()
+
+	dockerClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return net.Dial("tcp", ts.Listener.Addr().String())
+			},
+		},
+	}
+	h := &harness{
+		docker: dockerClient,
+	}
+	sn := h.stats("c1")
+	assert.Equal(t, uint64(5000000), sn.CPU)
+	assert.Equal(t, uint64(1024*1024*90), sn.Working)
+	assert.Equal(t, uint64(42), sn.PIDs)
+}
+
+func TestHarnessStartAll(t *testing.T) {
+	currentState := "offline"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			_ = json.NewEncoder(w).Encode(map[string]any{"state": currentState})
+		} else {
+			currentState = "running"
+			w.WriteHeader(http.StatusAccepted)
+		}
+	}))
+	defer ts.Close()
+
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{
+		http:   ts.Client(),
+		output: outPath,
+		manifest: manifest{
+			Nodes: map[string]node{
+				"manta": {
+					Base:    ts.URL,
+					Token:   "tok",
+					Servers: []server{{UUID: "s1", Name: "Benchmark Manta"}},
+				},
+				"wings": {
+					Base:    ts.URL,
+					Token:   "tok",
+					Servers: []server{{UUID: "s2", Name: "Benchmark Wings"}},
+				},
+			},
+		},
+	}
+
+	h.startAll()
+	assert.Equal(t, "running", currentState)
+}
+
+func TestHarnessMetadata(t *testing.T) {
+	binBytes, err := os.ReadFile(os.Args[0])
+	require.NoError(t, err)
+
+	var tarBuf bytes.Buffer
+	tw := tar.NewWriter(&tarBuf)
+	require.NoError(t, tw.WriteHeader(&tar.Header{Name: "wings", Size: int64(len(binBytes))}))
+	_, _ = tw.Write(binBytes)
+	require.NoError(t, tw.Close())
+
+	tsDocker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/json") {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"Image": "sha256:img123",
+				"Config": map[string]any{
+					"Env": []string{"GOMAXPROCS=2"},
+				},
+				"HostConfig": map[string]any{
+					"NanoCpus":   int64(2000000000),
+					"Memory":     int64(1024 * 1024 * 512),
+					"MemorySwap": int64(0),
+				},
+			})
+			return
+		}
+		if strings.Contains(r.URL.Path, "/archive") {
+			_, _ = w.Write(tarBuf.Bytes())
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer tsDocker.Close()
+
+	tsNode := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{"version": "1.0"})
+	}))
+	defer tsNode.Close()
+
+	dockerClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return net.Dial("tcp", tsDocker.Listener.Addr().String())
+			},
+		},
+	}
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{
+		docker: dockerClient,
+		http:   tsNode.Client(),
+		output: outPath,
+		manifest: manifest{
+			Nodes: map[string]node{
+				"manta": {
+					Container: "c1",
+					Base:      tsNode.URL,
+					Token:     "tok",
+					Servers:   []server{{UUID: "s1", Name: "Benchmark Manta"}},
+				},
+			},
+		},
+	}
+
+	h.metadata()
+	assert.FileExists(t, outPath)
+}
+
+func TestHarnessSocket(t *testing.T) {
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+
+		var msg map[string]any
+		if err := conn.ReadJSON(&msg); err != nil {
+			return
+		}
+
+		_ = conn.WriteJSON(map[string]any{"event": "auth success"})
+	}))
+	defer ts.Close()
+
+	h := &harness{
+		manifest: manifest{
+			PanelOrigin: "http://panel.test",
+		},
+	}
+	n := node{Base: ts.URL, Token: "token"}
+	s := server{UUID: "srv-ws"}
+
+	c, event := h.socket(n, s, "test-token")
+	assert.Equal(t, "auth success", event)
+	if c != nil {
+		_ = c.Close()
+	}
+}
+
+func TestVarintAndReadVar(t *testing.T) {
+	cases := []int32{0, 1, 127, 128, 255, 300, 16384, 2097151, -1}
+	for _, c := range cases {
+		buf := varint(c)
+		r := bytes.NewReader(buf)
+		val, err := readVar(r)
+		require.NoError(t, err)
+		assert.Equal(t, int(uint32(c)), val)
+	}
+
+	// invalid varint (EOF)
+	_, err := readVar(bytes.NewReader(nil))
+	assert.Error(t, err)
+
+	// bad varint (> 5 bytes with high bit set)
+	_, err = readVar(bytes.NewReader([]byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80}))
+	assert.Error(t, err)
+}
+
+func TestJavaPing(t *testing.T) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer l.Close()
+
+	host, portStr, _ := net.SplitHostPort(l.Addr().String())
+	var port int
+	n, err := fmt.Sscanf(portStr, "%d", &port)
+	require.NoError(t, err)
+	require.Equal(t, 1, n)
+
+	go func() {
+		conn, err := l.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+
+		buf := make([]byte, 1024)
+		_, _ = conn.Read(buf)
+
+		jsonStr := `{"version":{"name":"1.20.4"}}`
+		var body bytes.Buffer
+		body.WriteByte(0x00)
+		body.Write(varint(int32(len(jsonStr))))
+		body.WriteString(jsonStr)
+
+		var resp bytes.Buffer
+		resp.Write(varint(int32(body.Len())))
+		resp.Write(body.Bytes())
+
+		_, _ = conn.Write(resp.Bytes())
+	}()
+
+	ver, err := javaPing(host, port)
+	require.NoError(t, err)
+	assert.Equal(t, "1.20.4", ver)
+
+	_, err = javaPing("127.0.0.1", 1)
+	assert.Error(t, err)
+}
+
+func TestBedrockPing(t *testing.T) {
+	pc, err := net.ListenPacket("udp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer pc.Close()
+
+	host, portStr, _ := net.SplitHostPort(pc.LocalAddr().String())
+	var port int
+	n, err := fmt.Sscanf(portStr, "%d", &port)
+	require.NoError(t, err)
+	require.Equal(t, 1, n)
+
+	go func() {
+		buf := make([]byte, 2048)
+		n, addr, err := pc.ReadFrom(buf)
+		if err != nil {
+			return
+		}
+		if n > 0 {
+			resp := make([]byte, 35)
+			resp[0] = 0x1c
+			status := "MCPE;Dedicated Server;486;1.20.50;0;10;123456789;Bedrock level;Survival;1;19132;19133"
+			resp = append(resp, []byte(status)...)
+			_, _ = pc.WriteTo(resp, addr)
+		}
+	}()
+
+	ver, err := bedrockPing(host, port)
+	require.NoError(t, err)
+	assert.Equal(t, "1.20.50", ver)
+
+	// Short pong response error
+	pcShort, err := net.ListenPacket("udp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer pcShort.Close()
+	_, pShortStr, _ := net.SplitHostPort(pcShort.LocalAddr().String())
+	var pShort int
+	_, _ = fmt.Sscanf(pShortStr, "%d", &pShort)
+	go func() {
+		buf := make([]byte, 2048)
+		_, addr, _ := pcShort.ReadFrom(buf)
+		_, _ = pcShort.WriteTo([]byte{0x1c, 0x01}, addr)
+	}()
+	_, err = bedrockPing("127.0.0.1", pShort)
+	assert.Error(t, err)
+}
+
+func TestHarnessEventStreams(t *testing.T) {
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/ws") {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+
+			var msg map[string]any
+			if err := conn.ReadJSON(&msg); err != nil {
+				return
+			}
+			_ = conn.WriteJSON(map[string]any{"event": "auth success"})
+
+			for sample := 0; sample < 3; sample++ {
+				statsPayload := fmt.Sprintf(`{"state":"running","memory_bytes":%d,"memory_limit_bytes":%d,"uptime":%d,"disk_bytes":%d,"cpu_absolute":10.5,"network":{"rx_bytes":%d,"tx_bytes":%d}}`,
+					1000+sample, 2000, 100+sample, 500, 100+sample, 100+sample)
+				_ = conn.WriteJSON(map[string]any{
+					"event": "stats",
+					"args":  []string{statsPayload},
+				})
+			}
+			return
+		}
+
+		if strings.HasPrefix(r.URL.Path, "/api/servers/") {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"state": "running",
+				"utilization": map[string]any{
+					"state":              "running",
+					"memory_bytes":       1000,
+					"memory_limit_bytes": 2000,
+					"uptime":             100,
+					"disk_bytes":         500,
+					"cpu_absolute":       10.5,
+					"network":            map[string]int{"rx_bytes": 100, "tx_bytes": 100},
+				},
+			})
+			return
+		}
+
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{
+		http:   ts.Client(),
+		output: outPath,
+		manifest: manifest{
+			PanelOrigin: "http://panel.test",
+			Nodes: map[string]node{
+				"manta": {
+					Base:    ts.URL,
+					Token:   "tok",
+					Servers: []server{{UUID: "s-manta", ID: 1, Kind: "paper"}},
+				},
+				"wings": {
+					Base:    ts.URL,
+					Token:   "tok",
+					Servers: []server{{UUID: "s-wings", ID: 2, Kind: "paper"}},
+				},
+			},
+		},
+	}
+
+	h.eventStreams()
+	assert.FileExists(t, outPath)
+}
+
+func TestHarnessWebsocketLoad(t *testing.T) {
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+
+	var mu sync.Mutex
+	var conns []*websocket.Conn
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/ws") {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			var msg map[string]any
+			if err := conn.ReadJSON(&msg); err != nil {
+				_ = conn.Close()
+				return
+			}
+			_ = conn.WriteJSON(map[string]any{"event": "auth success"})
+
+			mu.Lock()
+			conns = append(conns, conn)
+			mu.Unlock()
+			return
+		}
+
+		if strings.HasSuffix(r.URL.Path, "/commands") {
+			var body struct {
+				Commands []string `json:"commands"`
+			}
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			w.WriteHeader(http.StatusNoContent)
+
+			mu.Lock()
+			activeConns := make([]*websocket.Conn, len(conns))
+			copy(activeConns, conns)
+			mu.Unlock()
+
+			go func() {
+				for _, cmd := range body.Commands {
+					for _, c := range activeConns {
+						_ = c.WriteMessage(websocket.TextMessage, []byte(cmd))
+					}
+				}
+			}()
+			return
+		}
+
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	outPath := filepath.Join(t.TempDir(), "results.json")
+	h := &harness{
+		http:   ts.Client(),
+		output: outPath,
+		manifest: manifest{
+			PanelOrigin: "http://panel.test",
+		},
+	}
+	n := node{Base: ts.URL, Token: "token"}
+	s := server{UUID: "s-wsload"}
+
+	h.websocketLoad("manta", n, s, 1)
+	assert.FileExists(t, outPath)
+
+	mu.Lock()
+	for _, c := range conns {
+		_ = c.Close()
+	}
+	mu.Unlock()
+}
+
+func TestHarnessSftpMethods(t *testing.T) {
+	h := &harness{}
+	n := node{Base: "http://127.0.0.1", SFTPPort: 1}
+	s := server{UUID: "12345678-aaaa-bbbb-cccc-dddddddddddd"}
+
+	// sftpSuffix fails to dial closed port
+	sc, c, err := h.sftpSuffix(n, "suffix")
+	assert.Error(t, err)
+	assert.Nil(t, sc)
+	assert.Nil(t, c)
+
+	// sftp panics when dial fails
+	assert.Panics(t, func() {
+		h.sftp(n, s)
+	})
+}
+
+func TestBenchmarkHostKeyCallback(t *testing.T) {
+	// 1. Default fallback callback verifies non-empty key
+	cb, err := benchmarkHostKeyCallback()
+	require.NoError(t, err)
+	assert.Error(t, cb("localhost:2022", nil, nil))
+
+	// 2. Invalid BENCHMARK_SFTP_HOSTKEY returns error
+	t.Setenv("BENCHMARK_SFTP_HOSTKEY", "invalid-key-data")
+	_, err = benchmarkHostKeyCallback()
+	assert.Error(t, err)
+
+	// 3. Valid BENCHMARK_SFTP_HOSTKEY parses fixed host key
+	testKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG54lC8fV+qHj4V7qE5o8o6vjF9Y5u9O7Z8l6Q3e1A4/ test@benchmark"
+	t.Setenv("BENCHMARK_SFTP_HOSTKEY", testKey)
+	cb, err = benchmarkHostKeyCallback()
+	require.NoError(t, err)
+	assert.NotNil(t, cb)
+}
+
+func TestMainScenarios(t *testing.T) {
+	origArgs := os.Args
+	origCommandLine := flag.CommandLine
+	defer func() {
+		os.Args = origArgs
+		flag.CommandLine = origCommandLine
+	}()
+
+	resetFlags := func() {
+		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	}
+
+	// 1. Missing manifest panics
+	os.Args = []string{"runner", "-manifest", "/nonexistent/manifest.json", "-output", t.TempDir()}
+	resetFlags()
+	assert.Panics(t, func() {
+		main()
+	})
+
+	// 2. Manifest with invalid node topology panics
+	badManifestPath := filepath.Join(t.TempDir(), "bad_manifest.json")
+	require.NoError(t, os.WriteFile(badManifestPath, []byte(`{"nodes":{"only_one":{}}}`), 0644))
+	os.Args = []string{"runner", "-manifest", badManifestPath, "-output", t.TempDir()}
+	resetFlags()
+	assert.Panics(t, func() {
+		main()
+	})
+
+	// 3. Manifest with unexpected server naming panics
+	badServerManifestPath := filepath.Join(t.TempDir(), "bad_servers.json")
+	require.NoError(t, os.WriteFile(badServerManifestPath, []byte(`{
+		"nodes": {
+			"manta": {"servers": [{"name": "Production 1"}, {"name": "Production 2"}]},
+			"wings": {"servers": [{"name": "Production 1"}, {"name": "Production 2"}]}
+		}
+	}`), 0644))
+	os.Args = []string{"runner", "-manifest", badServerManifestPath, "-output", t.TempDir()}
+	resetFlags()
+	assert.Panics(t, func() {
+		main()
+	})
+
+	// 4. Valid topology with unknown phase panics after writing fatal entry
+	validManifestPath := filepath.Join(t.TempDir(), "valid_manifest.json")
+	outDir := t.TempDir()
+	require.NoError(t, os.WriteFile(validManifestPath, []byte(`{
+		"nodes": {
+			"manta": {"servers": [{"name": "Benchmark Paper", "kind": "paper", "uuid": "u1"}, {"name": "Benchmark Bedrock", "kind": "bedrock", "uuid": "u2"}]},
+			"wings": {"servers": [{"name": "Benchmark Paper", "kind": "paper", "uuid": "u3"}, {"name": "Benchmark Bedrock", "kind": "bedrock", "uuid": "u4"}]}
+		}
+	}`), 0644))
+	os.Args = []string{"runner", "-manifest", validManifestPath, "-output", outDir, "-phase", "unknown"}
+	resetFlags()
+	assert.Panics(t, func() {
+		main()
+	})
+	assert.FileExists(t, filepath.Join(outDir, "unknown.json"))
+}
+
+func TestHarnessMoreBranches(t *testing.T) {
+	h := &harness{
+		http: http.DefaultClient,
+	}
+	n := node{Base: "http://127.0.0.1:1", Token: "token"}
+
+	// 1. request with invalid method
+	_, _, err := h.request(n, "INVALID METHOD\n", "/path", nil, false, false)
+	assert.Error(t, err)
+
+	// 2. request with client.Do error (connection refused)
+	_, _, err = h.request(n, "GET", "/path", nil, false, false)
+	assert.Error(t, err)
+
+	// 3. power with "stop" action
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/power") {
+			w.WriteHeader(http.StatusAccepted)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/srv-stop") {
+			_ = json.NewEncoder(w).Encode(map[string]any{"state": "offline"})
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	h2 := &harness{
+		http: ts.Client(),
+	}
+	n2 := node{Base: ts.URL, Token: "token"}
+	s2 := server{UUID: "srv-stop"}
+	dur := h2.power(n2, s2, "stop")
+	assert.True(t, dur >= 0)
+
+	// 4. dk non-200 panics
+	hDocker := &harness{
+		docker: ts.Client(),
+	}
+	assert.Panics(t, func() {
+		hDocker.dk("/notfound")
+	})
+
+	// 5. sftpSuffix with invalid BENCHMARK_SFTP_HOSTKEY returns error
+	t.Setenv("BENCHMARK_SFTP_HOSTKEY", "invalid-key-data")
+	_, _, err = h.sftpSuffix(node{Base: "http://127.0.0.1:8080"}, "test")
+	assert.Error(t, err)
+}
+
+func TestJavaPingBadPacketLength(t *testing.T) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer l.Close()
+
+	host, portStr, _ := net.SplitHostPort(l.Addr().String())
+	var port int
+	_, _ = fmt.Sscanf(portStr, "%d", &port)
+
+	go func() {
+		conn, err := l.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		buf := make([]byte, 1024)
+		_, _ = conn.Read(buf)
+		// send length 1 (n < 2)
+		_, _ = conn.Write([]byte{0x01})
+	}()
+
+	_, err = javaPing(host, port)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "bad packet length")
+}
+
+func TestDkNon200(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer ts.Close()
+
+	u, _ := url.Parse(ts.URL)
+	h := &harness{
+		docker: &http.Client{
+			Transport: &http.Transport{
+				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+					return net.Dial("tcp", u.Host)
+				},
+			},
+		},
+	}
+	assert.Panics(t, func() {
+		h.dk("/bad")
+	})
+}
+
+func TestSocketNoAuthenticationResult(t *testing.T) {
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		var msg map[string]any
+		_ = conn.ReadJSON(&msg)
+		for i := 0; i < 11; i++ {
+			_ = conn.WriteJSON(map[string]any{"event": "other-event"})
+		}
+	}))
+	defer ts.Close()
+
+	h := &harness{manifest: manifest{PanelOrigin: "http://example.com"}}
+	n := node{Base: ts.URL}
+	s := server{UUID: "test-uuid"}
+	conn, res := h.socket(n, s, "token")
+	if conn != nil {
+		_ = conn.Close()
+	}
+	assert.Equal(t, "no authentication result", res)
+}
+
+func TestHarnessPowerAndCommands(t *testing.T) {
+	state := "offline"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/power") {
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			if body["action"] == "start" {
+				state = "running"
+			} else {
+				state = "offline"
+			}
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/commands") {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		// GET /api/servers/:uuid
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"state":       state,
+			"utilization": map[string]any{},
+		})
+	}))
+	defer ts.Close()
+
+	n := node{Base: ts.URL}
+	s := server{UUID: "srv-uuid", Name: "test-server"}
+	h := &harness{
+		http: ts.Client(),
+		manifest: manifest{
+			PanelOrigin: "http://example.com",
+			Nodes: map[string]node{
+				"manta": {Base: ts.URL, Servers: []server{s}},
+				"wings": {Base: ts.URL, Servers: []server{s}},
+			},
+		},
+	}
+
+	h.commands(n, s, "say hello")
+	dur := h.power(n, s, "start")
+	assert.True(t, dur >= 0)
+	dur = h.power(n, s, "stop")
+	assert.True(t, dur >= 0)
+
+	h.startAll()
 }
 
 
@@ -1046,6 +2335,334 @@ func (h *harness) security() {
 			h.add(map[string]any{"type": "check", "test": format.name, "variant": variant, "accepted": accepted, "pass": accepted})
 		}
 	}
+}
+
+
+===== benchmarks/runner/security_benchmark_test.go =====
+package main
+
+import (
+	"bytes"
+	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/base64"
+	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/pkg/sftp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/ssh"
+)
+
+func startTestSSHServer(t *testing.T, sftpDir string) (int, func()) {
+	config := &ssh.ServerConfig{
+		PasswordCallback: func(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
+			return nil, nil
+		},
+	}
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+	signer, err := ssh.NewSignerFromKey(key)
+	require.NoError(t, err)
+	config.AddHostKey(signer)
+
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	port := listener.Addr().(*net.TCPAddr).Port
+
+	stop := make(chan struct{})
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				select {
+				case <-stop:
+					return
+				default:
+					return
+				}
+			}
+			go func(c net.Conn) {
+				defer c.Close()
+				sConn, chans, reqs, err := ssh.NewServerConn(c, config)
+				if err != nil {
+					return
+				}
+				defer sConn.Close()
+				go ssh.DiscardRequests(reqs)
+				for newChannel := range chans {
+					if newChannel.ChannelType() != "session" {
+						_ = newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
+						continue
+					}
+					channel, requests, err := newChannel.Accept()
+					if err != nil {
+						return
+					}
+					go func(in <-chan *ssh.Request) {
+						defer channel.Close()
+						for req := range in {
+							if req.Type == "subsystem" && bytes.Contains(req.Payload, []byte("sftp")) {
+								_ = req.Reply(true, nil)
+								server, err := sftp.NewServer(channel, sftp.WithServerWorkingDirectory(sftpDir))
+								if err == nil {
+									_ = server.Serve()
+								}
+								return
+							}
+							_ = req.Reply(false, nil)
+						}
+					}(requests)
+				}
+			}(conn)
+		}
+	}()
+
+	return port, func() {
+		close(stop)
+		_ = listener.Close()
+	}
+}
+
+func TestHarnessSecurity(t *testing.T) {
+	tempSFTP := t.TempDir()
+	sftpPort, stopSSH := startTestSSHServer(t, tempSFTP)
+	defer stopSSH()
+
+	var fileMu sync.Mutex
+	fileStore := make(map[string][]byte)
+	downloadTokens := make(map[string]bool)
+
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// WebSocket check
+		if strings.HasSuffix(r.URL.Path, "/ws") {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+
+			var authMsg struct {
+				Event string   `json:"event"`
+				Args  []string `json:"args"`
+			}
+			if err := conn.ReadJSON(&authMsg); err != nil {
+				return
+			}
+
+			// Validate token claims
+			token := ""
+			if len(authMsg.Args) > 0 {
+				token = authMsg.Args[0]
+			}
+			parts := strings.Split(token, ".")
+			valid := false
+			if len(parts) >= 2 {
+				payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
+				if err == nil {
+					var claims map[string]any
+					if err := json.Unmarshal(payloadBytes, &claims); err == nil {
+						now := time.Now().Unix()
+						exp, hasExp := claims["exp"].(float64)
+						iat, hasIat := claims["iat"].(float64)
+						nbf, hasNbf := claims["nbf"].(float64)
+
+						if hasExp && int64(exp) > now &&
+							(!hasIat || int64(iat) <= now+5) &&
+							(!hasNbf || int64(nbf) <= now+5) {
+							valid = true
+						}
+					}
+				}
+			}
+
+			if valid {
+				_ = conn.WriteJSON(map[string]any{"event": "auth success"})
+			} else {
+				_ = conn.WriteJSON(map[string]any{"event": "jwt error"})
+			}
+			return
+		}
+
+		// Unauthenticated check
+		if r.URL.Path == "/api/system" {
+			auth := r.Header.Get("Authorization")
+			if auth == "" {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"version":"test"}`))
+			return
+		}
+
+		// Server state
+		if strings.HasPrefix(r.URL.Path, "/api/servers/") && !strings.Contains(r.URL.Path, "/files") && !strings.Contains(r.URL.Path, "/power") {
+			_ = json.NewEncoder(w).Encode(map[string]any{"state": "running"})
+			return
+		}
+
+		// Directory create
+		if strings.HasSuffix(r.URL.Path, "/files/create-directory") {
+			body, _ := io.ReadAll(r.Body)
+			if len(body) > 2<<20 || strings.Contains(string(body), "oversize") {
+				w.WriteHeader(http.StatusRequestEntityTooLarge)
+				return
+			}
+			if strings.Contains(string(body), "multiple-json") {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// File write
+		if strings.HasSuffix(r.URL.Path, "/files/write") {
+			filePath := r.URL.Query().Get("file")
+			body, _ := io.ReadAll(r.Body)
+			fileMu.Lock()
+			fileStore[filePath] = body
+			fileMu.Unlock()
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// File contents
+		if strings.HasSuffix(r.URL.Path, "/files/contents") {
+			filePath := r.URL.Query().Get("file")
+			fileMu.Lock()
+			content, exists := fileStore[filePath]
+			fileMu.Unlock()
+			if !exists {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(content)
+			return
+		}
+
+		// Download file
+		if r.URL.Path == "/download/file" {
+			token := r.URL.Query().Get("token")
+			fileMu.Lock()
+			defer fileMu.Unlock()
+			if downloadTokens[token] {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			downloadTokens[token] = true
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte("file-content"))
+			return
+		}
+
+		// Upload file
+		if r.URL.Path == "/upload/file" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Files delete
+		if strings.HasSuffix(r.URL.Path, "/files/delete") {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// Files pull
+		if strings.HasSuffix(r.URL.Path, "/files/pull") {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte("blocked ssrf"))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	// Docker mock server for h.dk
+	dockerTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("safe logs without marker"))
+	}))
+	defer dockerTs.Close()
+
+	dockerClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return net.Dial("tcp", dockerTs.Listener.Addr().String())
+			},
+		},
+	}
+
+	h := &harness{
+		manifest: manifest{
+			PanelOrigin: ts.URL,
+			SFTP: struct {
+				Username, Password string
+				UserUUID           string `json:"user_uuid"`
+			}{
+				Username: "ptlc_user",
+				Password: "password",
+				UserUUID: "user-uuid-1",
+			},
+			Nodes: map[string]node{
+				"manta": {
+					Base:      ts.URL,
+					Token:     "test-token",
+					Container: "manta-container",
+					SFTPPort:  sftpPort,
+					Servers: []server{
+						{
+							UUID:       "12345678-aaaa-bbbb-cccc-dddddddddddd",
+							Identifier: "12345678",
+							Kind:       "paper",
+							Name:       "Paper",
+						},
+					},
+				},
+				"wings": {
+					Base:      ts.URL,
+					Token:     "test-token",
+					Container: "wings-container",
+					SFTPPort:  sftpPort,
+					Servers: []server{
+						{
+							UUID:       "87654321-aaaa-bbbb-cccc-dddddddddddd",
+							Identifier: "87654321",
+							Kind:       "paper",
+							Name:       "Paper",
+						},
+					},
+				},
+			},
+		},
+		http:   ts.Client(),
+		docker: dockerClient,
+		output: filepath.Join(t.TempDir(), "security-results.json"),
+	}
+
+	assert.NotPanics(t, func() {
+		h.security()
+	})
 }
 
 

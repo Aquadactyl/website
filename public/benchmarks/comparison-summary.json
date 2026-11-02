@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "measuredOn": "2026-10-16 / 2026-10-18 / 2026-10-15",
+  "measuredOn": "2026-10-16 / 2026-10-18 / 2026-11-02",
   "sources": {
     "panel": {
       "file": "panel-comparison.json",
@@ -8,7 +8,7 @@
     },
     "daemon": {
       "file": "daemon-comparison.json",
-      "sha256": "dde1432737a5ab7496dbc72f65db08f68ed8e13b3e0cd7747811cf6de6103cff"
+      "sha256": "1aa2230180bfad67ea5d9ddc9bd111f67ccc992d841cb3dc08e55cceaf790628"
     },
     "build": {
       "file": "panels.json",
@@ -102,7 +102,7 @@
     },
     "daemon": {
       "label": "Wings vs Manta",
-      "measuredOn": "2026-10-15",
+      "measuredOn": "2026-11-02",
       "baseline": "Wings",
       "candidate": "Manta",
       "href": "/docs/wings/benchmarks",
@@ -115,8 +115,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 43154.4244397315,
-          "candidate": 47467.237222858086
+          "baseline": 36606.47372675592,
+          "candidate": 55484.73545571694
         },
         {
           "id": "files",
@@ -125,8 +125,8 @@
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 85.567,
-          "candidate": 52.822
+          "baseline": 88.626,
+          "candidate": 54.156
         },
         {
           "id": "memory",
@@ -135,8 +135,8 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 50.36770833333333,
-          "candidate": 51.459895833333334
+          "baseline": 49.11145833333333,
+          "candidate": 41.81953125
         }
       ]
     }

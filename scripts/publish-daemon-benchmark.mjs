@@ -5,6 +5,7 @@ import os from "node:os";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { gzipSync } from "node:zlib";
 
 const [checkout, results] = process.argv
   .slice(2)
@@ -22,10 +23,12 @@ const run = (command, args, options = {}) =>
 const hash = (file) =>
   createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const phases = Object.fromEntries(
-  ["lifecycle", "performance", "resources", "security"].map((phase) => [
-    phase,
-    JSON.parse(fs.readFileSync(path.join(results, `${phase}.json`), "utf8")),
-  ]),
+  ["lifecycle", "performance", "resources", "security", "events"].map(
+    (phase) => [
+      phase,
+      JSON.parse(fs.readFileSync(path.join(results, `${phase}.json`), "utf8")),
+    ],
+  ),
 );
 for (const rows of Object.values(phases))
   assert.ok(!rows.some((row) => row.type === "fatal"));
@@ -44,10 +47,74 @@ assert.equal(
   12,
 );
 assert.equal(phases.security.filter((row) => row.type === "check").length, 32);
+const streamedStats = phases.events.filter(
+  (row) => row.test === "automatic_stats_16_viewers",
+);
+assert.equal(streamedStats.length, 64);
+for (const row of streamedStats) {
+  assert.equal(row.pass, true);
+  assert.equal(row.samples, 3);
+  assert.ok(row.last_uptime > row.first_uptime);
+}
 for (const row of phases.performance) {
   if (row.errors !== undefined) assert.equal(row.errors, 0);
   if (row.verified !== undefined) assert.equal(row.verified, true);
 }
+const validation = JSON.parse(
+  fs.readFileSync(path.join(results, "validation.json"), "utf8"),
+);
+const coverage = JSON.parse(
+  fs.readFileSync(path.join(results, "coverage.json"), "utf8"),
+);
+assert.equal(validation.race, "passed");
+assert.equal(validation.vet, "passed");
+assert.equal(validation.failed, 0);
+assert.equal(validation.skipped, 0);
+assert.equal(coverage.targetMet, coverage.covered === coverage.statements);
+assert.equal(coverage.minimumPercent, 100);
+assert.equal(coverage.uncovered, coverage.statements - coverage.covered);
+assert.ok(
+  Math.abs(coverage.percent - (coverage.covered * 100) / coverage.statements) <
+    0.000001,
+);
+assert.equal(
+  coverage.files.reduce((n, file) => n + file.statements, 0),
+  coverage.statements,
+);
+assert.equal(
+  coverage.files.reduce((n, file) => n + file.covered, 0),
+  coverage.covered,
+);
+const coveragePath = "public/benchmarks/daemon-coverage.json";
+const profilePath = "public/benchmarks/daemon-coverage.out.gz";
+const profile = fs.readFileSync(path.join(results, "coverage.out"));
+assert.equal(
+  createHash("sha256").update(profile).digest("hex"),
+  validation.coverageProfileSha256,
+);
+fs.writeFileSync(
+  coveragePath,
+  fs
+    .readFileSync(path.join(results, "coverage.json"), "utf8")
+    .replace(/\r\n/g, "\n"),
+);
+fs.writeFileSync(profilePath, gzipSync(profile));
+const microbenchmarkPath = "public/benchmarks/daemon-microbenchmarks.txt";
+const microbenchmarks = fs.readFileSync(
+  path.join(results, "microbenchmarks.txt"),
+  "utf8",
+);
+assert.ok(!microbenchmarks.includes("FAIL"));
+const microCases = new Map();
+for (const line of microbenchmarks.split(/\r?\n/)) {
+  const match = line.match(
+    /^(Benchmark\S+)-4\s+\d+\s+[\d.]+ ns\/op\s+\d+ B\/op\s+\d+ allocs\/op/,
+  );
+  if (match) microCases.set(match[1], (microCases.get(match[1]) ?? 0) + 1);
+}
+assert.ok(microCases.size > 0);
+assert.ok([...microCases.values()].every((count) => count === 5));
+fs.writeFileSync(microbenchmarkPath, microbenchmarks);
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "daemon-publication-"));
 const source = {
   manta: {},
@@ -84,7 +151,11 @@ const options = {
   env: { ...process.env, GIT_INDEX_FILE: index },
 };
 run("git", ["read-tree", "HEAD"], options);
-run("git", ["add", "--", ...runtimeFiles], options);
+run(
+  "git",
+  ["-c", "core.safecrlf=false", "add", "--", ...runtimeFiles],
+  options,
+);
 const patch =
   run("git", ["diff", "--cached", "--binary", "HEAD"], options) + "\n";
 const patchPath = "public/benchmarks/daemon-comparison-manta.patch";
@@ -141,7 +212,7 @@ const runnerFiles = [
 const runner = runnerFiles
   .map(
     (file) =>
-      `\n===== ${file} =====\n${fs.readFileSync(path.join(checkout, file), "utf8")}`,
+      `\n===== ${file} =====\n${fs.readFileSync(path.join(checkout, file), "utf8").replace(/\r\n/g, "\n")}`,
   )
   .join("\n");
 const runnerPath = "public/benchmarks/daemon-comparison-runner.txt";
@@ -168,6 +239,41 @@ for (const variant of ["wings", "manta"]) {
       file,
     ]).split(/\s+/)[0];
     assert.match(sha256, /^[a-f0-9]{64}$/);
+    const properties = run("docker", [
+      "exec",
+      server.uuid,
+      "sh",
+      "-c",
+      "grep -E '^(level-seed|level-name|level-type|generate-structures|view-distance|simulation-distance|tick-distance|max-threads|max-players|gamemode|difficulty|pause-when-empty-seconds)=' /home/container/server.properties",
+    ]);
+    const configuredSettings = Object.fromEntries(
+      properties
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .sort()
+        .map((line) => {
+          const split = line.indexOf("=");
+          return [line.slice(0, split), line.slice(split + 1)];
+        }),
+    );
+    const startupKeys = new Set([
+      "STARTUP",
+      "SERVER_MEMORY",
+      "SERVER_JARFILE",
+      "MINECRAFT_VERSION",
+      "BEDROCK_VERSION",
+    ]);
+    const startupSha256 = createHash("sha256")
+      .update(
+        JSON.stringify({
+          entrypoint: info.Config.Entrypoint,
+          command: info.Config.Cmd,
+          environment: info.Config.Env.filter((entry) =>
+            startupKeys.has(entry.split("=", 1)[0]),
+          ).sort(),
+        }),
+      )
+      .digest("hex");
     games.push({
       variant,
       game: server.kind,
@@ -176,6 +282,8 @@ for (const variant of ["wings", "manta"]) {
       cpuPeriod: info.HostConfig.CpuPeriod,
       memoryLimit: info.HostConfig.Memory,
       binarySha256: sha256,
+      startupSha256,
+      configuredSettings,
     });
   }
 }
@@ -187,12 +295,18 @@ for (const game of ["paper", "bedrock"]) {
     "cpuPeriod",
     "memoryLimit",
     "binarySha256",
+    "startupSha256",
   ])
     assert.equal(
       pair[0][key],
       pair[1][key],
       `Game configurations differ: ${game} ${key}`,
     );
+  assert.deepEqual(
+    pair[0].configuredSettings,
+    pair[1].configuredSettings,
+    `Game settings differ: ${game}`,
+  );
 }
 const startedAt = new Date(
   Math.min(...files.map((file) => file.birthtimeMs)),
@@ -215,6 +329,31 @@ const report = {
   source,
   games,
   harnessSha256: hash(runnerPath),
+  verification: {
+    ...validation,
+    coverage: {
+      file: "daemon-coverage.json",
+      sha256: hash(coveragePath),
+      percent: coverage.percent,
+      targetMet: coverage.targetMet,
+    },
+    profile: {
+      file: "daemon-coverage.out.gz",
+      sha256: hash(profilePath),
+      uncompressedSha256: validation.coverageProfileSha256,
+    },
+    microbenchmarks: {
+      file: "daemon-microbenchmarks.txt",
+      sha256: hash(microbenchmarkPath),
+      cases: microCases.size,
+      repetitions: 5,
+      benchtime: "500ms",
+      cpuQuota: 4,
+      memoryLimit: 2 * 2 ** 30,
+      gomaxprocs: 4,
+      compiler: "Go 1.26.9 Linux amd64",
+    },
+  },
   phases,
 };
 // The runner omits runtime credentials; guard against accidentally packaging a manifest.

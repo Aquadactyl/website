@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "measuredOn": "2026-10-15",
-  "startedAt": "2026-10-15T16:27:23.008Z",
-  "completedAt": "2026-10-15T16:32:37.024Z",
+  "measuredOn": "2026-11-02",
+  "startedAt": "2026-11-02T16:26:46.383Z",
+  "completedAt": "2026-11-02T16:32:25.858Z",
   "timestampBasis": "First result-file creation and last result-file update",
   "environment": {
     "cpu": "Intel(R) Core(TM) i7-14700KF",
@@ -13,7 +13,7 @@
   },
   "source": {
     "manta": {
-      "revision": "747bc4393daf5d95fdf61d76382f5e23749cffe9",
+      "revision": "7a2b6c197f0cc4fc81b427b6b0c30e6ff4a3d832",
       "files": [
         {
           "file": "Dockerfile",
@@ -21,19 +21,19 @@
         },
         {
           "file": "cmd/configure.go",
-          "sha256": "9ca428ce16f0f386c13243b3113fc3053b187150a466bfdd711f9fdde3a056f2"
+          "sha256": "36398ea7459fde0273ac81aff2320be18bb977f6701a646137ec0fdc06237e93"
         },
         {
           "file": "cmd/diagnostics.go",
-          "sha256": "8db3d424f94b340e54d5b9fd54969091117295690c6d7bc9edac3364daff2436"
+          "sha256": "8e92d9190a7f83d94269712cb4ae96053829291cd2f1dcdb69b1ee84b4a08156"
         },
         {
           "file": "cmd/root.go",
-          "sha256": "b3acac541b344965aff10dd1a8f33a15c3e579f3fde131b6c9c40618741c1a0d"
+          "sha256": "9ce838cf08555e3a5ae3ca422487b1f336adc13ef650e7ce73a794f9ff69abb8"
         },
         {
           "file": "config/config.go",
-          "sha256": "d3670bf279fb204b944066340f0e04727ba5a4b64beb1c4cbdb5d2ba04042874"
+          "sha256": "2fb21271315ecbb89743f2d9a6b179d5f52d178a4b44f2fd539acae2bdc07b2b"
         },
         {
           "file": "config/config_docker.go",
@@ -65,7 +65,7 @@
         },
         {
           "file": "environment/docker/container.go",
-          "sha256": "cdeb826b483d2cc0d005fe9fbf3e7fe40590be8a157b9446768548f6a7a68ce7"
+          "sha256": "83c2b93adaca3ace9a287e7603b916e6afbd7796e0d6eb5de473d6fe0c2eb1eb"
         },
         {
           "file": "environment/docker/environment.go",
@@ -85,7 +85,7 @@
         },
         {
           "file": "environment/settings.go",
-          "sha256": "d7459a0c079853a6512c3f44fdff6df3b924184755f478f894aeadb717b5bae5"
+          "sha256": "530e776dce779539458c2a695c3cbbc3a1bb5801cede969c6da6d6829baed03a"
         },
         {
           "file": "environment/stats.go",
@@ -93,7 +93,7 @@
         },
         {
           "file": "events/events.go",
-          "sha256": "12d925d9d0d1d8e4bb4c3acf33896c61596e53cc59b287a9d0ccd50b8667217a"
+          "sha256": "a146029635229b9ebcfdc2b72788dfa405ba0717094343c385e3540389340e34"
         },
         {
           "file": "go.mod",
@@ -145,7 +145,7 @@
         },
         {
           "file": "internal/progress/progress.go",
-          "sha256": "b0a1b12dabad0b22976149fee4edd1a330a3444bfaf2d6e1d9dfe980f660849d"
+          "sha256": "8bf59cfb6ea6f2183d2317828c51650acb03b2d475283798f5ef2f55200ee762"
         },
         {
           "file": "internal/ufs/doc.go",
@@ -173,7 +173,7 @@
         },
         {
           "file": "internal/ufs/fs_unix.go",
-          "sha256": "6ed1a852bc082a0f73ff06b8f03f7e5196b2ff991d6b870d7a5dffd75de24e64"
+          "sha256": "e8af5e71eb5a63ed060d828893f84216e5a1c1b9e37b4eefec0bf215aebd76b2"
         },
         {
           "file": "internal/ufs/mkdir_unix.go",
@@ -185,11 +185,11 @@
         },
         {
           "file": "internal/ufs/quota_writer.go",
-          "sha256": "5d6ff61e80a84a1bd3e3b6c846ab79e80623b29d6c7741bf7e6e8aa1c599b210"
+          "sha256": "93ee743b46d178be9bdaab26e13639d98199e12c9747af5f9741470bb479b440"
         },
         {
           "file": "internal/ufs/removeall_unix.go",
-          "sha256": "a26e2264bb50fa77b67c2f2460d37e52e0bc2959f64e2329957b6a79c721241a"
+          "sha256": "d883b8b03d8b2c3d996295d7b4aa4777d1cc67de7eb16ccc763647755d0baca7"
         },
         {
           "file": "internal/ufs/stat_unix.go",
@@ -201,11 +201,11 @@
         },
         {
           "file": "internal/ufs/walk_unix.go",
-          "sha256": "910702b214182025571ae7ca23e9d3609c36fab26dc4f97de69b54477320acb7"
+          "sha256": "6de11022cb5a06e4a2176a08f7f283fdf6e16aedd1c1568442c36e136e51b703"
         },
         {
           "file": "loggers/cli/cli.go",
-          "sha256": "1c131c49989afcaaf2e2d2f65dac587da27bbd228472cca50f702b048139e515"
+          "sha256": "ddea5040c2c74fa6daf3631f98dc633cccb344e74e4f15920a94f12ac37884b8"
         },
         {
           "file": "parser/helpers.go",
@@ -213,7 +213,7 @@
         },
         {
           "file": "parser/parser.go",
-          "sha256": "fc336cfdadcca49d673e7dbad665d137420ffa6790963f98434e9858b6abdf79"
+          "sha256": "3317d33140eb37416c2911ca851baa895619becee744483acf3b5915a3af54e5"
         },
         {
           "file": "remote/errors.go",
@@ -233,7 +233,7 @@
         },
         {
           "file": "router/downloader/downloader.go",
-          "sha256": "220b7e9df33ebf473c853677f28db162ac594739c1f7a47e8386c851c9ccbbf9"
+          "sha256": "b76848bb0236f57060721969f7c523e314b7ec60049f0380f4db897ddfa6878c"
         },
         {
           "file": "router/middleware.go",
@@ -253,7 +253,7 @@
         },
         {
           "file": "router/router.go",
-          "sha256": "afb24b46b320d82b3ff1794bd34550586182402dbffa7e8ed10b31079713936d"
+          "sha256": "c6b6e06bde70e82c406c3916fb47bbac4901cf827dc1fb542cc2852aa889c017"
         },
         {
           "file": "router/router_download.go",
@@ -261,31 +261,31 @@
         },
         {
           "file": "router/router_server.go",
-          "sha256": "3c838bb3784b2eb515fbda0a170dc9dc55fc01fa6a94689d826fea3440e2de53"
+          "sha256": "ea661aa445691093f8a7c2832b987a1279dca99b5d93c64d645d0ec7eb89ecb5"
         },
         {
           "file": "router/router_server_backup.go",
-          "sha256": "d69f263c9c9429ed3a428bd8ef92d4416d9c538c038f2e95071273f19e17c41a"
+          "sha256": "ed858fc0362fbf5d6f3c74a377697a22e869e1ec6edad925965e3a9284091762"
         },
         {
           "file": "router/router_server_files.go",
-          "sha256": "1b5dbc9ff2f25dbac83f34eb25987846f5bd742c8752daa06e7d0b49576c1cd1"
+          "sha256": "6d764319b4e5d46780c29d1234bb891b9ba917f427abe2a9379386ea11e22527"
         },
         {
           "file": "router/router_server_transfer.go",
-          "sha256": "1c65ec0de422d714e26aa5e504f038c1a1e4d68dfaff0cee625d6ca9c14e5e5a"
+          "sha256": "b0884342ca5573b741cc85e67f0a1e1c785fe415c0f6ecc79ae4240be67bd5d6"
         },
         {
           "file": "router/router_server_ws.go",
-          "sha256": "a5170eb169e745b86ad94f79fc7506012185413ea07a9b1fb0e5d5b5cc9a6c21"
+          "sha256": "37b1b56a15345dfe07e6bcda42b47759615152a21abbfaeac146c806f4b40367"
         },
         {
           "file": "router/router_system.go",
-          "sha256": "3f12edd115daa32685366ba6ef1d8d0e7ed156570566c62bd44058bb711a6133"
+          "sha256": "473f7a35c03af18fb683f091aca5a19b4763d01a1e2f14d5d2fd02e21aecd746"
         },
         {
           "file": "router/router_transfer.go",
-          "sha256": "ee3b78aeda766909cb76941669f047b1e0bdf380f4d5bc0030a63343347b5fbf"
+          "sha256": "99fb8ea3bf900f580ebc775b0607c1d66e4e97d9f0c195107dbabf9f1b92eb75"
         },
         {
           "file": "router/tokens/backup.go",
@@ -325,7 +325,7 @@
         },
         {
           "file": "router/websocket/listeners.go",
-          "sha256": "90e5deb9d454ac14d403c1d8a4a7168ba20e3d7f29589981918b2893bb4489a1"
+          "sha256": "f23eefe186b34a5d6e670270cceca6d22468b75484772289024c8670e30569e8"
         },
         {
           "file": "router/websocket/message.go",
@@ -333,7 +333,7 @@
         },
         {
           "file": "router/websocket/websocket.go",
-          "sha256": "978fe1570c005a54eb26bcbca85ae45e1089fb79be1edf68581275eb0ddc2ea3"
+          "sha256": "d974a6de98ef3bdf202feef3007a958f4c7997c9443e548ed18e418f4a7a9e17"
         },
         {
           "file": "server/activity.go",
@@ -341,11 +341,11 @@
         },
         {
           "file": "server/backup.go",
-          "sha256": "407ae08a0dd662bf4ca1781e818d8cf5ee931f61378e0d8d34631fcca4736826"
+          "sha256": "e67160aa3413305bf334a243f2576d9e307600dd5bb4c8b34777ba8210fe2325"
         },
         {
           "file": "server/backup/backup.go",
-          "sha256": "fa949bf7146f07ab33a29a31cb0bebaecf4e18a2a526bbb1c13e1e4821df809c"
+          "sha256": "2e15ec3903a2e9b268dba27de2266307638177a9f4b52a8156a04264124121ed"
         },
         {
           "file": "server/backup/backup_local.go",
@@ -385,7 +385,7 @@
         },
         {
           "file": "server/filesystem/archive.go",
-          "sha256": "6f6b14582540112b812c09d48d137ffd7e0eda6da6533e82cc5080b4006cc4a4"
+          "sha256": "8d13af79687df32f64817c792d7206a622039ef476b3d20599a59079780dbe63"
         },
         {
           "file": "server/filesystem/compress.go",
@@ -393,7 +393,7 @@
         },
         {
           "file": "server/filesystem/disk_space.go",
-          "sha256": "2d0fbdb25c85221cb04c6feed04f3453f5b4243ee774595b852c98a74357c0db"
+          "sha256": "fd3d6c42045095198a1710f9b1375b9c2aa0e5efd1f8b15d9eae926d262a3e57"
         },
         {
           "file": "server/filesystem/errors.go",
@@ -401,7 +401,7 @@
         },
         {
           "file": "server/filesystem/filesystem.go",
-          "sha256": "a9e6313f15d7739bd8856d04e5cd1cf008ed4ba590375a08f0dc157626da05bf"
+          "sha256": "8a4cbf2549e9e3d5e37311503fd5a16f9066f017df7849beb4b8484cb0dc10c1"
         },
         {
           "file": "server/filesystem/ignore.go",
@@ -413,7 +413,7 @@
         },
         {
           "file": "server/filesystem/path.go",
-          "sha256": "41e816b9c88cda6286e7cf556775c79ae2185a66c0955c41e9044cd8249ad430"
+          "sha256": "6c793e941411ea66429bbdbcd1ca45258fe82c7094f28b2afa4f9d5622de8666"
         },
         {
           "file": "server/filesystem/quota_file.go",
@@ -425,11 +425,11 @@
         },
         {
           "file": "server/filesystem/stat_linux.go",
-          "sha256": "98a3e72ab79df854f5b6f1e10d561913f76aa448121b581c0a5241bfe9fb943a"
+          "sha256": "48b00c4c3fb77bab79e09c42e42da2501106728a8a61f180e926af1416f79033"
         },
         {
           "file": "server/install.go",
-          "sha256": "6d251c05ae4a252bf5a6ddcfeb49df512f4146d1bf4aeb8974fed4d959ff5a73"
+          "sha256": "a9d55866f88345995ef0e7125b027aa4c53d3c458c37a4345e8968840bf27694"
         },
         {
           "file": "server/installer/errors.go",
@@ -441,7 +441,7 @@
         },
         {
           "file": "server/listeners.go",
-          "sha256": "7f1ccdab46990f07185aac0ce244e3753a6f335fa05c6b091aca9088dab6c42c"
+          "sha256": "5e3cf77071809f7d10f8d3289234f65897862bc5f4409494e0867bdc360e0645"
         },
         {
           "file": "server/manager.go",
@@ -457,11 +457,11 @@
         },
         {
           "file": "server/resources.go",
-          "sha256": "27fda0cc23a726bb9bf953bca2c3d0dbd48590670e0bf679c0b36b435ca905c3"
+          "sha256": "bf5ee13b897ebb2f08b5039ead798b58bdde8a8564d396273ead033ef9cf69c6"
         },
         {
           "file": "server/server.go",
-          "sha256": "52c46d29bd2855b5411f159172361374ef05db1e946462d0ac426dc05c06e633"
+          "sha256": "8d33c24a25645d3d8d74a013efab3e212a7645ee149310f05600066bc8ffefd0"
         },
         {
           "file": "server/transfer/archive.go",
@@ -477,11 +477,11 @@
         },
         {
           "file": "server/transfer/source.go",
-          "sha256": "853d28cfeda72bf063519e106a1598347a20348f79ac883da7e227b7cd0214b2"
+          "sha256": "6986f1109208790daf1bfd70ca78d5e1cc74bc923fdfd9a8137361fc0155587e"
         },
         {
           "file": "server/transfer/transfer.go",
-          "sha256": "4c3729bb30bb0caaac5aa6007f42aaf996db2d15f2336ac131d927ebb3bdff7e"
+          "sha256": "d11acbd72e05a011ee6748a0283e7754ce6712ba8190b1690400ffbf5b4e7489"
         },
         {
           "file": "server/update.go",
@@ -505,7 +505,7 @@
         },
         {
           "file": "sftp/utils.go",
-          "sha256": "3807ee87bf94ec6e9d93458faacdd39a8989c05c7a8958b7789b8331b9e3f9ad"
+          "sha256": "11684c8cb6cc92ce1c1bd19122399aeec75a33085581643425f5f1887a6848c8"
         },
         {
           "file": "system/const.go",
@@ -525,29 +525,41 @@
         },
         {
           "file": "system/sink_pool.go",
-          "sha256": "ad9e02a807d8c0f7e962c83004e63b4d2e10eb04cf3088065ff53b8e427c68f0"
+          "sha256": "9287dbf41437ad1731851e5060d7590f35218a74981c82891bb51bdd8e797eb5"
         },
         {
           "file": "system/system.go",
-          "sha256": "97c6b08d724d45d21fe3ce77b4a4eb083a03b0acacff00ce7382ed33a6ba779d"
+          "sha256": "54f6a1447ea0a62e6da56d27044fa4eeaa1861e6dfbd9b316f89a7ac0b7a7999"
         },
         {
           "file": "system/url.go",
           "sha256": "b23f332afd3774374073a2cc176db361ab5037c5bc9e3b2719d61ebc0f190c88"
         },
         {
+          "file": "system/usage.go",
+          "sha256": "a02dc7e619e5251f2b9419102e8812636af95094b76f7ae8f3eefb6580fa254c"
+        },
+        {
+          "file": "system/usage_linux.go",
+          "sha256": "ed3a092ae894552b791d16d947212170b3ec0b9e2f02ef45a46cb508df734d34"
+        },
+        {
+          "file": "system/usage_unsupported.go",
+          "sha256": "ac1fdb3f956347b9afbe2bfb043d61f76f63417d2fbb8bb23f3873b0f47581a7"
+        },
+        {
           "file": "system/utils.go",
-          "sha256": "e95230255e37e30138cbb2f30d5539b48d5a7dca3ca78a8a84f225e7572f9c28"
+          "sha256": "12b889a9e42d31a4619e409b7fc61183d406b4133ca43582c531f895619c4358"
         },
         {
           "file": "wings.go",
           "sha256": "9ea920c3d73b1be771eda4a93c60ef54f1fff98374de94af35272231bb930953"
         }
       ],
-      "patchSha256": "a201e5e06513bf9d304299b8171410989dc158a745f2fcf1b7cdb47fda2fac79",
-      "imageId": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
-      "imageCreatedAt": "2026-10-15T16:19:56.281580596Z",
-      "binarySha256": "8f2516afd6a9d8f745587c2e2eb65b8d20f9b6c75bdf09fd0aeac9c8d73fcd29"
+      "patchSha256": "d30b57c7750d17b9a3573ebc327ff0f5c44b102a07259a95a1f242ce79d1c1b4",
+      "imageId": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
+      "imageCreatedAt": "2026-11-02T16:24:16.590273984Z",
+      "binarySha256": "268f8e82a593f852281e762c2190c4039977953fbe469020c3745009a78ff609"
     },
     "wings": {
       "release": "v1.13.4",
@@ -562,11 +574,24 @@
     {
       "variant": "wings",
       "game": "paper",
-      "imageId": "sha256:9c5a71199f182db5e26f7f8a8ebb57ba0df183d3e28ca43d88dc16b7f6a195b5",
+      "imageId": "sha256:b49e026e9a1a7ea6be242d1dc8053c591e798f78e7c801bd23880e577cc81e89",
       "cpuQuota": 200000,
       "cpuPeriod": 100000,
       "memoryLimit": 1852204646,
-      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb"
+      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb",
+      "startupSha256": "4f56b9473c8454282ad767508bde8703a8db18c1ef23019c1c6096b9b9fc847c",
+      "configuredSettings": {
+        "difficulty": "easy",
+        "gamemode": "survival",
+        "generate-structures": "false",
+        "level-name": "benchworld",
+        "level-seed": "746574",
+        "level-type": "minecraft\\:flat",
+        "max-players": "20",
+        "pause-when-empty-seconds": "-1",
+        "simulation-distance": "4",
+        "view-distance": "4"
+      }
     },
     {
       "variant": "wings",
@@ -575,16 +600,40 @@
       "cpuQuota": 200000,
       "cpuPeriod": 100000,
       "memoryLimit": 617401549,
-      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207"
+      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207",
+      "startupSha256": "43431b0e209ab50a3000a8b6eebc9e1f834dda42c7ee0ab34229ba4769c919a9",
+      "configuredSettings": {
+        "difficulty": "easy",
+        "gamemode": "survival",
+        "level-name": "benchworld",
+        "level-seed": "746574",
+        "max-players": "20",
+        "max-threads": "2",
+        "tick-distance": "4",
+        "view-distance": "4"
+      }
     },
     {
       "variant": "manta",
       "game": "paper",
-      "imageId": "sha256:9c5a71199f182db5e26f7f8a8ebb57ba0df183d3e28ca43d88dc16b7f6a195b5",
+      "imageId": "sha256:b49e026e9a1a7ea6be242d1dc8053c591e798f78e7c801bd23880e577cc81e89",
       "cpuQuota": 200000,
       "cpuPeriod": 100000,
       "memoryLimit": 1852204646,
-      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb"
+      "binarySha256": "35a6c650e2f7f540e8f62e947ff00614242c25ec68befbc54a5f668b2fbecbdb",
+      "startupSha256": "4f56b9473c8454282ad767508bde8703a8db18c1ef23019c1c6096b9b9fc847c",
+      "configuredSettings": {
+        "difficulty": "easy",
+        "gamemode": "survival",
+        "generate-structures": "false",
+        "level-name": "benchworld",
+        "level-seed": "746574",
+        "level-type": "minecraft\\:flat",
+        "max-players": "20",
+        "pause-when-empty-seconds": "-1",
+        "simulation-distance": "4",
+        "view-distance": "4"
+      }
     },
     {
       "variant": "manta",
@@ -593,17 +642,64 @@
       "cpuQuota": 200000,
       "cpuPeriod": 100000,
       "memoryLimit": 617401549,
-      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207"
+      "binarySha256": "0a490c711d4a2ce075debcd979e8862b7eaba008373f9970f0edbb67f98f9207",
+      "startupSha256": "43431b0e209ab50a3000a8b6eebc9e1f834dda42c7ee0ab34229ba4769c919a9",
+      "configuredSettings": {
+        "difficulty": "easy",
+        "gamemode": "survival",
+        "level-name": "benchworld",
+        "level-seed": "746574",
+        "max-players": "20",
+        "max-threads": "2",
+        "tick-distance": "4",
+        "view-distance": "4"
+      }
     }
   ],
-  "harnessSha256": "a67e42e30c4b4ffff3e33f41bf08842c3ce9696d862ccd20261e28f93ffaaa36",
+  "harnessSha256": "052415bbb225133de4fc034f38e33d3c137ed34993d3faef9b898f662992680a",
+  "verification": {
+    "date": "2026-11-02",
+    "race": "passed",
+    "vet": "passed",
+    "failed": 0,
+    "skipped": 0,
+    "passedCases": 823,
+    "passedPackages": 28,
+    "testToolchain": "go version go1.26.9 linux/amd64",
+    "command": "go test -race -json -count=1 -coverpkg=./... -covermode=atomic -coverprofile=coverage.out ./...",
+    "coverageProfileSha256": "4b64e6c0476b8fbc1b302811e61d5fcd7f24ae9a5223eab21f9fbdf6a0d08077",
+    "coverageLogSha256": "d993f5c4d4e347d493572d6b8dd830eed16f8a259864a8ccf8cd32bc432ca237",
+    "testEngine": "Docker 29.9.2 isolated Docker-in-Docker",
+    "coverage": {
+      "file": "daemon-coverage.json",
+      "sha256": "57e1def879a902f182902b2260417d0c7ce2b2781d1f3997ef3a603b63c6abdd",
+      "percent": 91.69697,
+      "targetMet": false
+    },
+    "profile": {
+      "file": "daemon-coverage.out.gz",
+      "sha256": "9ed7e06e00fbfaa5973a9b8c77f109c7bc00a52666b949f9dda051fc723509bb",
+      "uncompressedSha256": "4b64e6c0476b8fbc1b302811e61d5fcd7f24ae9a5223eab21f9fbdf6a0d08077"
+    },
+    "microbenchmarks": {
+      "file": "daemon-microbenchmarks.txt",
+      "sha256": "d175deb7d404999df823859b84ed3d8bd6d24a6b2a9f4ad80aa4eb3f25e8dc2f",
+      "cases": 31,
+      "repetitions": 5,
+      "benchtime": "500ms",
+      "cpuQuota": 4,
+      "memoryLimit": 2147483648,
+      "gomaxprocs": 4,
+      "compiler": "Go 1.26.9 Linux amd64"
+    }
+  },
   "phases": {
     "lifecycle": [
       {
         "cpu_limit": 2,
         "go_version": "go1.27.2",
         "gomaxprocs": "2",
-        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "image_id": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
         "memory_limit": 1073741824,
         "servers": [
           {
@@ -628,7 +724,7 @@
           "cpu_count": 28,
           "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
           "os": "linux",
-          "version": "1.13.3-manta-local"
+          "version": "dev-manta-7a2b6c1-20261102"
         },
         "type": "metadata",
         "variant": "manta"
@@ -671,8 +767,8 @@
         "cold": true,
         "game": "bedrock",
         "round": 0,
-        "start_ms": 2323.845,
-        "stop_ms": 1010.413,
+        "start_ms": 2325.276,
+        "stop_ms": 1112.966,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -681,8 +777,8 @@
         "cold": true,
         "game": "bedrock",
         "round": 0,
-        "start_ms": 2223.577,
-        "stop_ms": 1213.231,
+        "start_ms": 2427.639,
+        "stop_ms": 1213.941,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -691,8 +787,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 1,
-        "start_ms": 2223.131,
-        "stop_ms": 1010.228,
+        "start_ms": 2426.853,
+        "stop_ms": 1111.712,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -701,8 +797,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 1,
-        "start_ms": 2222.375,
-        "stop_ms": 1212.855,
+        "start_ms": 2324.101,
+        "stop_ms": 1111.677,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -711,8 +807,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 2,
-        "start_ms": 2323.814,
-        "stop_ms": 1211.749,
+        "start_ms": 2324.25,
+        "stop_ms": 1212.801,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -721,8 +817,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 2,
-        "start_ms": 2224.734,
-        "stop_ms": 1010.306,
+        "start_ms": 2326.084,
+        "stop_ms": 1213.923,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -731,8 +827,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 3,
-        "start_ms": 2226.905,
-        "stop_ms": 1211.828,
+        "start_ms": 2325.746,
+        "stop_ms": 1212.374,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -741,8 +837,8 @@
         "cold": false,
         "game": "bedrock",
         "round": 3,
-        "start_ms": 2221.976,
-        "stop_ms": 1212.726,
+        "start_ms": 2323.634,
+        "stop_ms": 1213.741,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -751,8 +847,8 @@
         "cold": true,
         "game": "paper",
         "round": 0,
-        "start_ms": 10206.448,
-        "stop_ms": 909.369,
+        "start_ms": 10206.281,
+        "stop_ms": 809.96,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -761,8 +857,8 @@
         "cold": true,
         "game": "paper",
         "round": 0,
-        "start_ms": 9801.532,
-        "stop_ms": 910.125,
+        "start_ms": 10204.943,
+        "stop_ms": 1010.871,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -771,8 +867,8 @@
         "cold": false,
         "game": "paper",
         "round": 1,
-        "start_ms": 9599.269,
-        "stop_ms": 909.695,
+        "start_ms": 10414.404,
+        "stop_ms": 910.902,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -781,8 +877,8 @@
         "cold": false,
         "game": "paper",
         "round": 1,
-        "start_ms": 9593.543,
-        "stop_ms": 909.398,
+        "start_ms": 10304.685,
+        "stop_ms": 909.921,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -791,8 +887,8 @@
         "cold": false,
         "game": "paper",
         "round": 2,
-        "start_ms": 9695.354,
-        "stop_ms": 909.374,
+        "start_ms": 9999.847,
+        "stop_ms": 1009.621,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -801,8 +897,8 @@
         "cold": false,
         "game": "paper",
         "round": 2,
-        "start_ms": 9493.987,
-        "stop_ms": 909.477,
+        "start_ms": 10204.214,
+        "stop_ms": 909.579,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -811,8 +907,8 @@
         "cold": false,
         "game": "paper",
         "round": 3,
-        "start_ms": 9797.122,
-        "stop_ms": 909.445,
+        "start_ms": 10099.957,
+        "stop_ms": 910.193,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "wings"
@@ -821,8 +917,8 @@
         "cold": false,
         "game": "paper",
         "round": 3,
-        "start_ms": 9493.571,
-        "stop_ms": 908.85,
+        "start_ms": 10404.426,
+        "stop_ms": 909.51,
         "test": "lifecycle",
         "type": "measurement",
         "variant": "manta"
@@ -833,7 +929,7 @@
         "cpu_limit": 2,
         "go_version": "go1.27.2",
         "gomaxprocs": "2",
-        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "image_id": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
         "memory_limit": 1073741824,
         "servers": [
           {
@@ -858,7 +954,7 @@
           "cpu_count": 28,
           "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
           "os": "linux",
-          "version": "1.13.3-manta-local"
+          "version": "dev-manta-7a2b6c1-20261102"
         },
         "type": "metadata",
         "variant": "manta"
@@ -900,872 +996,872 @@
       {
         "concurrency": 1,
         "errors": 0,
-        "mean_ms": 0.2259299999999998,
-        "n": 400,
-        "p50_ms": 0.214,
-        "p95_ms": 0.323,
-        "p99_ms": 0.405,
-        "requests_per_second": 4410.4423352802605,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 0.3387974999999999,
-        "n": 400,
-        "p50_ms": 0.22,
-        "p95_ms": 1.218,
-        "p99_ms": 1.876,
-        "requests_per_second": 45648.583056569776,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 3.7727725000000003,
-        "n": 400,
-        "p50_ms": 0.586,
-        "p95_ms": 39.63,
-        "p99_ms": 40.396,
-        "requests_per_second": 8390.698792918267,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 7.313290000000002,
-        "n": 400,
-        "p50_ms": 7.17,
-        "p95_ms": 8.701,
-        "p99_ms": 9.561,
-        "requests_per_second": 136.7151063087729,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 61.16345249999999,
-        "n": 400,
-        "p50_ms": 52.299,
-        "p95_ms": 138.943,
-        "p99_ms": 190.39,
-        "requests_per_second": 258.2921790216248,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 129.33393750000005,
-        "n": 400,
-        "p50_ms": 112.548,
-        "p95_ms": 282.363,
-        "p99_ms": 430.095,
-        "requests_per_second": 240.0360220618092,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 14.228399999999999,
-        "n": 5,
-        "p50_ms": 13.6,
-        "p95_ms": 15.798,
-        "p99_ms": 15.798,
-        "round": 0,
-        "test": "http_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 13.449800000000002,
-        "n": 5,
-        "p50_ms": 12.707,
-        "p95_ms": 13.896,
-        "p99_ms": 13.896,
-        "round": 0,
-        "test": "http_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 118.72200000000001,
-        "n": 5,
-        "p50_ms": 119.203,
-        "p95_ms": 120.854,
-        "p99_ms": 120.854,
-        "round": 0,
-        "test": "sftp_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 61.53339999999999,
-        "n": 5,
-        "p50_ms": 59.38,
-        "p95_ms": 66.384,
-        "p99_ms": 66.384,
-        "round": 0,
-        "test": "sftp_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "duration_ms": 4.201,
-        "round": 0,
-        "test": "chmod_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "duration_ms": 16.103,
-        "round": 0,
-        "test": "rename_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "compress_ms": 18.545,
-        "extract_ms": 62.369,
-        "round": 0,
-        "test": "archive_16m_1000_files",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "expected_messages": 1600,
-        "mean_ms": 8.242581875000024,
-        "n": 1600,
-        "p50_ms": 8.102,
-        "p95_ms": 10.911,
-        "p99_ms": 11.129,
-        "received_messages": 1600,
-        "round": 0,
-        "test": "websocket_16_subscribers_100_lines",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 0.22228750000000003,
-        "n": 400,
-        "p50_ms": 0.211,
-        "p95_ms": 0.334,
-        "p99_ms": 0.37,
-        "requests_per_second": 4484.0641907689505,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 0.43347999999999987,
-        "n": 400,
-        "p50_ms": 0.267,
-        "p95_ms": 1.516,
-        "p99_ms": 2.831,
-        "requests_per_second": 35854.08784556282,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 0.8426049999999999,
-        "n": 400,
-        "p50_ms": 0.621,
-        "p95_ms": 2.457,
-        "p99_ms": 3.72,
-        "requests_per_second": 35830.95064976294,
-        "round": 0,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 9.619454999999999,
-        "n": 400,
-        "p50_ms": 9.508,
-        "p95_ms": 11.114,
-        "p99_ms": 12.187,
-        "requests_per_second": 103.94320056027776,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 100.82901249999999,
-        "n": 400,
-        "p50_ms": 88.148,
-        "p95_ms": 214.617,
-        "p99_ms": 274.641,
-        "requests_per_second": 157.24302230147634,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 188.90642749999998,
-        "n": 400,
-        "p50_ms": 161.16,
-        "p95_ms": 443.1,
-        "p99_ms": 596.748,
-        "requests_per_second": 166.10254084311882,
-        "round": 0,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 43.882999999999996,
-        "n": 5,
-        "p50_ms": 44.769,
-        "p95_ms": 45.462,
-        "p99_ms": 45.462,
-        "round": 0,
-        "test": "http_write_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 29.0908,
-        "n": 5,
-        "p50_ms": 28.634,
-        "p95_ms": 30.568,
-        "p99_ms": 30.568,
-        "round": 0,
-        "test": "http_read_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 137.4658,
-        "n": 5,
-        "p50_ms": 137.557,
-        "p95_ms": 141.481,
-        "p99_ms": 141.481,
-        "round": 0,
-        "test": "sftp_write_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 58.014799999999994,
-        "n": 5,
-        "p50_ms": 58.016,
-        "p95_ms": 60.931,
-        "p99_ms": 60.931,
-        "round": 0,
-        "test": "sftp_read_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "duration_ms": 4.69,
-        "round": 0,
-        "test": "chmod_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "duration_ms": 16.319,
-        "round": 0,
-        "test": "rename_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "compress_ms": 18.51,
-        "extract_ms": 63.254,
-        "round": 0,
-        "test": "archive_16m_1000_files",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "expected_messages": 1600,
-        "mean_ms": 9.639525624999997,
-        "n": 1600,
-        "p50_ms": 9.862,
-        "p95_ms": 13.171,
-        "p99_ms": 14.121,
-        "received_messages": 1600,
-        "round": 0,
-        "test": "websocket_16_subscribers_100_lines",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 0.25092999999999993,
-        "n": 400,
-        "p50_ms": 0.245,
-        "p95_ms": 0.369,
-        "p99_ms": 0.431,
-        "requests_per_second": 3973.208811909646,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 0.2539925,
-        "n": 400,
-        "p50_ms": 0.225,
-        "p95_ms": 0.515,
-        "p99_ms": 0.748,
-        "requests_per_second": 59880.400875331696,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 0.7360975000000006,
-        "n": 400,
-        "p50_ms": 0.549,
-        "p95_ms": 2.076,
-        "p99_ms": 2.964,
-        "requests_per_second": 41278.66868037772,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 9.460875,
-        "n": 400,
-        "p50_ms": 9.38,
-        "p95_ms": 10.742,
-        "p99_ms": 11.682,
-        "requests_per_second": 105.68415305460589,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 92.01938249999995,
-        "n": 400,
-        "p50_ms": 83.52,
-        "p95_ms": 185.602,
-        "p99_ms": 233.568,
-        "requests_per_second": 171.62963984238777,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 190.17034500000005,
-        "n": 400,
-        "p50_ms": 158.793,
-        "p95_ms": 430.931,
-        "p99_ms": 612.596,
-        "requests_per_second": 164.1855224161673,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 14.843799999999998,
-        "n": 5,
-        "p50_ms": 14.209,
-        "p95_ms": 15.346,
-        "p99_ms": 15.346,
-        "round": 1,
-        "test": "http_write_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 30.2534,
-        "n": 5,
-        "p50_ms": 28.363,
-        "p95_ms": 32.752,
-        "p99_ms": 32.752,
-        "round": 1,
-        "test": "http_read_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 108.0522,
-        "n": 5,
-        "p50_ms": 109.084,
-        "p95_ms": 111.156,
-        "p99_ms": 111.156,
-        "round": 1,
-        "test": "sftp_write_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 60.452999999999996,
-        "n": 5,
-        "p50_ms": 61.186,
-        "p95_ms": 62.766,
-        "p99_ms": 62.766,
-        "round": 1,
-        "test": "sftp_read_16m",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "duration_ms": 6.241,
-        "round": 1,
-        "test": "chmod_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "duration_ms": 15.939,
-        "round": 1,
-        "test": "rename_1000",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "compress_ms": 20.368,
-        "extract_ms": 59.615,
-        "round": 1,
-        "test": "archive_16m_1000_files",
-        "type": "measurement",
-        "variant": "wings",
-        "verified": true
-      },
-      {
-        "expected_messages": 1600,
-        "mean_ms": 9.945531249999988,
-        "n": 1600,
-        "p50_ms": 10.137,
-        "p95_ms": 12.907,
-        "p99_ms": 13.142,
-        "received_messages": 1600,
-        "round": 1,
-        "test": "websocket_16_subscribers_100_lines",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 0.2108425000000002,
-        "n": 400,
-        "p50_ms": 0.194,
-        "p95_ms": 0.337,
-        "p99_ms": 0.42,
-        "requests_per_second": 4727.0275148690425,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 0.2574100000000001,
-        "n": 400,
-        "p50_ms": 0.22,
-        "p95_ms": 0.585,
-        "p99_ms": 0.713,
-        "requests_per_second": 59788.900340124106,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 0.6933800000000001,
-        "n": 400,
-        "p50_ms": 0.556,
-        "p95_ms": 1.809,
-        "p99_ms": 2.668,
-        "requests_per_second": 43011.77942097113,
-        "round": 1,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 7.281180000000001,
-        "n": 400,
-        "p50_ms": 7.139,
-        "p95_ms": 8.529,
-        "p99_ms": 9.22,
-        "requests_per_second": 137.31858134598568,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 61.39943250000003,
-        "n": 400,
-        "p50_ms": 52.822,
-        "p95_ms": 138.296,
-        "p99_ms": 187.519,
-        "requests_per_second": 256.95294894467213,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 124.3540025,
-        "n": 400,
-        "p50_ms": 105.742,
-        "p95_ms": 279.839,
-        "p99_ms": 383.209,
-        "requests_per_second": 249.11540784633056,
-        "round": 1,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 13.288599999999999,
-        "n": 5,
-        "p50_ms": 13.225,
-        "p95_ms": 13.341,
-        "p99_ms": 13.341,
-        "round": 1,
-        "test": "http_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 12.9342,
-        "n": 5,
-        "p50_ms": 11.899,
-        "p95_ms": 14.691,
-        "p99_ms": 14.691,
-        "round": 1,
-        "test": "http_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 125.7634,
-        "n": 5,
-        "p50_ms": 127.029,
-        "p95_ms": 127.081,
-        "p99_ms": 127.081,
-        "round": 1,
-        "test": "sftp_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 71.6596,
-        "n": 5,
-        "p50_ms": 71.292,
-        "p95_ms": 75.017,
-        "p99_ms": 75.017,
-        "round": 1,
-        "test": "sftp_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "duration_ms": 4.506,
-        "round": 1,
-        "test": "chmod_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "duration_ms": 16.346,
-        "round": 1,
-        "test": "rename_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "compress_ms": 22.182,
-        "extract_ms": 73.41,
-        "round": 1,
-        "test": "archive_16m_1000_files",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "expected_messages": 1600,
-        "mean_ms": 9.269627500000018,
-        "n": 1600,
-        "p50_ms": 9.246,
-        "p95_ms": 11.658,
-        "p99_ms": 11.829,
-        "received_messages": 1600,
-        "round": 1,
-        "test": "websocket_16_subscribers_100_lines",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 0.21770000000000028,
-        "n": 400,
-        "p50_ms": 0.207,
-        "p95_ms": 0.322,
-        "p99_ms": 0.375,
-        "requests_per_second": 4578.65248151289,
-        "round": 2,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 0.3259974999999999,
-        "n": 400,
-        "p50_ms": 0.249,
-        "p95_ms": 0.796,
-        "p99_ms": 1.32,
-        "requests_per_second": 47467.237222858086,
-        "round": 2,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 0.6856974999999995,
-        "n": 400,
-        "p50_ms": 0.549,
-        "p95_ms": 1.708,
-        "p99_ms": 2.358,
-        "requests_per_second": 44164.271214997745,
-        "round": 2,
-        "test": "api_status",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 7.3694575000000055,
-        "n": 400,
-        "p50_ms": 7.276,
-        "p95_ms": 8.719,
-        "p99_ms": 9.696,
-        "requests_per_second": 135.67481328604333,
-        "round": 2,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 16,
-        "errors": 0,
-        "mean_ms": 60.85653500000002,
-        "n": 400,
-        "p50_ms": 53.251,
-        "p95_ms": 130.961,
-        "p99_ms": 171.94,
-        "requests_per_second": 259.79027307911707,
-        "round": 2,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 32,
-        "errors": 0,
-        "mean_ms": 127.64385250000005,
-        "n": 400,
-        "p50_ms": 109.397,
-        "p95_ms": 304.688,
-        "p99_ms": 403.234,
-        "requests_per_second": 244.2047200940822,
-        "round": 2,
-        "test": "directory_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 12.806799999999999,
-        "n": 5,
-        "p50_ms": 13.272,
-        "p95_ms": 13.764,
-        "p99_ms": 13.764,
-        "round": 2,
-        "test": "http_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 13.7172,
-        "n": 5,
-        "p50_ms": 11.529,
-        "p95_ms": 16.493,
-        "p99_ms": 16.493,
-        "round": 2,
-        "test": "http_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 120.8184,
-        "n": 5,
-        "p50_ms": 125.839,
-        "p95_ms": 126.378,
-        "p99_ms": 126.378,
-        "round": 2,
-        "test": "sftp_write_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "bytes": 16777216,
-        "mean_ms": 62.5418,
-        "n": 5,
-        "p50_ms": 64.345,
-        "p95_ms": 64.65,
-        "p99_ms": 64.65,
-        "round": 2,
-        "test": "sftp_read_16m",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "duration_ms": 4.646,
-        "round": 2,
-        "test": "chmod_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "duration_ms": 16.955,
-        "round": 2,
-        "test": "rename_1000",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "compress_ms": 20.832,
-        "extract_ms": 60.099,
-        "round": 2,
-        "test": "archive_16m_1000_files",
-        "type": "measurement",
-        "variant": "manta",
-        "verified": true
-      },
-      {
-        "expected_messages": 1600,
-        "mean_ms": 9.298564999999966,
-        "n": 1600,
-        "p50_ms": 9.284,
-        "p95_ms": 11.521,
-        "p99_ms": 11.772,
-        "received_messages": 1600,
-        "round": 2,
-        "test": "websocket_16_subscribers_100_lines",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "concurrency": 1,
-        "errors": 0,
-        "mean_ms": 0.21495249999999996,
+        "mean_ms": 0.21044000000000004,
         "n": 400,
         "p50_ms": 0.196,
-        "p95_ms": 0.331,
-        "p99_ms": 0.391,
-        "requests_per_second": 4637.609377292537,
+        "p95_ms": 0.32,
+        "p99_ms": 0.359,
+        "requests_per_second": 4735.6619222319305,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.37010500000000024,
+        "n": 400,
+        "p50_ms": 0.246,
+        "p95_ms": 1.417,
+        "p99_ms": 2.32,
+        "requests_per_second": 42157.18750009881,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 3.614025,
+        "n": 400,
+        "p50_ms": 0.489,
+        "p95_ms": 38.747,
+        "p99_ms": 39.344,
+        "requests_per_second": 8775.180875125096,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.514317499999996,
+        "n": 400,
+        "p50_ms": 7.443,
+        "p95_ms": 8.99,
+        "p99_ms": 9.496,
+        "requests_per_second": 133.0619259914551,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 61.23188499999999,
+        "n": 400,
+        "p50_ms": 49.708,
+        "p95_ms": 136.867,
+        "p99_ms": 196.693,
+        "requests_per_second": 257.28015442160694,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 130.464845,
+        "n": 400,
+        "p50_ms": 108.427,
+        "p95_ms": 304.876,
+        "p99_ms": 405.397,
+        "requests_per_second": 237.9400932231202,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 15.0016,
+        "n": 5,
+        "p50_ms": 14.696,
+        "p95_ms": 14.697,
+        "p99_ms": 14.697,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.910199999999998,
+        "n": 5,
+        "p50_ms": 12.829,
+        "p95_ms": 15.934,
+        "p99_ms": 15.934,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 120.89259999999999,
+        "n": 5,
+        "p50_ms": 120.667,
+        "p95_ms": 124.305,
+        "p99_ms": 124.305,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 69.3214,
+        "n": 5,
+        "p50_ms": 67.73,
+        "p95_ms": 69.505,
+        "p99_ms": 69.505,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 5.702,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 17.986,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 17.748,
+        "extract_ms": 68.494,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.391197499999981,
+        "n": 1600,
+        "p50_ms": 9.19,
+        "p95_ms": 12.181,
+        "p99_ms": 12.374,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.24854249999999994,
+        "n": 400,
+        "p50_ms": 0.248,
+        "p95_ms": 0.362,
+        "p99_ms": 0.432,
+        "requests_per_second": 4011.186356398862,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.46472,
+        "n": 400,
+        "p50_ms": 0.292,
+        "p95_ms": 1.739,
+        "p99_ms": 2.487,
+        "requests_per_second": 33051.88551091274,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 1.0902174999999998,
+        "n": 400,
+        "p50_ms": 0.796,
+        "p95_ms": 3.392,
+        "p99_ms": 4.114,
+        "requests_per_second": 28186.946540496258,
+        "round": 0,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 11.130807499999994,
+        "n": 400,
+        "p50_ms": 11.108,
+        "p95_ms": 13.198,
+        "p99_ms": 14.148,
+        "requests_per_second": 89.83109407700768,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 113.23254249999997,
+        "n": 400,
+        "p50_ms": 102.367,
+        "p95_ms": 225.474,
+        "p99_ms": 312.419,
+        "requests_per_second": 139.93729609872148,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 220.11893249999994,
+        "n": 400,
+        "p50_ms": 188.962,
+        "p95_ms": 517.78,
+        "p99_ms": 674.228,
+        "requests_per_second": 142.1858667748209,
+        "round": 0,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 14.1572,
+        "n": 5,
+        "p50_ms": 14.354,
+        "p95_ms": 14.453,
+        "p99_ms": 14.453,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 36.2332,
+        "n": 5,
+        "p50_ms": 33.742,
+        "p95_ms": 39.206,
+        "p99_ms": 39.206,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 145.832,
+        "n": 5,
+        "p50_ms": 133.199,
+        "p95_ms": 153.111,
+        "p99_ms": 153.111,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 81.48240000000001,
+        "n": 5,
+        "p50_ms": 80.755,
+        "p95_ms": 86.915,
+        "p99_ms": 86.915,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 8.947,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 19.097,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 21.66,
+        "extract_ms": 78.302,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 11.317093125000016,
+        "n": 1600,
+        "p50_ms": 11.364,
+        "p95_ms": 14.826,
+        "p99_ms": 15.267,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.28180499999999975,
+        "n": 400,
+        "p50_ms": 0.28,
+        "p95_ms": 0.414,
+        "p99_ms": 0.465,
+        "requests_per_second": 3539.780437507836,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.35013749999999993,
+        "n": 400,
+        "p50_ms": 0.296,
+        "p95_ms": 0.757,
+        "p99_ms": 1.044,
+        "requests_per_second": 44049.1522465343,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 1.3887200000000006,
+        "n": 400,
+        "p50_ms": 0.985,
+        "p95_ms": 4.07,
+        "p99_ms": 5.735,
+        "requests_per_second": 20904.775403274023,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 12.399212499999994,
+        "n": 400,
+        "p50_ms": 11.364,
+        "p95_ms": 19.734,
+        "p99_ms": 22.956,
+        "requests_per_second": 80.64182314156376,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 97.38349250000005,
+        "n": 400,
+        "p50_ms": 88.626,
+        "p95_ms": 214.403,
+        "p99_ms": 254.106,
+        "requests_per_second": 162.73765624004508,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 186.57406,
+        "n": 400,
+        "p50_ms": 162.796,
+        "p95_ms": 416.58,
+        "p99_ms": 539.137,
+        "requests_per_second": 167.66626337774588,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 12.228399999999999,
+        "n": 5,
+        "p50_ms": 12.542,
+        "p95_ms": 13.23,
+        "p99_ms": 13.23,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 31.6342,
+        "n": 5,
+        "p50_ms": 31.86,
+        "p95_ms": 31.925,
+        "p99_ms": 31.925,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 129.6268,
+        "n": 5,
+        "p50_ms": 132.671,
+        "p95_ms": 133.498,
+        "p99_ms": 133.498,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 66.08160000000001,
+        "n": 5,
+        "p50_ms": 64.899,
+        "p95_ms": 68.183,
+        "p99_ms": 68.183,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 6.071,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 15.664,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 19.945,
+        "extract_ms": 58.917,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 10.179212499999993,
+        "n": 1600,
+        "p50_ms": 9.927,
+        "p95_ms": 14.064,
+        "p99_ms": 14.719,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.23838500000000018,
+        "n": 400,
+        "p50_ms": 0.221,
+        "p95_ms": 0.364,
+        "p99_ms": 0.593,
+        "requests_per_second": 4181.215379797981,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.26104750000000015,
+        "n": 400,
+        "p50_ms": 0.224,
+        "p95_ms": 0.594,
+        "p99_ms": 0.962,
+        "requests_per_second": 58378.98204860897,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.5872124999999998,
+        "n": 400,
+        "p50_ms": 0.389,
+        "p95_ms": 1.94,
+        "p99_ms": 3.034,
+        "requests_per_second": 51756.0839276657,
+        "round": 1,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.6104425,
+        "n": 400,
+        "p50_ms": 7.495,
+        "p95_ms": 8.987,
+        "p99_ms": 9.598,
+        "requests_per_second": 131.37757549408985,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 67.49828999999997,
+        "n": 400,
+        "p50_ms": 55.873,
+        "p95_ms": 167.417,
+        "p99_ms": 230.693,
+        "requests_per_second": 234.18502563102413,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 128.24153249999995,
+        "n": 400,
+        "p50_ms": 112.733,
+        "p95_ms": 299.418,
+        "p99_ms": 380.801,
+        "requests_per_second": 241.93441584758682,
+        "round": 1,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.868,
+        "n": 5,
+        "p50_ms": 15.05,
+        "p95_ms": 15.061,
+        "p99_ms": 15.061,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 13.474599999999999,
+        "n": 5,
+        "p50_ms": 11.894,
+        "p95_ms": 14.516,
+        "p99_ms": 14.516,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 126.0276,
+        "n": 5,
+        "p50_ms": 125.507,
+        "p95_ms": 127.372,
+        "p99_ms": 127.372,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 65.17280000000001,
+        "n": 5,
+        "p50_ms": 67.216,
+        "p95_ms": 67.229,
+        "p99_ms": 67.229,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 5.317,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 18.127,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 17.182,
+        "extract_ms": 68.863,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.375361249999983,
+        "n": 1600,
+        "p50_ms": 9.311,
+        "p95_ms": 11.907,
+        "p99_ms": 12.052,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.24784999999999993,
+        "n": 400,
+        "p50_ms": 0.236,
+        "p95_ms": 0.386,
+        "p99_ms": 0.525,
+        "requests_per_second": 4023.0029272877923,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 0.26899499999999993,
+        "n": 400,
+        "p50_ms": 0.211,
+        "p95_ms": 0.631,
+        "p99_ms": 1.356,
+        "requests_per_second": 55484.73545571694,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 0.4677974999999999,
+        "n": 400,
+        "p50_ms": 0.41,
+        "p95_ms": 0.858,
+        "p99_ms": 1.941,
+        "requests_per_second": 51150.67274643563,
+        "round": 2,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 7.70852,
+        "n": 400,
+        "p50_ms": 7.613,
+        "p95_ms": 9.303,
+        "p99_ms": 9.827,
+        "requests_per_second": 129.7062917887812,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "errors": 0,
+        "mean_ms": 63.65336750000002,
+        "n": 400,
+        "p50_ms": 54.156,
+        "p95_ms": 142.347,
+        "p99_ms": 223.833,
+        "requests_per_second": 247.93418724850895,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "errors": 0,
+        "mean_ms": 130.00056,
+        "n": 400,
+        "p50_ms": 116.199,
+        "p95_ms": 279.717,
+        "p99_ms": 407.357,
+        "requests_per_second": 237.27929870888397,
+        "round": 2,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 14.4638,
+        "n": 5,
+        "p50_ms": 14.701,
+        "p95_ms": 15.353,
+        "p99_ms": 15.353,
+        "round": 2,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 14.651599999999998,
+        "n": 5,
+        "p50_ms": 13.674,
+        "p95_ms": 16.772,
+        "p99_ms": 16.772,
+        "round": 2,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 129.7046,
+        "n": 5,
+        "p50_ms": 129.403,
+        "p95_ms": 132.511,
+        "p99_ms": 132.511,
+        "round": 2,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 63.298,
+        "n": 5,
+        "p50_ms": 62.225,
+        "p95_ms": 63.891,
+        "p99_ms": 63.891,
+        "round": 2,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.439,
+        "round": 2,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 15.382,
+        "round": 2,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 17.789,
+        "extract_ms": 63.308,
+        "round": 2,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 9.398348750000002,
+        "n": 1600,
+        "p50_ms": 9.229,
+        "p95_ms": 12.273,
+        "p99_ms": 12.479,
+        "received_messages": 1600,
+        "round": 2,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "errors": 0,
+        "mean_ms": 0.25268499999999994,
+        "n": 400,
+        "p50_ms": 0.242,
+        "p95_ms": 0.373,
+        "p99_ms": 0.449,
+        "requests_per_second": 3944.6709019743466,
         "round": 2,
         "test": "api_status",
         "type": "measurement",
@@ -1774,12 +1870,12 @@
       {
         "concurrency": 16,
         "errors": 0,
-        "mean_ms": 0.35783000000000004,
+        "mean_ms": 0.4236449999999998,
         "n": 400,
-        "p50_ms": 0.275,
-        "p95_ms": 0.962,
-        "p99_ms": 1.279,
-        "requests_per_second": 43154.4244397315,
+        "p50_ms": 0.307,
+        "p95_ms": 1.189,
+        "p99_ms": 1.811,
+        "requests_per_second": 36606.47372675592,
         "round": 2,
         "test": "api_status",
         "type": "measurement",
@@ -1788,12 +1884,12 @@
       {
         "concurrency": 32,
         "errors": 0,
-        "mean_ms": 0.7259274999999998,
+        "mean_ms": 1.2013674999999997,
         "n": 400,
-        "p50_ms": 0.485,
-        "p95_ms": 2.237,
-        "p99_ms": 3.56,
-        "requests_per_second": 42080.66590128949,
+        "p50_ms": 0.953,
+        "p95_ms": 2.945,
+        "p99_ms": 3.753,
+        "requests_per_second": 24572.00632950311,
         "round": 2,
         "test": "api_status",
         "type": "measurement",
@@ -1802,12 +1898,12 @@
       {
         "concurrency": 1,
         "errors": 0,
-        "mean_ms": 10.155335,
+        "mean_ms": 11.41149249999999,
         "n": 400,
-        "p50_ms": 9.904,
-        "p95_ms": 12.629,
-        "p99_ms": 14.728,
-        "requests_per_second": 98.45845974729842,
+        "p50_ms": 10.946,
+        "p95_ms": 14.928,
+        "p99_ms": 17.99,
+        "requests_per_second": 87.6210600878729,
         "round": 2,
         "test": "directory_1000",
         "type": "measurement",
@@ -1816,12 +1912,12 @@
       {
         "concurrency": 16,
         "errors": 0,
-        "mean_ms": 90.36195999999994,
+        "mean_ms": 99.06122749999993,
         "n": 400,
-        "p50_ms": 85.567,
-        "p95_ms": 173.655,
-        "p99_ms": 213.859,
-        "requests_per_second": 175.33039487539833,
+        "p50_ms": 87.463,
+        "p95_ms": 227.257,
+        "p99_ms": 285.065,
+        "requests_per_second": 159.51705509694358,
         "round": 2,
         "test": "directory_1000",
         "type": "measurement",
@@ -1830,12 +1926,12 @@
       {
         "concurrency": 32,
         "errors": 0,
-        "mean_ms": 180.61124500000005,
+        "mean_ms": 194.59626000000014,
         "n": 400,
-        "p50_ms": 151.735,
-        "p95_ms": 417.197,
-        "p99_ms": 624.253,
-        "requests_per_second": 173.5978005148259,
+        "p50_ms": 166.199,
+        "p95_ms": 435.479,
+        "p99_ms": 647.719,
+        "requests_per_second": 161.08657385156562,
         "round": 2,
         "test": "directory_1000",
         "type": "measurement",
@@ -1843,11 +1939,11 @@
       },
       {
         "bytes": 16777216,
-        "mean_ms": 12.9278,
+        "mean_ms": 13.565999999999999,
         "n": 5,
-        "p50_ms": 13.514,
-        "p95_ms": 13.715,
-        "p99_ms": 13.715,
+        "p50_ms": 13.866,
+        "p95_ms": 14.153,
+        "p99_ms": 14.153,
         "round": 2,
         "test": "http_write_16m",
         "type": "measurement",
@@ -1856,11 +1952,11 @@
       },
       {
         "bytes": 16777216,
-        "mean_ms": 31.5314,
+        "mean_ms": 32.3232,
         "n": 5,
-        "p50_ms": 30.379,
-        "p95_ms": 32.054,
-        "p99_ms": 32.054,
+        "p50_ms": 31.306,
+        "p95_ms": 32.667,
+        "p99_ms": 32.667,
         "round": 2,
         "test": "http_read_16m",
         "type": "measurement",
@@ -1869,11 +1965,11 @@
       },
       {
         "bytes": 16777216,
-        "mean_ms": 124.59639999999999,
+        "mean_ms": 127.57340000000002,
         "n": 5,
-        "p50_ms": 118.96,
-        "p95_ms": 134.821,
-        "p99_ms": 134.821,
+        "p50_ms": 123.993,
+        "p95_ms": 128.907,
+        "p99_ms": 128.907,
         "round": 2,
         "test": "sftp_write_16m",
         "type": "measurement",
@@ -1882,11 +1978,11 @@
       },
       {
         "bytes": 16777216,
-        "mean_ms": 61.6112,
+        "mean_ms": 69.6078,
         "n": 5,
-        "p50_ms": 57.623,
-        "p95_ms": 58.669,
-        "p99_ms": 58.669,
+        "p50_ms": 69.503,
+        "p95_ms": 70.523,
+        "p99_ms": 70.523,
         "round": 2,
         "test": "sftp_read_16m",
         "type": "measurement",
@@ -1894,22 +1990,22 @@
         "verified": true
       },
       {
-        "duration_ms": 6.814,
+        "duration_ms": 5.391,
         "round": 2,
         "test": "chmod_1000",
         "type": "measurement",
         "variant": "wings"
       },
       {
-        "duration_ms": 16.585,
+        "duration_ms": 23.694,
         "round": 2,
         "test": "rename_1000",
         "type": "measurement",
         "variant": "wings"
       },
       {
-        "compress_ms": 17.943,
-        "extract_ms": 64.201,
+        "compress_ms": 21.262,
+        "extract_ms": 86.773,
         "round": 2,
         "test": "archive_16m_1000_files",
         "type": "measurement",
@@ -1918,11 +2014,11 @@
       },
       {
         "expected_messages": 1600,
-        "mean_ms": 10.151458124999998,
+        "mean_ms": 13.227878750000018,
         "n": 1600,
-        "p50_ms": 9.356,
-        "p95_ms": 14.695,
-        "p99_ms": 14.921,
+        "p50_ms": 13.305,
+        "p95_ms": 16.73,
+        "p99_ms": 16.941,
         "received_messages": 1600,
         "round": 2,
         "test": "websocket_16_subscribers_100_lines",
@@ -1935,7 +2031,7 @@
         "cpu_limit": 2,
         "go_version": "go1.27.2",
         "gomaxprocs": "2",
-        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "image_id": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
         "memory_limit": 1073741824,
         "servers": [
           {
@@ -1960,7 +2056,7 @@
           "cpu_count": 28,
           "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
           "os": "linux",
-          "version": "1.13.3-manta-local"
+          "version": "dev-manta-7a2b6c1-20261102"
         },
         "type": "metadata",
         "variant": "manta"
@@ -2000,71 +2096,59 @@
         "variant": "wings"
       },
       {
-        "cpu_core_percent": 0.42119359688816094,
-        "cpu_core_seconds": 0.127854,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 61.43411458333333,
-        "peak_working_mib": 62.25390625,
-        "pids": 10,
+        "cpu_core_percent": 0.42232686453248564,
+        "cpu_core_seconds": 0.128433,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 50.58411458333333,
+        "peak_working_mib": 51.4921875,
+        "pids": 9,
         "role": "daemon",
         "test": "resources_idle",
         "type": "measurement",
         "variant": "manta"
       },
       {
-        "cpu_core_percent": 2.8741569256578634,
-        "cpu_core_seconds": 0.872455,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 732.3385416666666,
-        "peak_working_mib": 735.83203125,
-        "pids": 45,
-        "role": "paper",
-        "test": "resources_idle",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "cpu_core_percent": 2.698793014090368,
-        "cpu_core_seconds": 0.819223,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 186.09036458333333,
-        "peak_working_mib": 186.53125,
-        "pids": 18,
-        "role": "bedrock",
-        "test": "resources_idle",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "cpu_core_percent": 0.4169076702096723,
-        "cpu_core_seconds": 0.126553,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 62.42604166666667,
-        "peak_working_mib": 63.140625,
-        "pids": 10,
-        "role": "daemon",
-        "test": "resources_idle",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "cpu_core_percent": 2.992423465056592,
-        "cpu_core_seconds": 0.908355,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 725.9239583333333,
-        "peak_working_mib": 730.90625,
+        "cpu_core_percent": 3.017453811362141,
+        "cpu_core_seconds": 0.917632,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 725.0989583333334,
+        "peak_working_mib": 727.2421875,
         "pids": 44,
         "role": "paper",
         "test": "resources_idle",
         "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 2.8655670075597266,
+        "cpu_core_seconds": 0.871442,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 185.93697916666667,
+        "peak_working_mib": 186.34375,
+        "pids": 18,
+        "role": "bedrock",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 3.621383891170573,
+        "cpu_core_seconds": 1.101292,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 732.6744791666666,
+        "peak_working_mib": 736.9375,
+        "pids": 43,
+        "role": "paper",
+        "test": "resources_idle",
+        "type": "measurement",
         "variant": "wings"
       },
       {
-        "cpu_core_percent": 2.649529564782051,
-        "cpu_core_seconds": 0.804269,
-        "duration_s": 30.355162316,
-        "mean_working_mib": 185.95807291666668,
-        "peak_working_mib": 186.18359375,
+        "cpu_core_percent": 3.3505788285954683,
+        "cpu_core_seconds": 1.018938,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 185.99322916666668,
+        "peak_working_mib": 186.42578125,
         "pids": 18,
         "role": "bedrock",
         "test": "resources_idle",
@@ -2072,95 +2156,83 @@
         "variant": "wings"
       },
       {
-        "game": "paper",
-        "mean_ms": 2.48466,
-        "n": 50,
-        "p50_ms": 1.296,
-        "p95_ms": 2.156,
-        "p99_ms": 3.635,
-        "status": "Paper 26.3",
-        "test": "game_query_during_idle",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "game": "bedrock",
-        "mean_ms": 0.38319999999999993,
-        "n": 50,
-        "p50_ms": 0.36,
-        "p95_ms": 0.509,
-        "p99_ms": 0.574,
-        "status": "1.26.52",
-        "test": "game_query_during_idle",
-        "type": "measurement",
-        "variant": "manta"
-      },
-      {
-        "logs": "{\"data\":[\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-005\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-002\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-007\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-008\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-009\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-010\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-011\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-012\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-013\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-014\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-015\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-016\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-017\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-018\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-019\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-020\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-021\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-022\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-023\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-024\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-025\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-026\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-027\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-028\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-029\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-030\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-031\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-032\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-033\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-034\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-035\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-036\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-037\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-038\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-039\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-040\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-041\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-042\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-044\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-043\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-045\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-046\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-047\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-048\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-049\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-050\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-051\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-052\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-054\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-053\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-055\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-056\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-057\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-058\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-059\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-060\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-061\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-062\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-063\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-064\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-065\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-066\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-067\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-068\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-069\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-070\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-071\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-072\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-073\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-074\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-075\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-076\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-077\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-078\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-079\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-080\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-081\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-083\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-082\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-084\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-085\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-086\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-087\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-088\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-089\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-090\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-091\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-092\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-093\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-094\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-095\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-096\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-097\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-098\",\"[17:31:06 INFO]: [Not Secure] [Server] BENCHWS-1792081866864759880-099\",\"tps\",\"mspt\",\"[17:31:55 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[17:31:55 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:31:55 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m15.5\\u001b[0m\"]}",
-        "test": "paper_ticks_idle",
-        "type": "game_console",
-        "variant": "manta"
-      },
-      {
-        "game": "paper",
-        "mean_ms": 2.67462,
-        "n": 50,
-        "p50_ms": 1.439,
-        "p95_ms": 2.4,
-        "p99_ms": 2.455,
-        "status": "Paper 26.3",
-        "test": "game_query_during_idle",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "game": "bedrock",
-        "mean_ms": 0.51058,
-        "n": 50,
-        "p50_ms": 0.505,
-        "p95_ms": 0.615,
-        "p99_ms": 0.675,
-        "status": "1.26.52",
-        "test": "game_query_during_idle",
-        "type": "measurement",
-        "variant": "wings"
-      },
-      {
-        "logs": "{\"data\":[\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-005\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-006\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-007\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-008\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-009\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-010\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-011\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-012\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-013\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-014\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-015\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-016\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-017\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-018\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-019\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-020\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-021\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-022\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-023\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-024\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-025\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-026\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-027\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-028\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-029\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-030\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-031\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-032\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-033\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-034\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-035\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-036\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-037\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-038\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-039\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-040\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-041\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-042\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-043\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-044\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-045\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-046\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-047\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-048\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-049\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-051\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-050\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-052\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-053\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-054\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-055\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-056\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-057\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-058\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-059\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-060\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-061\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-062\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-063\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-064\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-065\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-066\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-067\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-068\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-069\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-070\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-071\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-072\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-073\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-074\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-075\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-076\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-077\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-078\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-079\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-080\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-082\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-081\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-083\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-085\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-084\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-087\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-088\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-086\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-089\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-090\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-091\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-092\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-093\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-095\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-094\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-096\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-097\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-098\",\"[17:31:17 INFO]: [Not Secure] [Server] BENCHWS-1792081877305963458-099\",\"tps\",\"mspt\",\"[17:31:56 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[17:31:56 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:31:56 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.9\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m1.9\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m13.4\\u001b[0m\"]}",
-        "test": "paper_ticks_idle",
-        "type": "game_console",
-        "variant": "wings"
-      },
-      {
-        "cpu_core_percent": 1.5904500382138205,
-        "cpu_core_seconds": 0.483274,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 51.459895833333334,
-        "peak_working_mib": 65.8203125,
+        "cpu_core_percent": 0.44999795035186907,
+        "cpu_core_seconds": 0.136848,
+        "duration_s": 30.410805181,
+        "mean_working_mib": 53.588802083333334,
+        "peak_working_mib": 54.359375,
         "pids": 10,
         "role": "daemon",
-        "test": "resources_command_load",
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 3.3519200000000002,
+        "n": 50,
+        "p50_ms": 2.015,
+        "p95_ms": 3.109,
+        "p99_ms": 4.628,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
         "type": "measurement",
         "variant": "manta"
       },
       {
-        "cpu_core_percent": 15.106017282650742,
-        "cpu_core_seconds": 4.590113,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 750.0171875,
-        "peak_working_mib": 751.37890625,
-        "pids": 43,
-        "role": "paper",
-        "test": "resources_command_load",
+        "game": "bedrock",
+        "mean_ms": 0.42094000000000015,
+        "n": 50,
+        "p50_ms": 0.41,
+        "p95_ms": 0.577,
+        "p99_ms": 0.616,
+        "status": "1.26.52",
+        "test": "game_query_during_idle",
         "type": "measurement",
         "variant": "manta"
       },
       {
-        "cpu_core_percent": 11.877335318298599,
-        "cpu_core_seconds": 3.609046,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 253.734375,
-        "peak_working_mib": 257.83203125,
+        "logs": "{\"data\":[\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-005\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-006\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-007\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-008\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-009\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-010\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-011\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-012\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-013\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-014\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-015\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-016\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-017\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-018\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-019\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-020\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-021\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-022\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-023\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-024\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-025\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-026\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-027\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-028\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-029\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-030\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-031\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-032\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-033\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-034\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-035\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-036\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-037\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-038\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-039\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-040\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-041\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-042\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-043\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-044\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-045\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-046\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-047\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-048\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-049\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-050\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-051\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-052\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-053\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-054\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-055\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-056\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-057\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-058\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-059\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-060\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-061\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-062\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-063\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-064\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-065\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-066\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-067\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-068\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-069\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-070\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-071\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-072\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-073\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-074\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-075\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-076\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-077\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-078\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-079\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-080\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-081\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-082\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-083\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-084\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-085\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-086\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-087\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-088\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-089\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-091\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-090\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-092\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-093\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-094\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-095\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-096\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-097\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-098\",\"[16:30:39 INFO]: [Not Secure] [Server] BENCHWS-1793637039067274001-099\",\"tps\",\"mspt\",\"[16:31:29 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[16:31:29 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[16:31:29 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m2.0\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m2.0\\u001b[93m, \\u001b[92m0.4\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m18.7\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "manta"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 2.78922,
+        "n": 50,
+        "p50_ms": 1.62,
+        "p95_ms": 2.972,
+        "p99_ms": 3.169,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.40964,
+        "n": 50,
+        "p50_ms": 0.401,
+        "p95_ms": 0.588,
+        "p99_ms": 0.625,
+        "status": "1.26.52",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "logs": "{\"data\":[\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-003\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-004\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-006\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-007\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-008\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-005\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-009\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-010\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-011\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-012\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-013\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-014\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-015\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-016\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-017\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-018\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-019\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-020\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-021\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-022\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-023\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-024\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-025\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-026\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-027\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-028\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-029\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-030\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-032\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-033\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-034\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-035\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-036\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-037\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-038\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-039\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-040\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-041\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-042\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-043\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-044\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-045\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-046\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-047\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-048\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-050\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-051\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-052\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-053\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-054\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-055\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-056\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-057\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-058\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-060\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-059\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-061\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-062\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-063\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-064\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-065\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-066\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-067\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-068\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-069\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-070\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-071\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-072\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-073\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-074\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-075\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-076\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-077\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-078\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-079\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-080\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-081\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-082\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-083\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-084\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-085\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-086\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-087\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-088\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-089\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-090\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-091\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-092\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-093\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-094\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-095\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-096\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-097\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-098\",\"[16:30:50 INFO]: [Not Secure] [Server] BENCHWS-1793637050580762823-099\",\"tps\",\"mspt\",\"[16:31:30 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[16:31:30 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[16:31:30 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m2.2\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m2.2\\u001b[93m, \\u001b[92m0.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m18.8\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 12.636850685974805,
+        "cpu_core_seconds": 3.845342,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 254.04270833333334,
+        "peak_working_mib": 257.875,
         "pids": 18,
         "role": "bedrock",
         "test": "resources_command_load",
@@ -2168,11 +2240,35 @@
         "variant": "manta"
       },
       {
-        "cpu_core_percent": 1.6660407940329487,
-        "cpu_core_seconds": 0.506243,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 50.36770833333333,
-        "peak_working_mib": 63.6171875,
+        "cpu_core_percent": 1.6630719658351654,
+        "cpu_core_seconds": 0.506066,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 41.81953125,
+        "peak_working_mib": 58.3046875,
+        "pids": 9,
+        "role": "daemon",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 16.057077380189735,
+        "cpu_core_seconds": 4.886103,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 743.115625,
+        "peak_working_mib": 744.77734375,
+        "pids": 43,
+        "role": "paper",
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 1.6737819355558279,
+        "cpu_core_seconds": 0.509325,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 49.11145833333333,
+        "peak_working_mib": 56.546875,
         "pids": 10,
         "role": "daemon",
         "test": "resources_command_load",
@@ -2180,11 +2276,11 @@
         "variant": "wings"
       },
       {
-        "cpu_core_percent": 14.00460181856774,
-        "cpu_core_seconds": 4.255437,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 747.071875,
-        "peak_working_mib": 748.81640625,
+        "cpu_core_percent": 17.24338645030089,
+        "cpu_core_seconds": 5.247092,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 748.6138020833333,
+        "peak_working_mib": 750.59765625,
         "pids": 43,
         "role": "paper",
         "test": "resources_command_load",
@@ -2192,11 +2288,11 @@
         "variant": "wings"
       },
       {
-        "cpu_core_percent": 11.742197384291856,
-        "cpu_core_seconds": 3.567983,
-        "duration_s": 30.385990656,
-        "mean_working_mib": 253.39427083333334,
-        "peak_working_mib": 257.8359375,
+        "cpu_core_percent": 13.15118884827938,
+        "cpu_core_seconds": 4.001853,
+        "duration_s": 30.429591166,
+        "mean_working_mib": 252.80520833333333,
+        "peak_working_mib": 258.14453125,
         "pids": 18,
         "role": "bedrock",
         "test": "resources_command_load",
@@ -2205,11 +2301,11 @@
       },
       {
         "game": "paper",
-        "mean_ms": 1.17986,
+        "mean_ms": 1.39778,
         "n": 50,
-        "p50_ms": 1.126,
-        "p95_ms": 1.482,
-        "p99_ms": 2.068,
+        "p50_ms": 1.284,
+        "p95_ms": 1.998,
+        "p99_ms": 2.131,
         "status": "Paper 26.3",
         "test": "game_query_during_command_load",
         "type": "measurement",
@@ -2217,29 +2313,29 @@
       },
       {
         "game": "bedrock",
-        "mean_ms": 0.40044000000000013,
+        "mean_ms": 0.43553999999999987,
         "n": 50,
-        "p50_ms": 0.388,
-        "p95_ms": 0.558,
-        "p99_ms": 0.658,
+        "p50_ms": 0.401,
+        "p95_ms": 0.63,
+        "p99_ms": 0.679,
         "status": "1.26.52",
         "test": "game_query_during_command_load",
         "type": "measurement",
         "variant": "manta"
       },
       {
-        "logs": "{\"data\":[\"[17:32:18 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:18 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"[17:32:27 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[17:32:27 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:32:27 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m10.3\\u001b[93m, \\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m11.1\\u001b[93m, \\u001b[92m1.4\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m684.0\\u001b[0m\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
+        "logs": "{\"data\":[\"[16:31:52 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:52 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:52 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:52 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"tps\",\"mspt\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"[16:32:01 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[16:32:01 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[16:32:01 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.8\\u001b[93m, \\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.8\\u001b[93m, \\u001b[92m1.5\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[91m733.7\\u001b[0m\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
         "test": "paper_ticks_command_load",
         "type": "game_console",
         "variant": "manta"
       },
       {
         "game": "paper",
-        "mean_ms": 1.1502800000000004,
+        "mean_ms": 1.6564199999999998,
         "n": 50,
-        "p50_ms": 1.041,
-        "p95_ms": 1.714,
-        "p99_ms": 2.063,
+        "p50_ms": 1.519,
+        "p95_ms": 2.406,
+        "p99_ms": 2.544,
         "status": "Paper 26.3",
         "test": "game_query_during_command_load",
         "type": "measurement",
@@ -2247,18 +2343,18 @@
       },
       {
         "game": "bedrock",
-        "mean_ms": 0.39791999999999994,
+        "mean_ms": 0.57942,
         "n": 50,
-        "p50_ms": 0.369,
-        "p95_ms": 0.555,
-        "p99_ms": 0.633,
+        "p50_ms": 0.562,
+        "p95_ms": 0.752,
+        "p99_ms": 0.902,
         "status": "1.26.52",
         "test": "game_query_during_command_load",
         "type": "measurement",
         "variant": "wings"
       },
       {
-        "logs": "{\"data\":[\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:19 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:20 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:21 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:22 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:23 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:24 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:25 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:26 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:27 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"[17:32:28 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[17:32:28 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[17:32:28 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.3\\u001b[37m/\\u001b[92m10.2\\u001b[93m, \\u001b[92m1.2\\u001b[37m/\\u001b[92m0.3\\u001b[37m/\\u001b[92m10.4\\u001b[93m, \\u001b[92m1.4\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m630.1\\u001b[0m\",\"fill 0 64 0 15 79 15 air replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[17:32:28 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\"]}",
+        "logs": "{\"data\":[\"[16:31:52 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:53 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:54 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:55 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:31:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"tps\",\"mspt\",\"[16:32:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"[16:32:01 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.8\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[16:32:01 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[16:32:01 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.2\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.1\\u001b[93m, \\u001b[92m1.3\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.1\\u001b[93m, \\u001b[92m1.6\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[91m752.6\\u001b[0m\",\"fill 0 64 0 15 79 15 stone replace\",\"[16:32:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[16:32:02 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
         "test": "paper_ticks_command_load",
         "type": "game_console",
         "variant": "wings"
@@ -2269,7 +2365,7 @@
         "cpu_limit": 2,
         "go_version": "go1.27.2",
         "gomaxprocs": "2",
-        "image_id": "sha256:c05d956c4bf5b8b0cbac8730893eb5986ae46a88010e9e17d061e7882788db46",
+        "image_id": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
         "memory_limit": 1073741824,
         "servers": [
           {
@@ -2294,7 +2390,7 @@
           "cpu_count": 28,
           "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
           "os": "linux",
-          "version": "1.13.3-manta-local"
+          "version": "dev-manta-7a2b6c1-20261102"
         },
         "type": "metadata",
         "variant": "manta"
@@ -2430,7 +2526,7 @@
         "file_status": 500,
         "loopback_content_retrieved": false,
         "pass": true,
-        "response": "{\"identifier\":\"45089d53-17d3-4618-b2dc-7bbfef2bbe2b\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
+        "response": "{\"identifier\":\"bcc24e1a-014d-45e2-b926-28612b556fcc\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
         "status": 400,
         "test": "ssrf_loopback_blocked",
         "type": "check",
@@ -2555,7 +2651,7 @@
         "file_status": 500,
         "loopback_content_retrieved": false,
         "pass": true,
-        "response": "{\"identifier\":\"cfb5ab1b-4ac5-4dab-b6f6-0935a1d4c3ef\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
+        "response": "{\"identifier\":\"84620a16-d21c-45cb-9cd3-0c133a844ea3\",\"message\":\"The URL or IP address provided could not be resolved to a valid destination.\"}",
         "status": 400,
         "test": "ssrf_loopback_blocked",
         "type": "check",
@@ -2582,6 +2678,1484 @@
         "test": "modern_identifier_sftp",
         "type": "check",
         "variant": "wings"
+      }
+    ],
+    "events": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:5f04aeb0031a0e180b3917801b18419422288813585d923290d932afef7db950",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 7,
+            "uuid": "fe109884-f53a-45de-9c33-e17677b52fd4",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "serv_7yijrbhvhjc55hbt4f3hpnjp2q",
+            "port": 27015
+          },
+          {
+            "id": 8,
+            "uuid": "ea47b10b-e5d1-480f-86f1-79a410cae5b2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_5jd3cc7f2fea7bxrpgsbbsxfwi",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "dev-manta-7a2b6c1-20261102"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.2",
+        "gomaxprocs": "2",
+        "image_id": "sha256:774dc22b46225eb33a922b94088342b3da6ba71df8bb0d08822c2d30b8d65955",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 9,
+            "uuid": "924cba47-6fd7-4739-b397-f912a262b8f5",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "serv_sjglur3p25dttm4x7ejkeyvy6u",
+            "port": 27115
+          },
+          {
+            "id": 10,
+            "uuid": "551f5acf-7955-4ac5-9190-af251a9cf991",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "serv_kupvvt3zkvfmlemqv4srvhhzse",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.54.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.4"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "first_uptime": 171401,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782389248,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.991,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 173416
+        },
+        "last_uptime": 173416,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 172415,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 782127104,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.011,
+          "network": {
+            "rx_bytes": 204902,
+            "tx_bytes": 54790
+          },
+          "uptime": 174430
+        },
+        "last_uptime": 174430,
+        "pass": true,
+        "samples": 3,
+        "server_id": 7,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 165348,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269553664,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 2.725,
+          "network": {
+            "rx_bytes": 70410,
+            "tx_bytes": 31759
+          },
+          "uptime": 167363
+        },
+        "last_uptime": 167363,
+        "pass": true,
+        "samples": 3,
+        "server_id": 8,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 166331,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 788160512,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 2.203,
+          "network": {
+            "rx_bytes": 194575,
+            "tx_bytes": 54676
+          },
+          "uptime": 168378
+        },
+        "last_uptime": 168378,
+        "pass": true,
+        "samples": 3,
+        "server_id": 9,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 159245,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 269893632,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 3.029,
+          "network": {
+            "rx_bytes": 73060,
+            "tx_bytes": 31783
+          },
+          "uptime": 161262
+        },
+        "last_uptime": 161262,
+        "pass": true,
+        "samples": 3,
+        "server_id": 10,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 10
       }
     ]
   }
