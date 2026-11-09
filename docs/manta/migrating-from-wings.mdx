@@ -1,0 +1,170 @@
+---
+title: Migrating from Wings
+description: Step-by-step guide for replacing an existing Pterodactyl Wings daemon with Aquadactyl Manta without stopping your game servers.
+---
+
+This guide walks you through replacing a running [Pterodactyl Wings](https://github.com/pterodactyl/wings) daemon with Aquadactyl Manta on an existing node.
+
+Manta keeps the Wings API routes, authentication format, executable name, systemd service, and configuration paths. The migration is a binary swap: your node configuration, tokens, ports, and server data stay exactly where they are, and nothing needs to change in the panel.
+
+<Callout type="info">
+  **Zero downtime for game servers**: Game servers run in their own Docker
+  containers. Restarting the daemon does **not** stop or interrupt them, so
+  players stay connected while you switch binaries.
+</Callout>
+
+<Callout type="warn">
+  **Panel first**: Manta is built for Aquadactyl Panel. If you are still on
+  Pterodactyl Panel, complete [Migrating from
+  Pterodactyl](/docs/panel/migrating-from-pterodactyl) before replacing your
+  daemons.
+</Callout>
+
+---
+
+## Migration Overview [#overview]
+
+Key differences between Wings and Manta:
+
+| Component               | Wings                          | Manta                                                  |
+| :---------------------- | :----------------------------- | :----------------------------------------------------- |
+| **Release Source**      | `pterodactyl/wings`            | `Aquadactyl/manta`                                     |
+| **Executable**          | `/usr/local/bin/wings`         | `/usr/local/bin/wings` (unchanged)                     |
+| **Systemd Service**     | `wings.service`                | `wings.service` (unchanged)                            |
+| **Configuration**       | `/etc/pterodactyl/config.yml`  | `/etc/pterodactyl/config.yml` (unchanged)              |
+| **Server Data**         | `/var/lib/pterodactyl/volumes` | `/var/lib/pterodactyl/volumes` (unchanged)             |
+| **Ports**               | `8080` API, `2022` SFTP        | `8080` API, `2022` SFTP (unchanged)                    |
+| **Host Metrics**        | Not available                  | Authenticated `/api/system/usage` endpoint             |
+| **SELinux Bind Mounts** | Manual relabeling              | Optional `docker.selinux_relabel` setting (v0.3-beta+) |
+
+---
+
+## Step 1: Check the Current Version [#step-1]
+
+Note which Wings version you are replacing, so you can roll back to the same release if needed:
+
+```bash title="Check current Wings version"
+wings version
+sudo systemctl status wings --no-pager
+```
+
+---
+
+## Step 2: Back Up Wings and Its Configuration [#step-2]
+
+Keep a copy of the current binary and configuration outside the daemon directories:
+
+```bash title="Back up binary and configuration"
+sudo mkdir -p /var/backups/wings-migration
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+sudo cp /usr/local/bin/wings /var/backups/wings-migration/wings-${TIMESTAMP}
+sudo cp /etc/pterodactyl/config.yml /var/backups/wings-migration/config-${TIMESTAMP}.yml
+```
+
+<Callout type="info">
+  Game server files in `/var/lib/pterodactyl/volumes` are not modified by this
+  migration. Take a backup through the panel as well if you want an extra safety
+  net before touching a production node.
+</Callout>
+
+---
+
+## Step 3: Download Manta [#step-3]
+
+Download the Manta binary to a temporary location first, so the running Wings binary is untouched until you are ready:
+
+```bash title="Download Manta"
+MANTA_VERSION="v0.3-beta"
+
+curl -fL -o /tmp/manta "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_linux_amd64"
+curl -fL -o /tmp/manta-checksums.txt "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/checksums.txt"
+```
+
+<Callout type="info">
+  On ARM64 servers, replace `wings_linux_amd64` with `wings_linux_arm64`.
+</Callout>
+
+<Callout type="warn">
+  Manta releases are currently published as pre-releases, so the `latest`
+  download URL does not resolve to them. Always set `MANTA_VERSION` to the tag
+  you want to install.
+</Callout>
+
+Verify the checksum. The two hashes must match:
+
+```bash title="Verify checksum"
+grep wings_linux_amd64 /tmp/manta-checksums.txt
+sha256sum /tmp/manta
+```
+
+---
+
+## Step 4: Replace the Binary [#step-4]
+
+Install the new binary over the old one and restart the service:
+
+```bash title="Swap binaries and restart"
+sudo install -m 0755 /tmp/manta /usr/local/bin/wings
+rm -f /tmp/manta /tmp/manta-checksums.txt
+
+sudo systemctl restart wings
+```
+
+Your game servers keep running while the daemon restarts, and Manta reattaches to the existing containers on startup.
+
+---
+
+## Step 5: Verify the Migration [#step-5]
+
+1. **Check the version**: The output should now report `manta`:
+   ```bash
+   wings version
+   ```
+2. **Check the service and logs**:
+   ```bash
+   sudo systemctl status wings
+   journalctl -u wings -n 50 --no-pager
+   ```
+3. **Check Nodes in the panel**: Navigate to **Admin -> Nodes**. The node should show a green heartbeat.
+4. **Check a game server**: Open a running server in the panel and confirm the console streams, the resource graphs update, and the file manager loads.
+
+---
+
+## Rolling Back [#rollback]
+
+If anything looks wrong, restore the Wings binary you backed up in step 2. Because the configuration was never changed, no other steps are required:
+
+```bash title="Restore Wings"
+sudo install -m 0755 /var/backups/wings-migration/wings-<TIMESTAMP> /usr/local/bin/wings
+sudo systemctl restart wings
+```
+
+Replace `<TIMESTAMP>` with the timestamp of your backup.
+
+---
+
+## Optional: SELinux Hosts [#selinux]
+
+If your node runs a Red Hat based distribution with SELinux enforcing, you can let Manta relabel bind mounts instead of relabeling them yourself. Add the option to `/etc/pterodactyl/config.yml`:
+
+```yaml title="/etc/pterodactyl/config.yml"
+docker:
+  selinux_relabel: shared
+```
+
+Use `shared` when several containers may use the same path, or `private` to assign a path to a single container. Restart the service afterwards:
+
+```bash
+sudo systemctl restart wings
+```
+
+See [Installing Manta](/docs/manta/installing-manta#selinux) for details. Skip this step on hosts without SELinux.
+
+---
+
+## Next Steps [#next-steps]
+
+1. Repeat these steps on each remaining node. You can migrate nodes one at a time and run Wings and Manta nodes side by side.
+2. Review the [Wings vs Manta benchmarks](/docs/wings/benchmarks) for measured differences between the two daemons.
+3. Keep Manta up to date by repeating steps 3 to 5 with a newer `MANTA_VERSION`.

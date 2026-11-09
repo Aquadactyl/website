@@ -1,0 +1,198 @@
+---
+title: Installing Manta
+description: Install and configure the Manta daemon to run game servers in secure Docker containers managed by Aquadactyl Panel.
+---
+
+Manta is the server control daemon for Aquadactyl Panel. It is based on Pterodactyl Wings and handles game server processes, monitors resource usage, streams console output, provides SFTP access, and manages server files inside isolated Docker containers.
+
+Manta keeps the Wings API, authentication format, and configuration paths, so the node setup in the panel works exactly as before. The executable, systemd service, and configuration directory also keep their Wings names.
+
+<Callout type="info">
+  Already running Pterodactyl Wings? Follow [Migrating from
+  Wings](/docs/manta/migrating-from-wings) instead to replace the binary in
+  place without touching your servers.
+</Callout>
+
+## Prerequisites [#prerequisites]
+
+- **Operating System**: Ubuntu 24.04 LTS / 24.10 / 26.04+ LTS, Debian 12 / 13, or a Red Hat based distribution such as Rocky Linux or AlmaLinux (Debian &le; 11 and Ubuntu &le; 22.04 are deprecated)
+- **Hardware Virtualization**: Dedicated server or KVM VPS (OpenVZ is **not** supported due to Docker requirements)
+- **Kernel**: Linux kernel 5.4+ with Docker support
+- **Aquadactyl Panel**: A running panel you can administer. See [Installing the Panel](/docs/panel/installing-the-panel)
+
+---
+
+## 1. Install Docker [#install-docker]
+
+Manta relies on Docker to isolate game server instances. Install Docker using the official automated script:
+
+```bash title="Install Docker CE"
+curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+sudo systemctl enable --now docker
+```
+
+### Enable Swap Memory Accounting
+
+On Debian and Ubuntu, enable swap accounting in the kernel:
+
+1. Open `/etc/default/grub` in an editor:
+   ```bash
+   sudo nano /etc/default/grub
+   ```
+2. Find `GRUB_CMDLINE_LINUX_DEFAULT` and add `swapaccount=1`:
+   ```bash
+   GRUB_CMDLINE_LINUX_DEFAULT="swapaccount=1"
+   ```
+3. Update grub and reboot your server:
+   ```bash
+   sudo update-grub
+   sudo reboot
+   ```
+
+---
+
+## 2. Install Manta Binary [#install-binary]
+
+Create the daemon directories and download the executable from the [Manta releases](https://github.com/Aquadactyl/manta/releases):
+
+```bash title="Download Manta"
+MANTA_VERSION="v0.3-beta"
+
+sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
+curl -fL -o /usr/local/bin/wings "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_linux_amd64"
+sudo chmod u+x /usr/local/bin/wings
+```
+
+<Callout type="info">
+  If you are running on an ARM64 server (e.g. Raspberry Pi or Ampere Altra),
+  replace `wings_linux_amd64` with `wings_linux_arm64`.
+</Callout>
+
+<Callout type="warn">
+  Manta releases are currently published as pre-releases, so the `latest`
+  download URL does not resolve to them. Always set `MANTA_VERSION` to the tag
+  you want to install.
+</Callout>
+
+### Verify the Download
+
+Each release includes a `checksums.txt` file. Compare the binary against it before running anything:
+
+```bash title="Verify checksum"
+curl -fL -o /tmp/manta-checksums.txt "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/checksums.txt"
+grep wings_linux_amd64 /tmp/manta-checksums.txt
+sha256sum /usr/local/bin/wings
+rm -f /tmp/manta-checksums.txt
+```
+
+The two hashes must match. Check the installed version with:
+
+```bash
+wings version
+```
+
+---
+
+## 3. Configure the Node in Aquadactyl [#configure-node]
+
+1. Log into your Aquadactyl Panel as an administrator.
+2. In the Admin area (`/admin`), navigate to **Nodes** -> **Create New**.
+3. Fill out the node details:
+   - **Name**: A descriptive name (e.g. `US-Node-1`).
+   - **Location**: The location this node belongs to.
+   - **FQDN**: The domain pointing to this server (e.g. `node1.yourdomain.com`) or public IP.
+   - **Daemon Port**: `8080`.
+   - **Daemon SFTP Port**: `2022`.
+   - **Total Memory & Disk**: Set the hardware limits.
+4. Click **Create Node**.
+5. Switch to the **Configuration** tab. Click **Generate Token** or copy the YAML snippet shown.
+6. On your node server, paste this configuration into `/etc/pterodactyl/config.yml`:
+
+```bash
+sudo nano /etc/pterodactyl/config.yml
+```
+
+---
+
+## 4. Create Systemd Service [#systemd]
+
+Run Manta as a managed background service using systemd. The service keeps the `wings` name, matching the executable:
+
+```ini title="/etc/systemd/system/wings.service"
+[Unit]
+Description=Manta Daemon
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+User=root
+WorkingDirectory=/etc/pterodactyl
+LimitNOFILE=4096
+PIDFile=/var/run/wings/daemon.pid
+ExecStart=/usr/local/bin/wings
+Restart=on-failure
+StartLimitInterval=180
+StartLimitBurst=30
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now wings
+```
+
+### Verifying Connection
+
+Check that Manta is running without errors:
+
+```bash
+sudo systemctl status wings
+```
+
+In the Aquadactyl Panel under **Admin** -> **Nodes**, a green heart icon will indicate that the node is successfully communicating with the panel!
+
+---
+
+## Red Hat Based Hosts (SELinux) [#selinux]
+
+On Rocky Linux, AlmaLinux, and other Red Hat based hosts, SELinux blocks containers from reading bind mounts until the mounted paths are relabeled. Manta can relabel them for you through the `selinux_relabel` option, available since **v0.3-beta**.
+
+Add the option under the `docker` section of `/etc/pterodactyl/config.yml`:
+
+```yaml title="/etc/pterodactyl/config.yml"
+docker:
+  selinux_relabel: shared
+```
+
+| Value     | Docker label | Behavior                                                |
+| :-------- | :----------- | :------------------------------------------------------ |
+| `shared`  | `z`          | Lets multiple containers use the same source path       |
+| `private` | `Z`          | Assigns the source path to a single container at a time |
+| _(empty)_ | none         | No relabeling. This is the default                      |
+
+Restart Manta to apply the change:
+
+```bash
+sudo systemctl restart wings
+```
+
+The option applies to both server containers and installation containers, and read-only mounts stay read-only. Any other value is rejected with an error, and servers will not start until it is corrected.
+
+<Callout type="warn">
+  Leave `selinux_relabel` empty on hosts without SELinux, such as Ubuntu and
+  Debian. Use `shared` unless you are certain each path is only ever mounted
+  into one container.
+</Callout>
+
+---
+
+## Next Steps [#next-steps]
+
+1. Review [Additional Configuration](/docs/wings/additional-configuration) for SSL/TLS certificates, firewall ports, and Docker daemon tuning. These settings are unchanged in Manta.
+2. See the [Wings vs Manta benchmarks](/docs/wings/benchmarks) for measured differences between the two daemons.
