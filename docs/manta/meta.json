@@ -1,4 +1,9 @@
 {
   "title": "Manta",
-  "pages": ["installing-manta", "migrating-from-wings"]
+  "pages": [
+    "installing-manta",
+    "additional-configuration",
+    "migrating-from-wings",
+    "benchmarks"
+  ]
 }
