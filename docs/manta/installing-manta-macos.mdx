@@ -1,0 +1,226 @@
+---
+title: Installing Manta on macOS
+description: Run the Manta daemon natively on macOS, with Docker Desktop, OrbStack, Colima or Rancher Desktop providing the containers.
+---
+
+Manta runs natively on macOS, on both Apple Silicon (`arm64`) and Intel (`amd64`). It manages game servers the same way it does on Linux, but macOS has no container support of its own. The containers run in the Linux virtual machine of your Docker runtime, and Manta talks to the Docker engine inside it.
+
+This makes macOS a good fit for a development node or a small host. For a production node under load, Linux gives the containers direct access to the files and the kernel and remains the recommended platform. To install on Linux, see [Installing Manta](/docs/manta/installing-manta).
+
+<Callout type="info">
+  Manta on macOS runs as **your user**, not as root, and keeps its files in your
+  home directory. Nothing needs to be created on the system, and no system user
+  is added.
+</Callout>
+
+## What is different from Linux [#differences]
+
+| Area            | Linux                         | macOS                                                |
+| :-------------- | :---------------------------- | :--------------------------------------------------- |
+| Configuration   | `/etc/pterodactyl/config.yml` | `~/Library/Application Support/Manta/config.yml`     |
+| Data and state  | `/var/lib/pterodactyl`        | `~/Library/Application Support/Manta`                |
+| Logs            | `/var/log/pterodactyl`        | `~/Library/Logs/Manta`                               |
+| Temporary files | `/tmp/pterodactyl`            | `~/Library/Application Support/Manta/tmp`            |
+| Server user     | A `pterodactyl` system user   | The user Manta runs as, nothing is created           |
+| Service manager | systemd                       | launchd                                              |
+| Docker socket   | `/var/run/docker.sock`        | `/var/run/docker.sock`, or the socket of the runtime |
+| Host metrics    | CPU, RAM and disk             | CPU, RAM and disk                                    |
+
+Every path can still be set in the configuration file, and values set there always win over the defaults above.
+
+## Prerequisites [#prerequisites]
+
+- **Operating System**: macOS 13 or newer, on Apple Silicon or Intel
+- **Docker Runtime**: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [OrbStack](https://orbstack.dev), [Colima](https://github.com/abiosoft/colima) or Rancher Desktop, with its engine running
+- **Aquadactyl Panel**: A running panel you can administer. See [Installing the Panel](/docs/panel/installing-the-panel)
+
+### Docker Socket [#docker-socket]
+
+Manta connects to the Docker engine in this order:
+
+1. `DOCKER_HOST`, if it is set.
+2. `/var/run/docker.sock`. Docker Desktop and OrbStack create it by default.
+3. The socket in your home directory: `~/.docker/run/docker.sock` (Docker Desktop), `~/.orbstack/run/docker.sock`, `~/.colima/default/docker.sock` or `~/.rd/docker.sock`.
+
+### File Sharing [#file-sharing]
+
+The containers reach server files through the file sharing of the runtime, so the **server data directory must be in a location the runtime shares, and shares writable**.
+
+The default location inside your home directory is shared by Docker Desktop and OrbStack. Colima and Rancher Desktop mount the home directory read-only unless told otherwise, so make the mount writable in their configuration (for Colima, set `writable: true` on the home mount). Otherwise Manta will be unable to start servers.
+
+If you move the data to an external disk or a path outside of `/Users`, add it to the file sharing settings of your runtime first. The directory is set in the panel under the node's settings.
+
+<Callout type="info">
+  You do not have to get this right on the first try. Manta checks the mount at
+  startup and tells you what to change, see [Mount Check](#mount-check).
+</Callout>
+
+---
+
+## 1. Download Manta [#download]
+
+Download the binary for your Mac and its checksum file from the [Manta releases](https://github.com/Aquadactyl/manta/releases). Use `wings_darwin_arm64` on Apple Silicon and `wings_darwin_amd64` on Intel.
+
+```bash title="Download and verify Manta"
+MANTA_VERSION="v0.3-beta"
+ARCH="$(uname -m | sed 's/x86_64/amd64/')"
+
+curl -fL -o wings "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_darwin_${ARCH}"
+curl -fL -o checksums.txt "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/checksums.txt"
+grep "wings_darwin_${ARCH}" checksums.txt
+shasum -a 256 wings
+```
+
+The two hashes must match.
+
+<Callout type="warn">
+  Manta releases are currently published as pre-releases, so the `latest`
+  download URL does not resolve to them. Always set `MANTA_VERSION` to the tag
+  you want to install.
+</Callout>
+
+<Callout type="info">
+  Binaries downloaded with `curl` are not quarantined and need no approval from
+  Gatekeeper. If you download one with a browser instead, run `xattr -d
+  com.apple.quarantine wings` once.
+</Callout>
+
+---
+
+## 2. Install the Binary [#install-binary]
+
+The executable keeps its Wings name, like on Linux:
+
+```bash title="Install Manta"
+sudo mkdir -p /usr/local/bin
+sudo install -m 0755 wings /usr/local/bin/wings
+wings version
+```
+
+---
+
+## 3. Configure the Node in Aquadactyl [#configure-node]
+
+1. Log into your Aquadactyl Panel as an administrator.
+2. In the Admin area (`/admin`), navigate to **Nodes** -> **Create New**.
+3. Fill out the node details:
+   - **Name**: A descriptive name (e.g. `Mac-Node-1`).
+   - **Location**: The location this node belongs to.
+   - **FQDN**: The domain pointing to this Mac (e.g. `node1.yourdomain.com`) or its public IP.
+   - **Daemon Port**: `8080`.
+   - **Daemon SFTP Port**: `2022`.
+   - **Daemon Server File Directory**: A path shared with your Docker runtime, such as `/Users/<you>/Library/Application Support/Manta/volumes`.
+   - **Total Memory & Disk**: Set the limits for this Mac.
+4. Click **Create Node**.
+5. Switch to the **Configuration** tab. Copy the YAML snippet shown.
+6. On your Mac, save it as `~/Library/Application Support/Manta/config.yml`:
+
+```bash title="Create the configuration"
+mkdir -p "$HOME/Library/Application Support/Manta"
+nano "$HOME/Library/Application Support/Manta/config.yml"
+```
+
+Alternatively, run `wings configure` and answer the prompts. The directory is created for you.
+
+---
+
+## 4. Run Manta [#run]
+
+Start Manta in a terminal to see that it works:
+
+```bash
+wings
+```
+
+In the Aquadactyl Panel under **Admin** -> **Nodes**, a green heart icon will indicate that the node is successfully communicating with the panel! Press `Ctrl+C` to stop it, then set it up to start by itself.
+
+---
+
+## 5. Start Manta Automatically [#launchd]
+
+macOS uses launchd instead of systemd. Download the service file for your setup from the same release, fill in your user, and load it.
+
+### At Login (LaunchAgent)
+
+The LaunchAgent starts Manta when you log in and restarts it if it stops. It has to run as your user, because that user owns the Docker runtime:
+
+```bash title="Install the LaunchAgent"
+mkdir -p ~/Library/LaunchAgents ~/Library/Logs/Manta
+curl -fL "https://raw.githubusercontent.com/Aquadactyl/manta/${MANTA_VERSION}/macos/uk.aquadactyl.manta.plist" \
+  | sed "s|__HOME__|$HOME|g" > ~/Library/LaunchAgents/uk.aquadactyl.manta.plist
+launchctl bootstrap "gui/$(id -u)" ~/Library/LaunchAgents/uk.aquadactyl.manta.plist
+```
+
+Common commands:
+
+```bash title="Manage the LaunchAgent"
+launchctl print "gui/$(id -u)/uk.aquadactyl.manta"        # status
+launchctl kickstart -k "gui/$(id -u)/uk.aquadactyl.manta" # restart
+launchctl bootout "gui/$(id -u)/uk.aquadactyl.manta"      # stop and unload
+```
+
+### At Boot (LaunchDaemon)
+
+A LaunchAgent only runs while you are logged in. To have Manta come back by itself after a restart with nobody logged in, install the LaunchDaemon instead. It still runs Manta as your user, not as root.
+
+<Callout type="warn">
+  Install only one of the two. The LaunchDaemon also needs a Docker runtime that
+  starts without a login. Colima and the runtimes built on it can be started
+  from a daemon in the same way. Docker Desktop and OrbStack start their virtual
+  machine in the session of a logged-in user, so for them enable automatic login
+  for that user instead.
+</Callout>
+
+```bash title="Install the LaunchDaemon"
+mkdir -p ~/Library/Logs/Manta
+curl -fL "https://raw.githubusercontent.com/Aquadactyl/manta/${MANTA_VERSION}/macos/uk.aquadactyl.manta.daemon.plist" \
+  | sed -e "s|__USER__|$USER|g" -e "s|__HOME__|$HOME|g" \
+  | sudo tee /Library/LaunchDaemons/uk.aquadactyl.manta.plist > /dev/null
+sudo chown root:wheel /Library/LaunchDaemons/uk.aquadactyl.manta.plist
+sudo chmod 644 /Library/LaunchDaemons/uk.aquadactyl.manta.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/uk.aquadactyl.manta.plist
+```
+
+Manta keeps retrying until the Docker runtime is up. Stop and unload it with:
+
+```bash
+sudo launchctl bootout system/uk.aquadactyl.manta
+```
+
+---
+
+## Mount Check [#mount-check]
+
+Containers reach your files through the file sharing of a virtual machine, which can be set up in ways that silently lose data. At startup Manta runs a short container as the server user that writes a file into the data directory, and looks for that file on the Mac. The result is written to the log:
+
+| Result              | Meaning                                                                                       | What to do                                                    |
+| :------------------ | :-------------------------------------------------------------------------------------------- | :------------------------------------------------------------ |
+| Shared and writable | Everything works                                                                              | Nothing                                                       |
+| Refused by Docker   | The runtime will not mount the directory                                                      | Add the directory to the file sharing settings of the runtime |
+| Not writable        | The mount is read-only, or the permissions do not allow the server user to write              | Make the mount writable, for Colima `writable: true`          |
+| Not shared          | The container wrote to a private copy inside the virtual machine, and nothing reached the Mac | Add the directory to file sharing and restart the runtime     |
+
+The first run pulls the small `ghcr.io/pterodactyl/installers:alpine` image, which servers use as well. The check is skipped when it cannot be pulled, for example while offline. To turn it off, set this in `config.yml`:
+
+```yaml title="config.yml"
+docker:
+  mount_check: false
+```
+
+---
+
+## Notes and Limits [#notes]
+
+- **Servers run as your user.** Containers see the files through the file sharing of the runtime, which presents them as owned by the user running Manta. Ownership of server files is not changed to a separate user.
+- **Path resolution.** Manta resolves every path inside a server directory one component at a time, in its own code, instead of asking the kernel to follow links. A link can never lead out of the directory, and the length and case of a path do not matter. Directories along a path need read permission for the user Manta runs as, not just search permission as on Linux.
+- **Performance.** File access from a container goes through the file sharing layer, which is slower than on Linux. Large worlds, many small files and backups feel it most.
+- **Log rotation.** Manta rotates `~/Library/Logs/Manta/wings.log` itself at 10 MiB and keeps seven old files (`wings.log.1` to `wings.log.7`). Set `system.enable_log_rotate: false` to turn this off. Manta then reopens the file on `SIGHUP` for a tool that rotates it from the outside.
+- **Host metrics.** `GET /api/system/usage` reports CPU, RAM and disk. RAM used is derived from the share of memory the kernel reports as available.
+- **CPU burst** and the other cgroup based features only apply on Linux.
+
+---
+
+## Next Steps [#next-steps]
+
+1. Review [Additional Configuration](/docs/manta/additional-configuration) for SSL/TLS certificates and firewall ports. These settings are unchanged in Manta.
+2. See the [Wings vs Manta benchmarks](/docs/manta/benchmarks) for measured differences between the two daemons on Linux.

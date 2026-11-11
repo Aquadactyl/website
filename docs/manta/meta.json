@@ -2,6 +2,7 @@
   "title": "Manta",
   "pages": [
     "installing-manta",
+    "installing-manta-macos",
     "additional-configuration",
     "migrating-from-wings",
     "benchmarks"
