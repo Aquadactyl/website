@@ -215,7 +215,7 @@ docker:
 - **Path resolution.** Manta resolves every path inside a server directory one component at a time, in its own code, instead of asking the kernel to follow links. A link can never lead out of the directory, and the length and case of a path do not matter. Directories along a path need read permission for the user Manta runs as, not just search permission as on Linux.
 - **Performance.** File access from a container goes through the file sharing layer, which is slower than on Linux. Large worlds, many small files and backups feel it most.
 - **Log rotation.** Manta rotates `~/Library/Logs/Manta/wings.log` itself at 10 MiB and keeps seven old files (`wings.log.1` to `wings.log.7`). Set `system.enable_log_rotate: false` to turn this off. Manta then reopens the file on `SIGHUP` for a tool that rotates it from the outside.
-- **Host metrics.** `GET /api/system/usage` reports CPU, RAM and disk. RAM used is derived from the share of memory the kernel reports as available.
+- **Host metrics.** `GET /api/system/usage` reports CPU, RAM and disk. RAM used is added up the way Activity Monitor does it, from application memory, wired memory and compressed memory, so cached files are not counted.
 - **CPU burst** and the other cgroup based features only apply on Linux.
 
 ---
