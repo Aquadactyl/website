@@ -86,3 +86,56 @@ Restart Docker and Wings:
 sudo systemctl restart docker
 sudo systemctl restart wings
 ```
+
+---
+
+## Manta Docker Options [#manta-docker]
+
+These options live under the `docker` section of `/etc/pterodactyl/config.yml` and are specific to Manta. Restart Manta after changing them.
+
+### Image Pull Policy [#image-pull-policy]
+
+`docker.image_pull_policy` controls when Manta pulls an image before it creates a container. It applies to server containers and to the containers that run server installation scripts.
+
+```yaml title="/etc/pterodactyl/config.yml"
+docker:
+  image_pull_policy: IfNotPresent
+```
+
+| Value          | Behavior                                                                                                                                             |
+| :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Always`       | Pull every time. This is the default. If the pull fails but a local copy exists, Manta logs a warning and carries on with it                         |
+| `IfNotPresent` | Pull only when no local image has that exact tag                                                                                                     |
+| `Never`        | Never pull. Creating the container fails with an error saying the image is not present locally, so images have to be loaded onto the node beforehand |
+
+Images whose name starts with `~` are local images and are never pulled, whatever the policy is.
+
+<Callout type="info">
+  `IfNotPresent` and `Never` are useful on nodes with a slow or metered
+  connection, behind a registry mirror, or without internet access. With
+  `IfNotPresent`, an image that is referenced by a moving tag such as `latest`
+  is not updated until you pull it yourself.
+</Callout>
+
+### IPv6 on the Docker Network [#ipv6]
+
+Manta creates a Docker network for servers when it starts. IPv6 is enabled on it by default. To create it without IPv6, for example on a host that has no IPv6 connectivity:
+
+```yaml title="/etc/pterodactyl/config.yml"
+docker:
+  network:
+    interfaces:
+      v6:
+        enabled: false
+```
+
+<Callout type="warn">
+  This only applies when the network is created. A network that already exists
+  keeps its settings, so remove it first if you want the change to take effect.
+  Make sure no servers are using it, then restart Manta so it creates the
+  network again.
+</Callout>
+
+### Mount Check (macOS) [#mount-check]
+
+`docker.mount_check` (default `true`) makes Manta on macOS check at startup that containers can write to the server data directory. It has no effect on Linux. See [Installing Manta on macOS](/docs/manta/installing-manta-macos#mount-check) for what it reports.
