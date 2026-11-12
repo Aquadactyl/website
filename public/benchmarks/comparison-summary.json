@@ -105,7 +105,7 @@
       "measuredOn": "2026-11-02",
       "baseline": "Wings",
       "candidate": "Manta",
-      "href": "/docs/wings/benchmarks",
+      "href": "/docs/manta/benchmarks",
       "description": "Paper + Bedrock · 2 CPU cores per daemon.",
       "metrics": [
         {

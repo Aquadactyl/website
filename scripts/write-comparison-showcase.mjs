@@ -160,7 +160,7 @@ const summary = {
       measuredOn: daemon.measuredOn,
       baseline: "Wings",
       candidate: "Manta",
-      href: "/docs/wings/benchmarks",
+      href: "/docs/manta/benchmarks",
       description: "Paper + Bedrock · 2 CPU cores per daemon.",
       metrics: [
         {
@@ -409,7 +409,7 @@ const commands =
   "```powershell\n.\\benchmarks\\Run-Benchmark.ps1 -Phases lifecycle,performance,resources,security -OutputDirectory C:\\path\\to\\fresh-results\n```";
 if (!process.argv.includes("--panel-only"))
   fs.writeFileSync(
-    "docs/wings/benchmarks.mdx",
+    "docs/manta/benchmarks.mdx",
     doc.replace("COMMANDS", commands),
   );
 console.log("Updated three compact comparisons and the daemon methodology.");

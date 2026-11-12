@@ -35,9 +35,35 @@ const nextConfig: NextConfig = {
         destination: "/docs/panel/:slug*",
         permanent: true,
       },
+      // The Wings documentation moved to the Manta section.
       {
         source: "/docs/wings/migrating-to-wings",
-        destination: "/docs/wings/installing-wings",
+        destination: "/docs/manta/installing-manta",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/installing-wings",
+        destination: "/docs/manta/installing-manta",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/upgrading-wings",
+        destination: "/docs/manta/migrating-from-wings",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/additional-configuration",
+        destination: "/docs/manta/additional-configuration",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/benchmarks",
+        destination: "/docs/manta/benchmarks",
+        permanent: true,
+      },
+      {
+        source: "/docs/wings/:slug*",
+        destination: "/docs/manta",
         permanent: true,
       },
     ];

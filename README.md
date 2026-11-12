@@ -118,7 +118,7 @@ Its source revisions identify the reviewed stock panels. The homepage has one
 compact benchmark section with **Panel vs Pterodactyl** and **Wings vs Manta**
 comparison buttons, each showing three fixed measurements. It imports only
 `public/benchmarks/comparison-summary.json`. Full results and methodology live in
-`docs/panel/panel-comparison.mdx` and `docs/wings/benchmarks.mdx`.
+`docs/panel/panel-comparison.mdx` and `docs/manta/benchmarks.mdx`.
 
 The current panel runtime results were measured on 16 October 2026. The
 homepage selects the candidate and Pterodactyl from the recorded three-way
