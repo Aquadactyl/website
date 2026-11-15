@@ -130,11 +130,13 @@ export default function Home() {
       <section className="border-y border-[#28313a] bg-[#11161b] px-5 py-10 sm:px-6">
         <div className="mx-auto flex max-w-296 flex-col gap-6 md:flex-row md:items-center md:gap-10">
           <img
-            src="/brand/manta-wordmark.svg"
+            src="/brand/manta-logo.png"
             alt="Manta, the Aquadactyl daemon"
-            width={600}
-            height={140}
-            className="h-auto w-full max-w-100"
+            width={315}
+            height={200}
+            loading="lazy"
+            decoding="async"
+            className="h-auto w-44 shrink-0 self-center object-contain sm:w-56"
           />
           <div>
             <h2 className="text-xl font-medium text-[#e9edf0]">Meet Manta</h2>
