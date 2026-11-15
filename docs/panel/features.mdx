@@ -353,3 +353,61 @@ from **Admin → Users → View**.
 Aquadactyl and Blueprint telemetry are disabled by default. Normal panel logs
 use warning-level logging with daily rotation and seven-day retention; debug
 logging is opt-in for troubleshooting.
+
+## Setup wizard and installable app [#setup-pwa]
+
+New installations prompt an administrator to configure the site name, logo and
+primary colour. Optional steps create a location/node, check daemon connectivity
+and create additional administrators. Existing panels can reopen the wizard at
+**Admin > Settings > Panel setup**. It is authenticated and runs once per panel.
+
+Under **Settings > PWA**, admins independently control app installation and the
+offline page, and can override app names. The offline cache contains only public
+connection pages; authenticated pages, server files and API responses stay on
+the network. Server management requires a connection. This does not add push
+notifications.
+
+## Personal notifications [#notifications]
+
+Users choose server-event subscriptions at **Account > Notifications**, covering
+power actions, crashes, completed/failed schedules, backups and installations.
+The account inbox and toast alerts surface events in the panel. Administrators
+can enable personal Discord delivery; users then supply their own webhook URL.
+Disabled notification methods stay hidden. Keep the queue and scheduler running
+for background delivery.
+
+## Status page and Discord roles [#status-discord]
+
+Administrators can enable a status page for selected services and incidents,
+choosing public or signed-in access and which node names to publish. Node data
+and availability need working daemon connectivity. Discord integration can keep
+roles synchronized for linked accounts according to owned servers, eggs and
+nodes, removing roles when qualification ends. Configure the bot, guild and
+role permissions before enabling synchronization.
+
+## Administrative operations [#admin-operations]
+
+The themed maintenance page supports an admin preview and allows administrators
+to reach sign-in. Daemon overview separates host utilization from game-server
+usage and assigned capacity where the daemon supplies those counters. Cloudflare
+server subdomains require an administrator-configured zone/domain and restricted
+API token; the panel manages qualifying DNS records through that integration.
+
+## Audit logs and webhooks [#audit-webhooks]
+
+Panel-wide audit records cover administrator and user actions. Administrators
+can suspend an account and its owned servers without deleting the user. Discord
+and generic JSON webhook subscriptions cover system actions, status changes,
+available updates and detected installed version changes, with queued delivery
+and delivery history. Update notes match the installed release and are collapsed
+by default. Configure these integrations in **Admin > Settings**.
+
+## Blueprint packages from the admin area [#admin-blueprint]
+
+Optional admin installation/removal requires a separate privileged Blueprint
+worker, explicit enablement and administrator password confirmation. Package
+scripts execute panel code: install only trusted addons and retain their original
+packages for updates. The regular CLI remains `blueprint -i myaddon` and
+`blueprint -r myaddon`. See the
+[administration guide](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/ADMIN-OPERATIONS.md)
+for worker setup and permission requirements.

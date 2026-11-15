@@ -23,7 +23,7 @@ Key differences between standard Pterodactyl and Aquadactyl:
 | :----------------------- | :------------------------------ | :-------------------------------------------------------------------------------------------- |
 | **Default Location**     | `/var/www/pterodactyl`          | `/var/www/aquadactyl`                                                                         |
 | **Supported PHP**        | PHP 8.1 / 8.2 / 8.3             | **PHP 8.5** (recommended) or **PHP 8.4**                                                      |
-| **Node.js & Frontend**   | Yarn / Prebuilt release         | **Node.js 24** & pinned **pnpm 12.10.1** (`pnpm run build`)                                   |
+| **Node.js & Frontend**   | Yarn / Prebuilt release         | **Node.js 24** & pinned **pnpm 12.15.0** (`pnpm run build`)                                   |
 | **Framework Extensions** | None / Manual patching          | Bundled **Blueprint beta-2026-08** integration                                                |
 | **Permissions Model**    | `www-data:www-data` entire tree | Strict least-privilege: `root:www-data` code, only `storage/` and `bootstrap/cache/` writable |
 
@@ -65,7 +65,7 @@ sudo tar -czf /var/backups/pterodactyl-migration/pterodactyl-files-${TIMESTAMP}.
 
 ## Step 3: Upgrade System Prerequisites (PHP 8.5 & Node.js 24) [#step-3]
 
-Pterodactyl often runs on older PHP versions (such as PHP 8.1, 8.2, or 8.3). Aquadactyl requires **PHP 8.5** (or 8.4) and **Node.js 24** with **pnpm 12.10.1**.
+Pterodactyl often runs on older PHP versions (such as PHP 8.1, 8.2, or 8.3). Aquadactyl requires **PHP 8.5** (or 8.4) and **Node.js 24** with **pnpm 12.15.0**.
 
 ### Add Sury PHP Repository & Install PHP 8.5
 
@@ -96,7 +96,7 @@ export NVM_DIR="$HOME/.nvm"
 nvm install 24
 nvm use 24
 npm install --global npm@latest
-npm install --global pnpm@12.10.1
+npm install --global pnpm@12.15.0
 ```
 
 ---
@@ -111,7 +111,7 @@ sudo mkdir -p /var/www/aquadactyl
 cd /var/www/aquadactyl
 
 # Download the latest panel release archive (or specify target tag)
-RELEASE_TAG="v0.2.0"
+RELEASE_TAG="v1.0-beta"
 curl -L -o /tmp/panel.tar.gz "https://github.com/Aquadactyl/aquadactyl/releases/download/${RELEASE_TAG}/panel.tar.gz"
 
 # Extract into /var/www/aquadactyl

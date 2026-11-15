@@ -1,6 +1,6 @@
 export const panelReview = {
-  reviewedOn: "18 October 2026",
-  aquadactyl: "f2680179b5ebdf508e45bfd7006d5954b95b0df7",
+  reviewedOn: "15 November 2026",
+  aquadactyl: "v1.0-beta",
   pterodactyl: "e98678c5a1d07a74036660a459d87a4eb7c105c1",
   pterodactylRelease: "v1.15.1",
 };
@@ -27,6 +27,78 @@ export interface PanelFeature {
 
 // The cards and comparison table share this catalogue so their claims stay aligned.
 export const panelFeatures: PanelFeature[] = [
+  {
+    id: "setup-pwa",
+    icon: "Container",
+    category: "Everyday use",
+    title: "Guided setup & installable app",
+    text: "Set branding, optionally create a node with a connection test, and add administrators. Admins configure PWA installation and a safe offline connection page.",
+    upstream:
+      "Command-line initial setup; no equivalent bundled setup wizard and configurable offline app page in the reviewed release.",
+    availability: "Configurable",
+    href: "/docs/panel/features#setup-pwa",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
+  {
+    id: "notifications",
+    icon: "Mail",
+    category: "Accounts & privacy",
+    title: "Personal server notifications",
+    text: "An account inbox and opt-in alerts for power actions, crashes, schedules, backups and installations. Admins can allow users to configure personal Discord webhooks.",
+    upstream:
+      "Server activity records; no equivalent bundled per-account subscription inbox in the reviewed release.",
+    availability: "Configurable",
+    href: "/docs/panel/features#notifications",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
+  {
+    id: "status-discord",
+    icon: "Radio",
+    category: "Operations",
+    title: "Status page & linked Discord roles",
+    text: "Publish selected node availability and incidents publicly or only to signed-in users. Synchronize linked Discord users' roles from qualifying owned servers, eggs and nodes.",
+    upstream:
+      "External services and integrations are needed for an equivalent status page and role policy.",
+    availability: "Off by default",
+    href: "/docs/panel/features#status-discord",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
+  {
+    id: "admin-operations",
+    icon: "Gauge",
+    category: "Operations",
+    title: "Maintenance & daemon overview",
+    text: "Configure a themed maintenance page with an admin preview, inspect daemon resources and capacity, and manage Cloudflare-backed server subdomains.",
+    upstream:
+      "Node and server management are included; the combined overview, themed maintenance preview and managed DNS need additional tooling.",
+    availability: "Configurable",
+    href: "/docs/panel/features#admin-operations",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
+  {
+    id: "audit-webhooks",
+    icon: "ListFilter",
+    category: "Operations",
+    title: "Audit logs & action webhooks",
+    text: "Review administrator and user actions, temporarily suspend users and their servers, and deliver Discord or signed JSON webhooks for actions, status changes and updates.",
+    upstream:
+      "Server activity records and suspension are included; panel-wide audit tooling and these webhook subscriptions need additional integration.",
+    availability: "Configurable",
+    href: "/docs/panel/features#audit-webhooks",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
+  {
+    id: "admin-blueprint",
+    icon: "Puzzle",
+    category: "Extensions",
+    title: "Admin addon installation & removal",
+    text: "Upload and review Blueprint packages in the admin area, then install or remove through a dedicated worker. Administrators control availability; CLI commands stay available.",
+    upstream:
+      "Blueprint is installed separately and addon management normally uses its command-line tools.",
+    availability: "Off by default",
+    href: "/docs/panel/features#admin-blueprint",
+    source: "docs/ADMIN-OPERATIONS.md",
+  },
   {
     id: "server-folders",
     icon: "Folder",
@@ -311,7 +383,7 @@ export const panelFeatures: PanelFeature[] = [
     icon: "RefreshCw",
     category: "Operations",
     title: "Managed installation & updates",
-    text: "Install/build scripts and a release-checking updater apply migrations, refresh caches and back up database and panel files while preserving configuration and extension data.",
+    text: "Git-pinned releases, locked builds and a managed updater apply migrations, refresh caches and back up database and files while preserving configuration and addon state.",
     upstream:
       "Documented installation and update steps; operators arrange release checks and backups.",
     availability: "Included",

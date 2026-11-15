@@ -47,7 +47,7 @@ export default function Home() {
           <div className="max-w-165 pb-0 min-[1051px]:max-w-none min-[1051px]:pb-4">
             <p className="flex items-center gap-2 text-[11px] text-[#a0abb6] sm:text-xs">
               <span className="h-1.5 w-1.5 rounded-full bg-[#78d4cc]" />
-              Open-source game server panel
+              v1.0-beta · Open-source game server panel
             </p>
             <h1
               id="hero-heading"
@@ -126,6 +126,32 @@ export default function Home() {
       <BenchmarkShowcase />
 
       <FeatureComparison />
+
+      <section className="border-y border-[#28313a] bg-[#11161b] px-5 py-10 sm:px-6">
+        <div className="mx-auto flex max-w-296 flex-col gap-6 md:flex-row md:items-center md:gap-10">
+          <img
+            src="/brand/manta-wordmark.svg"
+            alt="Manta, the Aquadactyl daemon"
+            width={600}
+            height={140}
+            className="h-auto w-full max-w-100"
+          />
+          <div>
+            <h2 className="text-xl font-medium text-[#e9edf0]">Meet Manta</h2>
+            <p className="mt-2 max-w-145 text-sm leading-relaxed text-[#a0abb6]">
+              Run game servers on Linux, or develop locally on macOS. Manta
+              retains Wings API compatibility and adds host metrics, file search
+              and hardened server operations. Both projects ship as v1.0-beta.
+            </p>
+            <Link
+              href="/docs/manta/installing-manta"
+              className="mt-4 inline-flex items-center gap-2 text-sm text-[#a4e3dc]"
+            >
+              Install Manta <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <section
         id="blueprint"
