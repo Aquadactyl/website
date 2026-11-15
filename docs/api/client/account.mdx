@@ -1,9 +1,479 @@
 ---
 title: Account, security and API keys
-description: 18 source-verified client API operations in Aquadactyl.
+description: 27 source-verified client API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first.
+
+<span id="get-api-client-account-notifications-preferences" />
+
+## GET `/api/client/account/notifications/preferences`
+
+Calls AccountNotificationController::preferences.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php)
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$configuration = $settings->get();
+abort_unless($configuration['enabled'], 403);
+$preferences = AccountNotificationPreference::where('user_id', $request->user()->id)->first();
+
+return response()->json($configuration + [
+    'events' => collect(ServerNotificationService::EVENTS)->map(fn ($event) => ['id' => $event, 'label' => __('notifications.events.' . $event)])->all(),
+    'site_events' => $preferences->site_events ?? [], 'discord_events' => $configuration['discord_enabled'] ? ($preferences->discord_events ?? []) : [],
+    'has_webhook' => $configuration['discord_enabled'] && $preferences?->discord_webhook !== null,
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/notifications/preferences" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="put-api-client-account-notifications-preferences" />
+
+## PUT `/api/client/account/notifications/preferences`
+
+Calls AccountNotificationController::update.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field              | Validation                                                                        |
+| ------------------ | --------------------------------------------------------------------------------- |
+| `site_events`      | `'present\|array\|max:10'`                                                        |
+| `site_events.*`    | `['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)]` |
+| `discord_events`   | `'sometimes\|array\|max:10'`                                                      |
+| `discord_events.*` | `['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)]` |
+| `discord_webhook`  | `'nullable\|string\|max:2048'`                                                    |
+| `clear_webhook`    | `'sometimes\|boolean'`                                                            |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$configuration = $settings->get();
+abort_unless($configuration['enabled'], 403);
+$data = $request->validate([
+    'site_events' => 'present|array|max:10', 'site_events.*' => ['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)],
+    'discord_events' => 'sometimes|array|max:10', 'discord_events.*' => ['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)],
+    'discord_webhook' => 'nullable|string|max:2048', 'clear_webhook' => 'sometimes|boolean',
+]);
+$replace = !empty($data['discord_webhook']);
+$clear = !empty($data['clear_webhook']);
+if (!$configuration['discord_enabled'] && ($replace || !empty($data['discord_events']))) {
+    throw ValidationException::withMessages(['discord_webhook' => __('notifications.discord_disabled')]);
+}
+$url = null;
+if ($replace || $clear) {
+    $confirmation->handle($request);
+}
+if ($replace) {
+    try {
+        $url = $target->validate($data['discord_webhook'], 'discord')['url'];
+    } catch (\InvalidArgumentException) {
+        throw ValidationException::withMessages(['discord_webhook' => __('notifications.invalid_webhook')]);
+    }
+}
+DB::transaction(function () use ($request, $data, $replace, $clear, $url) {
+    $preferences = AccountNotificationPreference::firstOrCreate(['user_id' => $request->user()->id], ['site_events' => [], 'discord_events' => []]);
+    $preferences = AccountNotificationPreference::whereKey($preferences->id)->lockForUpdate()->firstOrFail();
+    $preferences->site_events = $data['site_events'];
+    if (array_key_exists('discord_events', $data)) {
+        $preferences->discord_events = $data['discord_events'];
+    }
+    if ($replace || $clear) {
+        $preferences->discord_webhook = $clear ? null : $url;
+        ++$preferences->revision;
+    }
+    if ($clear) {
+        $preferences->discord_events = [];
+    }
+    if ($preferences->discord_events && !$preferences->discord_webhook) {
+        throw ValidationException::withMessages(['discord_webhook' => __('notifications.webhook_required')]);
+    }
+    $preferences->save();
+});
+
+return $this->preferences($request, $settings);
+```
+
+</details>
+
+---
+
+<span id="get-api-client-account-notifications" />
+
+## GET `/api/client/account/notifications`
+
+Calls AccountNotificationController::index.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php)
+
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field       | Validation                    |
+| ----------- | ----------------------------- |
+| `after_id`  | `'sometimes\|integer\|min:0'` |
+| `before_id` | `'sometimes\|integer\|min:1'` |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+abort_unless($settings->get()['enabled'], 403);
+$data = $request->validate(['after_id' => 'sometimes|integer|min:0', 'before_id' => 'sometimes|integer|min:1']);
+$query = $this->inbox($request);
+$after = isset($data['after_id']) ? (int) $data['after_id'] : null;
+$rows = (clone $query)->when($after !== null, fn ($q) => $q->where('id', '>', $after))
+    ->when(isset($data['before_id']), fn ($q) => $q->where('id', '<', $data['before_id']))
+    ->orderBy('id', $after !== null ? 'asc' : 'desc')->limit(25)->with('server')->get();
+
+return response()->json([
+    'data' => $rows->map(fn ($row) => [
+        'id' => $row->id, 'uuid' => $row->uuid, 'event' => $row->event, 'server_name' => $row->server_name,
+        'server_identifier' => $row->server->identifier, 'detail' => $row->detail,
+        'created_at' => $row->created_at->toIso8601String(), 'read_at' => $row->read_at?->toIso8601String(),
+    ]),
+    'unread_count' => (clone $query)->whereNull('read_at')->count(),
+    'cursor' => $after !== null ? ($rows->max('id') ?? $after) : ($rows->max('id') ?? 0),
+    'before_id' => $rows->count() === 25 ? $rows->min('id') : null,
+]);
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/notifications" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-account-notifications-read" />
+
+## POST `/api/client/account/notifications/read`
+
+Calls AccountNotificationController::read.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php)
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field   | Validation                   |
+| ------- | ---------------------------- |
+| `ids`   | `'required\|array\|max:100'` |
+| `ids.*` | `'required\|uuid'`           |
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+abort_unless($settings->get()['enabled'], 403);
+$data = $request->validate(['ids' => 'required|array|max:100', 'ids.*' => 'required|uuid']);
+$this->inbox($request)->whereIn('uuid', $data['ids'])->whereNull('read_at')->update(['read_at' => now()]);
+
+return response()->json([], 204);
+```
+
+</details>
+
+---
+
+<span id="get-api-client-account-server-folders" />
+
+## GET `/api/client/account/server-folders`
+
+Calls ServerFolderController::index.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ServerFolderRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.server_folders', true) === true;
+```
+
+</details>
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+return ['data' => DB::table('server_folders')->where('user_id', $request->user()->id)
+    ->orderBy('name')->get(['id', 'name'])->all()];
+```
+
+</details>
+
+### Example request
+
+```bash
+curl --get "${PANEL_URL}/api/client/account/server-folders" \
+  --header "Authorization: Bearer ${CLIENT_API_KEY}" \
+  --header "Accept: application/json"
+```
+
+---
+
+<span id="post-api-client-account-server-folders" />
+
+## POST `/api/client/account/server-folders`
+
+Calls ServerFolderController::store.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ServerFolderRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.server_folders', true) === true;
+```
+
+</details>
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$data = $request->validate($this->nameRules($request->user()->id));
+$id = DB::table('server_folders')->insertGetId([
+    'user_id' => $request->user()->id, 'name' => $data['name'],
+    'created_at' => now(), 'updated_at' => now(),
+]);
+
+return ['id' => $id, 'name' => $data['name']];
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-server-folders-folder" />
+
+## PUT `/api/client/account/server-folders/{folder}`
+
+Calls ServerFolderController::update.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ServerFolderRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `folder`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.server_folders', true) === true;
+```
+
+</details>
+
+### Response
+
+Success: **200**.
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$query = DB::table('server_folders')->where('user_id', $request->user()->id)->where('id', $folder);
+abort_unless($query->exists(), 404);
+$data = $request->validate($this->nameRules($request->user()->id, $folder));
+$query->update(['name' => $data['name'], 'updated_at' => now()]);
+
+return ['id' => (int) $folder, 'name' => $data['name']];
+```
+
+</details>
+
+---
+
+<span id="delete-api-client-account-server-folders-folder" />
+
+## DELETE `/api/client/account/server-folders/{folder}`
+
+Calls ServerFolderController::destroy.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ServerFolderRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `folder`. See [identifiers](/docs/api/authentication#identifiers).
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.server_folders', true) === true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$query = DB::table('server_folders')->where('user_id', $request->user()->id)->where('id', $folder);
+abort_unless($query->exists(), 404);
+$query->delete();
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
+
+<span id="put-api-client-account-server-folders-servers-server" />
+
+## PUT `/api/client/account/server-folders/servers/{server}`
+
+Calls ServerFolderController::assign.
+
+**Access:** Client API key or authenticated panel session.
+
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ServerFolderRequest.php)
+
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+
+**Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
+
+### Input fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field       | Validation                                                                                                |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| `folder_id` | `['present', 'nullable', 'integer', Rule::exists('server_folders', 'id')->where('user_id', $user->id), ]` |
+
+<details>
+<summary>Additional authorization checks</summary>
+
+```php
+return config('aquadactyl.features.server_folders', true) === true;
+```
+
+</details>
+
+### Response
+
+Success: **204** (empty body).
+
+<details>
+<summary>Response construction and endpoint behavior</summary>
+
+This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
+
+```php
+$user = $request->user();
+abort_unless($user->root_admin || $user->accessibleServers()->where('servers.id', $server->id)->exists(), 404);
+$data = $request->validate(['folder_id' => ['present', 'nullable', 'integer',
+    Rule::exists('server_folders', 'id')->where('user_id', $user->id),
+]]);
+$query = DB::table('server_folder_assignments')->where('user_id', $user->id)->where('server_id', $server->id);
+if ($data['folder_id'] === null) {
+    $query->delete();
+} else {
+    DB::table('server_folder_assignments')->updateOrInsert(
+        ['user_id' => $user->id, 'server_id' => $server->id],
+        ['server_folder_id' => $data['folder_id']],
+    );
+}
+
+return $this->returnNoContent();
+```
+
+</details>
+
+---
 
 <span id="get-api-client-account" />
 
@@ -13,7 +483,7 @@ Calls AccountController::index.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php)
 
 ### Response
 
@@ -50,7 +520,7 @@ Returns two-factor token credentials that allow a user to configure it on their 
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php)
 
 ### Response
 
@@ -62,13 +532,13 @@ Success: **200**.
 This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
 
 ```php
-if ($request->user()->use_totp) {
-    throw new BadRequestHttpException('Two-factor authentication is already enabled on this account.');
-}
+return $this->withLockedUser($request, function (User $user) {
+    if ($user->use_totp) {
+        throw new BadRequestHttpException('Two-factor authentication is already enabled on this account.');
+    }
 
-return new JsonResponse([
-    'data' => $this->setupService->handle($request->user()),
-]);
+    return new JsonResponse(['data' => $this->setupService->handle($user)]);
+});
 ```
 
 </details>
@@ -91,7 +561,7 @@ Updates a user's account to have two-factor enabled.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php)
 
 ### Input fields
 
@@ -118,20 +588,18 @@ $validator = $this->validation->make($request->all(), [
 ]);
 
 $data = $validator->validate();
-if (!password_verify($data['password'], $request->user()->password)) {
-    throw new BadRequestHttpException('The password provided was not valid.');
-}
 
-$tokens = $this->toggleTwoFactorService->handle($request->user(), $data['code'], true);
+return $this->withLockedUser($request, function (User $user) use ($data) {
+    if (!password_verify($data['password'], $user->password)) {
+        throw new BadRequestHttpException('The password provided was not valid.');
+    }
 
-Activity::event('user:two-factor.create')->log();
+    $tokens = $this->toggleTwoFactorService->handle($user, $data['code'], true);
 
-return new JsonResponse([
-    'object' => 'recovery_tokens',
-    'attributes' => [
-        'tokens' => $tokens,
-    ],
-]);
+    Activity::event('user:two-factor.create')->log();
+
+    return new JsonResponse(['object' => 'recovery_tokens', 'attributes' => ['tokens' => $tokens]]);
+});
 ```
 
 </details>
@@ -146,7 +614,7 @@ Disables two-factor authentication on an account if the password provided is val
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php)
 
 **Other controller inputs:** `password`.
 
@@ -160,20 +628,17 @@ Success: **204** (empty body).
 This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
 
 ```php
-if (!password_verify($request->input('password') ?? '', $request->user()->password)) {
-    throw new BadRequestHttpException('The password provided was not valid.');
-}
+return $this->withLockedUser($request, function (User $user) use ($request) {
+    if (!password_verify($request->input('password') ?? '', $user->password)) {
+        throw new BadRequestHttpException('The password provided was not valid.');
+    }
 
-$user = $request->user();
+    $user->update(['totp_authenticated_at' => Carbon::now(), 'use_totp' => false]);
 
-$user->update([
-    'totp_authenticated_at' => Carbon::now(),
-    'use_totp' => false,
-]);
+    Activity::event('user:two-factor.delete')->log();
 
-Activity::event('user:two-factor.delete')->log();
-
-return new JsonResponse([], Response::HTTP_NO_CONTENT);
+    return new JsonResponse([], Response::HTTP_NO_CONTENT);
+});
 ```
 
 </details>
@@ -188,7 +653,7 @@ Regenerates recovery tokens for an account if two-factor is enabled and the pass
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php)
 
 ### Input fields
 
@@ -208,29 +673,26 @@ Success: **200**.
 This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
 
 ```php
-if (!$request->user()->use_totp) {
-    throw new BadRequestHttpException('Two-factor authentication is not enabled on this account.');
-}
-
 $validator = $this->validation->make($request->all(), [
     'password' => ['required', 'string'],
 ]);
 
 $data = $validator->validate();
-if (!password_verify($data['password'], $request->user()->password)) {
-    throw new BadRequestHttpException('The password provided was not valid.');
-}
 
-$tokens = $this->recoveryTokenService->handle($request->user());
+return $this->withLockedUser($request, function (User $user) use ($data) {
+    if (!$user->use_totp) {
+        throw new BadRequestHttpException('Two-factor authentication is not enabled on this account.');
+    }
+    if (!password_verify($data['password'], $user->password)) {
+        throw new BadRequestHttpException('The password provided was not valid.');
+    }
 
-Activity::event('user:two-factor.regenerate-tokens')->log();
+    $tokens = $this->recoveryTokenService->handle($user);
 
-return new JsonResponse([
-    'object' => 'recovery_tokens',
-    'attributes' => [
-        'tokens' => $tokens,
-    ],
-]);
+    Activity::event('user:two-factor.regenerate-tokens')->log();
+
+    return new JsonResponse(['object' => 'recovery_tokens', 'attributes' => ['tokens' => $tokens]]);
+});
 ```
 
 </details>
@@ -245,9 +707,9 @@ Update the authenticated user's email address.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateEmailRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/UpdateEmailRequest.php)
 
-Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
 
 ### Input fields
 
@@ -318,7 +780,7 @@ Update the authenticated user's password. All existing sessions will be logged o
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdatePasswordRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/UpdatePasswordRequest.php)
 
 ### Input fields
 
@@ -384,7 +846,7 @@ Calls AccountAvatarController::store.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateAvatarRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountAvatarController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/UpdateAvatarRequest.php)
 
 ### Input fields
 
@@ -433,7 +895,7 @@ Calls AccountAvatarController::destroy.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountAvatarController.php)
 
 ### Response
 
@@ -465,7 +927,7 @@ Calls AccountPrivacyController::update.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountPrivacyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdatePrivacyRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountPrivacyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/UpdatePrivacyRequest.php)
 
 ### Input fields
 
@@ -519,7 +981,7 @@ Calls AccountLanguageController::update.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountLanguageController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountLanguageController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php)
 
 ### Input fields
 
@@ -560,7 +1022,7 @@ Returns a paginated set of the user's activity logs.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ActivityLogRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ActivityLogRequest.php)
 
 ### Query fields
 
@@ -628,9 +1090,9 @@ Returns all the API keys that exist for the given client.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 ### Response
 
@@ -667,9 +1129,9 @@ Store a new API key for a user's account.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/StoreApiKeyRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/StoreApiKeyRequest.php)
 
-Model constraints: [ApiKey.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/ApiKey.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [ApiKey.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/ApiKey.php) (including runtime rules and uniqueness checks for updates).
 
 ### Input fields
 
@@ -743,9 +1205,9 @@ Deletes a given API key.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `identifier`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -785,9 +1247,9 @@ Returns all the SSH keys that have been configured for the logged-in user accoun
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 ### Response
 
@@ -824,7 +1286,7 @@ Stores a new SSH key for the authenticated user's account.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php)
 
 ### Input fields
 
@@ -915,9 +1377,9 @@ Deletes an SSH key from the user's account.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 ### Input fields
 

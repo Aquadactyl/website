@@ -3,7 +3,7 @@ title: Subusers
 description: 5 source-verified client API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first.
 
 <span id="get-api-client-servers-server-users" />
 
@@ -13,9 +13,9 @@ Return the users associated with this server instance.
 
 **Access:** Client API key or authenticated panel session; `user.read`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -81,7 +81,7 @@ Create a new subuser for the given server.
 
 **Access:** Client API key or authenticated panel session; `user.create`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/StoreSubuserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Subusers/StoreSubuserRequest.php)
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -160,9 +160,9 @@ Returns a single subuser associated with this server instance.
 
 **Access:** Client API key or authenticated panel session; `user.read`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Subusers/GetSubuserRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -230,7 +230,7 @@ Update a given subuser in the system for the server.
 
 **Access:** Client API key or authenticated panel session; `user.update`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/UpdateSubuserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Subusers/UpdateSubuserRequest.php)
 
 **Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -326,9 +326,9 @@ Removes a subusers from a server's assignment.
 
 **Access:** Client API key or authenticated panel session; `user.delete`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Subusers/DeleteSubuserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Subusers/DeleteSubuserRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`, `user`. See [identifiers](/docs/api/authentication#identifiers).
 

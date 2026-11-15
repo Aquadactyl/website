@@ -3,7 +3,7 @@ title: Users
 description: 6 source-verified application API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first.
 
 <span id="get-api-application-users" />
 
@@ -13,9 +13,9 @@ Handle request to list all users on the panel. Returns a JSON-API representation
 
 **Access:** Administrator account.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Other controller inputs:** `per_page`.
 
@@ -61,9 +61,9 @@ Handle a request to view a single user. Includes any relations that were defined
 
 **Access:** Administrator account.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/GetUsersRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -102,9 +102,9 @@ Retrieve a specific user from the database using their external ID.
 
 **Access:** Administrator account; `users` ACL `READ`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/ExternalUserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/GetExternalUserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/ExternalUserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/GetExternalUserRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `external_id`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -145,9 +145,9 @@ Store a new user on the system. Returns the created user and an HTTP/201 header 
 
 **Access:** Administrator account; `users` ACL `WRITE`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/StoreUserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/StoreUserRequest.php)
 
-Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
 
 ### Input fields
 
@@ -198,9 +198,9 @@ Update an existing user on the system and return the response. Returns the updat
 
 **Access:** Administrator account; `users` ACL `WRITE`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/UpdateUserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/UpdateUserRequest.php)
 
-Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [User.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/User.php) (including runtime rules and uniqueness checks for updates).
 
 **Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -250,9 +250,9 @@ Handle a request to delete a user from the Panel. Returns a HTTP/204 response on
 
 **Access:** Administrator account; `users` ACL `WRITE`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/Users/DeleteUserRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-application.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/Users/DeleteUserRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `user:id`. See [identifiers](/docs/api/authentication#identifiers).
 

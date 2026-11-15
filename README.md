@@ -6,6 +6,12 @@ TypeScript and Next.js application, with Fumadocs powering the MDX guides.
 
 ## Panel features covered
 
+The v1.0-beta guides use pinned Git checkouts for panel and Manta installation
+and updates. Current feature coverage includes the setup wizard, configurable
+PWA, personal notification subscriptions, status page, Discord roles, audit logs,
+maintenance, server subdomains and admin Blueprint management. Benchmark dates
+and source revisions remain attached to their original measured runs.
+
 The homepage and [Panel Features guide](https://aquadactyl.uk/docs/panel/features)
 describe the current Aquadactyl additions:
 

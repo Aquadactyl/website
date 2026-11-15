@@ -3,11 +3,11 @@ title: Response objects
 description: Exact response attributes and relationships from Aquadactyl API transformers.
 ---
 
-These are the attribute definitions from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). They sit inside the resource envelope described in [conventions](/docs/api/authentication#responses-and-pagination). PHP expressions describe how values are constructed; conditional relationships and secret fields are not always present. Non-transformer endpoints document their response construction on their own reference page.
+These are the attribute definitions from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). They sit inside the resource envelope described in [conventions](/docs/api/authentication#responses-and-pagination). PHP expressions describe how values are constructed; conditional relationships and secret fields are not always present. Non-transformer endpoints document their response construction on their own reference page.
 
 ## Application AllocationTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/AllocationTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/AllocationTransformer.php).
 
 | Attribute  | Value construction                 |
 | ---------- | ---------------------------------- |
@@ -38,7 +38,7 @@ Relationships: `$availableIncludes = ['node', 'server'];`. Requested includes ar
 
 ## Application DatabaseHostTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/DatabaseHostTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/DatabaseHostTransformer.php).
 
 | Attribute    | Value construction                   |
 | ------------ | ------------------------------------ |
@@ -73,7 +73,7 @@ Relationships: `$availableIncludes = [ 'databases', ];`. Requested includes are 
 
 ## Application EggTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/EggTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/EggTransformer.php).
 
 | Attribute              | Value construction                                                          |
 | ---------------------- | --------------------------------------------------------------------------- |
@@ -146,7 +146,7 @@ Relationships: `$availableIncludes = [ 'nest', 'servers', 'config', 'script', 'v
 
 ## Application EggVariableTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/EggVariableTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/EggVariableTransformer.php).
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -159,7 +159,7 @@ return $model->toArray();
 
 ## Application LocationTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/LocationTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/LocationTransformer.php).
 
 | Attribute | Value construction |
 | --------- | ------------------ |
@@ -186,7 +186,7 @@ Relationships: `$availableIncludes = ['nodes', 'servers'];`. Requested includes 
 
 ## Application NestTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/NestTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/NestTransformer.php).
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -206,7 +206,7 @@ Relationships: `$availableIncludes = [ 'eggs', 'servers', ];`. Requested include
 
 ## Application NodeTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/NodeTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/NodeTransformer.php).
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -238,7 +238,7 @@ Relationships: `$availableIncludes = ['allocations', 'location', 'servers'];`. R
 
 ## Application ServerDatabaseTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerDatabaseTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/ServerDatabaseTransformer.php).
 
 | Attribute         | Value construction                   |
 | ----------------- | ------------------------------------ |
@@ -275,7 +275,7 @@ Relationships: `$availableIncludes = ['password', 'host'];`. Requested includes 
 
 ## Application ServerTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/ServerTransformer.php).
 
 | Attribute                    | Value construction                           |
 | ---------------------------- | -------------------------------------------- |
@@ -363,7 +363,7 @@ Relationships: `$availableIncludes = [ 'allocations', 'user', 'subusers', 'nest'
 
 ## Application ServerVariableTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/ServerVariableTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/ServerVariableTransformer.php).
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -378,7 +378,7 @@ Relationships: `$availableIncludes = ['parent'];`. Requested includes are subjec
 
 ## Application SubuserTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/SubuserTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/SubuserTransformer.php).
 
 | Attribute     | Value construction                             |
 | ------------- | ---------------------------------------------- |
@@ -409,7 +409,7 @@ Relationships: `$availableIncludes = ['user', 'server'];`. Requested includes ar
 
 ## Application UserTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Application/UserTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Application/UserTransformer.php).
 
 | Attribute     | Value construction                          |
 | ------------- | ------------------------------------------- |
@@ -452,7 +452,7 @@ Relationships: `$availableIncludes = ['servers'];`. Requested includes are subje
 
 ## Client AccountTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/AccountTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/AccountTransformer.php).
 
 | Attribute             | Value construction                  |
 | --------------------- | ----------------------------------- |
@@ -487,7 +487,7 @@ return [
 
 ## Client ActivityLogTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ActivityLogTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/ActivityLogTransformer.php).
 
 | Attribute                 | Value construction                                    |
 | ------------------------- | ----------------------------------------------------- |
@@ -525,7 +525,7 @@ Relationships: `$availableIncludes = ['actor'];`. Requested includes are subject
 
 ## Client AllocationTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/AllocationTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/AllocationTransformer.php).
 
 | Attribute    | Value construction                             |
 | ------------ | ---------------------------------------------- |
@@ -554,7 +554,7 @@ return [
 
 ## Client ApiKeyTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ApiKeyTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/ApiKeyTransformer.php).
 
 | Attribute      | Value construction                                                   |
 | -------------- | -------------------------------------------------------------------- |
@@ -581,7 +581,7 @@ return [
 
 ## Client BackupTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/BackupTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/BackupTransformer.php).
 
 | Attribute       | Value construction                                                     |
 | --------------- | ---------------------------------------------------------------------- |
@@ -616,7 +616,7 @@ return [
 
 ## Client DatabaseTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/DatabaseTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/DatabaseTransformer.php).
 
 | Attribute          | Value construction                   |
 | ------------------ | ------------------------------------ |
@@ -654,7 +654,7 @@ Relationships: `$availableIncludes = ['password'];`. Requested includes are subj
 
 ## Client EggTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/EggTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/EggTransformer.php).
 
 | Attribute | Value construction |
 | --------- | ------------------ |
@@ -675,7 +675,7 @@ return [
 
 ## Client EggVariableTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/EggVariableTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/EggVariableTransformer.php).
 
 | Attribute       | Value construction         |
 | --------------- | -------------------------- |
@@ -710,7 +710,7 @@ return [
 
 ## Client FileObjectTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/FileObjectTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/FileObjectTransformer.php).
 
 | Attribute     | Value construction                                               |
 | ------------- | ---------------------------------------------------------------- |
@@ -745,7 +745,7 @@ return [
 
 ## Client ScheduleTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ScheduleTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/ScheduleTransformer.php).
 
 | Attribute           | Value construction                     |
 | ------------------- | -------------------------------------- |
@@ -795,48 +795,51 @@ Relationships: `$availableIncludes = ['tasks'];`; `$defaultIncludes = ['tasks'];
 
 ## Client ServerTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/ServerTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/ServerTransformer.php).
 
-| Attribute                    | Value construction                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| `server_owner`               | `$user->id === $server->owner_id`                                                          |
-| `identifier`                 | `$server->identifier`                                                                      |
-| `server_identifier`          | `$server->identifier`                                                                      |
-| `internal_id`                | `$server->id`                                                                              |
-| `uuid`                       | `$server->uuid`                                                                            |
-| `name`                       | `$server->name`                                                                            |
-| `node`                       | `$server->node->name`                                                                      |
-| `node_country`               | `$server->node->country_code`                                                              |
-| `node_country_name`          | `Countries::name($server->node->country_code)`                                             |
-| `user_permissions`           | `Container::getInstance()->make(GetUserPermissionsService::class)->handle($server, $user)` |
-| `game_query_type`            | `Container::getInstance()->make(GameQuerySettingsService::class)->game($server)`           |
-| `is_node_under_maintenance`  | `$server->node->isUnderMaintenance()`                                                      |
-| `sftp_details`               | `Nested object`                                                                            |
-| `sftp_details.ip`            | `$server->node->getSftpDomain()`                                                           |
-| `sftp_details.port`          | `$server->node->daemonSFTP`                                                                |
-| `description`                | `$server->description`                                                                     |
-| `limits`                     | `Nested object`                                                                            |
-| `limits.memory`              | `$server->memory`                                                                          |
-| `limits.swap`                | `$server->swap`                                                                            |
-| `limits.disk`                | `$server->disk`                                                                            |
-| `limits.io`                  | `$server->io`                                                                              |
-| `limits.cpu`                 | `$server->cpu`                                                                             |
-| `limits.threads`             | `$server->threads`                                                                         |
-| `limits.oom_disabled`        | `$server->oom_disabled`                                                                    |
-| `invocation`                 | `$service->handle($server, !$user->can(Permission::ACTION_STARTUP_READ, $server))`         |
-| `docker_image`               | `$server->image`                                                                           |
-| `egg_features`               | `$server->egg->inherit_features`                                                           |
-| `feature_limits`             | `Nested object`                                                                            |
-| `feature_limits.databases`   | `$server->database_limit`                                                                  |
-| `feature_limits.allocations` | `$server->allocation_limit`                                                                |
-| `feature_limits.backups`     | `$server->backup_limit`                                                                    |
-| `status`                     | `$server->status`                                                                          |
-| `is_suspended`               | `$server->isSuspended()`                                                                   |
-| `is_installing`              | `!$server->isInstalled()`                                                                  |
-| `is_transferring`            | `!is_null($server->transfer)`                                                              |
-| `skip_scripts`               | `$server->skip_scripts`                                                                    |
-| `BlueprintFramework`         | `Nested object`                                                                            |
-| `BlueprintFramework.egg_id`  | `$server->egg_id`                                                                          |
+| Attribute                    | Value construction                                                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `server_owner`               | `$user->id === $server->owner_id`                                                                                                        |
+| `identifier`                 | `$server->identifier`                                                                                                                    |
+| `server_identifier`          | `$server->identifier`                                                                                                                    |
+| `internal_id`                | `$server->id`                                                                                                                            |
+| `uuid`                       | `$server->uuid`                                                                                                                          |
+| `name`                       | `$server->name`                                                                                                                          |
+| `folder_id`                  | `$server->getAttribute('user_folder_id')`                                                                                                |
+| `node`                       | `$server->node->name`                                                                                                                    |
+| `daemon_product`             | `$server->getAttribute('daemon_product') ?? SoftwareUpdate::where('component', 'node:' . $server->node_id)->value('product') ?? 'wings'` |
+| `node_country`               | `$server->node->country_code`                                                                                                            |
+| `node_country_name`          | `Countries::name($server->node->country_code)`                                                                                           |
+| `upload_limit`               | `$server->node->upload_size * 1024 * 1024`                                                                                               |
+| `user_permissions`           | `Container::getInstance()->make(GetUserPermissionsService::class)->handle($server, $user)`                                               |
+| `game_query_type`            | `Container::getInstance()->make(GameQuerySettingsService::class)->game($server)`                                                         |
+| `is_node_under_maintenance`  | `$server->node->isUnderMaintenance()`                                                                                                    |
+| `sftp_details`               | `Nested object`                                                                                                                          |
+| `sftp_details.ip`            | `$server->node->getSftpDomain()`                                                                                                         |
+| `sftp_details.port`          | `$server->node->daemonSFTP`                                                                                                              |
+| `description`                | `$server->description`                                                                                                                   |
+| `limits`                     | `Nested object`                                                                                                                          |
+| `limits.memory`              | `$server->memory`                                                                                                                        |
+| `limits.swap`                | `$server->swap`                                                                                                                          |
+| `limits.disk`                | `$server->disk`                                                                                                                          |
+| `limits.io`                  | `$server->io`                                                                                                                            |
+| `limits.cpu`                 | `$server->cpu`                                                                                                                           |
+| `limits.threads`             | `$server->threads`                                                                                                                       |
+| `limits.oom_disabled`        | `$server->oom_disabled`                                                                                                                  |
+| `invocation`                 | `$service->handle($server, !$user->can(Permission::ACTION_STARTUP_READ, $server))`                                                       |
+| `docker_image`               | `$server->image`                                                                                                                         |
+| `egg_features`               | `$server->egg->inherit_features`                                                                                                         |
+| `feature_limits`             | `Nested object`                                                                                                                          |
+| `feature_limits.databases`   | `$server->database_limit`                                                                                                                |
+| `feature_limits.allocations` | `$server->allocation_limit`                                                                                                              |
+| `feature_limits.backups`     | `$server->backup_limit`                                                                                                                  |
+| `status`                     | `$server->status`                                                                                                                        |
+| `is_suspended`               | `$server->isSuspended()`                                                                                                                 |
+| `is_installing`              | `!$server->isInstalled()`                                                                                                                |
+| `is_transferring`            | `!is_null($server->transfer)`                                                                                                            |
+| `skip_scripts`               | `$server->skip_scripts`                                                                                                                  |
+| `BlueprintFramework`         | `Nested object`                                                                                                                          |
+| `BlueprintFramework.egg_id`  | `$server->egg_id`                                                                                                                        |
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -853,9 +856,12 @@ return [
     'internal_id' => $server->id,
     'uuid' => $server->uuid,
     'name' => $server->name,
+    'folder_id' => $server->getAttribute('user_folder_id'),
     'node' => $server->node->name,
+    'daemon_product' => $server->getAttribute('daemon_product') ?? SoftwareUpdate::where('component', 'node:' . $server->node_id)->value('product') ?? 'wings',
     'node_country' => $server->node->country_code,
     'node_country_name' => Countries::name($server->node->country_code),
+    'upload_limit' => $server->node->upload_size * 1024 * 1024,
     'user_permissions' => Container::getInstance()->make(GetUserPermissionsService::class)->handle($server, $user),
     'game_query_type' => Container::getInstance()->make(GameQuerySettingsService::class)->game($server),
     'is_node_under_maintenance' => $server->node->isUnderMaintenance(),
@@ -901,7 +907,7 @@ Relationships: `$defaultIncludes = ['allocations', 'variables'];`; `$availableIn
 
 ## Client StatsTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/StatsTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/StatsTransformer.php).
 
 | Attribute                    | Value construction                                   |
 | ---------------------------- | ---------------------------------------------------- |
@@ -937,7 +943,7 @@ return [
 
 ## Client SubuserTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/SubuserTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/SubuserTransformer.php).
 
 <details>
 <summary>Exact transformation and conditional fields</summary>
@@ -953,7 +959,7 @@ return array_merge(
 
 ## Client TaskTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/TaskTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/TaskTransformer.php).
 
 | Attribute             | Value construction                   |
 | --------------------- | ------------------------------------ |
@@ -988,7 +994,7 @@ return [
 
 ## Client UserSSHKeyTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/UserSSHKeyTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/UserSSHKeyTransformer.php).
 
 | Attribute     | Value construction                   |
 | ------------- | ------------------------------------ |
@@ -1013,7 +1019,7 @@ return [
 
 ## Client UserTransformer
 
-[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Transformers/Api/Client/UserTransformer.php).
+[Transformer source](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Transformers/Api/Client/UserTransformer.php).
 
 | Attribute     | Value construction                                                                      |
 | ------------- | --------------------------------------------------------------------------------------- |

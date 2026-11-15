@@ -3,13 +3,13 @@ title: Wings callback API
 description: 12 source-verified remote API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first. These endpoints are called by Wings, using node credentials. They are not the API served by Wings itself.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first. These endpoints are called by Wings, using node credentials. They are not the API served by Wings itself.
 
 ## Node authentication
 
 Wings calls the panel using `Authorization: Bearer TOKEN_ID.TOKEN_SECRET`, matching the node's configured daemon token. This is not a Client or Application API key. The middleware resolves the node and compares its decrypted secret using a constant-time check. Missing credentials return 401, malformed credentials return 400, and a rejected credential returns 403. Scope callbacks to resources belonging to that node.
 
-These are internal Wings-to-panel callbacks. Prefer the Client or Application API for user integrations. A 204 callback result has no response body. See [node authentication middleware](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Middleware/Api/Daemon/DaemonAuthenticate.php).
+These are internal Wings-to-panel callbacks. Prefer the Client or Application API for user integrations. A 204 callback result has no response body. See [node authentication middleware](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Middleware/Api/Daemon/DaemonAuthenticate.php).
 
 ---
 
@@ -21,7 +21,7 @@ Authenticate a set of credentials and return the associated server details for a
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/SftpAuthenticationFormRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Remote/SftpAuthenticationFormRequest.php)
 
 ### Input fields
 
@@ -102,7 +102,7 @@ Lists all servers with their configurations that are assigned to the requesting 
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
 
 **Other controller inputs:** `per_page` (default `50`).
 
@@ -138,7 +138,7 @@ Resets the state of all servers on the node to be normal. This is triggered when
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
 
 ### Response
 
@@ -198,7 +198,7 @@ Calls ActivityProcessingController::\_\_invoke.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/ActivityProcessingController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/ActivityEventRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/ActivityProcessingController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Remote/ActivityEventRequest.php)
 
 ### Input fields
 
@@ -277,8 +277,12 @@ foreach ($logs as $key => $data) {
     Assert::isInstanceOf($server = $servers->get($key), Server::class);
 
     $batch = [];
+    $notifications = [];
     foreach ($data as $datum) {
         $id = ActivityLog::insertGetId($datum);
+        if (\Pterodactyl\Services\Notifications\ServerNotificationService::event($datum['event'])) {
+            $notifications[] = $id;
+        }
         $batch[] = [
             'activity_log_id' => $id,
             'subject_id' => $server->id,
@@ -287,6 +291,9 @@ foreach ($logs as $key => $data) {
     }
 
     ActivityLogSubject::insert($batch);
+    foreach ($notifications as $id) {
+        app(\Pterodactyl\Listeners\Notifications\QueueServerNotification::class)->handle(new \Pterodactyl\Events\ActivityLogged(ActivityLog::findOrFail($id)));
+    }
 }
 ```
 
@@ -302,7 +309,7 @@ Returns details about the server that allows Wings to self-recover and ensure th
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php)
 
 **Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -347,7 +354,7 @@ Returns installation information for a server.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php)
 
 **Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -387,7 +394,7 @@ Updates the installation state of a server.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/InstallationDataRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Remote/InstallationDataRequest.php)
 
 **Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -430,6 +437,7 @@ if ($server->status === Server::STATUS_SUSPENDED) {
 }
 
 $this->repository->update($server->id, ['status' => $status, 'installed_at' => CarbonImmutable::now()], true, true);
+Activity::event($request->boolean('successful') ? 'server:install.complete' : 'server:install.fail')->subject($server)->log();
 
 $isInitialInstall = is_null($server->installed_at);
 if ($request->boolean('successful') && $isInitialInstall && config()->get('pterodactyl.email.send_install_notification', true)) {
@@ -453,7 +461,7 @@ The daemon notifies us about a transfer failure.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
 
 **Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -494,7 +502,7 @@ The daemon notifies us about a transfer success.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php)
 
 **Path parameters:** `uuid`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -559,7 +567,7 @@ Returns the required presigned urls to upload a backup to S3 cloud storage.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php)
 
 **Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -648,7 +656,7 @@ Handles updating the state of a backup.
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Remote/ReportBackupCompleteRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Remote/ReportBackupCompleteRequest.php)
 
 **Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -727,7 +735,7 @@ Handles toggling the restoration status of a server. The server status field sho
 
 **Access:** Wings node bearer credentials; internal callback.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-remote.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php)
 
 **Path parameters:** `backup`. See [identifiers](/docs/api/authentication#identifiers).
 

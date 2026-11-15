@@ -3,7 +3,7 @@ title: Schedules and tasks
 description: 9 source-verified client API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first.
 
 <span id="get-api-client-servers-server-schedules" />
 
@@ -13,9 +13,9 @@ Returns all the schedules belonging to a given server.
 
 **Access:** Client API key or authenticated panel session; `schedule.read`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -80,9 +80,9 @@ Store a new schedule for a server.
 
 **Access:** Client API key or authenticated panel session; `schedule.create`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php)
 
-Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -170,9 +170,9 @@ Returns a specific schedule for the server.
 
 **Access:** Client API key or authenticated panel session; `schedule.read`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/ViewScheduleRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -241,11 +241,11 @@ Updates a given schedule with the new data provided.
 
 **Access:** Client API key or authenticated panel session; `schedule.update`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/UpdateScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/UpdateScheduleRequest.php)
 
-Validation is inherited from [StoreScheduleRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php).
+Validation is inherited from [StoreScheduleRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/StoreScheduleRequest.php).
 
-Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
+Model constraints: [Schedule.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Models/Schedule.php) (including runtime rules and uniqueness checks for updates).
 
 **Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -340,7 +340,7 @@ Executes a given schedule immediately rather than waiting on it's normally sched
 
 **Access:** Client API key or authenticated panel session; `schedule.update`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/TriggerScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/TriggerScheduleRequest.php)
 
 **Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -373,9 +373,9 @@ Deletes a schedule and it's associated tasks.
 
 **Access:** Client API key or authenticated panel session; `schedule.delete`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/DeleteScheduleRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/DeleteScheduleRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -432,7 +432,7 @@ Create a new task for a given schedule and store it in the database.
 
 **Access:** Client API key or authenticated panel session; `schedule.update`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
 
 **Path parameters:** `server`, `schedule`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -536,7 +536,7 @@ Updates a given task for a server.
 
 **Access:** Client API key or authenticated panel session; `schedule.update`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/Schedules/StoreTaskRequest.php)
 
 **Path parameters:** `server`, `schedule`, `task`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -640,9 +640,9 @@ Delete a given task for a schedule. If there are subsequent tasks stored in the 
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`, `schedule`, `task`. See [identifiers](/docs/api/authentication#identifiers).
 

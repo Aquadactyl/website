@@ -3,7 +3,7 @@ title: Servers, console and power
 description: 9 source-verified client API operations in Aquadactyl.
 ---
 
-Generated from [Aquadactyl 2bfd6ae2a30c](https://github.com/Aquadactyl/aquadactyl/tree/2bfd6ae2a30c8152b34b53c53562773a973ae901/). Read [authentication and conventions](/docs/api/authentication) first.
+Generated from [Aquadactyl d8d016e6a40c](https://github.com/Aquadactyl/aquadactyl/tree/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/). Read [authentication and conventions](/docs/api/authentication) first.
 
 <span id="get-api-client" />
 
@@ -13,13 +13,19 @@ Return all the servers available to the client making the API request, including
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/GetServersRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ClientController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/GetServersRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+### Query fields
+
+Rules use [Laravel validation syntax](/docs/api/authentication#validation). Dotted keys describe nested objects; `*` describes each array member. Model-derived rules are shown as their source expressions; model methods can add runtime constraints.
+
+| Field    | Validation                                                      |
+| -------- | --------------------------------------------------------------- |
+| `folder` | `['sometimes', 'string', 'regex:/^(?:unfiled\|[1-9][0-9]*)$/']` |
 
 **Other controller inputs:** `type`, `per_page` (default `50`).
 
-**List query options:** filters declared in `'uuid', 'name', 'description', 'external_id', AllowedFilter::custom('*', new MultiFieldServerFilter()),`. Use `filter[name]=value` and `sort=-id` only with supported fields.
+**List query options:** filters declared in `'uuid', 'name', 'description', 'external_id', AllowedFilter::custom('*', new MultiFieldServerFilter($user->root_admin && in_array($type, ['admin', 'admin-all']))),`. Use `filter[name]=value` and `sort=-id` only with supported fields.
 
 ### Response
 
@@ -32,6 +38,7 @@ This source excerpt includes conditional responses, metadata, pagination, and se
 
 ```php
 $user = $request->user();
+$type = $request->input('type');
 $transformer = $this->getTransformer(ServerTransformer::class);
 
 $builder = QueryBuilder::for(
@@ -41,10 +48,8 @@ $builder = QueryBuilder::for(
     'name',
     'description',
     'external_id',
-    AllowedFilter::custom('*', new MultiFieldServerFilter()),
+    AllowedFilter::custom('*', new MultiFieldServerFilter($user->root_admin && in_array($type, ['admin', 'admin-all']))),
 );
-
-$type = $request->input('type');
 
 if (in_array($type, ['admin', 'admin-all'])) {
 
@@ -53,15 +58,31 @@ if (in_array($type, ['admin', 'admin-all'])) {
     } else {
         $builder = $type === 'admin-all'
             ? $builder
-            : $builder->whereNotIn('servers.id', $user->accessibleServers()->pluck('id')->all());
+            : $builder->whereNotIn('servers.id', $user->accessibleServers()->select('servers.id'));
     }
 } elseif ($type === 'owner') {
     $builder = $builder->where('servers.owner_id', $user->id);
 } else {
-    $builder = $builder->whereIn('servers.id', $user->accessibleServers()->pluck('id')->all());
+    $builder = $builder->whereIn('servers.id', $user->accessibleServers()->select('servers.id'));
 }
 
+$foldersEnabled = config('aquadactyl.features.server_folders', true) === true;
+if ($foldersEnabled && ($folder = $request->query('folder'))) {
+    $assignments = DB::table('server_folder_assignments')->select('server_id')->where('user_id', $user->id);
+    if ($folder === 'unfiled') {
+        $builder->whereNotIn('servers.id', $assignments);
+    } else {
+        abort_unless(DB::table('server_folders')->where('user_id', $user->id)->where('id', $folder)->exists(), 404);
+        $builder->whereIn('servers.id', $assignments->where('server_folder_id', $folder));
+    }
+}
 $servers = $builder->paginate(min($request->query('per_page', 50), 100))->appends($request->query());
+app(ServerListRelationsService::class)->handle($servers->getCollection());
+$folders = $foldersEnabled ? DB::table('server_folder_assignments')->where('user_id', $user->id)
+    ->whereIn('server_id', $servers->getCollection()->modelKeys())->pluck('server_folder_id', 'server_id') : collect();
+foreach ($servers as $server) {
+    $server->setAttribute('user_folder_id', $folders->get($server->id));
+}
 
 return $this->fractal->transformWith($transformer)->collection($servers)->toArray();
 ```
@@ -86,9 +107,9 @@ Transform an individual server into a response that can be consumed by a client 
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ServerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -131,9 +152,9 @@ Generates a one-time token that is sent along in every websocket call to the Dae
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/WebsocketController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ClientApiRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/WebsocketController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ClientApiRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -202,13 +223,13 @@ curl --get "${PANEL_URL}/api/client/servers/SERVER_UUID/websocket" \
 
 ## GET `/api/client/servers/{server}/resources`
 
-Return the current resource utilization for a server. This value is cached for up to 20 seconds at a time to ensure that repeated requests to this endpoint do not cause a flood of unnecessary API calls.
+Return the current resource utilization for a server. This value is cached for up to 20 seconds for running servers, and two seconds while stopped, transitioning or following a power action. A separate cache prevents an older in-flight request from replacing the fresh status after a power action.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -222,10 +243,14 @@ Success: **200**. Response attributes: [Client StatsTransformer](/docs/api/respo
 This source excerpt includes conditional responses, metadata, pagination, and service calls for this operation.
 
 ```php
-$key = "resources:$server->uuid";
-$stats = $this->cache->remember($key, Carbon::now()->addSeconds(20), function () use ($server) {
-    return $this->repository->setServer($server)->getDetails();
-});
+$recentPower = $this->cache->has("resources:power:$server->uuid");
+$key = "resources:$server->uuid" . ($recentPower ? ':power' : '');
+$stats = $this->cache->get($key);
+if ($stats === null) {
+    $stats = $this->repository->setServer($server)->getDetails();
+    $ttl = !$recentPower && ($stats['state'] ?? null) === 'running' ? 20 : 2;
+    $this->cache->put($key, $stats, $ttl);
+}
 
 return $this->fractal->item($stats)
     ->transformWith($this->getTransformer(StatsTransformer::class))
@@ -252,9 +277,9 @@ Calls GameQueryController::\_\_invoke.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/GameQueryController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/GameQueryController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/GetServerRequest.php)
 
-Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
+Validation is inherited from [ApplicationApiRequest.php](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Application/ApplicationApiRequest.php).
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -307,7 +332,7 @@ Returns the activity logs for a server.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/ActivityLogRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/ActivityLogRequest.php)
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -394,7 +419,7 @@ Send a command to a running server.
 
 **Access:** Client API key or authenticated panel session; `control.console`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/CommandController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/SendCommandRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/CommandController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/SendCommandRequest.php)
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -447,7 +472,7 @@ Calls ConsoleLogShareController::\_\_invoke.
 
 **Access:** Client API key or authenticated panel session; `websocket.connect`.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/ShareConsoleLogsRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/ShareConsoleLogsRequest.php)
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -500,7 +525,7 @@ Send a power action to a server.
 
 **Access:** Client API key or authenticated panel session.
 
-**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/PowerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Requests/Api/Client/Servers/SendPowerRequest.php)
+**Source:** [Route](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/routes/api-client.php) · [Controller](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/PowerController.php) · [Request validation](https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Requests/Api/Client/Servers/SendPowerRequest.php)
 
 **Path parameters:** `server`. See [identifiers](/docs/api/authentication#identifiers).
 
@@ -535,6 +560,8 @@ $this->repository->setServer($server)->send(
     $request->input('signal')
 );
 Cache::forget("resources:$server->uuid");
+Cache::forget("resources:$server->uuid:power");
+Cache::put("resources:power:$server->uuid", true, 60);
 if ($target = $queries->target($server)) {
     Cache::forget($queries->key($server, $target));
 }

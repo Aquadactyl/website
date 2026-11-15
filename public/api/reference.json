@@ -1,7 +1,7 @@
 {
   "repository": "Aquadactyl/aquadactyl",
-  "revision": "2bfd6ae2a30c8152b34b53c53562773a973ae901",
-  "routeCount": 135,
+  "revision": "d8d016e6a40cebd9d8f97ab47f89d264409e4c80",
+  "routeCount": 147,
   "operations": [
     {
       "family": "client",
@@ -9,10 +9,15 @@
       "path": "/api/client",
       "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ClientController::index",
       "request": "app/Http/Requests/Api/Client/GetServersRequest.php",
-      "fields": [],
+      "fields": [
+        [
+          "folder",
+          "['sometimes', 'string', 'regex:/^(?:unfiled|[1-9][0-9]*)$/']"
+        ]
+      ],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ClientController.php",
       "id": "get-api-client"
     },
     {
@@ -24,8 +29,140 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/permissions",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ClientController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ClientController.php",
       "id": "get-api-client-permissions"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/notifications/preferences",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountNotificationController::preferences",
+      "request": null,
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php",
+      "id": "get-api-client-account-notifications-preferences"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/notifications/preferences",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountNotificationController::update",
+      "request": null,
+      "fields": [
+        ["site_events", "'present|array|max:10'"],
+        [
+          "site_events.*",
+          "['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)]"
+        ],
+        ["discord_events", "'sometimes|array|max:10'"],
+        [
+          "discord_events.*",
+          "['required', 'string', 'distinct', Rule::in(ServerNotificationService::EVENTS)]"
+        ],
+        ["discord_webhook", "'nullable|string|max:2048'"],
+        ["clear_webhook", "'sometimes|boolean'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php",
+      "id": "put-api-client-account-notifications-preferences"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/notifications",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountNotificationController::index",
+      "request": null,
+      "fields": [
+        ["after_id", "'sometimes|integer|min:0'"],
+        ["before_id", "'sometimes|integer|min:1'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php",
+      "id": "get-api-client-account-notifications"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/notifications/read",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\AccountNotificationController::read",
+      "request": null,
+      "fields": [
+        ["ids", "'required|array|max:100'"],
+        ["ids.*", "'required|uuid'"]
+      ],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountNotificationController.php",
+      "id": "post-api-client-account-notifications-read"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/account/server-folders",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ServerFolderController::index",
+      "request": "app/Http/Requests/Api/Client/ServerFolderRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php",
+      "id": "get-api-client-account-server-folders"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/account/server-folders",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ServerFolderController::store",
+      "request": "app/Http/Requests/Api/Client/ServerFolderRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php",
+      "id": "post-api-client-account-server-folders"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/server-folders/{folder}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ServerFolderController::update",
+      "request": "app/Http/Requests/Api/Client/ServerFolderRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php",
+      "id": "put-api-client-account-server-folders-folder"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/account/server-folders/{folder}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ServerFolderController::destroy",
+      "request": "app/Http/Requests/Api/Client/ServerFolderRequest.php",
+      "fields": [],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php",
+      "id": "delete-api-client-account-server-folders-folder"
+    },
+    {
+      "family": "client",
+      "method": "PUT",
+      "path": "/api/client/account/server-folders/servers/{server}",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\ServerFolderController::assign",
+      "request": "app/Http/Requests/Api/Client/ServerFolderRequest.php",
+      "fields": [
+        [
+          "folder_id",
+          "['present', 'nullable', 'integer',\n    Rule::exists('server_folders', 'id')->where('user_id', $user->id),\n]"
+        ]
+      ],
+      "successStatus": 204,
+      "documentation": "/docs/api/client/account",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ServerFolderController.php",
+      "id": "put-api-client-account-server-folders-servers-server"
     },
     {
       "family": "client",
@@ -36,7 +173,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php",
       "id": "get-api-client-account"
     },
     {
@@ -48,7 +185,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php",
       "id": "get-api-client-account-two-factor"
     },
     {
@@ -63,7 +200,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php",
       "id": "post-api-client-account-two-factor"
     },
     {
@@ -75,7 +212,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php",
       "id": "post-api-client-account-two-factor-disable"
     },
     {
@@ -87,7 +224,7 @@
       "fields": [["password", "['required', 'string']"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/TwoFactorController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/TwoFactorController.php",
       "id": "post-api-client-account-two-factor-regenerate-tokens"
     },
     {
@@ -104,7 +241,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php",
       "id": "put-api-client-account-email"
     },
     {
@@ -116,7 +253,7 @@
       "fields": [["password", "['required', 'string', 'confirmed', 'min:8']"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountController.php",
       "id": "put-api-client-account-password"
     },
     {
@@ -133,7 +270,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountAvatarController.php",
       "id": "post-api-client-account-avatar"
     },
     {
@@ -145,7 +282,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountAvatarController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountAvatarController.php",
       "id": "delete-api-client-account-avatar"
     },
     {
@@ -157,7 +294,7 @@
       "fields": [["blur_sensitive_data", "['required', 'boolean']"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountPrivacyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountPrivacyController.php",
       "id": "put-api-client-account-privacy"
     },
     {
@@ -174,7 +311,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/AccountLanguageController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/AccountLanguageController.php",
       "id": "put-api-client-account-language"
     },
     {
@@ -204,7 +341,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ActivityLogController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ActivityLogController.php",
       "id": "get-api-client-account-activity"
     },
     {
@@ -216,7 +353,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php",
       "id": "get-api-client-account-api-keys"
     },
     {
@@ -232,7 +369,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php",
       "id": "post-api-client-account-api-keys"
     },
     {
@@ -244,7 +381,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/ApiKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/ApiKeyController.php",
       "id": "delete-api-client-account-api-keys-identifier"
     },
     {
@@ -256,7 +393,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php",
       "id": "get-api-client-account-ssh-keys"
     },
     {
@@ -274,7 +411,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php",
       "id": "post-api-client-account-ssh-keys"
     },
     {
@@ -286,7 +423,7 @@
       "fields": [["fingerprint", "['required', 'string']"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/account",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/SSHKeyController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/SSHKeyController.php",
       "id": "post-api-client-account-ssh-keys-remove"
     },
     {
@@ -298,7 +435,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ServerController.php",
       "id": "get-api-client-servers-server"
     },
     {
@@ -310,7 +447,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/WebsocketController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/WebsocketController.php",
       "id": "get-api-client-servers-server-websocket"
     },
     {
@@ -322,7 +459,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ResourceUtilizationController.php",
       "id": "get-api-client-servers-server-resources"
     },
     {
@@ -334,7 +471,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/GameQueryController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/GameQueryController.php",
       "id": "get-api-client-servers-server-query"
     },
     {
@@ -364,7 +501,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ActivityLogController.php",
       "id": "get-api-client-servers-server-activity"
     },
     {
@@ -376,7 +513,7 @@
       "fields": [["command", "'required|string|min:1'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/CommandController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/CommandController.php",
       "id": "post-api-client-servers-server-command"
     },
     {
@@ -393,7 +530,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ConsoleLogShareController.php",
       "id": "post-api-client-servers-server-console-share"
     },
     {
@@ -407,7 +544,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/PowerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/PowerController.php",
       "id": "post-api-client-servers-server-power"
     },
     {
@@ -419,7 +556,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/databases",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
       "id": "get-api-client-servers-server-databases"
     },
     {
@@ -437,7 +574,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/databases",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
       "id": "post-api-client-servers-server-databases"
     },
     {
@@ -449,7 +586,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/databases",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
       "id": "post-api-client-servers-server-databases-database-rotate-password"
     },
     {
@@ -461,7 +598,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/databases",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/DatabaseController.php",
       "id": "delete-api-client-servers-server-databases-database"
     },
     {
@@ -473,7 +610,7 @@
       "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/trash",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
       "id": "get-api-client-servers-server-trash"
     },
     {
@@ -492,7 +629,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/trash",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
       "id": "post-api-client-servers-server-trash"
     },
     {
@@ -504,7 +641,7 @@
       "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/trash",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
       "id": "post-api-client-servers-server-trash-item-restore"
     },
     {
@@ -516,7 +653,7 @@
       "fields": [["page", "'sometimes|integer|min:1|max:100000'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/trash",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileTrashController.php",
       "id": "delete-api-client-servers-server-trash-item"
     },
     {
@@ -528,7 +665,7 @@
       "fields": [["directory", "'sometimes|nullable|string'"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "get-api-client-servers-server-files-list"
     },
     {
@@ -540,7 +677,7 @@
       "fields": [["file", "'required|string'"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "get-api-client-servers-server-files-contents"
     },
     {
@@ -552,7 +689,7 @@
       "fields": [["file", "'required|string'"]],
       "successStatus": 200,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "get-api-client-servers-server-files-download"
     },
     {
@@ -570,7 +707,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "put-api-client-servers-server-files-rename"
     },
     {
@@ -582,7 +719,7 @@
       "fields": [["location", "'required|string'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-copy"
     },
     {
@@ -594,7 +731,7 @@
       "fields": [["file", "'required|string'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-write"
     },
     {
@@ -610,7 +747,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-compress"
     },
     {
@@ -625,7 +762,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-decompress"
     },
     {
@@ -641,7 +778,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-delete"
     },
     {
@@ -656,7 +793,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-create-folder"
     },
     {
@@ -673,7 +810,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-chmod"
     },
     {
@@ -691,7 +828,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileController.php",
       "id": "post-api-client-servers-server-files-pull"
     },
     {
@@ -703,7 +840,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/files",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/FileUploadController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/FileUploadController.php",
       "id": "get-api-client-servers-server-files-upload"
     },
     {
@@ -715,7 +852,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "get-api-client-servers-server-schedules"
     },
     {
@@ -734,7 +871,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "post-api-client-servers-server-schedules"
     },
     {
@@ -746,7 +883,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "get-api-client-servers-server-schedules-schedule"
     },
     {
@@ -765,7 +902,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "post-api-client-servers-server-schedules-schedule"
     },
     {
@@ -777,7 +914,7 @@
       "fields": [],
       "successStatus": 202,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "post-api-client-servers-server-schedules-schedule-execute"
     },
     {
@@ -789,7 +926,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleController.php",
       "id": "delete-api-client-servers-server-schedules-schedule"
     },
     {
@@ -810,7 +947,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
       "id": "post-api-client-servers-server-schedules-schedule-tasks"
     },
     {
@@ -831,7 +968,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
       "id": "post-api-client-servers-server-schedules-schedule-tasks-task"
     },
     {
@@ -843,7 +980,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/schedules",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php",
       "id": "delete-api-client-servers-server-schedules-schedule-tasks-task"
     },
     {
@@ -855,7 +992,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/network",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
       "id": "get-api-client-servers-server-network-allocations"
     },
     {
@@ -867,7 +1004,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/network",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
       "id": "post-api-client-servers-server-network-allocations"
     },
     {
@@ -881,7 +1018,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/network",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
       "id": "post-api-client-servers-server-network-allocations-allocation"
     },
     {
@@ -893,7 +1030,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/network",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
       "id": "post-api-client-servers-server-network-allocations-allocation-primary"
     },
     {
@@ -905,7 +1042,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/network",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php",
       "id": "delete-api-client-servers-server-network-allocations-allocation"
     },
     {
@@ -917,7 +1054,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
       "id": "get-api-client-servers-server-users"
     },
     {
@@ -933,7 +1070,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
       "id": "post-api-client-servers-server-users"
     },
     {
@@ -945,7 +1082,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
       "id": "get-api-client-servers-server-users-user"
     },
     {
@@ -960,7 +1097,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
       "id": "post-api-client-servers-server-users-user"
     },
     {
@@ -972,7 +1109,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubuserController.php",
       "id": "delete-api-client-servers-server-users-user"
     },
     {
@@ -984,7 +1121,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "get-api-client-servers-server-backups"
     },
     {
@@ -1000,7 +1137,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "post-api-client-servers-server-backups"
     },
     {
@@ -1012,7 +1149,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "get-api-client-servers-server-backups-backup"
     },
     {
@@ -1024,7 +1161,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "get-api-client-servers-server-backups-backup-download"
     },
     {
@@ -1036,7 +1173,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "post-api-client-servers-server-backups-backup-lock"
     },
     {
@@ -1048,7 +1185,7 @@
       "fields": [["truncate", "'required|boolean'"]],
       "successStatus": 204,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "post-api-client-servers-server-backups-backup-restore"
     },
     {
@@ -1060,7 +1197,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/client/backups",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/BackupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/BackupController.php",
       "id": "delete-api-client-servers-server-backups-backup"
     },
     {
@@ -1072,7 +1209,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/client/startup",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/StartupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/StartupController.php",
       "id": "get-api-client-servers-server-startup"
     },
     {
@@ -1087,8 +1224,44 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/client/startup",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/StartupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/StartupController.php",
       "id": "put-api-client-servers-server-startup-variable"
+    },
+    {
+      "family": "client",
+      "method": "GET",
+      "path": "/api/client/servers/{server}/settings/subdomain",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubdomainController::index",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/SubdomainRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubdomainController.php",
+      "id": "get-api-client-servers-server-settings-subdomain"
+    },
+    {
+      "family": "client",
+      "method": "POST",
+      "path": "/api/client/servers/{server}/settings/subdomain",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubdomainController::store",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/SubdomainRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubdomainController.php",
+      "id": "post-api-client-servers-server-settings-subdomain"
+    },
+    {
+      "family": "client",
+      "method": "DELETE",
+      "path": "/api/client/servers/{server}/settings/subdomain",
+      "controller": "Pterodactyl\\Http\\Controllers\\Api\\Client\\Servers\\SubdomainController::destroy",
+      "request": "app/Http/Requests/Api/Client/Servers/Settings/SubdomainRequest.php",
+      "fields": [],
+      "successStatus": 200,
+      "documentation": "/docs/api/client/settings",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SubdomainController.php",
+      "id": "delete-api-client-servers-server-settings-subdomain"
     },
     {
       "family": "client",
@@ -1102,7 +1275,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/settings",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
       "id": "post-api-client-servers-server-settings-rename"
     },
     {
@@ -1114,7 +1287,7 @@
       "fields": [],
       "successStatus": 202,
       "documentation": "/docs/api/client/settings",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
       "id": "post-api-client-servers-server-settings-reinstall"
     },
     {
@@ -1131,7 +1304,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/client/settings",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Client/Servers/SettingsController.php",
       "id": "put-api-client-servers-server-settings-docker-image"
     },
     {
@@ -1143,7 +1316,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php",
       "id": "get-api-application-users"
     },
     {
@@ -1155,7 +1328,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php",
       "id": "get-api-application-users-user-id"
     },
     {
@@ -1167,7 +1340,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/ExternalUserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/ExternalUserController.php",
       "id": "get-api-application-users-external-external-id"
     },
     {
@@ -1191,7 +1364,7 @@
       ],
       "successStatus": 201,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php",
       "id": "post-api-application-users"
     },
     {
@@ -1215,7 +1388,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php",
       "id": "patch-api-application-users-user-id"
     },
     {
@@ -1227,7 +1400,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/users",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Users/UserController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Users/UserController.php",
       "id": "delete-api-application-users-user-id"
     },
     {
@@ -1239,7 +1412,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
       "id": "get-api-application-nodes"
     },
     {
@@ -1257,7 +1430,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeDeploymentController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeDeploymentController.php",
       "id": "get-api-application-nodes-deployable"
     },
     {
@@ -1269,7 +1442,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
       "id": "get-api-application-nodes-node-id"
     },
     {
@@ -1281,7 +1454,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeConfigurationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeConfigurationController.php",
       "id": "get-api-application-nodes-node-id-configuration"
     },
     {
@@ -1319,7 +1492,7 @@
       ],
       "successStatus": 201,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
       "id": "post-api-application-nodes"
     },
     {
@@ -1357,7 +1530,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
       "id": "patch-api-application-nodes-node-id"
     },
     {
@@ -1369,7 +1542,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/NodeController.php",
       "id": "delete-api-application-nodes-node-id"
     },
     {
@@ -1381,7 +1554,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
       "id": "get-api-application-nodes-node-id-allocations"
     },
     {
@@ -1398,7 +1571,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
       "id": "post-api-application-nodes-node-id-allocations"
     },
     {
@@ -1410,7 +1583,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/nodes",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nodes/AllocationController.php",
       "id": "delete-api-application-nodes-node-id-allocations-allocation-id"
     },
     {
@@ -1422,7 +1595,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/locations",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Locations/LocationController.php",
       "id": "get-api-application-locations"
     },
     {
@@ -1434,7 +1607,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/locations",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Locations/LocationController.php",
       "id": "get-api-application-locations-location-id"
     },
     {
@@ -1449,7 +1622,7 @@
       ],
       "successStatus": 201,
       "documentation": "/docs/api/application/locations",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Locations/LocationController.php",
       "id": "post-api-application-locations"
     },
     {
@@ -1464,7 +1637,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/locations",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Locations/LocationController.php",
       "id": "patch-api-application-locations-location-id"
     },
     {
@@ -1476,7 +1649,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/locations",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Locations/LocationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Locations/LocationController.php",
       "id": "delete-api-application-locations-location-id"
     },
     {
@@ -1488,7 +1661,7 @@
       "fields": [["search", "'string|max:100'"]],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerController.php",
       "id": "get-api-application-servers"
     },
     {
@@ -1500,7 +1673,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerController.php",
       "id": "get-api-application-servers-server-id"
     },
     {
@@ -1512,7 +1685,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ExternalServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ExternalServerController.php",
       "id": "get-api-application-servers-external-external-id"
     },
     {
@@ -1532,7 +1705,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
       "id": "patch-api-application-servers-server-id-details"
     },
     {
@@ -1616,7 +1789,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerDetailsController.php",
       "id": "patch-api-application-servers-server-id-build"
     },
     {
@@ -1637,7 +1810,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/StartupController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/StartupController.php",
       "id": "patch-api-application-servers-server-id-startup"
     },
     {
@@ -1695,7 +1868,7 @@
       ],
       "successStatus": 201,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerController.php",
       "id": "post-api-application-servers"
     },
     {
@@ -1707,7 +1880,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
       "id": "post-api-application-servers-server-id-suspend"
     },
     {
@@ -1719,7 +1892,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
       "id": "post-api-application-servers-server-id-unsuspend"
     },
     {
@@ -1731,7 +1904,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerManagementController.php",
       "id": "post-api-application-servers-server-id-reinstall"
     },
     {
@@ -1743,7 +1916,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerController.php",
       "id": "delete-api-application-servers-server-id"
     },
     {
@@ -1755,7 +1928,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/ServerController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/ServerController.php",
       "id": "delete-api-application-servers-server-id-force"
     },
     {
@@ -1767,7 +1940,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
       "id": "get-api-application-servers-server-id-databases"
     },
     {
@@ -1779,7 +1952,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
       "id": "get-api-application-servers-server-id-databases-database-id"
     },
     {
@@ -1798,7 +1971,7 @@
       ],
       "successStatus": 201,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
       "id": "post-api-application-servers-server-id-databases"
     },
     {
@@ -1810,7 +1983,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
       "id": "post-api-application-servers-server-id-databases-database-id-reset-password"
     },
     {
@@ -1822,7 +1995,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/application/servers",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Servers/DatabaseController.php",
       "id": "delete-api-application-servers-server-id-databases-database-id"
     },
     {
@@ -1834,7 +2007,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nests",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nests/NestController.php",
       "id": "get-api-application-nests"
     },
     {
@@ -1846,7 +2019,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nests",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/NestController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nests/NestController.php",
       "id": "get-api-application-nests-nest-id"
     },
     {
@@ -1858,7 +2031,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nests",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nests/EggController.php",
       "id": "get-api-application-nests-nest-id-eggs"
     },
     {
@@ -1870,7 +2043,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/application/nests",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Application/Nests/EggController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Application/Nests/EggController.php",
       "id": "get-api-application-nests-nest-id-eggs-egg-id"
     },
     {
@@ -1886,7 +2059,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php",
       "id": "post-api-remote-sftp-auth"
     },
     {
@@ -1898,7 +2071,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
       "id": "get-api-remote-servers"
     },
     {
@@ -1910,7 +2083,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
       "id": "post-api-remote-servers-reset"
     },
     {
@@ -1931,7 +2104,7 @@
       ],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/ActivityProcessingController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/ActivityProcessingController.php",
       "id": "post-api-remote-activity"
     },
     {
@@ -1943,7 +2116,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerDetailsController.php",
       "id": "get-api-remote-servers-uuid"
     },
     {
@@ -1955,7 +2128,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
       "id": "get-api-remote-servers-uuid-install"
     },
     {
@@ -1970,7 +2143,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerInstallController.php",
       "id": "post-api-remote-servers-uuid-install"
     },
     {
@@ -1982,7 +2155,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
       "id": "post-api-remote-servers-uuid-transfer-failure"
     },
     {
@@ -1994,7 +2167,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Servers/ServerTransferController.php",
       "id": "post-api-remote-servers-uuid-transfer-success"
     },
     {
@@ -2006,7 +2179,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php",
       "id": "get-api-remote-backups-backup"
     },
     {
@@ -2026,7 +2199,7 @@
       ],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
       "id": "post-api-remote-backups-backup"
     },
     {
@@ -2038,7 +2211,7 @@
       "fields": [],
       "successStatus": 204,
       "documentation": "/docs/api/remote",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php",
       "id": "post-api-remote-backups-backup-restore"
     },
     {
@@ -2050,7 +2223,7 @@
       "fields": [],
       "successStatus": 200,
       "documentation": "/docs/api/blueprint",
-      "source": "https://github.com/Aquadactyl/aquadactyl/blob/2bfd6ae2a30c8152b34b53c53562773a973ae901/app/BlueprintFramework/Controllers/ExtensionRouteController.php",
+      "source": "https://github.com/Aquadactyl/aquadactyl/blob/d8d016e6a40cebd9d8f97ab47f89d264409e4c80/app/BlueprintFramework/Controllers/ExtensionRouteController.php",
       "id": "get-api-client-extensions-blueprint-eggs"
     }
   ]

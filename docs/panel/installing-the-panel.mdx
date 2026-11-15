@@ -1,246 +1,90 @@
 ---
 title: Installing the Panel
-description: Complete step-by-step manual installation guide for Aquadactyl Panel on a Linux server without running the automated installer script.
+description: Install an exact Aquadactyl release using Git, with bundled Blueprint and managed services.
 ---
 
-This guide walks you through manually installing Aquadactyl Panel step-by-step without using the automated installer script.
+Aquadactyl v1.0-beta is a prerelease. Verify your workload, addons and backups in
+staging before opening access to users. The panel is installed separately from
+[Manta](/docs/manta/installing-manta), which runs the game containers.
 
-<Callout type="info">
-  Looking for a fast automated install? See the [Automated Install](/docs/panel)
-  guide to install in minutes using the standalone deployment script.
-</Callout>
+## Requirements [#requirements]
 
----
+| Component            | Requirement                                                         |
+| -------------------- | ------------------------------------------------------------------- |
+| OS for the installer | Ubuntu 24.04/26.04 LTS or Debian 12/13                              |
+| PHP                  | 8.5 recommended; 8.4 supported, matching CLI and FPM                |
+| PHP extensions       | bcmath, curl, gd, intl, mbstring, PDO MySQL, posix, redis, XML, zip |
+| Build tools          | Composer 2, Node.js 24.22.1+, pnpm 12.15.0                          |
+| Services             | Nginx, MariaDB/MySQL, Redis, systemd and cron                       |
+| Networking           | A public domain, trusted HTTPS certificate and outbound HTTPS       |
 
-## System Requirements [#requirements]
+Use a dedicated host. The installer provisions packages and services when
+needed. Keep database, Redis and Docker sockets off the public Internet. Ubuntu
+LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cycle).
 
-Before starting, ensure your server meets the following requirements:
+## Fetch the release tools with Git [#installation]
 
-| Component            | Minimum / Supported Specification                                                                         |
-| :------------------- | :-------------------------------------------------------------------------------------------------------- |
-| **Operating System** | **Ubuntu**: `24.04 LTS`, `24.10`, `26.04+ LTS`<br />**Debian**: `12 (Bookworm)`, `13 (Trixie)`            |
-| **PHP**              | **PHP 8.5** (recommended) or **PHP 8.4** with PHP-FPM via Ondřej Surý repo _(PHP 8.2 & 8.3 unsupported)_  |
-| **PHP Extensions**   | `bcmath`, `curl`, `gd`, `intl`, `mbstring`, `pdo_mysql`, `posix`, `redis`, `xml`, `zip`                   |
-| **Node.js & pnpm**   | **Node.js 24** (via NVM `v0.40.8` with `npm@latest`) and **pnpm 12.10.1** (pinned)                        |
-| **Composer**         | Composer 2                                                                                                |
-| **Database & Cache** | MariaDB 10.11+ / MySQL 8.0+ and Redis 6+                                                                  |
-| **System Tools**     | `rsync`, `util-linux` (`flock`, `runuser`), `zip`, `unzip`, `git`, `curl`, `mariadb-client` / `mysqldump` |
-| **Hardware**         | 2+ CPU Cores, 2 GB RAM, 20+ GB SSD/NVMe                                                                   |
-
-<Callout type="warn">
-  **Deprecation Notice**: Debian &le; 11 and Ubuntu &le; 22.04 are deprecated
-  and no longer supported. Please upgrade to Ubuntu 24.04+ or Debian 12+ before
-  installing Aquadactyl.
-</Callout>
-
----
-
-## Step 1: Install System Packages
-
-To configure the needed packages, update your system and install the required dependencies:
-
-```bash title="Install system packages"
-sudo apt-get update && sudo apt-get upgrade -y
-sudo apt-get install -y lsb-release ca-certificates curl apt-transport-https gnupg
-
-# Add Sury PHP repository
-curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
-sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
-rm -f /tmp/debsuryorg-archive-keyring.deb
-sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-sudo apt-get update
-
-# Install PHP 8.5 and required extensions
-sudo apt-get install -y php8.5 php8.5-cli php8.5-fpm php8.5-gd php8.5-mysql php8.5-mbstring \
-  php8.5-bcmath php8.5-xml php8.5-curl php8.5-zip php8.5-posix php8.5-intl php8.5-redis \
-  mariadb-server mariadb-client nginx redis-server git tar zip unzip rsync util-linux certbot python3-certbot-nginx
-
-# Install Composer 2
-curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-
-# Install Node.js 24 & pinned pnpm 12.10.1 via NVM v0.40.8
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install 24
-nvm use 24
-npm install --global npm@latest
-npm install --global pnpm@12.10.1
+```bash title="Install the reviewed release"
+git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+cd /opt/aquadactyl-installer
+sudo bash deploy.sh install v1.0-beta
 ```
 
----
+Review `deploy.sh` before running it. It fetches that exact panel tag, installs
+locked Composer/pnpm dependencies, generates missing application secrets, runs
+migrations and initial seeders, initializes bundled Blueprint, builds frontend
+assets, and configures Nginx, the `aquaq` queue worker and minute scheduler.
+It refuses an initialized panel: use [Updating](/docs/panel/updating-the-panel).
 
-## Step 2: Configure MariaDB Database
+Follow the prompts for your HTTPS panel URL, database and initial administrator.
+For unattended deployment, configure `.env` in the dedicated `PANEL_ROOT` first
+and use `NON_INTERACTIVE=1`. Keep `APP_KEY` and `HASHIDS_SALT` in a secure backup:
+changing them can make saved credentials or identifiers unusable.
 
-Open your database shell:
+## Configure HTTPS, email and proxies [#configuration]
 
-```bash title="Access MariaDB"
-sudo mariadb -u root
+Obtain a trusted TLS certificate for the panel hostname before inviting users.
+The installer's temporary self-signed certificate only bootstraps Nginx; browser
+certificate errors mean HTTPS setup is unfinished. See
+[Webserver configuration](/docs/panel/webserver-configuration).
+
+Set `APP_URL` to the public HTTPS origin. Behind Traefik, Dokploy or another
+reverse proxy, set `TRUSTED_PROXIES` to the proxy's actual addresses/CIDRs and
+forward the original protocol, hostname and port. Keep secure cookies enabled.
+
+Configure SMTP, Mailgun, Postmark or SES under **Admin > Settings > Mail** and
+send a test email. Verify password-reset delivery before launching.
+
+## Complete first-run setup [#next-steps]
+
+1. Sign in as the administrator and complete **Admin > Settings > Panel setup**.
+2. Set your site name, logo and primary colour.
+3. Optionally create a location/node and test authenticated daemon connectivity.
+4. Optionally create additional administrators with separate credentials.
+5. [Install Manta](/docs/manta/installing-manta) on nodes, configure allocations,
+   then install/start an expendable test server and check its console and files.
+
+PWA installation and its offline connection page are configured under
+**Settings > PWA**. Server management always needs a live connection.
+
+Blueprint is included: install trusted packages with `blueprint -i myaddon` and
+remove them with `blueprint -r myaddon`. Keep every original package for updates.
+Optional web installation uses a dedicated privileged worker; follow the
+[administration reference](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/ADMIN-OPERATIONS.md).
+
+## Operator-managed installations [#manual-installation]
+
+Operators who already manage PHP, Nginx, queues and deployment automation can
+clone the panel source directly:
+
+```bash
+git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/aquadactyl.git /var/www/aquadactyl
 ```
 
-Create the database and grant permissions:
-
-```sql
-CREATE DATABASE aquadactyl;
-CREATE USER 'aquadactyl'@'127.0.0.1' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON aquadactyl.* TO 'aquadactyl'@'127.0.0.1' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EXIT;
-```
-
----
-
-## Step 3: Download Panel Code
-
-Create the panel directory and clone the Aquadactyl repository:
-
-```bash title="Clone repository"
-sudo mkdir -p /var/www/aquadactyl
-cd /var/www/aquadactyl
-sudo git clone https://github.com/Aquadactyl/aquadactyl.git .
-```
-
----
-
-## Step 4: Configure Environment
-
-Copy the example environment file and set secure permissions:
-
-```bash title="Setup .env"
-sudo cp .env.example .env
-sudo chmod 640 .env
-sudo nano .env
-```
-
-Configure your domain name and credentials:
-
-```ini title="/var/www/aquadactyl/.env"
-APP_URL=https://panel.example.com
-DB_HOST=127.0.0.1
-DB_DATABASE=aquadactyl
-DB_USERNAME=aquadactyl
-DB_PASSWORD=your_secure_password
-CACHE_DRIVER=redis
-SESSION_DRIVER=redis
-QUEUE_CONNECTION=redis
-```
-
----
-
-## Step 5: Install Dependencies
-
-Install Composer PHP packages and Node frontend dependencies using the frozen lockfiles:
-
-```bash title="Install PHP & Node packages"
-cd /var/www/aquadactyl
-
-# Install PHP dependencies
-sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-
-# Install Node dependencies
-sudo pnpm install --frozen-lockfile
-```
-
----
-
-## Step 6: Generate Encryption Keys
-
-Generate the Laravel application key and configure Hashids salt in `.env`:
-
-```bash title="Generate application key"
-sudo php artisan key:generate --force
-```
-
-If `HASHIDS_SALT` is empty in `.env`, generate a 32-character random string and add it:
-
-```bash title="Set HASHIDS_SALT"
-sudo sed -i "s/^HASHIDS_SALT=.*$/HASHIDS_SALT=$(openssl rand -hex 16)/" .env
-```
-
----
-
-## Step 7: Database Migrations & Seeders
-
-Run the database migrations and seed the bundled Blueprint framework tables:
-
-```bash title="Run migrations and seeders"
-sudo php artisan migrate --force
-sudo php artisan db:seed --class=BlueprintSeeder --force
-
-# Seed default nests & eggs for game servers
-sudo php artisan db:seed --class=DatabaseSeeder --force
-```
-
----
-
-## Step 8: Initialize Blueprint & Build Frontend
-
-Initialize the bundled Blueprint beta-2026-08 integration and compile the production frontend:
-
-```bash title="Initialize Blueprint and build"
-# Initialize Blueprint
-sudo BLUEPRINT_ENVIRONMENT=ci bash blueprint.sh
-sudo php artisan bp:cache
-
-# Build production assets
-sudo pnpm run build
-```
-
----
-
-## Step 9: Configure File Permissions
-
-Set the strict production permissions model (code owned by `root:www-data`, only `storage/` and `bootstrap/cache/` writable by `www-data`):
-
-```bash title="Set permissions"
-cd /var/www/aquadactyl
-
-sudo chown -R root:www-data /var/www/aquadactyl
-
-# Restore executable flags for tools and scripts
-sudo chmod 0750 blueprint.sh
-
-# Writable application state directories
-sudo mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod 0640 .env
-```
-
-<Callout type="info">
-  You can also restore strict permissions automatically at any time using: `curl
-  -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh |
-  sudo bash -s -- permissions`
-</Callout>
-
----
-
-## Step 10: Create Initial Administrator
-
-Create your administrative user:
-
-```bash title="Create administrative user"
-sudo -u www-data php artisan p:user:make
-```
-
-Follow the interactive prompts to enter your email address, username, first name, last name, and password.
-
----
-
-## Step 11: Cache Configuration & Optimize
-
-Cache Laravel configuration, routes, and views:
-
-```bash title="Cache configuration"
-sudo -u www-data php artisan config:cache
-sudo -u www-data php artisan route:cache
-sudo -u www-data php artisan view:cache
-```
-
----
-
-## Next Steps
-
-Complete your installation by configuring the web server and background queue worker:
-
-1. [Webserver Configuration](/docs/panel/webserver-configuration) — Set up Nginx or Caddy with SSL.
-2. [Additional Configuration](/docs/panel/additional-configuration) — Configure the background queue worker (`aquaq.service`), cron scheduler, and Redis.
+A Git checkout needs locked dependencies, a frontend build, environment/secrets,
+migrations and Blueprint initialization before it can serve requests. Follow the
+[deployment reference](https://github.com/Aquadactyl/aquadactyl/blob/main/docs/DEPLOYMENT.md)
+and templates under `deploy/`. Serve only `public/`, keep code root-owned and
+restrict web-writable paths to `storage/` and `bootstrap/cache/`. Add exactly one
+queue worker and one minute scheduler. The local Docker stack uses public test
+credentials and is intended for development.

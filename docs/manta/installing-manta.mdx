@@ -3,6 +3,8 @@ title: Installing Manta
 description: Install and configure the Manta daemon to run game servers in secure Docker containers managed by Aquadactyl Panel.
 ---
 
+<img src="/brand/manta-logo.png" alt="Manta" width="315" height="200" />
+
 Manta is the server control daemon for Aquadactyl Panel. It is based on Pterodactyl Wings and handles game server processes, monitors resource usage, streams console output, provides SFTP access, and manages server files inside isolated Docker containers.
 
 Manta keeps the Wings API, authentication format, and configuration paths, so the node setup in the panel works exactly as before. The executable, systemd service, and configuration directory also keep their Wings names.
@@ -20,7 +22,7 @@ Manta keeps the Wings API, authentication format, and configuration paths, so th
 
 ## Prerequisites [#prerequisites]
 
-- **Operating System**: Ubuntu 24.04 LTS / 24.10 / 26.04+ LTS, Debian 12 / 13, or a Red Hat based distribution such as Rocky Linux or AlmaLinux (Debian &le; 11 and Ubuntu &le; 22.04 are deprecated)
+- **Operating System**: Ubuntu 24.04 / 26.04 LTS, Debian 12 / 13, or a Red Hat based distribution such as Rocky Linux or AlmaLinux (Debian &le; 11 and Ubuntu &le; 22.04 are deprecated)
 - **Hardware Virtualization**: Dedicated server or KVM VPS (OpenVZ is **not** supported due to Docker requirements)
 - **Kernel**: Linux kernel 5.4+ with Docker support
 - **Aquadactyl Panel**: A running panel you can administer. See [Installing the Panel](/docs/panel/installing-the-panel)
@@ -58,45 +60,20 @@ On Debian and Ubuntu, enable swap accounting in the kernel:
 
 ## 2. Install Manta Binary [#install-binary]
 
-Create the daemon directories and download the executable from the [Manta releases](https://github.com/Aquadactyl/manta/releases):
-
-```bash title="Download Manta"
-MANTA_VERSION="v0.3-beta"
-
-sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
-curl -fL -o /usr/local/bin/wings "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_linux_amd64"
-sudo chmod u+x /usr/local/bin/wings
-```
-
-<Callout type="info">
-  If you are running on an ARM64 server (e.g. Raspberry Pi or Ampere Altra),
-  replace `wings_linux_amd64` with `wings_linux_arm64`.
-</Callout>
-
-<Callout type="warn">
-  Manta releases are currently published as pre-releases, so the `latest`
-  download URL does not resolve to them. Always set `MANTA_VERSION` to the tag
-  you want to install.
-</Callout>
-
-### Verify the Download
-
-Each release includes a `checksums.txt` file. Compare the binary against it before running anything:
-
-```bash title="Verify checksum"
-curl -fL -o /tmp/manta-checksums.txt "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/checksums.txt"
-grep wings_linux_amd64 /tmp/manta-checksums.txt
-sha256sum /usr/local/bin/wings
-rm -f /tmp/manta-checksums.txt
-```
-
-The two hashes must match. Check the installed version with:
+Fetch the matching tools release through Git. The Linux installer selects the
+architecture, verifies SHA256 and the executable version before replacing it:
 
 ```bash
+git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/manta.git /opt/manta
+cd /opt/manta
+sudo bash scripts/install.sh v1.0-beta
+sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
 wings version
 ```
 
----
+Releases include `wings_linux_amd64`, `wings_linux_arm64`, both macOS variants and
+`checksums.txt`. This is a prerelease; use an exact tag rather than `latest/download`.
+The `wings` executable and service names preserve existing node compatibility.
 
 ## 3. Configure the Node in Aquadactyl [#configure-node]
 
@@ -201,3 +178,21 @@ The option applies to both server containers and installation containers, and re
 
 1. Review [Additional Configuration](/docs/manta/additional-configuration) for SSL/TLS certificates, firewall ports, and Docker daemon tuning. These settings are unchanged in Manta.
 2. See the [Wings vs Manta benchmarks](/docs/manta/benchmarks) for measured differences between the two daemons.
+
+## Updating [#updating]
+
+Back up configuration and server data, then use the reviewed tools checkout:
+
+```bash
+cd /opt/manta
+git fetch origin tag v1.0-beta
+git checkout --detach v1.0-beta
+sudo bash scripts/install.sh v1.0-beta
+sudo systemctl status wings --no-pager
+```
+
+The installer retains `wings.previous` and restarts an already active service.
+Console and SFTP connections briefly disconnect; existing game containers keep
+running. Schedule outside installs, transfers and backups. A failed service start
+restores the previous executable. Check logs and node health after updating.
+See the [full recovery guide](https://github.com/Aquadactyl/manta/blob/main/docs/INSTALLING.md).
