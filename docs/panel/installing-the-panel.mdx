@@ -25,7 +25,7 @@ LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cy
 ## Fetch the release tools with Git [#installation]
 
 ```bash title="Install the reviewed release"
-git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.0-beta.1 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
 sudo bash deploy.sh install v1.0-beta
 ```
@@ -35,6 +35,25 @@ locked Composer/pnpm dependencies, generates missing application secrets, runs
 migrations and initial seeders, initializes bundled Blueprint, builds frontend
 assets, and configures Nginx, the `aquaq` queue worker and minute scheduler.
 It refuses an initialized panel: use [Updating](/docs/panel/updating-the-panel).
+
+### An unfinished checkout already exists
+
+If the installer finds unused source from an earlier attempt (for example,
+`canary`), select the patched installer and recover that checkout:
+
+```bash
+cd /opt/aquadactyl-installer
+git fetch origin tag v1.0-beta.1
+git checkout --detach v1.0-beta.1
+sudo bash deploy.sh install v1.0-beta --refresh-source
+```
+
+The installer fetches and validates the release before moving the complete old
+directory into a private backup under `/var/backups/aquadactyl/preinstall-*`.
+It preserves `.env`, application keys, `.blueprintrc` and `storage/app` uploads.
+Initialized panels are refused even with this flag; use the update guide instead.
+The installer revision and the panel release are separate versions. Git's
+detached-HEAD notice is expected for a release checkout.
 
 Follow the prompts for your HTTPS panel URL, database and initial administrator.
 For unattended deployment, configure `.env` in the dedicated `PANEL_ROOT` first
