@@ -22,15 +22,15 @@ Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files
 If this is your first managed update:
 
 ```bash
-git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.0-beta.1 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 ```
 
 For an existing tools checkout, review and select the installer tag:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.0-beta
-git checkout --detach v1.0-beta
+git fetch origin tag v1.0-beta.1
+git checkout --detach v1.0-beta.1
 sudo bash deploy.sh update v1.0-beta
 ```
 
