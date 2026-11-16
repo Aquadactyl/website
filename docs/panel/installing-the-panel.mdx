@@ -25,7 +25,7 @@ LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cy
 ## Fetch the release tools with Git [#installation]
 
 ```bash title="Install the reviewed release"
-git clone --depth 1 --branch v1.0-beta.2 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.0-beta.3 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
 sudo bash deploy.sh install v1.0-beta
 ```
@@ -41,7 +41,7 @@ installer checks OS compatibility before modifying source or configuration and
 does not upgrade your OS. For WSL testing, enable systemd first.
 
 If an earlier installer recovered the checkout and then rejected Ubuntu 22.04,
-select installer `v1.0-beta.2` and rerun `install v1.0-beta` without
+select installer `v1.0-beta.3` and rerun `install v1.0-beta` without
 `--refresh-source`; the recovered source and the private backup are retained.
 
 ### An unfinished checkout already exists
@@ -51,8 +51,8 @@ If the installer finds unused source from an earlier attempt (for example,
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.0-beta.2
-git checkout --detach v1.0-beta.2
+git fetch origin tag v1.0-beta.3
+git checkout --detach v1.0-beta.3
 sudo bash deploy.sh install v1.0-beta --refresh-source
 ```
 
@@ -62,6 +62,37 @@ It preserves `.env`, application keys, `.blueprintrc` and `storage/app` uploads.
 Initialized panels are refused even with this flag; use the update guide instead.
 The installer revision and the panel release are separate versions. Git's
 detached-HEAD notice is expected for a release checkout.
+
+### Resume after a database or configuration failure
+
+The installer tests database access before key generation and maintenance.
+An existing database account keeps its existing password, even when a previous
+attempt wrote a different password to `.env`. Repair the account credentials or
+grants first, then resume a matching unfinished installation that already has
+dependencies:
+
+```bash
+sudo bash deploy.sh install v1.0-beta --resume
+```
+
+For a saved local TCP database at `127.0.0.1`, the installer can configure a new
+dedicated login before resuming:
+
+```bash
+sudo bash deploy.sh repair-database
+sudo bash deploy.sh install v1.0-beta --resume
+```
+
+The repair privately backs up `.env`, verifies the new account and changes only
+the database username and password. The login is limited to the saved panel
+database; existing accounts, passwords and data are preserved. It requires local
+administrator socket access through `sudo mariadb` and refuses remote databases,
+URL/socket overrides and system databases.
+
+Resume reuses `.env`, application keys and uploads, finishes installation and
+clears maintenance only after success. It refuses initialized Blueprint/addon
+state, which must use the update guide. Do not drop the database or regenerate
+`APP_KEY` to fix authentication. `--resume` cannot be combined with source refresh.
 
 Follow the prompts for your HTTPS panel URL, database and initial administrator.
 For unattended deployment, configure `.env` in the dedicated `PANEL_ROOT` first
