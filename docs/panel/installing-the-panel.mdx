@@ -11,7 +11,7 @@ staging before opening access to users. The panel is installed separately from
 
 | Component            | Requirement                                                         |
 | -------------------- | ------------------------------------------------------------------- |
-| OS for the installer | Ubuntu 24.04/26.04 LTS or Debian 12/13                              |
+| OS for the installer | Ubuntu 22.04/24.04/26.04 LTS or Debian 12/13                        |
 | PHP                  | 8.5 recommended; 8.4 supported, matching CLI and FPM                |
 | PHP extensions       | bcmath, curl, gd, intl, mbstring, PDO MySQL, posix, redis, XML, zip |
 | Build tools          | Composer 2, Node.js 24.22.1+, pnpm 12.15.0                          |
@@ -25,7 +25,7 @@ LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cy
 ## Fetch the release tools with Git [#installation]
 
 ```bash title="Install the reviewed release"
-git clone --depth 1 --branch v1.0-beta.1 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.0-beta.2 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
 sudo bash deploy.sh install v1.0-beta
 ```
@@ -36,6 +36,14 @@ migrations and initial seeders, initializes bundled Blueprint, builds frontend
 assets, and configures Nginx, the `aquaq` queue worker and minute scheduler.
 It refuses an initialized panel: use [Updating](/docs/panel/updating-the-panel).
 
+Ubuntu 22.04 uses the PHP PPA to meet the same PHP 8.4/8.5 requirements. The
+installer checks OS compatibility before modifying source or configuration and
+does not upgrade your OS. For WSL testing, enable systemd first.
+
+If an earlier installer recovered the checkout and then rejected Ubuntu 22.04,
+select installer `v1.0-beta.2` and rerun `install v1.0-beta` without
+`--refresh-source`; the recovered source and the private backup are retained.
+
 ### An unfinished checkout already exists
 
 If the installer finds unused source from an earlier attempt (for example,
@@ -43,8 +51,8 @@ If the installer finds unused source from an earlier attempt (for example,
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.0-beta.1
-git checkout --detach v1.0-beta.1
+git fetch origin tag v1.0-beta.2
+git checkout --detach v1.0-beta.2
 sudo bash deploy.sh install v1.0-beta --refresh-source
 ```
 
