@@ -75,6 +75,20 @@ dependencies:
 sudo bash deploy.sh install v1.0-beta --resume
 ```
 
+For a saved local TCP database at `127.0.0.1`, the installer can configure a new
+dedicated login before resuming:
+
+```bash
+sudo bash deploy.sh repair-database
+sudo bash deploy.sh install v1.0-beta --resume
+```
+
+The repair privately backs up `.env`, verifies the new account and changes only
+the database username and password. The login is limited to the saved panel
+database; existing accounts, passwords and data are preserved. It requires local
+administrator socket access through `sudo mariadb` and refuses remote databases,
+URL/socket overrides and system databases.
+
 Resume reuses `.env`, application keys and uploads, finishes installation and
 clears maintenance only after success. It refuses initialized Blueprint/addon
 state, which must use the update guide. Do not drop the database or regenerate
