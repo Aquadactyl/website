@@ -1,175 +1,43 @@
 ---
 title: Migrating from Wings
-description: Step-by-step guide for replacing an existing Pterodactyl Wings daemon with Aquadactyl Manta without stopping your game servers.
+description: Switch an existing node to Manta's native service and executable while preserving game data.
 ---
 
-This guide walks you through replacing a running [Pterodactyl Wings](https://github.com/pterodactyl/wings) daemon with Aquadactyl Manta on an existing node.
+Manta is the Aquadactyl daemon maintained by Euphoria Development. New installations use the `manta` executable, `manta.service` and Aquadactyl directories. Existing nodes can migrate without relocating their game files.
 
-Manta keeps compatible API routes, authentication, executable/service names and
-server-data paths. New Linux configuration uses `/etc/aquadactyl/config.yml`.
-Existing `/etc/pterodactyl/config.yml` files remain discoverable, and explicit
-service paths are honored, so replacing the binary preserves an existing node.
-To adopt the new path, follow the [configuration migration
-guide](/docs/manta/installing-manta#migrate-config) after upgrading the binary.
+| Component     | Existing Wings installation      | New Manta installation          |
+| ------------- | -------------------------------- | ------------------------------- |
+| Executable    | `/usr/local/bin/wings`           | `/usr/local/bin/manta`          |
+| Service       | `wings.service`                  | `manta.service`                 |
+| Configuration | `/etc/pterodactyl/config.yml`    | `/etc/aquadactyl/config.yml`    |
+| Game files    | `/var/lib/pterodactyl/volumes`   | `/var/lib/aquadactyl/volumes`   |
+| Log           | `/var/log/pterodactyl/wings.log` | `/var/log/aquadactyl/manta.log` |
 
-<Callout type="info">
-  **Zero downtime for game servers**: Game servers run in their own Docker
-  containers. Restarting the daemon does **not** stop or interrupt them, so
-  players stay connected while you switch binaries.
-</Callout>
+Upgrade your panel first and back up the daemon configuration, systemd unit and game data. Manta retains compatible node APIs and credentials; upstream attribution remains under its MIT license.
 
-<Callout type="warn">
-  **Panel first**: Manta is built for Aquadactyl Panel. If you are still on
-  Pterodactyl Panel, complete [Migrating from
-  Pterodactyl](/docs/panel/migrating-from-pterodactyl) before replacing your
-  daemons.
-</Callout>
-
----
-
-## Migration Overview [#overview]
-
-Key differences between Wings and Manta:
-
-| Component               | Wings                          | Manta                                                     |
-| :---------------------- | :----------------------------- | :-------------------------------------------------------- |
-| **Release Source**      | `pterodactyl/wings`            | `Aquadactyl/manta`                                        |
-| **Executable**          | `/usr/local/bin/wings`         | `/usr/local/bin/wings` (unchanged)                        |
-| **Systemd Service**     | `wings.service`                | `wings.service` (unchanged)                               |
-| **Configuration**       | `/etc/pterodactyl/config.yml`  | `/etc/aquadactyl/config.yml` (legacy discovery supported) |
-| **Server Data**         | `/var/lib/pterodactyl/volumes` | `/var/lib/pterodactyl/volumes` (unchanged)                |
-| **Ports**               | `8080` API, `2022` SFTP        | `8080` API, `2022` SFTP (unchanged)                       |
-| **Host Metrics**        | Not available                  | Authenticated `/api/system/usage` endpoint                |
-| **SELinux Bind Mounts** | Manual relabeling              | Optional `docker.selinux_relabel` setting (v0.3-beta+)    |
-
----
-
-## Step 1: Check the Current Version [#step-1]
-
-Note which Wings version you are replacing, so you can roll back to the same release if needed:
-
-```bash title="Check current Wings version"
-wings version
-sudo systemctl status wings --no-pager
-```
-
----
-
-## Step 2: Back Up Wings and Its Configuration [#step-2]
-
-Keep a copy of the current binary and configuration outside the daemon directories:
-
-```bash title="Back up binary and configuration"
-sudo mkdir -p /var/backups/wings-migration
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
-sudo cp /usr/local/bin/wings /var/backups/wings-migration/wings-${TIMESTAMP}
-sudo cp /etc/pterodactyl/config.yml /var/backups/wings-migration/config-${TIMESTAMP}.yml
-```
-
-<Callout type="info">
-  Game server files in `/var/lib/pterodactyl/volumes` are not modified by this
-  migration. Take a backup through the panel as well if you want an extra safety
-  net before touching a production node.
-</Callout>
-
----
-
-## Step 3: Download Manta [#step-3]
-
-Download the Manta binary to a temporary location first, so the running Wings binary is untouched until you are ready:
-
-```bash title="Download Manta"
-MANTA_VERSION="v1.1-beta.1"
-
-curl -fL -o /tmp/manta "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_linux_amd64"
-curl -fL -o /tmp/manta-checksums.txt "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/checksums.txt"
-```
-
-<Callout type="info">
-  On ARM64 servers, replace `wings_linux_amd64` with `wings_linux_arm64`.
-</Callout>
-
-<Callout type="warn">
-  Manta releases are currently published as pre-releases, so the `latest`
-  download URL does not resolve to them. Always set `MANTA_VERSION` to the tag
-  you want to install.
-</Callout>
-
-Verify the checksum. The two hashes must match:
-
-```bash title="Verify checksum"
-grep wings_linux_amd64 /tmp/manta-checksums.txt
-sha256sum /tmp/manta
-```
-
----
-
-## Step 4: Replace the Binary [#step-4]
-
-Install the new binary over the old one and restart the service:
-
-```bash title="Swap binaries and restart"
-sudo install -m 0755 /tmp/manta /usr/local/bin/wings
-rm -f /tmp/manta /tmp/manta-checksums.txt
-
-sudo systemctl restart wings
-```
-
-Your game servers keep running while the daemon restarts, and Manta reattaches to the existing containers on startup.
-
----
-
-## Step 5: Verify the Migration [#step-5]
-
-1. **Check the version**: The output should now report `manta`:
-   ```bash
-   wings version
-   ```
-2. **Check the service and logs**:
-   ```bash
-   sudo systemctl status wings
-   journalctl -u wings -n 50 --no-pager
-   ```
-3. **Check Nodes in the panel**: Navigate to **Admin -> Nodes**. The node should show a green heartbeat.
-4. **Check a game server**: Open a running server in the panel and confirm the console streams, the resource graphs update, and the file manager loads.
-
----
-
-## Rolling Back [#rollback]
-
-If anything looks wrong, restore the Wings binary you backed up in step 2. Because the configuration was never changed, no other steps are required:
-
-```bash title="Restore Wings"
-sudo install -m 0755 /var/backups/wings-migration/wings-<TIMESTAMP> /usr/local/bin/wings
-sudo systemctl restart wings
-```
-
-Replace `<TIMESTAMP>` with the timestamp of your backup.
-
----
-
-## Optional: SELinux Hosts [#selinux]
-
-If your node runs a Red Hat based distribution with SELinux enforcing, you can let Manta relabel bind mounts instead of relabeling them yourself. Edit the configuration Manta uses: `/etc/aquadactyl/config.yml` after migration, or the legacy file if you retained it:
-
-```yaml title="/etc/aquadactyl/config.yml"
-docker:
-  selinux_relabel: shared
-```
-
-Use `shared` when several containers may use the same path, or `private` to assign a path to a single container. Restart the service afterwards:
+## Install the checked release
 
 ```bash
-sudo systemctl restart wings
+git clone --depth 1 --branch v1.1-beta.2 https://github.com/Aquadactyl/manta.git /opt/manta
+cd /opt/manta
+sudo bash scripts/install.sh v1.1-beta.2
+manta version
 ```
 
-See [Installing Manta](/docs/manta/installing-manta#selinux) for details. Skip this step on hosts without SELinux.
+If the legacy service is running, the installer updates its existing executable as well as installing `manta`. It retains previous copies and restores them if the service start fails. It leaves the legacy service running until you explicitly switch its unit.
 
----
+## Switch to manta.service
 
-## Next Steps [#next-steps]
+Follow [Migrate the service](/docs/manta/installing-manta#migrate-the-service), including backing up and comparing custom unit options before disabling the old service and enabling the new one. Only one daemon service should run at a time.
 
-1. Repeat these steps on each remaining node. You can migrate nodes one at a time and run Wings and Manta nodes side by side.
-2. Review the [Wings vs Manta benchmarks](/docs/manta/benchmarks) for measured differences between the two daemons.
-3. Keep Manta up to date by repeating steps 3 to 5 with a newer `MANTA_VERSION`.
+Copy the complete existing config rather than regenerating it. An old partial config without `config_version` keeps its inherited data, user and network settings. Do not insert the new defaults marker into an old partial config: that would select fresh-install defaults for omitted values. The first save materializes the old settings explicitly.
+
+Game containers remain running during the daemon restart; console and SFTP connections briefly disconnect. Schedule outside installations, backups and transfers. Check the panel's node heartbeat, console, file manager, SFTP and a test server after switching.
+
+## Data migration and recovery
+
+The service migration preserves existing data directories and user IDs. Moving game files is a separate maintenance operation: stop affected containers, back up and copy files with permissions preserved, update the node and local config, and recreate Docker bind mounts before restarting servers. See [existing data and Docker deployments](/docs/manta/installing-manta#existing-data-and-docker-deployments).
+
+For rollback, stop and disable `manta` before restoring the old executable/config and enabling the old service. Keep backups until verification succeeds. See the [recovery guide](/docs/manta/installing-manta#rollback).
+
+Continue with [additional configuration](/docs/manta/additional-configuration) or the [Wings vs Manta benchmarks](/docs/manta/benchmarks).
