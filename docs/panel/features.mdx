@@ -165,7 +165,9 @@ permissions; the owner lookup is restricted to administrators.
 
 Open a supported image from the Files list to preview it inside the panel.
 Text editing and image previews default to a **32 MiB** limit, configurable with
-`PTERODACTYL_FILES_MAX_EDIT_SIZE` in bytes. Existing file read/edit permissions
+`AQUADACTYL_FILES_MAX_EDIT_SIZE` in bytes. The legacy
+`PTERODACTYL_FILES_MAX_EDIT_SIZE` name remains a fallback; the Aquadactyl key takes
+precedence when both are set. Existing file read/edit permissions
 still apply. Download larger files when a preview would exceed the limit.
 
 New nodes default to a **2,048 MiB** browser upload limit. Existing node limits

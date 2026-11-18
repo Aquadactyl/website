@@ -1,20 +1,31 @@
 ---
 title: Getting Started
-description: Install Aquadactyl v1.0-beta and Manta using reviewed Git releases.
+description: Install Aquadactyl v1.1-beta.1 and Manta using reviewed Git releases.
 ---
 
 Aquadactyl combines the familiar Pterodactyl panel with bundled Blueprint,
 branding controls, passkeys, connected accounts, languages, notifications and
 optional server tools. See [Included features](/docs/panel/features).
 
-## Install v1.0-beta
+## Current beta releases
+
+| Component        | Version       | Release                                                                                  |
+| ---------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| Aquadactyl Panel | `v1.1-beta.1` | [Notes and downloads](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.1-beta.1) |
+| Manta            | `v1.1-beta`   | [Notes and downloads](https://github.com/Aquadactyl/manta/releases/tag/v1.1-beta)        |
+| Installer        | `v1.1-beta`   | [Notes and tools](https://github.com/Aquadactyl/Installer/releases/tag/v1.1-beta)        |
+
+The installer and panel have separate version numbers. Keep the installer tag
+and the panel argument shown below; Manta is installed separately on each node.
+
+## Install v1.1-beta.1
 
 Use a dedicated Ubuntu 22.04/24.04/26.04 LTS or Debian 12/13 host:
 
 ```bash
-git clone --depth 1 --branch v1.0-beta.3 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.1-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
-sudo bash deploy.sh install v1.0-beta
+sudo bash deploy.sh install v1.1-beta.1
 ```
 
 The installer fetches the exact panel release through Git and sets up the locked
@@ -22,7 +33,7 @@ dependencies, Blueprint, production build and services. Configure trusted HTTPS,
 email and backups, then complete the administrator setup wizard.
 
 Read the [full installation guide](/docs/panel/installing-the-panel) before
-running it. v1.0-beta is a prerelease: test your deployment and extensions first.
+running it. v1.1-beta.1 is a prerelease: test your deployment and extensions first.
 
 ## Next steps
 

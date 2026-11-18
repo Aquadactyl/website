@@ -71,9 +71,9 @@ Fetch the matching tools release through Git. The Linux installer selects the
 architecture, verifies SHA256 and the executable version before replacing it:
 
 ```bash
-git clone --depth 1 --branch v1.0-beta https://github.com/Aquadactyl/manta.git /opt/manta
+git clone --depth 1 --branch v1.1-beta https://github.com/Aquadactyl/manta.git /opt/manta
 cd /opt/manta
-sudo bash scripts/install.sh v1.0-beta
+sudo bash scripts/install.sh v1.1-beta
 sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
 wings version
 ```
@@ -192,9 +192,9 @@ Back up configuration and server data, then use the reviewed tools checkout:
 
 ```bash
 cd /opt/manta
-git fetch origin tag v1.0-beta
-git checkout --detach v1.0-beta
-sudo bash scripts/install.sh v1.0-beta
+git fetch origin tag v1.1-beta
+git checkout --detach v1.1-beta
+sudo bash scripts/install.sh v1.1-beta
 sudo systemctl status wings --no-pager
 ```
 
