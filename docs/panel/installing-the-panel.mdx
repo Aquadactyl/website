@@ -3,7 +3,7 @@ title: Installing the Panel
 description: Install an exact Aquadactyl release using Git, with bundled Blueprint and managed services.
 ---
 
-Aquadactyl v1.1-beta.2 is a prerelease. Verify your workload, addons and backups in
+Aquadactyl v1.1-beta.3 is a prerelease. Verify your workload, addons and backups in
 staging before opening access to users. The panel is installed separately from
 [Manta](/docs/manta/installing-manta), which runs the game containers.
 
@@ -25,9 +25,9 @@ LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cy
 ## Fetch the release tools with Git [#installation]
 
 ```bash title="Install the reviewed release"
-git clone --depth 1 --branch v1.1-beta.1 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.1-beta.2 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
-sudo bash deploy.sh install v1.1-beta.2
+sudo bash deploy.sh install v1.1-beta.3
 ```
 
 Review `deploy.sh` before running it. It fetches that exact panel tag, installs
@@ -41,8 +41,8 @@ installer checks OS compatibility before modifying source or configuration and
 does not upgrade your OS. For WSL testing, enable systemd first.
 
 If an earlier installer recovered the checkout and then rejected Ubuntu 22.04,
-select Installer `v1.1-beta.1` and retry with the same panel tag as that checkout.
-To move an unfinished checkout to `v1.1-beta.2`, use the source-recovery procedure
+select Installer `v1.1-beta.2` and retry with the same panel tag as that checkout.
+To move an unfinished checkout to `v1.1-beta.3`, use the source-recovery procedure
 below. Initialized panels must use the update guide instead. Keep the earlier backup.
 
 ### An unfinished checkout already exists
@@ -52,9 +52,9 @@ If the installer finds unused source from an earlier attempt (for example,
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.1-beta.1
-git checkout --detach v1.1-beta.1
-sudo bash deploy.sh install v1.1-beta.2 --refresh-source
+git fetch origin tag v1.1-beta.2
+git checkout --detach v1.1-beta.2
+sudo bash deploy.sh install v1.1-beta.3 --refresh-source
 ```
 
 The installer fetches and validates the release before moving the complete old
@@ -73,7 +73,7 @@ grants first, then resume a matching unfinished installation that already has
 dependencies:
 
 ```bash
-sudo bash deploy.sh install v1.1-beta.2 --resume
+sudo bash deploy.sh install v1.1-beta.3 --resume
 ```
 
 For a saved local TCP database at `127.0.0.1`, the installer can configure a new
@@ -81,7 +81,7 @@ dedicated login before resuming:
 
 ```bash
 sudo bash deploy.sh repair-database
-sudo bash deploy.sh install v1.1-beta.2 --resume
+sudo bash deploy.sh install v1.1-beta.3 --resume
 ```
 
 The repair privately backs up `.env`, verifies the new account and changes only
@@ -137,7 +137,7 @@ Operators who already manage PHP, Nginx, queues and deployment automation can
 clone the panel source directly:
 
 ```bash
-git clone --depth 1 --branch v1.1-beta.2 https://github.com/Aquadactyl/aquadactyl.git /var/www/aquadactyl
+git clone --depth 1 --branch v1.1-beta.3 https://github.com/Aquadactyl/aquadactyl.git /var/www/aquadactyl
 ```
 
 A Git checkout needs locked dependencies, a frontend build, environment/secrets,

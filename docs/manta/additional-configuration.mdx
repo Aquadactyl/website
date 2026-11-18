@@ -9,7 +9,8 @@ Fine-tune your Manta node for security, custom ports and Docker networking. Mant
   Linux configuration now defaults to `/etc/aquadactyl/config.yml`. Existing
   legacy files remain discoverable when the default is absent. Follow the
   [configuration migration guide](/docs/manta/installing-manta#migrate-config)
-  before moving an existing node. The `wings` command and service manage Manta.
+  before moving an existing node. Use the `manta` command and `manta.service`
+  for new nodes.
 </Callout>
 
 ## SSL / TLS Certificates [#ssl]
@@ -42,7 +43,7 @@ api:
 Restart Manta to apply the certificate:
 
 ```bash
-sudo systemctl restart wings
+sudo systemctl restart manta
 ```
 
 ---
@@ -91,7 +92,7 @@ Restart Docker and Manta:
 
 ```bash
 sudo systemctl restart docker
-sudo systemctl restart wings
+sudo systemctl restart manta
 ```
 
 ---
