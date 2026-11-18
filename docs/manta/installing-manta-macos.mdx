@@ -3,7 +3,7 @@ title: Installing Manta on macOS
 description: Run the Manta daemon natively on macOS, with Docker Desktop, OrbStack, Colima or Rancher Desktop providing the containers.
 ---
 
-Manta runs natively on macOS, on both Apple Silicon (`arm64`) and Intel (`amd64`). It manages game servers the same way it does on Linux, but macOS has no container support of its own. The containers run in the Linux virtual machine of your Docker runtime, and Manta talks to the Docker engine inside it.
+Manta is the Aquadactyl server daemon, maintained by [Euphoria Development](https://euphoriadevelopment.uk). It runs natively on macOS, on both Apple Silicon (`arm64`) and Intel (`amd64`). It manages game servers the same way it does on Linux, but macOS has no container support of its own. The containers run in the Linux virtual machine of your Docker runtime, and Manta talks to the Docker engine inside it.
 
 This makes macOS a good fit for a development node or a small host. For a production node under load, Linux gives the containers direct access to the files and the kernel and remains the recommended platform. To install on Linux, see [Installing Manta](/docs/manta/installing-manta).
 
@@ -26,7 +26,10 @@ This makes macOS a good fit for a development node or a small host. For a produc
 | Docker socket   | `/var/run/docker.sock`        | `/var/run/docker.sock`, or the socket of the runtime |
 | Host metrics    | CPU, RAM and disk             | CPU, RAM and disk                                    |
 
-Every path can still be set in the configuration file, and values set there always win over the defaults above.
+The Linux paths and system user retain legacy deployment names for compatibility;
+they do not identify a separate product or a third-party service. Every path can
+still be set in the configuration file, and values set there always win over the
+defaults above.
 
 ## Prerequisites [#prerequisites]
 
