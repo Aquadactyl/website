@@ -43,6 +43,14 @@ export default function Footer() {
               GitHub
             </a>
             <a
+              href="https://demo.aquadactyl.uk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-[#e9edf0]"
+            >
+              Live demo
+            </a>
+            <a
               href={"https://discord.euphoriadevelopment.uk"}
               target="_blank"
               rel="noreferrer"

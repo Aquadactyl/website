@@ -74,13 +74,13 @@ export default function Home() {
                 Install Aquadactyl <ArrowRight size={16} />
               </Link>
               <a
-                href={"https://github.com/Aquadactyl/aquadactyl"}
+                href="https://demo.aquadactyl.uk"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-11.5 items-center justify-center gap-2.5 rounded-md border border-[#3d4a56] bg-[#1b232b] px-4 text-[13px] font-medium text-[#e9edf0] transition-colors duration-150 hover:border-[#64717f] hover:bg-[#26313b] sm:px-5 sm:text-sm"
               >
-                <FaGithub size={16} />
-                GitHub
+                <ExternalLink size={16} />
+                Live demo
               </a>
             </div>
             <div className="mt-6 flex flex-wrap gap-4 sm:mt-7.5">
@@ -94,6 +94,10 @@ export default function Home() {
             </div>
             <p className="mt-3 text-[11px] leading-[1.7] text-[#8c9aa7] sm:text-xs">
               Free to use. Open source. MIT licensed.
+            </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-[#8c9aa7] sm:text-xs">
+              Try the user or restricted admin demo. Credentials are prefilled;
+              shared sample data resets every five minutes.
             </p>
             <a
               className="mt-5 inline-flex items-center gap-2 text-[13px] text-[#a4e3dc] hover:underline min-[1051px]:hidden"
