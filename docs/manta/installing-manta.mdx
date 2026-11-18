@@ -5,9 +5,16 @@ description: Install and configure the Manta daemon to run game servers in secur
 
 <img src="/brand/manta-logo.png" alt="Manta" width="315" height="200" />
 
-Manta is the server control daemon for Aquadactyl Panel. It is based on Pterodactyl Wings and handles game server processes, monitors resource usage, streams console output, provides SFTP access, and manages server files inside isolated Docker containers.
+Manta is the server control daemon for Aquadactyl Panel, maintained by [Euphoria Development](https://euphoriadevelopment.uk). It handles game server processes, monitors resource usage, streams console output, provides SFTP access, and manages server files inside isolated Docker containers.
 
-Manta keeps the Wings API, authentication format, and configuration paths, so the node setup in the panel works exactly as before. The executable, systemd service, and configuration directory also keep their Wings names.
+Manta retains compatible node APIs and authentication. Its `wings` executable,
+`wings.service` and `/etc/pterodactyl/config.yml` path are legacy deployment
+identifiers, so existing nodes keep working. Commands using these names below run
+Manta from the `Aquadactyl/manta` repository. Do not rename existing data paths or
+services as part of a branding change.
+
+Manta is derived from [Pterodactyl Wings](https://github.com/pterodactyl/wings),
+with upstream attribution retained under the [MIT license](https://github.com/Aquadactyl/manta/blob/main/LICENSE).
 
 <Callout type="info">
   Installing on a Mac? Follow [Installing Manta on

@@ -145,9 +145,10 @@ export default function Home() {
           <div>
             <h2 className="text-xl font-medium text-[#e9edf0]">Meet Manta</h2>
             <p className="mt-2 max-w-145 text-sm leading-relaxed text-[#a0abb6]">
-              Run game servers on Linux, or develop locally on macOS. Manta
-              retains Wings API compatibility and adds host metrics, file search
-              and hardened server operations. Both projects ship as v1.0-beta.
+              Aquadactyl’s server daemon, maintained by Euphoria Development.
+              Run game servers on Linux, or develop locally on macOS, with host
+              metrics, file search and hardened server operations. Existing node
+              APIs remain compatible.
             </p>
             <Link
               href="/docs/manta/installing-manta"

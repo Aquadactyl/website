@@ -1,13 +1,20 @@
 ---
 title: Additional Configuration
-description: Advanced Wings configuration options including SSL/TLS certificates, firewall port management, and Docker daemon tuning.
+description: Advanced Manta configuration for Aquadactyl, including SSL/TLS certificates, firewall ports and Docker daemon tuning.
 ---
 
-Fine-tune your Wings node for security, custom ports, and optimal Docker networking.
+Fine-tune your Manta node for security, custom ports and Docker networking. Manta is the Aquadactyl server daemon, maintained by [Euphoria Development](https://euphoriadevelopment.uk).
+
+<Callout type="info">
+  Manta retains the `wings` command and systemd service, and the
+  `/etc/pterodactyl/config.yml` path, for existing node compatibility. The
+  commands below manage Manta. Keep those names in place on an existing
+  installation.
+</Callout>
 
 ## SSL / TLS Certificates [#ssl]
 
-When your Aquadactyl Panel is served over HTTPS, web browsers require Wings to use SSL/TLS to prevent mixed content blocking when connecting to the console websocket (port 8080).
+When your Aquadactyl Panel is served over HTTPS, web browsers require Manta to use SSL/TLS to prevent mixed content blocking when connecting to the console websocket (port 8080).
 
 ### 1. Generate Certificates with Certbot
 
@@ -18,7 +25,7 @@ sudo apt install -y certbot
 sudo certbot certonly --standalone -d node1.yourdomain.com
 ```
 
-### 2. Update Wings Configuration
+### 2. Update Manta Configuration
 
 Open `/etc/pterodactyl/config.yml`:
 
@@ -32,7 +39,7 @@ api:
     key: /etc/letsencrypt/live/node1.yourdomain.com/privkey.pem
 ```
 
-Restart Wings to apply the certificate:
+Restart Manta to apply the certificate:
 
 ```bash
 sudo systemctl restart wings
@@ -42,7 +49,7 @@ sudo systemctl restart wings
 
 ## Firewall & Port Rules (UFW) [#ports]
 
-Wings and hosted game servers require specific incoming ports to function:
+Manta and hosted game servers require specific incoming ports to function:
 
 | Port / Protocol         | Service                 | Description                                        |
 | :---------------------- | :---------------------- | :------------------------------------------------- |
@@ -53,7 +60,7 @@ Wings and hosted game servers require specific incoming ports to function:
 
 Configure UFW:
 
-```bash title="Allow Wings ports in UFW"
+```bash title="Allow Manta ports in UFW"
 sudo ufw allow 8080/tcp
 sudo ufw allow 2022/tcp
 sudo ufw allow 80/tcp
@@ -80,7 +87,7 @@ Configure `/etc/docker/daemon.json` for reliable container DNS and logging limit
 }
 ```
 
-Restart Docker and Wings:
+Restart Docker and Manta:
 
 ```bash
 sudo systemctl restart docker
