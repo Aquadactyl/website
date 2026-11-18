@@ -6,10 +6,10 @@ description: Advanced Manta configuration for Aquadactyl, including SSL/TLS cert
 Fine-tune your Manta node for security, custom ports and Docker networking. Manta is the Aquadactyl server daemon, maintained by [Euphoria Development](https://euphoriadevelopment.uk).
 
 <Callout type="info">
-  Manta retains the `wings` command and systemd service, and the
-  `/etc/pterodactyl/config.yml` path, for existing node compatibility. The
-  commands below manage Manta. Keep those names in place on an existing
-  installation.
+  Linux configuration now defaults to `/etc/aquadactyl/config.yml`. Existing
+  legacy files remain discoverable when the default is absent. Follow the
+  [configuration migration guide](/docs/manta/installing-manta#migrate-config)
+  before moving an existing node. The `wings` command and service manage Manta.
 </Callout>
 
 ## SSL / TLS Certificates [#ssl]
@@ -27,9 +27,9 @@ sudo certbot certonly --standalone -d node1.yourdomain.com
 
 ### 2. Update Manta Configuration
 
-Open `/etc/pterodactyl/config.yml`:
+Open `/etc/aquadactyl/config.yml`:
 
-```yaml title="/etc/pterodactyl/config.yml"
+```yaml title="/etc/aquadactyl/config.yml"
 api:
   host: 0.0.0.0
   port: 8080
@@ -98,13 +98,13 @@ sudo systemctl restart wings
 
 ## Manta Docker Options [#manta-docker]
 
-These options live under the `docker` section of `/etc/pterodactyl/config.yml` and are specific to Manta. Restart Manta after changing them.
+These options live under the `docker` section of `/etc/aquadactyl/config.yml` and are specific to Manta. Restart Manta after changing them.
 
 ### Image Pull Policy [#image-pull-policy]
 
 `docker.image_pull_policy` controls when Manta pulls an image before it creates a container. It applies to server containers and to the containers that run server installation scripts.
 
-```yaml title="/etc/pterodactyl/config.yml"
+```yaml title="/etc/aquadactyl/config.yml"
 docker:
   image_pull_policy: IfNotPresent
 ```
@@ -128,7 +128,7 @@ Images whose name starts with `~` are local images and are never pulled, whateve
 
 Manta creates a Docker network for servers when it starts. IPv6 is enabled on it by default. To create it without IPv6, for example on a host that has no IPv6 connectivity:
 
-```yaml title="/etc/pterodactyl/config.yml"
+```yaml title="/etc/aquadactyl/config.yml"
 docker:
   network:
     interfaces:

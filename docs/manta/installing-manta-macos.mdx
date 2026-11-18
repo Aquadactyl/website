@@ -15,21 +15,21 @@ This makes macOS a good fit for a development node or a small host. For a produc
 
 ## What is different from Linux [#differences]
 
-| Area            | Linux                         | macOS                                                |
-| :-------------- | :---------------------------- | :--------------------------------------------------- |
-| Configuration   | `/etc/pterodactyl/config.yml` | `~/Library/Application Support/Manta/config.yml`     |
-| Data and state  | `/var/lib/pterodactyl`        | `~/Library/Application Support/Manta`                |
-| Logs            | `/var/log/pterodactyl`        | `~/Library/Logs/Manta`                               |
-| Temporary files | `/tmp/pterodactyl`            | `~/Library/Application Support/Manta/tmp`            |
-| Server user     | A `pterodactyl` system user   | The user Manta runs as, nothing is created           |
-| Service manager | systemd                       | launchd                                              |
-| Docker socket   | `/var/run/docker.sock`        | `/var/run/docker.sock`, or the socket of the runtime |
-| Host metrics    | CPU, RAM and disk             | CPU, RAM and disk                                    |
+| Area            | Linux                        | macOS                                                |
+| :-------------- | :--------------------------- | :--------------------------------------------------- |
+| Configuration   | `/etc/aquadactyl/config.yml` | `~/Library/Application Support/Manta/config.yml`     |
+| Data and state  | `/var/lib/pterodactyl`       | `~/Library/Application Support/Manta`                |
+| Logs            | `/var/log/pterodactyl`       | `~/Library/Logs/Manta`                               |
+| Temporary files | `/tmp/pterodactyl`           | `~/Library/Application Support/Manta/tmp`            |
+| Server user     | A `pterodactyl` system user  | The user Manta runs as, nothing is created           |
+| Service manager | systemd                      | launchd                                              |
+| Docker socket   | `/var/run/docker.sock`       | `/var/run/docker.sock`, or the socket of the runtime |
+| Host metrics    | CPU, RAM and disk            | CPU, RAM and disk                                    |
 
-The Linux paths and system user retain legacy deployment names for compatibility;
-they do not identify a separate product or a third-party service. Every path can
-still be set in the configuration file, and values set there always win over the
-defaults above.
+Linux configuration now uses `/etc/aquadactyl/config.yml`; the Linux data/log
+paths and system user retain existing deployment names for compatibility. The
+native macOS locations are unchanged. Every path can still be set explicitly,
+and values set in the configuration always win over these defaults.
 
 ## Prerequisites [#prerequisites]
 
@@ -65,7 +65,7 @@ If you move the data to an external disk or a path outside of `/Users`, add it t
 Download the binary for your Mac and its checksum file from the [Manta releases](https://github.com/Aquadactyl/manta/releases). Use `wings_darwin_arm64` on Apple Silicon and `wings_darwin_amd64` on Intel.
 
 ```bash title="Download and verify Manta"
-MANTA_VERSION="v1.1-beta"
+MANTA_VERSION="v1.1-beta.1"
 ARCH="$(uname -m | sed 's/x86_64/amd64/')"
 
 curl -fL -o wings "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/wings_darwin_${ARCH}"

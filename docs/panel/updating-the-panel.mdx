@@ -3,7 +3,7 @@ title: Updating the Panel
 description: Fetch a pinned release through Git, preserve panel data and addons, and recover from a failed update.
 ---
 
-Update the panel and bundled Blueprint together. v1.1-beta.1 is a prerelease;
+Update the panel and bundled Blueprint together. v1.1-beta.2 is a prerelease;
 validate it against your workload and original addon packages in staging first.
 Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files.
 
@@ -22,22 +22,22 @@ Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files
 If this is your first managed update:
 
 ```bash
-git clone --depth 1 --branch v1.1-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.1-beta.1 https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 ```
 
 For an existing tools checkout, review and select the installer tag:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.1-beta
-git checkout --detach v1.1-beta
-sudo bash deploy.sh update v1.1-beta.1
+git fetch origin tag v1.1-beta.1
+git checkout --detach v1.1-beta.1
+sudo bash deploy.sh update v1.1-beta.2
 ```
 
 For a panel at the inherited path, keep it there:
 
 ```bash
-sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.1-beta.1
+sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.1-beta.2
 ```
 
 The updater fetches the **exact panel Git tag**, rather than the moving `main`
@@ -55,7 +55,7 @@ bringing the panel back online. The updater does not reverse migrations.
 ## Downloaded archives [#manual-update]
 
 Download `panel.tar.gz` and `SHA256SUMS` from the same
-[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.1-beta.1).
+[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.1-beta.2).
 Verify the archive, then pass its reviewed 64-character checksum:
 
 ```bash
