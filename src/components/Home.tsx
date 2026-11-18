@@ -47,7 +47,7 @@ export default function Home() {
           <div className="max-w-165 pb-0 min-[1051px]:max-w-none min-[1051px]:pb-4">
             <p className="flex items-center gap-2 text-[11px] text-[#a0abb6] sm:text-xs">
               <span className="h-1.5 w-1.5 rounded-full bg-[#78d4cc]" />
-              v1.1-beta.1 · Open-source game server panel
+              v1.1-beta.2 · Open-source game server panel
             </p>
             <h1
               id="hero-heading"
@@ -154,7 +154,7 @@ export default function Home() {
               href="/docs/manta/installing-manta"
               className="mt-4 inline-flex items-center gap-2 text-sm text-[#a4e3dc]"
             >
-              Install Manta v1.1-beta <ArrowRight size={16} />
+              Install Manta v1.1-beta.1 <ArrowRight size={16} />
             </Link>
           </div>
         </div>

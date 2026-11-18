@@ -7,11 +7,14 @@ description: Install and configure the Manta daemon to run game servers in secur
 
 Manta is the server control daemon for Aquadactyl Panel, maintained by [Euphoria Development](https://euphoriadevelopment.uk). It handles game server processes, monitors resource usage, streams console output, provides SFTP access, and manages server files inside isolated Docker containers.
 
-Manta retains compatible node APIs and authentication. Its `wings` executable,
-`wings.service` and `/etc/pterodactyl/config.yml` path are legacy deployment
-identifiers, so existing nodes keep working. Commands using these names below run
-Manta from the `Aquadactyl/manta` repository. Do not rename existing data paths or
-services as part of a branding change.
+Manta retains compatible node APIs and authentication. Since v1.1-beta.1, the
+Linux configuration defaults to `/etc/aquadactyl/config.yml`. The `wings`
+executable and `wings.service` remain compatible with existing nodes. These
+commands install Manta from the `Aquadactyl/manta` repository.
+
+Existing `/etc/pterodactyl/config.yml` files are discovered when the new default
+is absent and no explicit path was given. See [Migrating an existing
+configuration](#migrate-config) before changing an existing service or Docker mount.
 
 Manta is derived from [Pterodactyl Wings](https://github.com/pterodactyl/wings),
 with upstream attribution retained under the [MIT license](https://github.com/Aquadactyl/manta/blob/main/LICENSE).
@@ -71,10 +74,11 @@ Fetch the matching tools release through Git. The Linux installer selects the
 architecture, verifies SHA256 and the executable version before replacing it:
 
 ```bash
-git clone --depth 1 --branch v1.1-beta https://github.com/Aquadactyl/manta.git /opt/manta
+git clone --depth 1 --branch v1.1-beta.1 https://github.com/Aquadactyl/manta.git /opt/manta
 cd /opt/manta
-sudo bash scripts/install.sh v1.1-beta
-sudo mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
+sudo bash scripts/install.sh v1.1-beta.1
+sudo install -d -m 0700 /etc/aquadactyl
+sudo mkdir -p /var/lib/pterodactyl/volumes
 wings version
 ```
 
@@ -95,10 +99,11 @@ The `wings` executable and service names preserve existing node compatibility.
    - **Total Memory & Disk**: Set the hardware limits.
 4. Click **Create Node**.
 5. Switch to the **Configuration** tab. Click **Generate Token** or copy the YAML snippet shown.
-6. On your node server, paste this configuration into `/etc/pterodactyl/config.yml`:
+6. On your node server, paste this configuration into `/etc/aquadactyl/config.yml`:
 
 ```bash
-sudo nano /etc/pterodactyl/config.yml
+sudo nano /etc/aquadactyl/config.yml
+sudo chmod 0600 /etc/aquadactyl/config.yml
 ```
 
 ---
@@ -116,7 +121,7 @@ PartOf=docker.service
 
 [Service]
 User=root
-WorkingDirectory=/etc/pterodactyl
+WorkingDirectory=/etc/aquadactyl
 LimitNOFILE=4096
 PIDFile=/var/run/wings/daemon.pid
 ExecStart=/usr/local/bin/wings
@@ -152,9 +157,9 @@ In the Aquadactyl Panel under **Admin** -> **Nodes**, a green heart icon will in
 
 On Rocky Linux, AlmaLinux, and other Red Hat based hosts, SELinux blocks containers from reading bind mounts until the mounted paths are relabeled. Manta can relabel them for you through the `selinux_relabel` option, available since **v0.3-beta**.
 
-Add the option under the `docker` section of `/etc/pterodactyl/config.yml`:
+Add the option under the `docker` section of `/etc/aquadactyl/config.yml`:
 
-```yaml title="/etc/pterodactyl/config.yml"
+```yaml title="/etc/aquadactyl/config.yml"
 docker:
   selinux_relabel: shared
 ```
@@ -186,15 +191,51 @@ The option applies to both server containers and installation containers, and re
 1. Review [Additional Configuration](/docs/manta/additional-configuration) for SSL/TLS certificates, firewall ports, and Docker daemon tuning. These settings are unchanged in Manta.
 2. See the [Wings vs Manta benchmarks](/docs/manta/benchmarks) for measured differences between the two daemons.
 
+## Migrating an existing configuration [#migrate-config]
+
+The Aquadactyl configuration takes precedence when both paths exist. Explicit
+`--config` and `--config-path` values are always honored. An unreadable or invalid
+Aquadactyl file fails with its own error; Manta does not silently load the legacy
+file instead.
+
+For the standard root-run service, copy the entire existing configuration so
+tokens, custom server-data directories and local options are preserved:
+
+```bash
+sudo install -d -m 0700 /etc/aquadactyl
+sudo cp --preserve=mode,ownership --no-clobber /etc/pterodactyl/config.yml /etc/aquadactyl/config.yml
+sudo systemctl edit --full wings
+```
+
+Set `WorkingDirectory=/etc/aquadactyl` and update any `--config` argument to
+`/etc/aquadactyl/config.yml`, retaining the existing binary and other options.
+For rootless services, match directory/file ownership to the service user.
+Then reload and check the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart wings
+sudo systemctl status wings --no-pager
+sudo journalctl -u wings -n 50 --no-pager
+```
+
+The copy does not overwrite an existing Aquadactyl file. Review that file if it
+already exists, and keep the legacy copy for rollback until verification succeeds.
+
+For Docker, the new example mounts `/etc/aquadactyl:/etc/aquadactyl`. Existing
+legacy mounts still work through discovery. Copy the complete configuration before
+switching the bind mount, preserve any referenced certificates/files, and update
+any explicit `command: --config ...` to the intended path.
+
 ## Updating [#updating]
 
 Back up configuration and server data, then use the reviewed tools checkout:
 
 ```bash
 cd /opt/manta
-git fetch origin tag v1.1-beta
-git checkout --detach v1.1-beta
-sudo bash scripts/install.sh v1.1-beta
+git fetch origin tag v1.1-beta.1
+git checkout --detach v1.1-beta.1
+sudo bash scripts/install.sh v1.1-beta.1
 sudo systemctl status wings --no-pager
 ```
 
