@@ -17,11 +17,13 @@ Upgrade your panel first and back up the daemon configuration, systemd unit and 
 
 ## Install the checked release
 
+If `/opt/manta` already exists, use [Existing or interrupted checkout](/docs/manta/installing-manta#existing-or-interrupted-checkout) instead of cloning again. Select the release checkout before invoking its installer.
+
 ```bash
-git clone --depth 1 --branch v1.1-beta.2 https://github.com/Aquadactyl/manta.git /opt/manta
-cd /opt/manta
-sudo bash scripts/install.sh v1.1-beta.2
-manta version
+git clone --depth 1 --branch v1.1-beta.2 https://github.com/Aquadactyl/manta.git /opt/manta &&
+cd /opt/manta &&
+sudo bash scripts/install.sh v1.1-beta.2 &&
+/usr/local/bin/manta version
 ```
 
 If the legacy service is running, the installer updates its existing executable as well as installing `manta`. It retains previous copies and restores them if the service start fails. It leaves the legacy service running until you explicitly switch its unit.
