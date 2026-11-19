@@ -1,105 +1,336 @@
 ---
-title: Troubleshooting
-description: Diagnose and resolve common issues with Aquadactyl Panel, web server configuration, database connections, and permissions.
+title: "Common Issues: Aquadactyl"
+description: Troubleshoot panel errors, HTTPS and login problems, installation failures, queues, extensions, uploads and account access.
 ---
 
-When encountering errors, check this guide for common causes and resolutions.
+Start with the [common issues hub](/docs/common-issues) if you are unsure which
+component is failing. If panel pages work but servers are unavailable or consoles
+fail, also use the [Manta guide](/docs/manta/troubleshooting#connectivity).
 
-## Checking Panel Logs [#logs]
+Host commands below assume a native installation at `/var/www/aquadactyl` with
+web user `www-data`. Use your actual path, PHP binary and service names. Docker
+and Dokploy operators should use their deployment's logs and environment.
 
-Aquadactyl logs Laravel exceptions and application errors to `/var/www/aquadactyl/storage/logs/`:
+## Panel 500 errors and finding the right log [#logs]
 
-```bash title="View live Laravel errors"
-tail -n 100 -f /var/www/aquadactyl/storage/logs/laravel-$(date +%F).log
+**Symptoms:** an unexpected-error message, HTTP 500, or a page that fails after a
+specific action. Record the action and time, then inspect the matching exception.
+
+For a native installation:
+
+```bash
+sudo ls -lt /var/www/aquadactyl/storage/logs/
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan p:debug --dry-run
 ```
 
----
+`--dry-run` previews a bounded, redacted log tail locally without uploading it.
+Logs can be daily files or a single `laravel.log`, depending on configuration. If
+Artisan cannot boot, open the appropriate log file privately instead. Choose the
+file and entry matching the failure; an older unrelated exception can mislead you.
 
-## 502 Bad Gateway [#502-bad-gateway]
+For a Compose service named `panel`, run these from its deployment directory:
 
-A `502 Bad Gateway` error indicates Nginx cannot communicate with PHP-FPM.
-
-1. **Verify PHP-FPM is running:**
-   ```bash
-   sudo systemctl status php8.5-fpm
-   ```
-2. **Verify socket path:**
-   Ensure the socket in `/etc/nginx/sites-available/aquadactyl.conf` matches your installed PHP version:
-   ```nginx
-   fastcgi_pass unix:/run/php/php8.5-fpm.sock;
-   ```
-3. **Check socket permissions:**
-   ```bash
-   ls -la /run/php/php8.5-fpm.sock
-   ```
-
----
-
-## Permission & Ownership Errors [#permissions]
-
-Aquadactyl enforces a strict permission model: source files are owned by `root:www-data` (mode `0750` for directories, `0640` for files), while only `storage/` and `bootstrap/cache/` are writable by the web user.
-
-To restore proper permissions without breaking security:
-
-```bash title="Restore deployment permissions"
-curl -fsSL https://raw.githubusercontent.com/Aquadactyl/Installer/main/deploy.sh | sudo bash -s -- permissions
+```bash
+docker compose ps
+docker compose logs --tail=80 panel
+docker compose exec panel php artisan p:debug --dry-run
 ```
 
-<Callout type="warn">
-  Never use `chmod 777` on panel files. It creates severe security
-  vulnerabilities and will fail Aquadactyl preflight checks.
-</Callout>
+In Dokploy, inspect the panel application's logs and container state. A Laravel
+exception may be in the persisted application log rather than web-server stdout.
+If no application entry appears, check the proxy/Nginx/PHP logs for a failure
+before the request reached Laravel.
 
----
+Use the sections below for database, Redis and permissions errors. If the error
+began after an update, check whether that update completed and follow the
+[managed update guide](/docs/panel/updating-the-panel); do not reinstall over an
+existing panel to resolve a generic 500.
 
-## CSRF Token Mismatch / Login Loop [#csrf]
+## HTTP 502 or PHP-FPM unavailable [#502-bad-gateway]
 
-If logging in redirects you immediately back to the login page without an error:
+A 502 often means the proxy cannot reach its application upstream. On a native
+Nginx/PHP installation, check PHP-FPM and Nginx configuration:
 
-1. **Check `APP_URL`**: Verify `APP_URL` in `.env` matches the exact URL in your browser, including `https://`.
-2. **Cookie security**: If testing over plain HTTP locally, set:
-   ```ini
-   SESSION_SECURE_COOKIE=false
-   ```
-3. **Clear session cookies and panel cache**:
-   ```bash
-   sudo -u www-data php artisan config:clear
-   sudo -u www-data php artisan cache:clear
-   ```
+```bash
+sudo systemctl status nginx php8.5-fpm --no-pager
+sudo nginx -t
+sudo journalctl -u php8.5-fpm -n 80 --no-pager
+```
 
----
+Use the PHP-FPM version actually configured for the panel. Its Nginx
+`fastcgi_pass` must point to that FPM socket, for example
+`unix:/run/php/php8.5-fpm.sock`. Check that the socket exists and that Nginx can
+access it. Validate a corrected configuration before reloading Nginx.
 
-## Queue Worker Issues [#queue-issues]
+For Docker/Dokploy, check whether the panel container is running and whether the
+proxy targets its correct internal HTTP port. A host PHP-FPM restart will not fix
+an incorrect container upstream. See [web-server configuration](/docs/panel/webserver-configuration).
 
-If server installations, emails, or user account emails are never sent:
+## Login loops, HTTP 419 or redirects to HTTP [#csrf]
 
-1. **Inspect worker logs**:
-   ```bash
-   journalctl -u aquaq.service -f
-   ```
-2. **Restart worker**:
-   ```bash
-   sudo systemctl restart aquaq.service
-   ```
-3. **Check Redis**:
-   ```bash
-   redis-cli ping
-   ```
+**Symptoms:** login returns to the same page, settings saves fail with a CSRF
+error, OAuth returns to the wrong URL, or an HTTPS browser session is redirected
+to HTTP.
 
----
+1. Use one public hostname consistently and check that `APP_URL` matches it,
+   including `https://` and the public port if nonstandard.
+2. For public HTTPS deployments, use `SESSION_SECURE_COOKIE=true`. Plain HTTP
+   local development needs an explicit `false`; do not apply that local setting
+   to a public HTTPS panel.
+3. Behind Nginx, Traefik or Dokploy, configure `TRUSTED_PROXIES` for the actual
+   proxy IPs/CIDRs. The proxy must pass the original protocol, host and port.
+   Trust the proxy you operate rather than arbitrary client-supplied headers.
+4. If set, check `SESSION_DOMAIN` against the public domain. Clear only this
+   panel's browser cookies after correcting cookie/domain settings and sign in
+   again.
 
-## Blueprint Extension Errors [#blueprint-errors]
+After changing a native installation's environment:
 
-If installing a Blueprint extension fails:
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan config:cache &&
+sudo -u www-data php artisan queue:restart
+```
 
-1. Verify that `pnpm@12.15.0` and `node 24` are installed and available in `PATH`.
-2. Clean build cache:
-   ```bash
-   cd /var/www/aquadactyl
-   sudo pnpm store prune
-   sudo -u www-data php artisan view:clear
-   ```
-3. Run the Blueprint repair/rebuild command:
-   ```bash
-   sudo blueprint -build
-   ```
+For Docker/Dokploy, change the deployment environment and recreate/redeploy the
+panel container so its startup configuration is regenerated. Clearing PHP's
+cache alone does not replace an old container environment. Keep the public URL
+separate from the proxy's internal HTTP upstream address.
+
+## Installation or runtime checks fail [#installer]
+
+### The installer checkout is old or already exists
+
+A failed `git clone` leaves the old directory in place. Stop there and use the
+[existing-checkout instructions](/docs/panel/installing-the-panel), rather than
+running whatever script remains in that directory. Installer and panel release
+versions are separate; passing a panel version does not update the installer.
+
+If the source does not match the requested release, distinguish an unfinished
+installation from an initialized panel. Source recovery and `--resume` are for
+the documented unfinished-installation cases. Existing panels use `update` with
+backups. Preserve the existing `.env`, application key, database and uploads.
+
+### PHP, Node or pnpm is unavailable
+
+Compare your checkout's `composer.json` PHP requirement and `package.json`
+`engines`/`packageManager` with the commands that actually run. Current panel
+releases support PHP 8.4/8.5 and require Node at least 24.22.1 and pnpm 12.15.0
+for builds. Check the root shell and web user:
+
+```bash
+php -v
+sudo -u www-data php -v
+composer --version
+node --version
+pnpm --version
+sudo -u www-data node --version
+sudo -u www-data pnpm --version
+```
+
+Installing PHP 8.5 does not establish that `/usr/bin/php`, the queue worker and
+PHP-FPM all use it. Use the intended PHP binary and socket for the panel; consider
+other applications before changing a shared host's global defaults. A runtime
+installed under a private home directory may be inaccessible to `www-data`.
+
+### APT reports 404, NO_PUBKEY or 503
+
+Host setup checks every configured package repository. An unrelated third-party
+repository can block it. Inspect the installer log's first APT error and refresh
+the indexes after correcting the cause:
+
+```bash
+sudo apt-get -o APT::Update::Error-Mode=any update
+```
+
+A 404/missing Release file needs a correct vendor repository URL; a signing-key
+error needs that vendor's current signing configuration. A 503 may be transient
+and can be retried after checking connectivity. Keep package signature checks
+enabled and preserve repository backups on a shared host. See the
+[Installer recovery guidance](https://github.com/Aquadactyl/Installer#readme).
+
+### Database login is denied [#database]
+
+For `SQLSTATE ... [1045] Access denied`, compare the saved database host, port,
+name, username and password privately with the database's account/grants. A
+pre-existing account's password is not reset by `CREATE USER IF NOT EXISTS`.
+In Docker, `127.0.0.1` means the panel container itself, not a separate database
+container; use the database service address configured for your deployment.
+
+This native check reads migration status without applying migrations:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan migrate:status
+```
+
+The Installer has a dedicated `repair-database` flow for supported **unfinished,
+local installations**. Follow its recovery guide; it is not a password-reset
+command for initialized panels. For an established panel, correct the intended
+account/configuration with a database administrator instead of dropping tables
+or replacing the application key.
+
+### Decryption fails after replacing the environment file [#application-key]
+
+Errors such as `The MAC is invalid` or an invalid encrypted payload after an
+environment change can indicate that the original `APP_KEY` was replaced.
+Compare it privately with a protected backup. An initialized panel needs its
+original key to decrypt stored credentials; generating another key will not
+recover them. Preserve the database and backups and escalate if the original key
+cannot be recovered.
+
+## Permission denied or storage/cache is not writable [#permissions]
+
+Check the path named in the exception and the user running PHP/queues. Source
+files should not be writable by arbitrary users; `storage/` and
+`bootstrap/cache/` need the intended application's write permissions.
+
+For a native **Installer-managed** deployment, the reviewed Installer checkout
+provides a permissions repair:
+
+```bash
+sudo bash /opt/aquadactyl-installer/deploy.sh permissions
+```
+
+Confirm its panel path and configured web user match your deployment before
+running it. For Docker, check ownership and write access on the mounted storage
+volumes using the image's user. Do not apply a host-wide recursive ownership
+change or `chmod 777` as a generic fix.
+
+## Schedules, emails or background jobs do not run [#queue-issues]
+
+For a native installation using the bundled worker:
+
+```bash
+sudo systemctl status aquaq.service --no-pager
+sudo journalctl -u aquaq.service -n 80 --no-pager
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan queue:failed
+```
+
+Check the configured Redis connection when the worker cannot connect. Use the
+deployment's Redis service/credentials; a local `redis-cli ping` does not test a
+remote or authenticated Redis endpoint automatically. Once the underlying cause
+is corrected, restart the matching worker. Review failed jobs before retrying
+them: retries can repeat external actions.
+
+Schedules also need the minute cron entry running `php artisan schedule:run`.
+Inspect the panel's cron configuration and system scheduler. This command lists
+scheduled application jobs without executing them:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan schedule:list
+```
+
+Check the panel timezone, the server schedule's enabled state, task settings and
+online-only condition. A working worker cannot execute a node action while Manta
+is unreachable. For emails, inspect the failed-job/log message and the selected
+mail transport's credentials, sender verification and provider rejection before
+retrying delivery.
+
+Docker/Dokploy deployments use their configured worker/scheduler processes,
+which may be in the panel container or separate services. Inspect those processes
+rather than assuming a host `aquaq.service` manages them.
+
+## Blank interface, old assets or Blueprint extension errors [#blueprint-errors]
+
+Start with a full browser reload, then inspect Console/Network errors. A missing
+JavaScript chunk after deployment usually needs the matching asset build and
+manifest served from the panel's `public/` directory. Also check a proxy's asset
+cache. An installed PWA may need reopening after an update.
+
+If the issue began with an extension, record its name/version, the Blueprint job
+error and the panel version. Check its compatibility and documented installation
+steps. [Blueprint adapters](/docs/blueprint/migration) cover supported legacy
+patterns, not every extension. Back up extension state before updating or removing it.
+
+Check the build runtime versions in the section above and use the locked
+dependencies/build steps in the [update guide](/docs/panel/updating-the-panel).
+The build must finish successfully before its generated assets are used. Pruning
+the pnpm store, deleting installed addons or running an unrelated Blueprint
+development command is not a general repair for a failed extension installation.
+
+After correcting a Blade template/cache issue on a native installation, clear
+only compiled views:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan view:clear
+```
+
+Use the image/deployment's update flow for Docker so fixes survive container recreation.
+
+## Upload rejected or a file cannot be previewed [#uploads]
+
+Identify the request that fails in the browser's Network tools. Server file
+uploads normally go directly to Manta; panel branding/account uploads go through
+the panel. The component returning a 413 is the place to investigate first.
+
+Check the applicable reverse-proxy body limit, panel/PHP limit for panel uploads,
+node upload limit for game files, available disk space and server quota. Increasing
+only a panel PHP limit will not change a separate node proxy's limit.
+
+The file editor/image-preview limit is separate from upload size. It defaults to
+32 MiB and is controlled by `AQUADACTYL_FILES_MAX_EDIT_SIZE` in bytes. After an
+intentional change, refresh the native configuration cache or redeploy the
+container. Unsupported or unsuitable formats can still be unavailable for preview;
+use download/SFTP as appropriate. See [node file checks](/docs/manta/troubleshooting#files).
+
+## OAuth, passkeys or two-factor authentication fail [#account-security]
+
+An unconfigured or administrator-disabled sign-in feature can be intentionally
+hidden from the account page. Check its admin settings before treating a missing
+button as an interface defect.
+
+For OAuth, check the enabled provider and copy the callback URL displayed by the
+panel into that provider's configuration. Verify the public panel origin and
+review the corresponding callback error. Restart the sign-in/linking flow if
+provider settings or the account password changed while it was open.
+
+For passkeys, use the correct panel hostname and a supported browser in a secure
+context. A passkey registered for another domain will not become valid simply
+by changing `APP_URL`; use an existing sign-in method to manage enrollment.
+
+For rejected two-factor codes, check device time synchronization and the correct
+authenticator entry, then try a fresh code. Use a saved recovery code if needed.
+An account owner without a working recovery method should contact their panel
+administrator; support should not request passwords, passkeys or recovery codes.
+
+## Maintenance page remains after an update [#maintenance]
+
+An admin-configured maintenance page is controlled in the panel's settings. A
+failed managed installation/update can separately leave Laravel maintenance mode
+active to protect an unfinished deployment.
+
+Inspect the deployment log, resolve the failed step, and use the matching managed
+resume/update or rollback flow. Complete the update before taking the application
+out of maintenance; forcing it online does not complete migrations or asset builds.
+
+## Temporary debug logging and support reports [#diagnostics]
+
+Keep `APP_DEBUG=false` on a public deployment. If normal logs do not contain the
+needed detail, temporarily set `LOG_LEVEL=debug`, apply the native configuration
+cache/worker refresh or Docker redeploy, and reproduce once. Restore the original
+log level and apply the same refresh when finished.
+
+Preview before sharing:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan p:debug --dry-run
+```
+
+If you choose to upload the reviewed log tail to the panel debug service:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo -u www-data php artisan p:debug --expires=3600
+```
+
+That command uploads a redacted excerpt and returns a share URL with a one-hour
+expiration. Review redaction yourself and share the link only with the intended
+recipient. Telemetry is separate and is not required to collect a support report.
+Use the [support template](/docs/common-issues#support) to include versions,
+reproduction steps and checks already performed.

@@ -1,0 +1,84 @@
+---
+title: Common Issues
+description: Find the right Aquadactyl or Manta troubleshooting steps before contacting support.
+---
+
+Start with the symptom you can see, check the matching component, and make one
+change at a time. Most checks in these guides inspect the current state; repairs
+are explained separately.
+
+If you use someone else's panel, start with the browser checks and collect the
+error for your panel administrator. Host commands are for the operator of that
+installation.
+
+## Find your issue [#find-your-issue]
+
+| What you see                                                    | Start here                                                                                                  |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Panel shows a 500 error, 502, or a blank page                   | [Panel errors and logs](/docs/panel/troubleshooting#logs)                                                   |
+| Login loops, 419 errors, or settings redirect to HTTP           | [HTTPS, proxies and cookies](/docs/panel/troubleshooting#csrf)                                              |
+| Installer fails, PHP is too old, or database login is denied    | [Installation and database checks](/docs/panel/troubleshooting#installer)                                   |
+| Schedules, emails or queued jobs do not run                     | [Queues and scheduler](/docs/panel/troubleshooting#queue-issues)                                            |
+| An extension fails, or the interface looks outdated             | [Blueprint and frontend assets](/docs/panel/troubleshooting#blueprint-errors)                               |
+| Passkeys, OAuth or two-factor authentication fail               | [Account access](/docs/panel/troubleshooting#account-security)                                              |
+| Manta stops with the page-number HTTP 422 error                 | [Known pagination startup error](/docs/manta/troubleshooting#pagination)                                    |
+| Clone fails, `manta` is missing, or its service cannot be found | [Checkout and service recovery](/docs/manta/troubleshooting#checkout)                                       |
+| Servers show unavailable, or console and quick actions fail     | [Panel, browser and node connectivity](/docs/manta/troubleshooting#connectivity)                            |
+| Manta cannot connect to Docker, or a port is already in use     | [Docker and listeners](/docs/manta/troubleshooting#docker)                                                  |
+| Files appear missing, SFTP fails, or uploads are rejected       | [Files and SFTP](/docs/manta/troubleshooting#files), [upload limits](/docs/panel/troubleshooting#uploads)   |
+| A game exits with code 137, or a Mac cannot access server files | [Server exits](/docs/manta/troubleshooting#server-exits), [macOS mounts](/docs/manta/troubleshooting#macos) |
+
+## First checks [#first-checks]
+
+1. Record the exact error, action and time, including your timezone. Reproduce
+   once so you can find the matching log entry.
+2. Check the scope: one account, one server, one node, or the whole panel. A
+   working panel page does not establish that the browser can reach a node.
+3. Check the installed versions against [current releases](/docs/panel). Panel,
+   Manta and Installer versions are separate. An installer version argument does
+   not update an older checkout of the installer itself.
+4. Note what changed immediately before the problem: update, extension, domain,
+   proxy, credentials, storage path or service configuration.
+5. Follow the matching guide and retry after a specific correction. Keep a backup
+   before changing configuration or running an update.
+
+<Callout type="warn">
+  Preserve the panel's application key, database, node configuration and server
+  volumes. Deleting them, regenerating an existing application key, making files
+  world-writable, or bypassing certificate checks can cause data loss or expose
+  the installation. They are not general troubleshooting steps.
+</Callout>
+
+## Collect useful evidence [#support]
+
+Use a short excerpt around the failure, rather than an entire log directory.
+Panel log previews and Manta diagnostics are described in the component guides.
+Keep `APP_DEBUG=false` on a public panel, even when temporarily collecting debug
+logs.
+
+Review evidence before sharing it. Remove passwords, application keys, node/API
+tokens, OAuth client secrets, Discord webhook URLs, session cookies and bearer
+credentials. Browser network exports and WebSocket URLs can contain tokens too.
+Automatic redaction still needs a human review. Never attach a complete `.env`
+or node `config.yml` to a public report.
+
+If the relevant checks do not resolve it, use this template for your administrator
+or a report in the [Panel](https://github.com/Aquadactyl/aquadactyl/issues) or
+[Manta](https://github.com/Aquadactyl/manta/issues) repository:
+
+```text
+Component and installed version:
+Deployment: native Linux / Docker / Dokploy / macOS
+Host OS and architecture, if relevant:
+Scope: one user / one server / one node / all users
+Action and exact error or HTTP status:
+Time and timezone:
+Steps to reproduce:
+Expected result and actual result:
+Recent changes:
+Checks performed and their results:
+Relevant, reviewed and redacted log excerpt:
+```
+
+Suspected compromise, exposed credentials, or potential data corruption should
+be escalated privately. Preserve logs and backups before further changes.

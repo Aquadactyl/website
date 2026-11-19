@@ -1,4 +1,4 @@
 {
   "title": "Documentation",
-  "pages": ["panel", "api", "blueprint", "manta"]
+  "pages": ["common-issues", "panel", "api", "blueprint", "manta"]
 }

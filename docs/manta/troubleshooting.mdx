@@ -1,0 +1,246 @@
+---
+title: "Common Issues: Manta"
+description: Diagnose Manta startup errors, unavailable servers, API authentication, TLS, Docker, files and SFTP.
+---
+
+Use the [common issues hub](/docs/common-issues) to identify the affected
+component. These commands are for the **node host**, not the panel host unless
+both run on the same machine. Examples use the standard Linux service; use
+container logs for a container deployment and the [macOS guide](#macos) for a Mac.
+
+## Read the first startup error [#startup]
+
+```bash
+/usr/local/bin/manta version
+sudo systemctl status manta.service --no-pager
+sudo journalctl -u manta.service -n 80 --no-pager
+```
+
+The first failure is usually more useful than the final `Failed` service status.
+For example, a server-list HTTP 422 happens before Docker setup; changing Docker
+permissions will not correct that API request.
+
+Native Linux logs normally use `/var/log/aquadactyl/manta.log`. Existing nodes
+can retain a custom or legacy log directory. In Docker/Dokploy, inspect the
+daemon application's logs; for a Compose service named `manta`:
+
+```bash
+docker compose logs --tail=80 manta
+```
+
+Service names, paths and ports may differ on an existing installation. Do not
+share a full service unit or node configuration without reviewing it for secrets.
+
+## Startup HTTP 422: page must be between 1 and 2147483647 [#pagination]
+
+**Symptoms:** Manta logs `fetching list of servers from API`, then
+`failed to load server configurations` and the page-number HTTP 422 error.
+
+Manta releases through `v1.1-beta.2` request page zero initially. Panels enforcing
+one-based pagination reject that request, including for nodes with no servers.
+The fix is included in **Manta v1.1-beta.3 and later**.
+
+Check `manta version` and follow the
+[existing-checkout upgrade instructions](/docs/manta/installing-manta#existing-or-interrupted-checkout).
+Restart the configured Manta service after installing the fixed binary and check
+its journal again. Changing node credentials, system users or the database does
+not fix this particular error. An official patched binary is available, so a
+local Go rebuild is unnecessary.
+
+## Clone fails, command is missing, or service cannot be found [#checkout]
+
+**Symptoms:** `destination path '/opt/manta' already exists`, `manta: command not
+found`, `deploy/manta.service` is missing, or an installer still reports a
+`wings` executable path.
+
+A failed clone does not update the existing directory. If later commands run
+anyway, they can invoke an older installer. Passing a newer release version to
+that script selects its download; it does not replace the script itself.
+
+Use the [existing-checkout recovery block](/docs/manta/installing-manta#existing-or-interrupted-checkout).
+It fetches the published tag directly, checks it out and stops on errors. Review
+local changes if Git refuses checkout; preserve local configuration and data.
+
+Once the matching checkout and binary are installed, use
+[service setup](/docs/manta/installing-manta#start-the-manta-service) for a new
+node, or [service migration](/docs/manta/installing-manta#migrate-the-service)
+for an existing node. Install the unit before enabling it and keep only one
+daemon service managing that node. Preserve custom service options when migrating.
+
+## Configuration is missing, unreadable or invalid [#configuration]
+
+New Linux installs use `/etc/aquadactyl/config.yml`, with a private directory and
+configuration file. The standard root-run service needs to be able to read it:
+
+```bash
+sudo ls -ld /etc/aquadactyl
+sudo stat /etc/aquadactyl/config.yml
+```
+
+Check the path selected in the startup log and any explicit `--config` in your
+service. An existing legacy configuration is discovered only when the canonical
+file is absent. An invalid canonical file is not silently replaced by a legacy
+one. Correct the selected file's YAML, access permissions or path.
+
+Get the configuration for the **matching node** from the panel's node
+Configuration tab. Keep its token private. Rootless services need ownership that
+allows their configured user to read it; use their deployment instructions rather
+than changing everything to root ownership. See
+[configuration migration](/docs/manta/installing-manta#migrate-config).
+
+## Servers are unavailable, or console and quick actions fail [#connectivity]
+
+A node needs several independent connections:
+
+| Connection       | What to check                                                              |
+| ---------------- | -------------------------------------------------------------------------- |
+| Panel to Manta   | Node hostname, scheme, public API port, TLS, firewall and node credentials |
+| Manta to Panel   | Panel `remote` URL, DNS, TLS, reverse proxy and API authentication         |
+| Browser to Manta | Public node DNS/port, trusted TLS, WebSocket forwarding and browser errors |
+| Manta to Docker  | Docker engine, configured socket and service permissions                   |
+
+An internal hostname that works between containers may not resolve in a user's
+browser. Likewise, `localhost` inside the panel container refers to that
+container, not another container or the user's computer.
+
+1. Use the admin node connectivity test and the Manta startup log.
+2. Open the browser's Console and Network tools for a failing console or power
+   action. Record the failing hostname, status and error; redact tokens and query
+   strings before sharing.
+3. Test the node's **actual public URL** from the panel host and affected client.
+   Replace this example's hostname, scheme and port with your configured endpoint:
+
+   ```bash
+   curl --connect-timeout 5 --max-time 10 --silent --show-error \
+     --output /dev/null --write-out 'HTTP %{http_code}\n' \
+     https://node.example.com:8080/api/system
+   ```
+
+A timeout suggests routing, DNS, firewall or proxy reachability. Connection
+refused suggests that nothing is listening at the destination. An HTTP response
+establishes an HTTP connection; an unauthenticated 401 can be expected on a
+protected daemon API and does not establish successful panel authentication.
+
+For an online server shown as offline, first check the failed status/power
+request and node logs. Reload after correcting the connection. Repeated clicks
+or recreating the server will not repair a failed resource request.
+
+## HTTP 401/403, HTML responses, TLS or WebSocket errors [#authentication]
+
+- **401/403 from the panel during startup:** verify the panel URL and that the
+  credentials belong to the same node. If credentials were rotated, apply the
+  current node configuration while preserving local storage settings. Check
+  whether a proxy or WAF is rejecting the request before it reaches the API.
+- **HTML instead of JSON:** a wrong URL, login gateway, proxy error or browser
+  challenge can return a web page to the daemon. Ensure the configured API path
+  reaches the panel and permits its authenticated machine traffic.
+- **Certificate errors:** check hostname, certificate expiry, complete chain and
+  system clock. Use trusted certificates; the insecure certificate-bypass flag
+  is not a repair.
+- **HTTPS panel with blocked console:** the browser needs a trusted HTTPS node
+  endpoint and secure WebSocket connection. Check proxy WebSocket forwarding and
+  the public daemon port.
+- **CORS errors:** resolve connection/TLS failures first, then compare the exact
+  browser origin with the configured panel URL. Additional allowed origins should
+  be explicit trusted domains.
+
+Keep API authentication and TLS verification enabled while correcting the URL,
+certificate or proxy. See [additional configuration](/docs/manta/additional-configuration).
+
+## Docker connection errors or address already in use [#docker]
+
+On a native Linux node, inspect the configured engine:
+
+```bash
+sudo systemctl status docker --no-pager
+sudo docker info
+sudo ss -ltnp
+```
+
+For container or rootless deployments, check the socket and `DOCKER_HOST` used
+by **Manta's service**, which may differ from your interactive shell. Socket
+access grants control over Docker; correct the intended service permissions
+rather than making it world-writable.
+
+For `address already in use`, identify the process using the configured API or
+SFTP port. The defaults are 8080 and 2022, but use your actual node settings.
+If two daemon units manage the same node, complete the documented service
+migration. If another application owns the port, choose an unused port and update
+the node configuration, panel, firewall and proxy together.
+
+Restarting Manta disconnects console/SFTP sessions briefly. Restarting Docker or
+changing container mounts can affect game servers; plan those operations.
+
+## Files look missing, permissions fail or SFTP will not connect [#files]
+
+Compare the panel node's **server file directory** with `system.data` in the full
+local Manta configuration. New nodes use `/var/lib/aquadactyl/volumes`; existing
+nodes keep their configured paths. Creating a new empty directory does not move
+the old files.
+
+In a container deployment, game-file paths must be visible at the same absolute
+path to Manta and the Docker host. A named volume mounted at a different path in
+each container can point game servers at the wrong location.
+
+If you added `config_version: 1` to an old partial configuration while renaming
+directories, omitted settings may now select fresh-install defaults. Compare
+with your protected backup and restore the correct local path values, preserving
+current credentials. See [existing-data migration](/docs/manta/installing-manta#existing-data-and-docker-deployments)
+before moving files or recreating container mounts.
+
+For permission errors, check the configured game-file UID/GID, mounted directory
+ownership and whether the mount is writable. On SELinux hosts, review the
+documented relabel setting. Avoid recursive ownership changes across unrelated
+volumes.
+
+For SFTP, copy the connection details shown by the server's panel page. Manta
+provides this service; it is separate from host SSH. Check the configured SFTP
+port, account/server suspension and user permissions. After failed attempts,
+allow the authentication cooldown to expire before retrying correct details.
+Verify a changed host key with the node administrator before accepting it.
+
+For upload-size and preview errors, use the [upload checks](/docs/panel/troubleshooting#uploads).
+
+## Game server exits with code 137 [#server-exits]
+
+Exit 137 normally indicates SIGKILL; it does not by itself prove an out-of-memory
+kill. Replace `SERVER_CONTAINER` with the game container's name or ID on the node:
+
+```bash
+sudo docker inspect --format 'OOMKilled={{.State.OOMKilled}} ExitCode={{.State.ExitCode}}' SERVER_CONTAINER
+```
+
+If Docker reports `OOMKilled=true`, check the server's memory limit and game
+memory settings. Otherwise check the host journal, resource pressure and recent
+power actions. Preserve the console excerpt around the exit before changing
+limits or reinstalling the game.
+
+## macOS Docker or mount checks fail [#macos]
+
+Manta runs as your user and Docker runs in a VM. Check that the Docker runtime is
+running, that Manta uses the intended engine/socket, and that its data directory
+is shared **writable** with that runtime. A Docker CLI context alone does not
+change the daemon service's environment.
+
+Use the native `manta_darwin_arm64` or `manta_darwin_amd64` binary for your Mac.
+Linux systemd commands do not manage launchd. The
+[macOS installation guide](/docs/manta/installing-manta-macos) covers launchd,
+socket discovery and file sharing. Resolve a failed mount check before using the
+node for real server data.
+
+## Collect diagnostics for support [#diagnostics]
+
+For a standard root-run Linux node:
+
+```bash
+sudo /usr/local/bin/manta diagnostics
+```
+
+For a rootless node or Mac, run `manta diagnostics` as the configured service
+user instead. You can choose
+whether to include endpoints and logs. Reports stay local when no upload URL is
+selected, but still review them for private information before sharing. A failed
+startup may leave no new log; include the service journal's first error as well.
+
+Use the [support template and redaction checklist](/docs/common-issues#support)
+if the matching checks do not resolve the issue.
