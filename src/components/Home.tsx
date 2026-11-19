@@ -154,7 +154,7 @@ export default function Home() {
               href="/docs/manta/installing-manta"
               className="mt-4 inline-flex items-center gap-2 text-sm text-[#a4e3dc]"
             >
-              Install Manta v1.1-beta.2 <ArrowRight size={16} />
+              Install Manta v1.1-beta.3 <ArrowRight size={16} />
             </Link>
           </div>
         </div>
