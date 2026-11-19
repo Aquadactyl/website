@@ -278,6 +278,35 @@ intentional change, refresh the native configuration cache or redeploy the
 container. Unsupported or unsuitable formats can still be unavailable for preview;
 use download/SFTP as appropriate. See [node file checks](/docs/manta/troubleshooting#files).
 
+## Egg Library says eggs are no longer available [#egg-library]
+
+**Symptoms:** the whole Egg Library fails with `This egg is no longer available
+on eggs.download`, even before selecting an egg, or both browsing and previews
+fail.
+
+Older panel releases use legacy `/api/eggs` URLs that can return HTTP 404 after
+eggs.download's move to a static, versioned API. This does not mean that every
+egg has been removed. Update **Aquadactyl Panel to v1.1-beta.4 or later** using
+the [managed update guide](/docs/panel/updating-the-panel). Updating Manta alone
+does not change the panel's Egg Library requests.
+
+The fixed panel uses the canonical public endpoints from the
+[eggs.download API documentation](https://eggs.download/api-docs):
+
+- Catalog: `https://eggs.download/api/v1/eggs/_index.json`
+- Individual preview/import: `https://eggs.download/api/v1/eggs/<slug>.json`
+
+No API key is required. Source, category and search filters still run locally.
+The update also replaces legacy caches automatically and reports a missing
+catalog separately from a missing individual egg.
+
+If a current panel still cannot reach the library, check outbound HTTPS, DNS,
+certificate trust and proxy/firewall rules **from the panel host or container**.
+Opening the website in your browser does not test that connection. Keep TLS
+verification enabled. If only one preview is missing, return to the library and
+select a currently indexed egg. Include the panel version and exact error when
+reporting a continuing failure.
+
 ## OAuth, passkeys or two-factor authentication fail [#account-security]
 
 An unconfigured or administrator-disabled sign-in feature can be intentionally
