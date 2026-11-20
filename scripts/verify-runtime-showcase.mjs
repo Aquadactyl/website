@@ -132,6 +132,16 @@ try {
   assert.equal(buildGuide.status(), 200);
   assert.ok(await page.getByRole("heading", { level: 1 }).count());
   for (const path of [
+    ...Object.values(report.sources).map(
+      (source) => "/benchmarks/" + source.file,
+    ),
+    ...(report.schemaVersion === 2
+      ? [
+          "/benchmarks/" + report.measuredOn + "-build-logs.txt",
+          "/benchmarks/" + report.measuredOn + "-builds-runner.txt",
+          "/benchmarks/" + report.measuredOn + "-panels-runner.txt",
+        ]
+      : []),
     "/benchmarks/panel-comparison.json",
     "/benchmarks/panel-v2-comparison.json",
     "/benchmarks/panel-v2-comparison-aquadactyl.patch",

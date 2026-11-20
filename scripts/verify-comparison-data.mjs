@@ -7,6 +7,10 @@ const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const hash = (file) =>
   createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const summary = read("public/benchmarks/comparison-summary.json");
+if (summary.schemaVersion === 2) {
+  await import("./verify-current-comparison-data.mjs");
+  process.exit(0);
+}
 const panel = read("public/benchmarks/panel-comparison.json");
 const daemon = read("public/benchmarks/daemon-comparison.json");
 const coverage = read(`public/benchmarks/${daemon.verification.coverage.file}`);

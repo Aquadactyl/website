@@ -9,8 +9,10 @@ RUN --mount=type=cache,target=/tmp/benchmark-composer \
 COPY panel/ ./
 COPY harness/ /harness/
 RUN composer dump-autoload --no-dev --optimize --no-scripts \
-    && mkdir -p bootstrap/cache storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views \
-    && chown -R nginx:nginx storage bootstrap/cache \
+    && sed -i 's/\r$//' /harness/entrypoint.sh \
+    && composer check-platform-reqs --no-dev \
+    && mkdir -p bootstrap/cache storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views var extensions public/assets/extensions \
+    && chown -R nginx:nginx storage bootstrap/cache var extensions public/assets/extensions \
     && cp /harness/nginx.conf /etc/nginx/nginx.conf \
     && cp /harness/php-fpm.conf /usr/local/etc/php-fpm.conf
 EXPOSE 80

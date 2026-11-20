@@ -1,0 +1,50 @@
+// Run in an isolated Linux builder after installing each checkout's locked dependencies.
+// node scripts/benchmark-builds.mjs /path/to/config.json
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import assert from 'node:assert/strict';
+import { execFileSync, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
+
+const config=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+const hash=data=>createHash('sha256').update(data).digest('hex');
+const git=(cwd,...args)=>execFileSync('git',args,{cwd,encoding:'utf8'}).trim();
+const median=values=>{const sorted=[...values].sort((a,b)=>a-b);return sorted.length%2?sorted[(sorted.length-1)/2]:(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;};
+const names=Object.keys(config.panels);
+assert.equal(names.length,3);
+const report={schemaVersion:1,measuredOn:new Date().toISOString().slice(0,10),startedAt:new Date().toISOString(),environment:{node:process.version,os:`${os.platform()} ${os.release()} ${os.arch()}`,cpu:os.cpus()[0].model,logicalCpus:os.cpus().length,cpuMax:fs.readFileSync('/sys/fs/cgroup/cpu.max','utf8').trim(),memoryMax:fs.readFileSync('/sys/fs/cgroup/memory.max','utf8').trim()},methodology:'One discarded production build per panel, then five measured builds each, sequentially in rotating order. Full package-manager production build command, including upstream clean, SDK generation and postbuild checks. Dependencies installed from unmodified lockfiles before timing with install lifecycle scripts disabled. Each sample starts a fresh CLI process; filesystem/dependency caches remain warm. All checkouts reside on the same Linux named volume in one four-CPU, 8 GiB builder. Total assets cover all manifest-emitted JavaScript and CSS routes; they are not dashboard HTTP transfer sizes. Per-file gzip level 6. Dependency installation, PHP image builds and artifact analysis are excluded.',runs:[],panels:{}};
+const logs=[];
+fs.mkdirSync(config.output,{recursive:true});
+for(const name of names){
+ const item=config.panels[name];assert.equal(git(item.root,'rev-parse','HEAD'),item.sha);
+ assert.equal(git(item.root,'diff','--name-only','HEAD'),'');
+ report.panels[name]={label:item.label,release:item.release,repository:item.repository,revision:item.sha,command:[item.executable,...item.args].join(' '),packageManager:execFileSync(item.executable,['--version'],{cwd:item.root,encoding:'utf8'}).trim(),lockSha256:hash(fs.readFileSync(path.join(item.root,item.lock)))};
+}
+for(let round=-1;round<5;round++){
+ const shift=(round+1)%names.length;const order=[...names.slice(shift),...names.slice(0,shift)];
+ for(const name of order){
+  const item=config.panels[name],started=performance.now();let log='';
+  await new Promise((resolve,reject)=>{const child=spawn(item.executable,item.args,{cwd:item.root,env:{...process.env,NODE_ENV:'production',PTERODACTYL_BUILD_HASH:'benchmark',NO_COLOR:'1'}});child.stdout.on('data',data=>{log+=data;});child.stderr.on('data',data=>{log+=data;});child.on('error',reject);child.on('close',code=>code===0?resolve():reject(new Error(`${name} build exited ${code}\n${log}`)));});
+  const elapsedMs=performance.now()-started;
+  logs.push(`=== ${name}; ${round<0?'discarded warm-up':`round ${round+1}`}; ${elapsedMs.toFixed(3)} ms ===\n${log.replaceAll(item.root,'<checkout>')}`);
+  report.runs.push({family:name,warmup:round<0,round:round+1,elapsedMs});
+  fs.writeFileSync(path.join(config.output,'builds-in-progress.json'),JSON.stringify(report,null,2)+'\n');
+  fs.writeFileSync(path.join(config.output,'build-logs-in-progress.txt'),logs.join('\n\n'));
+  console.log(`${name} ${round<0?'warm-up':`round ${round+1}`}: ${(elapsedMs/1000).toFixed(3)} s`);
+ }
+}
+for(const name of names){
+ const item=config.panels[name],directory=path.join(item.root,item.assets),manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'),'utf8'));
+ const emitted=[...new Set(Object.values(manifest).flatMap(entry=>typeof entry==='string'?[entry]:[entry.file??entry.src,...(entry.css??[])]).filter(file=>typeof file==='string').map(file=>file.replace(/^\/assets\//,'')))].filter(file=>/\.(js|css)$/.test(file)).sort();
+ const files=emitted.map(file=>{assert(!path.isAbsolute(file)&&!file.split('/').includes('..'));const bytes=fs.readFileSync(path.join(directory,file));return{file,bytes:bytes.length,gzipBytes:gzipSync(bytes,{level:6}).length,sha256:hash(bytes)};});assert(files.length>0);
+ const samples=report.runs.filter(run=>run.family===name&&!run.warmup).map(run=>run.elapsedMs);
+ Object.assign(report.panels[name],{buildMs:{samples,median:median(samples),min:Math.min(...samples),max:Math.max(...samples)},assets:files,totalBytes:files.reduce((sum,file)=>sum+file.bytes,0),totalGzipBytes:files.reduce((sum,file)=>sum+file.gzipBytes,0)});
+ assert.equal(git(item.root,'diff','--name-only','HEAD'),'','Build changed tracked source; review before publishing');
+}
+report.completedAt=new Date().toISOString();report.harnessSha256=hash(fs.readFileSync(new URL(import.meta.url)));
+fs.mkdirSync(config.output,{recursive:true});
+fs.writeFileSync(path.join(config.output,'builds.json'),JSON.stringify(report,null,2)+'\n');
+fs.writeFileSync(path.join(config.output,'build-logs.txt'),logs.join('\n\n'));
+console.log('All production build samples and manifest assets verified.');

@@ -1,144 +1,110 @@
 ---
 title: Wings vs Manta benchmarks
-description: Fresh local measurements of stock Wings and the current Manta build, including API, file operations and memory use.
+description: Fresh current-release measurements of daemon APIs, file operations, game lifecycle and resource use.
 ---
 
-Measured **2026-11-02**. This is a local comparison of **stock Wings v1.13.4** and the recorded **Manta working-tree build**, with identical daemon CPU/memory limits. The homepage shows three fixed metrics; the tables here include the other measured workloads, including regressions.
+Measured **2026-11-20**: **Manta v1.2-beta** versus **Wings v1.13.5**, compiled from unmodified release tags with Go 1.27.4 and matching build flags. Both use the same runtime image and resource limits. The homepage shows three fixed metrics; all measured workloads, including regressions, appear here.
 
-[Homepage comparison](/#benchmarks) · [Full raw results](/benchmarks/daemon-comparison.json) · [Runner source](/benchmarks/daemon-comparison-runner.txt) · [Manta source patch](/benchmarks/daemon-comparison-manta.patch)
+[Raw results](/benchmarks/2026-11-20-daemons.json) · [Exact setup and runner files](/benchmarks/2026-11-20-setup.json) · [Repository harness](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite)
 
-## Compared builds
+## Sources and environment
 
-| Setting      | Wings                                                                                 | Manta                                                                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Source       | [Official v1.13.4 release](https://github.com/pterodactyl/wings/releases/tag/v1.13.4) | [Base commit 7a2b6c197f0c](https://github.com/Aquadactyl/manta/tree/7a2b6c197f0cc4fc81b427b6b0c30e6ff4a3d832) plus linked local patch |
-| Go compiler  | go1.27.2                                                                              | go1.27.2                                                                                                                              |
-| CPU quota    | 2 cores                                                                               | 2 cores                                                                                                                               |
-| Memory limit | 1024 MiB                                                                              | 1024 MiB                                                                                                                              |
-| GOMAXPROCS   | 2                                                                                     | 2                                                                                                                                     |
+| Setting              | Wings                                                                | Manta                                                                   |
+| -------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Release              | [v1.13.5](https://github.com/pterodactyl/wings/releases/tag/v1.13.5) | [v1.2-beta](https://github.com/Aquadactyl/manta/releases/tag/v1.2-beta) |
+| Exact source         | `3236480d078c09b823b8a8f21dab76c4029608a5`                           | `f67318a2ecd04bade54c797424c20acac94fddb7`                              |
+| Go compiler          | go1.27.4                                                             | go1.27.4                                                                |
+| Daemon CPU quota     | 2 cores                                                              | 2 cores                                                                 |
+| Daemon RAM limit     | 1024 MiB                                                             | 1024 MiB                                                                |
+| GOMAXPROCS           | 2                                                                    | 2                                                                       |
+| Native Panel backend | pterodactyl_v1 v1.15.2                                               | aquadactyl v1.2-beta                                                    |
 
-Both image IDs and daemon binary SHA-256 values are recorded in the raw report. Wings uses the official image with only a BusyBox probe added; its executable is unchanged. Manta was rebuilt from the local checkout before this run. Both executables use the same recorded Go compiler version. Source and dependency differences are part of the tested distributions; this does not isolate any one code optimization.
+Unmodified tagged source, identical Go 1.27.4 compiler/build flags and common Alpine runtime image. Each daemon has a two-core quota, 1 GiB RAM, GOMAXPROCS=2. Games have matching pinned images and configured limits. Private nested Docker engine is limited to 16 cores/12 GiB and publishes no host ports. Manta uses Aquadactyl; stock Wings uses its native Pterodactyl v1 backend (Wings page=0 bootstrap is incompatible with Aquadactyl validation). No production-code compatibility patch is applied. Panel and daemon workloads do not overlap.
 
-The dedicated benchmark nodes each manage one Paper and one Bedrock server with matching game images, binary hashes, resource limits, seed and startup settings. Existing unrelated user servers are excluded from the requests. These are **existing benchmark worlds**: the first start in this rerun is a cached restart, not first world creation. No player bots or authenticated players participated.
+Both executables are rebuilt from released source, rather than comparing a custom Manta binary to an upstream prebuilt Wings image. Binary and Go dependency hashes, runtime image IDs and effective game-container limits are recorded. The native backend pairing avoids changing stock Wings' zero-based bootstrap pagination. HTTP/file timings call the daemon directly; SFTP authentication and bootstrap are not part of transfer timers.
+
+The host is Intel(R) Core(TM) i7-14700KF, 28 logical CPUs and 64 GiB RAM. The private engine is Docker 29.8.1; the load generator has four CPU cores and 1 GiB RAM. Existing unrelated workstation containers remain running.
+
+## Matching game fixtures
+
+Each daemon manages one **Paper 26.3 build 257** server and one **Bedrock 1.26.66.1** server. The same downloaded bytes and image digests are used on both sides. Paper has 1536 MiB configured memory and Bedrock 512 MiB; both have a 200% CPU limit. Effective cgroup memory includes the daemons' normal overhead allowance and is checked for parity. Both use the same seed and properties apart from assigned ports. No authenticated players or bots participated.
+
+Four start/stop rounds per game and daemon in alternating order. Worlds were initialized before this final run; the first cached start is a discarded warm-up, not cold world generation. Timers cover power request through daemon-reported state, with 100 ms polling; shutdown is not a separately timed OS process exit. Identical cached binaries/image layers, seed and properties; normal configuration sync and registry digest checks remain in the timed power path. Bedrock explicitly uses transport=raknet for the UDP query workload.
 
 ## API throughput and latency
 
-Three repetitions alternate daemon order. Each endpoint/concurrency combination sends 400 authenticated HTTP requests using persistent connections at concurrency 1, 16 or 32. The client runs inside Docker on the shared local network, with a 4-core quota and 1 GiB memory limit. These short closed-loop batches report observed throughput, not sustained production capacity. Panel and daemon benchmark workloads ran separately.
+Three alternating repetitions per daemon, endpoint and concurrency (1/16/32). Five-second closed-loop authenticated HTTP/1.1 windows with persistent connections; one discarded request before each window. No new requests after the deadline; in-flight requests are drained. Throughput is successful requests per actual elapsed second. Body receipt is included, percentile sorting and publication are excluded. Timed responses must be HTTP 200. This replaces the old 400-request batches; do not claim a controlled before/after comparison across methods.
 
-Throughput is the median of three batch rates. The p50/p95 columns are medians of three per-batch percentiles, not pooled percentiles. Lower latency and higher throughput are preferable. 14,400 timed API requests completed with **0 errors**.
+Throughput is the median of three per-window rates. The p50/p95 columns are medians of the per-window percentiles, not pooled percentiles. The measured runner uses the lower middle order statistic for p50 and floor((n−1)×0.95) for p95. All 4,784,786 measured API requests completed with **zero errors**. The directory size and running server state are checked outside each timed window.
 
-| Measurement                                  |           Wings |           Manta |
-| -------------------------------------------- | --------------: | --------------: |
-| Server status, concurrency 1: throughput     |  3944.671 req/s |  4181.215 req/s |
-| Server status, concurrency 1: p50            |        0.248 ms |        0.221 ms |
-| Server status, concurrency 1: p95            |        0.373 ms |        0.364 ms |
-| Server status, concurrency 16: throughput    | 36606.474 req/s | 55484.735 req/s |
-| Server status, concurrency 16: p50           |        0.296 ms |        0.224 ms |
-| Server status, concurrency 16: p95           |        1.189 ms |        0.631 ms |
-| Server status, concurrency 32: throughput    | 24572.006 req/s | 51150.673 req/s |
-| Server status, concurrency 32: p50           |        0.953 ms |        0.410 ms |
-| Server status, concurrency 32: p95           |        3.392 ms |        1.940 ms |
-| List 1,000 files, concurrency 1: throughput  |    87.621 req/s |   131.378 req/s |
-| List 1,000 files, concurrency 1: p50         |       11.108 ms |        7.495 ms |
-| List 1,000 files, concurrency 1: p95         |       14.928 ms |        8.990 ms |
-| List 1,000 files, concurrency 16: throughput |   159.517 req/s |   247.934 req/s |
-| List 1,000 files, concurrency 16: p50        |       88.626 ms |       54.156 ms |
-| List 1,000 files, concurrency 16: p95        |      225.474 ms |      142.347 ms |
-| List 1,000 files, concurrency 32: throughput |   161.087 req/s |   237.940 req/s |
-| List 1,000 files, concurrency 32: p50        |      166.199 ms |      112.733 ms |
-| List 1,000 files, concurrency 32: p95        |      435.479 ms |      299.418 ms |
+| Endpoint / concurrency | Wings req/s | Manta req/s | Wings p50 ms | Manta p50 ms | Wings p95 ms | Manta p95 ms |
+| ---------------------- | ----------- | ----------- | ------------ | ------------ | ------------ | ------------ |
+| Server status / 1      | 7231.727    | 7736.987    | 0.133        | 0.125        | 0.186        | 0.171        |
+| Server status / 16     | 66951.299   | 84766.034   | 0.178        | 0.143        | 0.705        | 0.525        |
+| Server status / 32     | 66685.982   | 84081.343   | 0.356        | 0.286        | 1.439        | 1.116        |
+| List 1000 files / 1    | 138.775     | 109.828     | 7.181        | 9.034        | 7.974        | 9.875        |
+| List 1000 files / 16   | 232.149     | 198.332     | 62.463       | 67.780       | 141.932      | 182.651      |
+| List 1000 files / 32   | 236.710     | 198.723     | 115.853      | 133.692      | 308.662      | 361.523      |
 
 ## Startup and shutdown
 
-Three measured warm start/stop repetitions per game and daemon, after the first start of the run is discarded. Timers run from the power API request until the daemon reports running/offline, polled every 100 ms. Shutdown is the reported state transition, not a separately measured OS process exit.
+Three measured warm repetitions after excluding the first start. Values are medians in milliseconds; 100 ms polling limits precision.
 
-| Measurement               |        Wings |        Manta |
-| ------------------------- | -----------: | -----------: |
-| paper: warm startup       | 10204.214 ms | 10304.685 ms |
-| paper: reported offline   |   910.193 ms |   909.921 ms |
-| bedrock: warm startup     |  2326.084 ms |  2324.101 ms |
-| bedrock: reported offline |  1212.374 ms |  1212.801 ms |
+| Measurement               | Wings ms | Manta ms |
+| ------------------------- | -------- | -------- |
+| paper: warm startup       | 6448.970 | 6548.812 |
+| paper: reported offline   | 806.876  | 705.975  |
+| bedrock: warm startup     | 1108.110 | 1108.103 |
+| bedrock: reported offline | 907.186  | 806.530  |
 
 ## File and event operations
 
-Three repetitions; transfers use five samples per repetition and a shared random 16 MiB payload. Read-back integrity checks happen outside transfer timers. SFTP authentication is outside the transfer timer and uses the same local Panel for both daemons. Archive round trips verify restored content. Rows show the median of per-run measurements.
+16 MiB shared random payload, three repetitions with five samples each for HTTP and SFTP read/write. SFTP authentication is outside transfer timers and uses each daemon's native Panel backend. Hash-verified reads and archives; 1000 x 256-byte directory fixture; 100 console lines delivered to 16 subscribers; automatic stats validated for 16 viewers per game/daemon.
 
-| Measurement                             |      Wings |      Manta |
-| --------------------------------------- | ---------: | ---------: |
-| HTTP write 16 MiB                       |  13.866 ms |  14.701 ms |
-| HTTP read 16 MiB                        |  31.860 ms |  12.829 ms |
-| SFTP write 16 MiB                       | 132.671 ms | 125.507 ms |
-| SFTP read 16 MiB                        |  69.503 ms |  67.216 ms |
-| Chmod 1,000 files                       |   6.071 ms |   5.317 ms |
-| Rename 1,000 files                      |  19.097 ms |  17.986 ms |
-| Compress 16 MiB + 1,000 files           |  21.262 ms |  17.748 ms |
-| Extract archive                         |  78.302 ms |  68.494 ms |
-| Deliver 100 log lines to 16 subscribers |  11.364 ms |   9.229 ms |
+Values are medians of per-run measurements (milliseconds). Integrity checks occur outside transfer timers.
 
-## Memory use
+| Measurement                             | Wings ms | Manta ms |
+| --------------------------------------- | -------- | -------- |
+| http write 16m                          | 15.920   | 10.347   |
+| http read 16m                           | 20.671   | 10.015   |
+| sftp write 16m                          | 70.912   | 76.219   |
+| sftp read 16m                           | 38.839   | 39.666   |
+| chmod 1000                              | 4.476    | 3.149    |
+| rename 1000                             | 13.167   | 11.829   |
+| Compress 16 MiB + 1000 files            | 14.038   | 17.899   |
+| Extract archive                         | 45.114   | 43.069   |
+| Deliver 100 log lines to 16 subscribers | 3.625    | 2.965    |
 
-One approximately 30-second idle window and one approximately 30-second command-load window, with 15 Docker working-set samples per container per window. Values are arithmetic means of those samples, **not medians or process RSS**. Working set is container usage minus inactive file cache; the raw result retains sampled peaks and CPU observations. Daemon memory excludes its game containers, Panel, database, Redis and host overhead. No forced garbage collection occurs between workloads.
+All 64 automatic-stat viewer checks passed: 16 viewers for each of four game servers, with three unsolicited samples each and advancing uptime. This checks the observed stream, not unlimited concurrency or production reliability.
 
-The command workload alternates a 4,096-block area between stone and air at five commands per second per game, using matching forced/ticking areas. Java/Bedrock status queries occur while the workload remains active; these are not player latency measurements.
+## Memory and command load
 
-| Measurement                          |       Wings |       Manta |
-| ------------------------------------ | ----------: | ----------: |
-| daemon: idle working memory          |  53.589 MiB |  50.584 MiB |
-| paper: idle working memory           | 732.674 MiB | 725.099 MiB |
-| bedrock: idle working memory         | 185.993 MiB | 185.937 MiB |
-| daemon: command_load working memory  |  49.111 MiB |  41.820 MiB |
-| paper: command_load working memory   | 748.614 MiB | 743.116 MiB |
-| bedrock: command_load working memory | 252.805 MiB | 254.043 MiB |
+Fifteen Docker working-set samples at two-second intervals for each of six containers, once idle and once under matching game command load. Mean is arithmetic mean; raw sample values and observed peaks are retained. Working set subtracts inactive file cache, not RSS. Commands alternate 4096 blocks between stone and air, five iterations/second per node across both games, with matching forced/ticking areas. This is not real-player load.
 
-## Isolated Manta measurements
+Daemon memory excludes game containers, Panel, database, Redis and host overhead. No forced daemon GC occurs between workloads. The command workload is synthetic and deliberately small; these figures are not a player-capacity benchmark.
 
-A separate run repeated 31 isolated cases five times each with a 500 ms target per sample, using Go 1.26.9 Linux amd64, a 4-core quota, 2 GiB memory and `GOMAXPROCS=4`. It covers Docker stats decoding, console inspection, UUID lookup, resource-event handling, directory encoding, file streaming, API routing, WebSocket encoding, request bodies and ready event sinks. [Every timing/allocation sample](/benchmarks/daemon-microbenchmarks.txt) is retained. These are current Manta measurements; they do not supply a new isolated Wings baseline or establish game TPS/player capacity. They ran separately from the live comparison and test suite.
+| Mean working set (MiB) | Wings   | Manta   |
+| ---------------------- | ------- | ------- |
+| idle: daemon           | 56.622  | 47.906  |
+| idle: paper            | 743.816 | 737.588 |
+| idle: bedrock          | 189.590 | 189.465 |
+| command load: daemon   | 44.911  | 43.212  |
+| command load: paper    | 768.722 | 762.057 |
+| command load: bedrock  | 256.660 | 256.644 |
 
-## Resource-event delivery
+| Local game query p50 (ms) | Wings | Manta |
+| ------------------------- | ----- | ----- |
+| idle: paper               | 1.065 | 0.914 |
+| idle: bedrock             | 0.387 | 0.285 |
+| command load: paper       | 0.817 | 0.781 |
+| command load: bedrock     | 0.306 | 0.263 |
 
-The automatic stats check connected 16 authenticated WebSocket viewers to each of the four benchmark games. All 64 viewers received three unsolicited stats samples each (192 samples total), with the expected API fields, valid counters and advancing uptime. This checks the periodic event path rather than requested `send stats` replies; it is a correctness check, not a player-capacity measurement. Per-viewer observations are retained in the raw report.
+Each game-query row contains 50 sequential local Java status or Bedrock UDP queries. These are server-query round trips, not gameplay latency. CPU core-seconds, sample arrays, observed peaks and Paper tick output are retained in the raw report.
 
-## Tests and coverage
+## Reproduction and limitations
 
-The Manta verification run passed **823 Go cases/subtests in 28 packages** with the race detector; 0 failures and 0 skips. Go vet passed. Tests used go version go1.26.9 linux/amd64 against an isolated Docker engine; the production compiler is recorded above.
+The website repository contains the exact guarded [setup, provisioning and workload sources](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite). Follow its README with clean tagged checkouts and fresh disposable databases. Game binaries are downloaded from their publishers and are not redistributed with the report. Private account passwords, node tokens and configuration files are excluded from public artifacts.
 
-Statement coverage is **91.70% (7,565 of 8,250 statements)** across all Go packages, including the CLI and benchmark runner. **The 100% statement-coverage target is not met: 685 statements remain uncovered.** No source files were excluded to raise the percentage. Passing the full suite is separate from reaching full statement coverage.
+Single shared Windows/WSL2 workstation with unrelated existing containers, no CPU pinning or repeated clean-machine trials. Linux container networking; no TLS/WAN/mobile/endurance test or authenticated players. Daemon and game memory are separate; this is a controlled local distribution comparison, not general hosting capacity. No new security audit, race test or full coverage run is claimed by this performance rerun.
 
-[Coverage counts and uncovered blocks](/benchmarks/daemon-coverage.json) · [Unfiltered Go coverage profile, gzip](/benchmarks/daemon-coverage.out.gz). The profile was collected with `go test -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out ./...`; the report records exact counts and hashes. Manta's `benchmarks/coverage_report.py` checks the exact 100% threshold and exits nonzero while any statements remain uncovered.
-
-## Compatibility checks
-
-These checks report the harness's expected behavior and are separate from performance. A different result is not an overall security assessment. Exact statuses/events are in the raw report.
-
-| Check                              | Wings                               | Manta |
-| ---------------------------------- | ----------------------------------- | ----- |
-| unauthenticated_api                | Pass                                | Pass  |
-| oversized_json_known               | Different behavior (see raw result) | Pass  |
-| oversized_json_chunked             | Different behavior (see raw result) | Pass  |
-| multiple_json_documents            | Different behavior (see raw result) | Pass  |
-| valid_websocket_token              | Pass                                | Pass  |
-| future_issued_token                | Different behavior (see raw result) | Pass  |
-| future_not_before_token            | Different behavior (see raw result) | Pass  |
-| expired_token                      | Pass                                | Pass  |
-| missing_expiry_token               | Pass                                | Pass  |
-| raw_stream_above_json_limit        | Pass                                | Pass  |
-| one_time_file_token                | Pass                                | Pass  |
-| invalid_upload_token_log_redaction | Different behavior (see raw result) | Pass  |
-| ssrf_loopback_blocked              | Pass                                | Pass  |
-| sftp_symlink_containment           | Pass                                | Pass  |
-| full_uuid_sftp                     | Different behavior (see raw result) | Pass  |
-| modern_identifier_sftp             | Different behavior (see raw result) | Pass  |
-
-## Reproduce and limits
-
-Host: Intel(R) Core(TM) i7-14700KF; 64 GiB RAM; win32 10.0.26300 x64. Shared Windows/WSL2 Docker workstation, existing unrelated containers running, no CPU pinning, WAN/TLS emulation, real players or endurance load. Results depend on configuration, workload and the short observation windows. They cannot establish a universal speed-up or an overall performance score.
-
-Use the exact source/image/binary hashes in the raw report. The linked Manta patch and measured runner source record the local changes. The existing dedicated stack and cached game installations were provisioned with the Manta repository's benchmarks/provision.php; its README documents the local node setup and manifest guards. It is not a fresh-machine deployment recipe. The full run starts/stops only those four benchmark servers and writes fixtures under their bench directories.
-
-From the Manta checkout, with the dedicated stack prepared and matching CPU/memory overrides applied:
-
-```powershell
-.\benchmarks\Run-Benchmark.ps1 -Phases lifecycle,performance,resources,security -OutputDirectory C:\path\to\fresh-results
-```
-
-Keep the private manifest out of published artifacts. The runner creates a temporary credential file and removes it after the run. Publish only the credential-free JSON outputs, source hashes and runner snapshot. From the website checkout, rebuild the homepage data after both comparisons finish with node scripts/write-comparison-showcase.mjs.
+[November 2 results](/benchmarks/daemon-comparison.json), [its historical Manta source patch](/benchmarks/daemon-comparison-manta.patch), [coverage report](/benchmarks/daemon-coverage.json) and [microbenchmarks](/benchmarks/daemon-microbenchmarks.txt) remain available. Those security/coverage/microbenchmark runs were **not repeated** as part of this current-release performance comparison. Older 400-request API batches and existing worlds differ from this rerun; do not present differences across dates as a controlled optimization experiment.
