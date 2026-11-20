@@ -118,12 +118,12 @@ backups. Preserve the existing `.env`, application key, database and uploads.
 reports `Invalid installed extension identifier.` before replacing panel files.
 
 Installer v1.2-beta misreads Blueprint's native `|identifier,` records. Fetch the
-fixed **Installer v1.3-beta**, then retry the **Panel v1.2-beta** update:
+fixed **Installer v1.4-beta**, then retry the **Panel v1.2-beta** update:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.3-beta
-git checkout --detach v1.3-beta
+git fetch origin tag v1.4-beta
+git checkout --detach v1.4-beta
 sudo bash deploy.sh update v1.2-beta
 ```
 
@@ -137,6 +137,39 @@ existing extension build directory. Missing packages remain a preflight error.
 For addons that copy backend files or patch routes, review the
 [lifecycle-script option](/docs/panel/updating-the-panel#core-addon-scripts)
 before starting the update.
+
+### Blueprint reapplication rejects external paths [#blueprint-import-path]
+
+**Symptoms:** `reapply extension ...` exits with code 2 and Blueprint reports
+`Cannot import extensions from external paths.` The updater leaves maintenance
+enabled and prints its pre-update snapshot directory.
+
+Installer v1.3-beta and earlier pass an absolute package path to Blueprint.
+Installer v1.4-beta stages each original package in the panel root and passes a
+basename, which also supports packages stored in an extension build directory.
+It preserves originals and removes temporary packages on success or failure.
+
+Keep maintenance enabled and retain the original snapshot. Select the fixed
+installer and rerun the same panel target:
+
+```bash
+cd /opt/aquadactyl-installer
+git fetch origin tag v1.4-beta
+git checkout --detach v1.4-beta
+sudo bash deploy.sh update v1.2-beta
+```
+
+This failure occurs after panel replacement and migrations. The retry takes an
+additional backup of that state; keep the earlier pre-update backup too. Let
+the updater complete addon reapplication, the production build and caches.
+Do not manually run `artisan up` to bypass the failure. Review the
+[core-modifying script option](/docs/panel/updating-the-panel#core-addon-scripts)
+if an addon needs to copy backend files or patch routes.
+
+After success, check login, addon pages and previously running queue services.
+An earlier failed update may have stopped `aquaq.service`; start it again if
+that was your configured worker. Keep unrelated or intentionally stopped
+services unchanged.
 
 ### PHP, Node or pnpm is unavailable
 
