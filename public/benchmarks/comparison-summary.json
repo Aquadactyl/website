@@ -1,42 +1,46 @@
 {
-  "schemaVersion": 1,
-  "measuredOn": "2026-10-16 / 2026-10-18 / 2026-11-02",
+  "schemaVersion": 2,
+  "measuredOn": "2026-11-20",
   "sources": {
     "panel": {
-      "file": "panel-comparison.json",
-      "sha256": "d547e7798abb6a8ebc0b9f52cae8e7f898ed3b6b804fb3bd4ce8c0b9aea8c25d"
-    },
-    "daemon": {
-      "file": "daemon-comparison.json",
-      "sha256": "1aa2230180bfad67ea5d9ddc9bd111f67ccc992d841cb3dc08e55cceaf790628"
-    },
-    "build": {
-      "file": "panels.json",
-      "sha256": "637ee19aac2897c84190d6baf1fde16324bb095d16c6d313bc0c38d9232d9923"
+      "file": "2026-11-20-panels.json",
+      "sha256": "d1a1eadfe220eeeefff325817c048aeb2546cdd4f82984e9e2ea430c8611387a"
     },
     "panel-v2": {
-      "file": "panel-v2-comparison.json",
-      "sha256": "7f205e6a6160ed94339d576269613677016eeef379c0fe5eddf83d0ccde47340"
+      "file": "2026-11-20-panels.json",
+      "sha256": "d1a1eadfe220eeeefff325817c048aeb2546cdd4f82984e9e2ea430c8611387a"
+    },
+    "daemon": {
+      "file": "2026-11-20-daemons.json",
+      "sha256": "4bcfb2ba6f84fffc5349b6faefd683709f5990ff03190005d2f04de8cf4ac9f5"
+    },
+    "build": {
+      "file": "2026-11-20-builds.json",
+      "sha256": "a36ed78f0116db8adbcf30f391310a6b854a01f7117ac52acb8908d9e71c4e09"
+    },
+    "setup": {
+      "file": "2026-11-20-setup.json",
+      "sha256": "e6e7222a7ca0377c2317aeee2f688ce0a4ca31a7038ab93dbfa48fdb78fa003f"
     }
   },
   "comparisons": {
     "panel": {
       "label": "Panel v1",
-      "measuredOn": "2026-10-16",
-      "baseline": "Pterodactyl",
-      "candidate": "Aquadactyl",
+      "measuredOn": "2026-11-20",
+      "baseline": "Panel v1.15.2",
+      "candidate": "Aquadactyl 1.2 beta",
       "href": "/docs/panel/panel-comparison",
-      "description": "50-server dashboard · 2 CPU cores per panel.",
+      "description": "50 server records · PHP 8.4 · 2 CPU cores per panel.",
       "metrics": [
         {
           "id": "browser",
           "label": "Browser load",
-          "context": "Cold-cache dashboard ready · median",
+          "context": "First visible server row · cold browser cache · median",
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 325.5999999999767,
-          "candidate": 198.30000000004657
+          "baseline": 263,
+          "candidate": 218.65000000596046
         },
         {
           "id": "api",
@@ -45,8 +49,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 18.05837416679014,
-          "candidate": 77.26760111828573
+          "baseline": 23.57388491791008,
+          "candidate": 92.1947336967936
         },
         {
           "id": "memory",
@@ -55,28 +59,28 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 148.072265625,
-          "candidate": 155.541015625
+          "baseline": 145.919921875,
+          "candidate": 126.685546875
         }
       ]
     },
     "panel-v2": {
       "label": "Panel v2 (beta)",
-      "measuredOn": "2026-10-18",
-      "baseline": "Pterodactyl v2 beta 2",
-      "candidate": "Aquadactyl",
+      "measuredOn": "2026-11-20",
+      "baseline": "Panel v2 beta 3",
+      "candidate": "Aquadactyl 1.2 beta",
       "href": "/docs/panel/panel-v2-comparison",
-      "description": "50-server dashboard · 2 CPU cores per panel.",
+      "description": "50 server records · PHP 8.4 · 2 CPU cores per panel.",
       "metrics": [
         {
           "id": "browser",
           "label": "Browser load",
-          "context": "Cold-cache dashboard ready · median",
+          "context": "First visible server row · cold browser cache · median",
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 506.40000000596046,
-          "candidate": 213.40000000596046
+          "baseline": 485.55000001192093,
+          "candidate": 218.65000000596046
         },
         {
           "id": "api",
@@ -85,8 +89,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 60.030914647957516,
-          "candidate": 66.56023303100295
+          "baseline": 84.86547233247296,
+          "candidate": 92.1947336967936
         },
         {
           "id": "memory",
@@ -95,28 +99,28 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 125.615234375,
-          "candidate": 124.740234375
+          "baseline": 123.681640625,
+          "candidate": 126.685546875
         }
       ]
     },
     "daemon": {
       "label": "Wings vs Manta",
-      "measuredOn": "2026-11-02",
-      "baseline": "Wings",
-      "candidate": "Manta",
+      "measuredOn": "2026-11-20",
+      "baseline": "Wings 1.13.5",
+      "candidate": "Manta 1.2 beta",
       "href": "/docs/manta/benchmarks",
       "description": "Paper + Bedrock · 2 CPU cores per daemon.",
       "metrics": [
         {
           "id": "api",
           "label": "API throughput",
-          "context": "Server status · 16 concurrent requests",
+          "context": "Server status · 16 concurrent requests · 5 s windows",
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 36606.47372675592,
-          "candidate": 55484.73545571694
+          "baseline": 66951.2986900272,
+          "candidate": 84766.03383181209
         },
         {
           "id": "files",
@@ -125,8 +129,8 @@
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 88.626,
-          "candidate": 54.156
+          "baseline": 62.463,
+          "candidate": 67.78
         },
         {
           "id": "memory",
@@ -135,8 +139,8 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 49.11145833333333,
-          "candidate": 41.81953125
+          "baseline": 44.911197916666666,
+          "candidate": 43.21171875
         }
       ]
     }

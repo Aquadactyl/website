@@ -118,149 +118,63 @@ New installation examples use /var/www/aquadactyl and
 credentials and service names. Preserve those compatibility notes when editing
 the guides. Keep original upstream credits and license notices.
 
-## Verify changes
+## Benchmarks and verification
 
-The homepage feature cards and comparison table share `src/lib/panel-features.ts`.
-Its source revisions identify the reviewed stock panels. The homepage has one
-compact benchmark section with **Panel vs Pterodactyl** and **Wings vs Manta**
-comparison buttons, each showing three fixed measurements. It imports only
-`public/benchmarks/comparison-summary.json`. Full results and methodology live in
-`docs/panel/panel-comparison.mdx` and `docs/manta/benchmarks.mdx`.
+The homepage reads only the compact `public/benchmarks/comparison-summary.json`.
+The November 20, 2026 refresh compares Aquadactyl/Manta v1.2-beta, Wings v1.13.5,
+Pterodactyl Panel v1.15.2 and Panel v2.0.0-beta.3. Full dated reports, exact
+measured runners and setup provenance live under `public/benchmarks/`.
+Older reports remain historical; never mix their timings or source revisions
+with a current run. The panel v1/v2 pages select from the same three-panel run.
 
-The current panel runtime results were measured on 16 October 2026. The
-homepage selects the candidate and Pterodactyl from the recorded three-way
-experiment; its full record, source provenance and earlier reports remain in
-`public/benchmarks/`. The production build comparison is a separate five-build
-measurement of committed panel source. Dates are shown per comparison.
+Use clean release checkouts and unmodified lockfiles. The build runner accepts
+a JSON configuration listing three source roots, exact SHAs, releases,
+package-manager executables/arguments, lockfile names, asset directories and an
+output directory. Install dependencies before timing, then run it in a common
+four-core, 8 GiB Linux container. It records a discarded warm-up and five full
+CLI builds per product, all-route JS/CSS hashes, logs and its exact source.
+Copy the measured production assets back to each isolated checkout.
 
-To publish an already completed three-way run, without rerunning or mixing its
-measurements, commit its panel source and run:
+`scripts/prepare-panel-suite.mjs` prepares three disposable PHP 8.4 stacks
+with matching limits. Read its arguments and use a unique `BENCHMARK_PROJECT`.
 
 ```bash
-node scripts/publish-panel-benchmark.mjs /path/to/recorded-run /path/to/aquadactyl
-node scripts/write-runtime-benchmark-guide.mjs panel-comparison
-node scripts/write-comparison-showcase.mjs
-node scripts/verify-runtime-benchmark.mjs panel-comparison
+node scripts/benchmark-builds.mjs /private/build-config.json
+docker build -f scripts/runtime-benchmark/Dockerfile.runtime -t aquadactyl-current-bench-runtime:php84 scripts/runtime-benchmark
+node scripts/prepare-panel-suite.mjs /sources/aquadactyl /sources/pterodactyl-v1 /sources/pterodactyl-v2
+docker compose -f PANEL_WORK/compose.json up -d --build --wait --wait-timeout 300
+node scripts/benchmark-panel-suite.mjs PANEL_WORK RESULTS/panels.json
+```
+
+Run the separate [daemon suite](scripts/daemon-suite/README.md) only after the
+panel measurements finish. Its private nested engine uses four dedicated game
+fixtures and no published host ports. Keep account passwords, node tokens,
+Compose files and generated private state outside this repository.
+
+After both suites complete, collect final source/provenance and publish:
+
+```bash
+node scripts/collect-benchmark-setup.mjs PANEL_WORK DAEMON_WORK RESULTS
+node scripts/publish-benchmark-refresh.mjs RESULTS
 node scripts/verify-comparison-data.mjs
-```
-
-The importer verifies recorded runtime/font hashes against the committed source,
-preserves the original report byte for byte, and archives the previous homepage
-comparison. Never publish the private Compose file or benchmark credentials.
-
-Refresh both comparisons sequentially, with no other benchmark jobs running.
-Build both panel frontends from their locked dependencies first. The runtime
-preparation script accepts `--include-working-tree` to record local changes,
-their hashes and an exact Git patch without changing the checkout's Git index.
-
-```bash
-node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl /path/to/pterodactyl --include-working-tree
-docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
-node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/panel-comparison.json
-# Copy WORKDIR/aquadactyl-source.patch to public/benchmarks/panel-comparison-aquadactyl.patch.
-node scripts/write-runtime-benchmark-guide.mjs panel-comparison
-node scripts/verify-runtime-benchmark.mjs panel-comparison
-docker compose -f WORKDIR/compose.json down --volumes
-```
-
-Use the guarded Manta repository runner on its dedicated local benchmark nodes
-to collect lifecycle, performance, resources and security phases into a fresh
-output directory. It starts/stops only the four provisioned benchmark games.
-Rebuild Manta before the run and use the recorded stock Wings release/image.
-See the daemon methodology for topology, quotas and limitations. Then package
-only the credential-free results and regenerate the small homepage dataset:
-
-```bash
-node scripts/publish-daemon-benchmark.mjs /path/to/manta /path/to/fresh-results
-node scripts/write-comparison-showcase.mjs
-node scripts/verify-comparison-data.mjs
-node scripts/verify-runtime-showcase.mjs http://localhost:3000
-```
-
-The older runtime and before/after optimization guides remain historical
-documentation. Earlier frontend and homepage runtime data live under
-`public/benchmarks/archive/`; their original revisions and dates are retained.
-The current frontend report covers build duration and emitted dashboard JS/CSS,
-including separately emitted CSS for asset accounting.
-
-With locked dependencies installed in clean panel checkouts, refresh the results:
-
-```bash
-node scripts/benchmark-panels.mjs /path/to/aquadactyl /path/to/pterodactyl
 node scripts/verify-panel-showcase.mjs
-```
-
-The runner uses one warm-up and five measured production builds per panel in
-alternating order. It writes the raw report, build log and benchmark guide.
-For documentation-only updates to an existing report, run
-`node scripts/write-benchmark-guide.mjs`. The report's original measurement date
-stays attached to its results.
-
-Runtime measurements use separate disposable Docker stacks with matching data
-and resource limits. They cover real Chromium dashboard loads, two authenticated
-API endpoints at three concurrency levels, and idle/loaded container working set.
-The existing local panel and Wings/Manta stacks are not used by these tests.
-Do not run other benchmarks concurrently. See the [runtime methodology](docs/panel/runtime-benchmarks.mdx)
-for the measured configuration, limitations and full reproduction commands.
-
-```bash
-pnpm exec playwright install chromium
-node scripts/prepare-runtime-benchmark.mjs /path/to/aquadactyl /path/to/pterodactyl
-# Use the temporary directory printed above as WORKDIR.
-docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
-node scripts/benchmark-runtime.mjs WORKDIR
-node scripts/write-runtime-benchmark-guide.mjs
-node scripts/verify-runtime-benchmark.mjs
-docker compose -f WORKDIR/compose.json down --volumes
-```
-
-Build `aquadactyl:test` from the pinned Aquadactyl checkout first; the harness uses
-it as a common PHP/OS base for both panels. It serves each checkout's own source,
-locked Composer dependencies and prebuilt frontend assets from `/bench`.
-`public/benchmarks/runtime.json` contains all samples; `runtime-summary.json`
-contains only the chart aggregates so raw latency arrays are not bundled into
-the homepage.
-
-With the website running, check both comparison buttons, displayed values,
-methodology links, keyboard interaction and compact desktop/mobile layouts with:
-
-```bash
-node scripts/verify-runtime-showcase.mjs http://localhost:3000
-```
-
-The Aquadactyl optimization experiment uses two checkouts at the same base
-commit. Its candidate overlays a recorded patch; it writes a separate result
-file so the pinned Pterodactyl comparison stays reproducible. See
-`docs/panel/optimization-benchmarks.mdx` for the patch and full commands:
-
-```bash
-node scripts/prepare-optimization-benchmark.mjs /path/to/baseline /path/to/candidate
-docker compose -f WORKDIR/compose.json up -d --build --wait --wait-timeout 240
-node scripts/benchmark-runtime.mjs WORKDIR public/benchmarks/aquadactyl-optimization.json
-node scripts/write-optimization-guide.mjs
-node scripts/verify-optimization-benchmark.mjs
-docker compose -f WORKDIR/compose.json down --volumes
-```
-
-Collect the optional `scripts/runtime-benchmark/profile-server-list.php` query
-diagnostic after timed measurements. The script is guarded to run only against
-the disposable benchmark fixture; it normalizes the fixture token's last-used
-timestamp before profiling. Preserve per-file hashes and the exact runner source
-with new results.
-
-```bash
-pnpm exec next typegen
-pnpm types
 pnpm lint
-pnpm format:check
 pnpm build
-node scripts/verify-api-docs.mjs
-node scripts/verify-panel-showcase.mjs
-node scripts/verify-runtime-benchmark.mjs
+pnpm types
+node scripts/verify-runtime-showcase.mjs http://localhost:3000
 ```
 
-Preview `/`, `/docs/panel/features`, `/docs/panel/benchmarks`,
-`/docs/panel/runtime-benchmarks`, `/docs/panel`,
-`/docs/blueprint/migration` and `/tools/blueprint-migrator` after editing navigation
-or content. Check feature links, section anchors and the mobile menu. Commands
-and feature behaviour must match the panel's current implementation.
+The publisher refuses missing samples, source/build mismatches, overlapping
+workloads, API errors or failed integrity checks. It regenerates all four
+current guides and the small homepage dataset from completed results. Keep
+dated raw files byte-for-byte; formatting them changes their hashes. Historical
+coverage/security reports are not represented as fresh performance validation.
+
+The original two-panel build/runtime publishers remain for reproducing archived
+runs. They write older canonical filenames and must not overwrite the current
+three-panel refresh.
+
+Feature data remains in `src/lib/panel-features.ts`; API references are generated
+separately. Run `node scripts/verify-api-docs.mjs` when changing those references.
+Preview the homepage at desktop and mobile widths and check the four benchmark
+guides, raw downloads and feature links before publishing.
