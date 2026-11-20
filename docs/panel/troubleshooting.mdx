@@ -262,6 +262,32 @@ sudo -u www-data php artisan view:clear
 
 Use the image/deployment's update flow for Docker so fixes survive container recreation.
 
+## Addon page loads but its API route is missing [#addon-backend]
+
+If an addon loads in the browser but reports a missing endpoint such as
+`api/client/servers/.../domains`, check its backend installation:
+
+```bash
+cd /var/www/aquadactyl &&
+sudo php artisan route:list --path=domains --except-vendor
+```
+
+For Subdomains, its client GET/POST/DELETE routes and copied controller/models
+must exist. An older installer could report success after a web-user script
+failed to write root-owned PHP files. Cache clearing does not create missing
+controllers or routes.
+
+Panel v1.2-beta reports these failures. After updating and reviewing the original
+trusted addon's scripts, keep its `.blueprint` package in the panel root and use:
+
+```bash
+sudo BLUEPRINT__ALLOW_CORE_SCRIPTS=1 blueprint -i subdomains
+```
+
+This runs custom lifecycle scripts as root. Keep the core files root-owned and
+retain addon data/settings. For managed panel upgrades see
+[core-modifying addon scripts](/docs/panel/updating-the-panel#core-addon-scripts).
+
 ## Upload rejected or a file cannot be previewed [#uploads]
 
 Identify the request that fails in the browser's Network tools. Server file

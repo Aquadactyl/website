@@ -47,6 +47,19 @@ its journal again. Changing node credentials, system users or the database does
 not fix this particular error. An official patched binary is available, so a
 local Go rebuild is unnecessary.
 
+## Manta shows Wings release notes [#update-product]
+
+Manta and Wings share a compatible API, but their versions and releases are
+independent. In **Admin > Settings > Updates**, select **Manta** for the affected
+node, save, and queue a check. This setting does not install a daemon.
+
+Panel v1.2-beta recognizes existing Manta betas such as `1.1-beta.3` from their
+host-usage capability. Manta v1.2-beta also returns `product: manta` in both
+system-information API versions. Manta checks use `Aquadactyl/manta`; Wings
+checks use `pterodactyl/wings`. Beta installations include versioned prereleases
+from their own repository. A successful check replaces older misclassified notes.
+Ambiguous builds require a manual product selection.
+
 ## Clone fails, command is missing, or service cannot be found [#checkout]
 
 **Symptoms:** `destination path '/opt/manta' already exists`, `manta: command not

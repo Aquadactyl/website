@@ -6,8 +6,9 @@ TypeScript and Next.js application, with Fumadocs powering the MDX guides.
 
 ## Panel features covered
 
-The installation guides pin Panel `v1.1-beta.3`, Manta `v1.1-beta.3` and Installer
-`v1.1-beta.2` for reproducible installations and updates. Current feature coverage includes the setup wizard, configurable
+The installation guides pin Panel, Manta and Installer `v1.2-beta` for
+reproducible installations and updates. Future betas advance the minor version,
+starting with `v1.3-beta`. Current feature coverage includes the setup wizard, configurable
 PWA, personal notification subscriptions, status page, Discord roles, audit logs,
 maintenance, server subdomains and admin Blueprint management. Benchmark dates
 and source revisions remain attached to their original measured runs.
