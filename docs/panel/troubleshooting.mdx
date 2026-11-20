@@ -112,6 +112,32 @@ installation from an initialized panel. Source recovery and `--resume` are for
 the documented unfinished-installation cases. Existing panels use `update` with
 backups. Preserve the existing `.env`, application key, database and uploads.
 
+### Update rejects installed Blueprint identifiers [#blueprint-inventory]
+
+**Symptoms:** the extension audit lists names such as `|mcmods |mcplugins`, then
+reports `Invalid installed extension identifier.` before replacing panel files.
+
+Installer v1.2-beta misreads Blueprint's native `|identifier,` records. Fetch the
+fixed **Installer v1.3-beta**, then retry the **Panel v1.2-beta** update:
+
+```bash
+cd /opt/aquadactyl-installer
+git fetch origin tag v1.3-beta
+git checkout --detach v1.3-beta
+sudo bash deploy.sh update v1.2-beta
+```
+
+Do not edit or clear `installed_extensions`, remove its pipe markers, or
+uninstall addons to bypass the check. The fixed parser preserves the metadata
+and still rejects unsafe names. This specific failure happens before the
+maintenance window, so no panel restore or database repair is needed.
+
+Keep each original `identifier.blueprint` package in the panel root or its
+existing extension build directory. Missing packages remain a preflight error.
+For addons that copy backend files or patch routes, review the
+[lifecycle-script option](/docs/panel/updating-the-panel#core-addon-scripts)
+before starting the update.
+
 ### PHP, Node or pnpm is unavailable
 
 Compare your checkout's `composer.json` PHP requirement and `package.json`

@@ -15,7 +15,7 @@ Beta tags now advance the minor version: `v1.2-beta`, followed by `v1.3-beta`.
 | ---------------- | ------------- | ---------------------------------------------------------------------------------------- |
 | Aquadactyl Panel | `v1.2-beta` | [Notes and downloads](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.2-beta) |
 | Manta            | `v1.2-beta` | [Notes and downloads](https://github.com/Aquadactyl/manta/releases/tag/v1.2-beta)      |
-| Installer        | `v1.2-beta` | [Notes and tools](https://github.com/Aquadactyl/Installer/releases/tag/v1.2-beta)      |
+| Installer        | `v1.3-beta` | [Notes and tools](https://github.com/Aquadactyl/Installer/releases/tag/v1.3-beta)      |
 
 The installer and panel have separate version numbers. Keep the installer tag
 and the panel argument shown below; Manta is installed separately on each node.
@@ -25,7 +25,7 @@ and the panel argument shown below; Manta is installed separately on each node.
 Use a dedicated Ubuntu 22.04/24.04/26.04 LTS or Debian 12/13 host:
 
 ```bash
-git clone --depth 1 --branch v1.2-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.3-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
 sudo bash deploy.sh install v1.2-beta
 ```
@@ -42,7 +42,8 @@ running it. v1.2-beta is a prerelease: test your deployment and extensions first
 Aquadactyl v1.2-beta fixes Blueprint backend installation failures and separates
 Manta/Wings update feeds, notes and beta comparisons. Manta v1.2-beta identifies
 itself explicitly in its system API. The panel also recognizes older Manta betas
-such as 1.1-beta.3. Installer v1.2-beta targets this panel release by default.
+such as 1.1-beta.3. Installer v1.3-beta targets this panel release by default and
+fixes the Blueprint inventory parsing error that blocked updates with addons.
 
 See the [panel upgrade steps](/docs/panel/updating-the-panel#native-fpm-hardening)
 for existing native PHP-FPM configurations.
