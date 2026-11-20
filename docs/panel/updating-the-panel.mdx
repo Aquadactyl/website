@@ -3,7 +3,7 @@ title: Updating the Panel
 description: Fetch a pinned release through Git, preserve panel data and addons, and recover from a failed update.
 ---
 
-Update the panel and bundled Blueprint together. v1.1-beta.4 is a prerelease;
+Update the panel and bundled Blueprint together. v1.1-beta.5 is a prerelease;
 validate it against your workload and original addon packages in staging first.
 Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files.
 
@@ -31,13 +31,13 @@ For an existing tools checkout, review and select the installer tag:
 cd /opt/aquadactyl-installer
 git fetch origin tag v1.1-beta.2
 git checkout --detach v1.1-beta.2
-sudo bash deploy.sh update v1.1-beta.4
+sudo bash deploy.sh update v1.1-beta.5
 ```
 
 For a panel at the inherited path, keep it there:
 
 ```bash
-sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.1-beta.4
+sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.1-beta.5
 ```
 
 The updater fetches the **exact panel Git tag**, rather than the moving `main`
@@ -52,10 +52,35 @@ A missing addon package, failed reapplication, migration, build or service resta
 stops the deployment. Inspect the error and retained maintenance state before
 bringing the panel back online. The updater does not reverse migrations.
 
+## Native PHP-FPM hardening [#native-fpm-hardening]
+
+Aquadactyl v1.1-beta.5 disables PHP session upload progress in its native PHP
+template. Updating panel source does not replace the host's active FPM settings.
+
+For an existing Debian/Ubuntu native deployment, apply just this setting without
+overwriting custom PHP limits. Set the version to the PHP-FPM service used by
+the panel (8.5 below, or 8.4), then validate before reloading:
+
+```bash
+PHP_FPM_VERSION=8.5
+printf '%s\n' 'session.upload_progress.enabled = Off' | sudo tee "/etc/php/${PHP_FPM_VERSION}/fpm/conf.d/99-aquadactyl-session.ini" >/dev/null &&
+sudo "/usr/sbin/php-fpm${PHP_FPM_VERSION}" -t &&
+sudo systemctl reload "php${PHP_FPM_VERSION}-fpm"
+```
+
+Check the FPM configuration, rather than only the PHP CLI configuration:
+
+```bash
+sudo "/usr/sbin/php-fpm${PHP_FPM_VERSION}" -i | grep '^session.upload_progress.enabled'
+```
+
+It should report `Off`. Docker already disables this setting. Continue installing
+PHP security updates from your package provider.
+
 ## Downloaded archives [#manual-update]
 
 Download `panel.tar.gz` and `SHA256SUMS` from the same
-[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.1-beta.4).
+[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.1-beta.5).
 Verify the archive, then pass its reviewed 64-character checksum:
 
 ```bash
