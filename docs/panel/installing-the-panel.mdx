@@ -28,7 +28,7 @@ LTS support dates are documented by [Ubuntu](https://ubuntu.com/about/release-cy
 ## Fetch the release tools with Git [#installation]
 
 ```bash title="Install the reviewed release"
-git clone --depth 1 --branch v1.2-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.3-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
 sudo bash deploy.sh install v1.2-beta
 ```
@@ -44,7 +44,7 @@ installer checks OS compatibility before modifying source or configuration and
 does not upgrade your OS. For WSL testing, enable systemd first.
 
 If an earlier installer recovered the checkout and then rejected Ubuntu 22.04,
-select Installer `v1.2-beta` and retry with the same panel tag as that checkout.
+select Installer `v1.3-beta` and retry with the same panel tag as that checkout.
 To move an unfinished checkout to `v1.2-beta`, use the source-recovery procedure
 below. Initialized panels must use the update guide instead. Keep the earlier backup.
 
@@ -55,8 +55,8 @@ If the installer finds unused source from an earlier attempt (for example,
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.2-beta
-git checkout --detach v1.2-beta
+git fetch origin tag v1.3-beta
+git checkout --detach v1.3-beta
 sudo bash deploy.sh install v1.2-beta --refresh-source
 ```
 

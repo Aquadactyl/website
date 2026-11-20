@@ -22,15 +22,15 @@ Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files
 If this is your first managed update:
 
 ```bash
-git clone --depth 1 --branch v1.2-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.3-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 ```
 
 For an existing tools checkout, review and select the installer tag:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.2-beta
-git checkout --detach v1.2-beta
+git fetch origin tag v1.3-beta
+git checkout --detach v1.3-beta
 sudo bash deploy.sh update v1.2-beta
 ```
 
@@ -51,6 +51,11 @@ assets/caches and restarts previously active services.
 A missing addon package, failed reapplication, migration, build or service restart
 stops the deployment. Inspect the error and retained maintenance state before
 bringing the panel back online. The updater does not reverse migrations.
+
+Installer v1.3-beta fixes the `Invalid installed extension identifier` error
+when Blueprint records contain leading pipe markers. If an older updater stops
+at that audit, select the fixed installer and retry; preserve the installed-addon
+metadata. See [Blueprint inventory troubleshooting](/docs/panel/troubleshooting#blueprint-inventory).
 
 ## Legacy addons that patch core files [#core-addon-scripts]
 
