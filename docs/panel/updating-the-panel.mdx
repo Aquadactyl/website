@@ -3,7 +3,7 @@ title: Updating the Panel
 description: Fetch a pinned release through Git, preserve panel data and addons, and recover from a failed update.
 ---
 
-Update the panel and bundled Blueprint together. v1.2-beta is a prerelease;
+Update the panel and bundled Blueprint together. v1.3-beta is a prerelease;
 validate it against your workload and original addon packages in staging first.
 Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files.
 
@@ -22,22 +22,22 @@ Do not run upstream `blueprint -upgrade` or `git pull` over addon-modified files
 If this is your first managed update:
 
 ```bash
-git clone --depth 1 --branch v1.4-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.5-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 ```
 
 For an existing tools checkout, review and select the installer tag:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.4-beta
-git checkout --detach v1.4-beta
-sudo bash deploy.sh update v1.2-beta
+git fetch origin tag v1.5-beta
+git checkout --detach v1.5-beta
+sudo bash deploy.sh update v1.3-beta
 ```
 
 For a panel at the inherited path, keep it there:
 
 ```bash
-sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.2-beta
+sudo PANEL_ROOT=/var/www/pterodactyl bash deploy.sh update v1.3-beta
 ```
 
 The updater fetches the **exact panel Git tag**, rather than the moving `main`
@@ -52,26 +52,26 @@ A missing addon package, failed reapplication, migration, build or service resta
 stops the deployment. Inspect the error and retained maintenance state before
 bringing the panel back online. The updater does not reverse migrations.
 
-Installer v1.4-beta fixes the `Invalid installed extension identifier` error
+Installer v1.5-beta fixes the `Invalid installed extension identifier` error
 when Blueprint records contain leading pipe markers. If an older updater stops
 at that audit, select the fixed installer and retry; preserve the installed-addon
 metadata. See [Blueprint inventory troubleshooting](/docs/panel/troubleshooting#blueprint-inventory).
 
 If addon reapplication reports `Cannot import extensions from external paths`,
 keep maintenance enabled and the original pre-update snapshot. Installer
-v1.4-beta also fixes package-path handling; follow the
+v1.5-beta also fixes package-path handling; follow the
 [interrupted-update recovery steps](/docs/panel/troubleshooting#blueprint-import-path)
 before retrying the same panel target.
 
 ## Legacy addons that patch core files [#core-addon-scripts]
 
-Panel v1.2-beta stops when an addon lifecycle script fails. Older addons such as
+Panel v1.2-beta and later stop when an addon lifecycle script fails. Older addons such as
 Subdomains may copy backend PHP files and edit core routes. On a root-owned
 panel those changes require an explicit operator decision. After reviewing all
 installed addons' scripts, allow them for one managed update with:
 
 ```bash
-sudo BLUEPRINT__ALLOW_CORE_SCRIPTS=1 bash deploy.sh update v1.2-beta
+sudo BLUEPRINT__ALLOW_CORE_SCRIPTS=1 bash deploy.sh update v1.3-beta
 ```
 
 This runs addon lifecycle scripts as root and keeps panel source root-owned.
@@ -84,7 +84,7 @@ checks use separate repositories; beta installations also check prereleases.
 
 ## Native PHP-FPM hardening [#native-fpm-hardening]
 
-Aquadactyl v1.2-beta disables PHP session upload progress in its native PHP
+Aquadactyl v1.2-beta and later disable PHP session upload progress in its native PHP
 template. Updating panel source does not replace the host's active FPM settings.
 
 For an existing Debian/Ubuntu native deployment, apply just this setting without
@@ -110,7 +110,7 @@ PHP security updates from your package provider.
 ## Downloaded archives [#manual-update]
 
 Download `panel.tar.gz` and `SHA256SUMS` from the same
-[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.2-beta).
+[published release](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.3-beta).
 Verify the archive, then pass its reviewed 64-character checksum:
 
 ```bash

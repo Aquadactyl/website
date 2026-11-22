@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Install Aquadactyl v1.2-beta and Manta using reviewed Git releases.
+description: Install Aquadactyl v1.3-beta and Manta using reviewed Git releases.
 ---
 
 Aquadactyl combines the familiar Pterodactyl panel with bundled Blueprint,
@@ -9,25 +9,25 @@ optional server tools. See [Included features](/docs/panel/features).
 
 ## Current beta releases
 
-Beta tags now advance the minor version: `v1.2-beta`, followed by `v1.3-beta`.
+Beta tags now advance the minor version: `v1.3-beta`, followed by `v1.4-beta`.
 
-| Component        | Version       | Release                                                                                  |
-| ---------------- | ------------- | ---------------------------------------------------------------------------------------- |
-| Aquadactyl Panel | `v1.2-beta` | [Notes and downloads](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.2-beta) |
-| Manta            | `v1.2-beta` | [Notes and downloads](https://github.com/Aquadactyl/manta/releases/tag/v1.2-beta)      |
-| Installer        | `v1.4-beta` | [Notes and tools](https://github.com/Aquadactyl/Installer/releases/tag/v1.4-beta)      |
+| Component        | Version     | Release                                                                                |
+| ---------------- | ----------- | -------------------------------------------------------------------------------------- |
+| Aquadactyl Panel | `v1.3-beta` | [Notes and downloads](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.3-beta) |
+| Manta            | `v1.3-beta` | [Notes and downloads](https://github.com/Aquadactyl/manta/releases/tag/v1.3-beta)      |
+| Installer        | `v1.5-beta` | [Notes and tools](https://github.com/Aquadactyl/Installer/releases/tag/v1.5-beta)      |
 
 The installer and panel have separate version numbers. Keep the installer tag
 and the panel argument shown below; Manta is installed separately on each node.
 
-## Install v1.2-beta
+## Install v1.3-beta
 
 Use a dedicated Ubuntu 22.04/24.04/26.04 LTS or Debian 12/13 host:
 
 ```bash
-git clone --depth 1 --branch v1.4-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
+git clone --depth 1 --branch v1.5-beta https://github.com/Aquadactyl/Installer.git /opt/aquadactyl-installer
 cd /opt/aquadactyl-installer
-sudo bash deploy.sh install v1.2-beta
+sudo bash deploy.sh install v1.3-beta
 ```
 
 The installer fetches the exact panel release through Git and sets up the locked
@@ -35,15 +35,24 @@ dependencies, Blueprint, production build and services. Configure trusted HTTPS,
 email and backups, then complete the administrator setup wizard.
 
 Read the [full installation guide](/docs/panel/installing-the-panel) before
-running it. v1.2-beta is a prerelease: test your deployment and extensions first.
+running it. v1.3-beta is a prerelease: test your deployment and extensions first.
 
 ## Changes in these releases
 
-Aquadactyl v1.2-beta fixes Blueprint backend installation failures and separates
-Manta/Wings update feeds, notes and beta comparisons. Manta v1.2-beta identifies
-itself explicitly in its system API. The panel also recognizes older Manta betas
-such as 1.1-beta.3. Installer v1.4-beta targets this panel release by default and
-fixes Blueprint inventory parsing and package-path errors during addon updates.
+Aquadactyl v1.3-beta reduces unnecessary server-list membership loading and
+batches member user records for explicit includes, preserving server-specific
+permissions. Manta v1.3-beta reduces directory-listing traversal and allocations;
+the [component follow-up](/docs/manta/benchmarks#v13-beta-directory-listing-follow-up)
+records the measured scope and limits. Installer v1.5-beta targets Panel v1.3-beta
+by default and retains the earlier Blueprint inventory and package-path fixes.
+Manta remains a separate update on each node.
+
+No new configuration or database migration is required by these two v1.3-beta
+releases. Keep backups and review addon lifecycle scripts before updating. The
+[published panel notes](https://github.com/Aquadactyl/aquadactyl/releases/tag/v1.3-beta)
+and [Manta notes](https://github.com/Aquadactyl/manta/releases/tag/v1.3-beta)
+include validation details. Existing live benchmark results remain tied to their
+original measured releases; a new full comparison has not been run.
 
 See the [panel upgrade steps](/docs/panel/updating-the-panel#native-fpm-hardening)
 for existing native PHP-FPM configurations.

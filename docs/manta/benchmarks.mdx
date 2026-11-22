@@ -108,3 +108,28 @@ The website repository contains the exact guarded [setup, provisioning and workl
 Single shared Windows/WSL2 workstation with unrelated existing containers, no CPU pinning or repeated clean-machine trials. Linux container networking; no TLS/WAN/mobile/endurance test or authenticated players. Daemon and game memory are separate; this is a controlled local distribution comparison, not general hosting capacity. No new security audit, race test or full coverage run is claimed by this performance rerun.
 
 [November 2 results](/benchmarks/daemon-comparison.json), [its historical Manta source patch](/benchmarks/daemon-comparison-manta.patch), [coverage report](/benchmarks/daemon-coverage.json) and [microbenchmarks](/benchmarks/daemon-microbenchmarks.txt) remain available. Those security/coverage/microbenchmark runs were **not repeated** as part of this current-release performance comparison. Older 400-request API batches and existing worlds differ from this rerun; do not present differences across dates as a controlled optimization experiment.
+
+## v1.3-beta directory-listing follow-up
+
+Manta v1.3-beta includes a separate component optimization measured on **22 November
+2026** against revision **80f84fbda9a7513c995d5a0456085df5adcd9c71**. Metadata is
+collected relative to the open directory descriptor, avoiding repeated parent-path
+traversal while retaining root-confined, nonblocking MIME inspection.
+
+| Component case                        |    Before |    After | Time reduction |
+| ------------------------------------- | --------: | -------: | -------------: |
+| 1,000 regular files, root read        |  5.250 ms | 4.395 ms |          16.3% |
+| 1,000 regular files, nested read      |  9.355 ms | 6.710 ms |          28.3% |
+| Nested listing plus API JSON encoding | 10.068 ms | 7.358 ms |          26.9% |
+
+The root read used **45.4% fewer allocations**, from 22,021 to 12,020 per operation.
+These are medians of five alternating 500 ms batches per variant after a discarded
+warm-up, using Go 1.27.4, the same fixture/dependencies, 2 CPUs, 2 GiB memory and
+**GOMAXPROCS=2** on one Windows/WSL2 workstation. Nested fixtures and distinct file
+contents are included. The test used warm Linux temporary storage, without
+competing test/build jobs; unrelated workstation services remained running.
+
+This does not replace the live HTTP/Wings comparison above or establish game/player
+capacity. The next full benchmark must measure the released daemon under the same
+complete workloads. See the [method and all eight cases](https://github.com/Aquadactyl/manta/blob/v1.3-beta/benchmarks/LISTING.md)
+and [raw samples](https://github.com/Aquadactyl/manta/blob/v1.3-beta/benchmarks/results/listing-20261122.json).
