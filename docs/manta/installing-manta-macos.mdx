@@ -64,7 +64,7 @@ If you move the data to an external disk or a path outside of `/Users`, add it t
 Download the binary for your Mac and its checksum file from the [Manta releases](https://github.com/Aquadactyl/manta/releases). Use `manta_darwin_arm64` on Apple Silicon and `manta_darwin_amd64` on Intel.
 
 ```bash title="Download and verify Manta"
-MANTA_VERSION="v1.2-beta"
+MANTA_VERSION="v1.3-beta"
 ARCH="$(uname -m | sed 's/x86_64/amd64/')"
 
 curl -fL -o manta "https://github.com/Aquadactyl/manta/releases/download/${MANTA_VERSION}/manta_darwin_${ARCH}"

@@ -118,13 +118,13 @@ backups. Preserve the existing `.env`, application key, database and uploads.
 reports `Invalid installed extension identifier.` before replacing panel files.
 
 Installer v1.2-beta misreads Blueprint's native `|identifier,` records. Fetch the
-fixed **Installer v1.4-beta**, then retry the **Panel v1.2-beta** update:
+current **Installer v1.5-beta**, then retry the **Panel v1.3-beta** update:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.4-beta
-git checkout --detach v1.4-beta
-sudo bash deploy.sh update v1.2-beta
+git fetch origin tag v1.5-beta
+git checkout --detach v1.5-beta
+sudo bash deploy.sh update v1.3-beta
 ```
 
 Do not edit or clear `installed_extensions`, remove its pipe markers, or
@@ -154,9 +154,9 @@ installer and rerun the same panel target:
 
 ```bash
 cd /opt/aquadactyl-installer
-git fetch origin tag v1.4-beta
-git checkout --detach v1.4-beta
-sudo bash deploy.sh update v1.2-beta
+git fetch origin tag v1.5-beta
+git checkout --detach v1.5-beta
+sudo bash deploy.sh update v1.3-beta
 ```
 
 This failure occurs after panel replacement and migrations. The retry takes an
