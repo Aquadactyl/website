@@ -121,9 +121,12 @@ the guides. Keep original upstream credits and license notices.
 ## Benchmarks and verification
 
 The homepage reads only the compact `public/benchmarks/comparison-summary.json`.
-The November 20, 2026 refresh compares Aquadactyl/Manta v1.2-beta, Wings v1.13.5,
+The November 22, 2026 refresh compares Aquadactyl/Manta v1.3-beta, Wings v1.13.5,
 Pterodactyl Panel v1.15.2 and Panel v2.0.0-beta.3. Full dated reports, exact
 measured runners and setup provenance live under `public/benchmarks/`.
+The [November 20 panel](/public/benchmarks/2026-11-20-panels.json),
+[build](/public/benchmarks/2026-11-20-builds.json) and
+[daemon](/public/benchmarks/2026-11-20-daemons.json) reports remain available.
 Older reports remain historical; never mix their timings or source revisions
 with a current run. The panel v1/v2 pages select from the same three-panel run.
 

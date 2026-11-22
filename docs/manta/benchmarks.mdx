@@ -3,21 +3,21 @@ title: Wings vs Manta benchmarks
 description: Fresh current-release measurements of daemon APIs, file operations, game lifecycle and resource use.
 ---
 
-Measured **2026-11-20**: **Manta v1.2-beta** versus **Wings v1.13.5**, compiled from unmodified release tags with Go 1.27.4 and matching build flags. Both use the same runtime image and resource limits. The homepage shows three fixed metrics; all measured workloads, including regressions, appear here.
+Measured **2026-11-22**: **Manta v1.3-beta** versus **Wings v1.13.5**, compiled from unmodified release tags with Go 1.27.4 and matching build flags. Both use the same runtime image and resource limits. The homepage shows three fixed metrics; all measured workloads, including regressions, appear here.
 
-[Raw results](/benchmarks/2026-11-20-daemons.json) · [Exact setup and runner files](/benchmarks/2026-11-20-setup.json) · [Repository harness](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite)
+[Raw results](/benchmarks/2026-11-22-daemons.json) · [Exact setup and runner files](/benchmarks/2026-11-22-setup.json) · [Repository harness](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite)
 
 ## Sources and environment
 
 | Setting              | Wings                                                                | Manta                                                                   |
 | -------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Release              | [v1.13.5](https://github.com/pterodactyl/wings/releases/tag/v1.13.5) | [v1.2-beta](https://github.com/Aquadactyl/manta/releases/tag/v1.2-beta) |
-| Exact source         | `3236480d078c09b823b8a8f21dab76c4029608a5`                           | `f67318a2ecd04bade54c797424c20acac94fddb7`                              |
+| Release              | [v1.13.5](https://github.com/pterodactyl/wings/releases/tag/v1.13.5) | [v1.3-beta](https://github.com/Aquadactyl/manta/releases/tag/v1.3-beta) |
+| Exact source         | `3236480d078c09b823b8a8f21dab76c4029608a5`                           | `25dac4d729af64f53f711bf3a3f974b3c6a7b927`                              |
 | Go compiler          | go1.27.4                                                             | go1.27.4                                                                |
 | Daemon CPU quota     | 2 cores                                                              | 2 cores                                                                 |
 | Daemon RAM limit     | 1024 MiB                                                             | 1024 MiB                                                                |
 | GOMAXPROCS           | 2                                                                    | 2                                                                       |
-| Native Panel backend | pterodactyl_v1 v1.15.2                                               | aquadactyl v1.2-beta                                                    |
+| Native Panel backend | pterodactyl_v1 v1.15.2                                               | aquadactyl v1.3-beta                                                    |
 
 Unmodified tagged source, identical Go 1.27.4 compiler/build flags and common Alpine runtime image. Each daemon has a two-core quota, 1 GiB RAM, GOMAXPROCS=2. Games have matching pinned images and configured limits. Private nested Docker engine is limited to 16 cores/12 GiB and publishes no host ports. Manta uses Aquadactyl; stock Wings uses its native Pterodactyl v1 backend (Wings page=0 bootstrap is incompatible with Aquadactyl validation). No production-code compatibility patch is applied. Panel and daemon workloads do not overlap.
 
@@ -29,22 +29,22 @@ The host is Intel(R) Core(TM) i7-14700KF, 28 logical CPUs and 64 GiB RAM. The pr
 
 Each daemon manages one **Paper 26.3 build 257** server and one **Bedrock 1.26.66.1** server. The same downloaded bytes and image digests are used on both sides. Paper has 1536 MiB configured memory and Bedrock 512 MiB; both have a 200% CPU limit. Effective cgroup memory includes the daemons' normal overhead allowance and is checked for parity. Both use the same seed and properties apart from assigned ports. No authenticated players or bots participated.
 
-Four start/stop rounds per game and daemon in alternating order. Worlds were initialized before this final run; the first cached start is a discarded warm-up, not cold world generation. Timers cover power request through daemon-reported state, with 100 ms polling; shutdown is not a separately timed OS process exit. Identical cached binaries/image layers, seed and properties; normal configuration sync and registry digest checks remain in the timed power path. Bedrock explicitly uses transport=raknet for the UDP query workload.
+Four start/stop rounds per game and daemon in alternating order. Fresh worlds are initialized by the first start, which is retained as a discarded warm-up; only the next three warm starts contribute to the published lifecycle medians. Timers cover power request through daemon-reported state, with 100 ms polling; shutdown is not a separately timed OS process exit. Identical cached binaries/image layers, seed and properties; normal configuration sync and registry digest checks remain in the timed power path. Bedrock explicitly uses transport=raknet for the UDP query workload.
 
 ## API throughput and latency
 
 Three alternating repetitions per daemon, endpoint and concurrency (1/16/32). Five-second closed-loop authenticated HTTP/1.1 windows with persistent connections; one discarded request before each window. No new requests after the deadline; in-flight requests are drained. Throughput is successful requests per actual elapsed second. Body receipt is included, percentile sorting and publication are excluded. Timed responses must be HTTP 200. This replaces the old 400-request batches; do not claim a controlled before/after comparison across methods.
 
-Throughput is the median of three per-window rates. The p50/p95 columns are medians of the per-window percentiles, not pooled percentiles. The measured runner uses the lower middle order statistic for p50 and floor((n−1)×0.95) for p95. All 4,784,786 measured API requests completed with **zero errors**. The directory size and running server state are checked outside each timed window.
+Throughput is the median of three per-window rates. The p50/p95 columns are medians of the per-window percentiles, not pooled percentiles. The measured runner uses the lower middle order statistic for p50 and floor((n−1)×0.95) for p95. All 4,654,944 measured API requests completed with **zero errors**. The directory size and running server state are checked outside each timed window.
 
 | Endpoint / concurrency | Wings req/s | Manta req/s | Wings p50 ms | Manta p50 ms | Wings p95 ms | Manta p95 ms |
 | ---------------------- | ----------- | ----------- | ------------ | ------------ | ------------ | ------------ |
-| Server status / 1      | 7231.727    | 7736.987    | 0.133        | 0.125        | 0.186        | 0.171        |
-| Server status / 16     | 66951.299   | 84766.034   | 0.178        | 0.143        | 0.705        | 0.525        |
-| Server status / 32     | 66685.982   | 84081.343   | 0.356        | 0.286        | 1.439        | 1.116        |
-| List 1000 files / 1    | 138.775     | 109.828     | 7.181        | 9.034        | 7.974        | 9.875        |
-| List 1000 files / 16   | 232.149     | 198.332     | 62.463       | 67.780       | 141.932      | 182.651      |
-| List 1000 files / 32   | 236.710     | 198.723     | 115.853      | 133.692      | 308.662      | 361.523      |
+| Server status / 1      | 6936.844    | 7362.904    | 0.138        | 0.132        | 0.198        | 0.184        |
+| Server status / 16     | 65224.959   | 82869.682   | 0.183        | 0.147        | 0.720        | 0.544        |
+| Server status / 32     | 64412.451   | 82350.267   | 0.369        | 0.290        | 1.480        | 1.153        |
+| List 1000 files / 1    | 133.258     | 140.087     | 7.466        | 7.096        | 8.327        | 7.841        |
+| List 1000 files / 16   | 230.273     | 257.926     | 60.876       | 52.094       | 146.445      | 144.258      |
+| List 1000 files / 32   | 230.367     | 259.663     | 116.914      | 100.375      | 326.807      | 289.994      |
 
 ## Startup and shutdown
 
@@ -52,10 +52,10 @@ Three measured warm repetitions after excluding the first start. Values are medi
 
 | Measurement               | Wings ms | Manta ms |
 | ------------------------- | -------- | -------- |
-| paper: warm startup       | 6448.970 | 6548.812 |
-| paper: reported offline   | 806.876  | 705.975  |
-| bedrock: warm startup     | 1108.110 | 1108.103 |
-| bedrock: reported offline | 907.186  | 806.530  |
+| paper: warm startup       | 6650.361 | 6550.823 |
+| paper: reported offline   | 806.719  | 705.830  |
+| bedrock: warm startup     | 1108.450 | 1108.433 |
+| bedrock: reported offline | 907.008  | 806.595  |
 
 ## File and event operations
 
@@ -65,15 +65,15 @@ Values are medians of per-run measurements (milliseconds). Integrity checks occu
 
 | Measurement                             | Wings ms | Manta ms |
 | --------------------------------------- | -------- | -------- |
-| http write 16m                          | 15.920   | 10.347   |
-| http read 16m                           | 20.671   | 10.015   |
-| sftp write 16m                          | 70.912   | 76.219   |
-| sftp read 16m                           | 38.839   | 39.666   |
-| chmod 1000                              | 4.476    | 3.149    |
-| rename 1000                             | 13.167   | 11.829   |
-| Compress 16 MiB + 1000 files            | 14.038   | 17.899   |
-| Extract archive                         | 45.114   | 43.069   |
-| Deliver 100 log lines to 16 subscribers | 3.625    | 2.965    |
+| http write 16m                          | 10.849   | 10.196   |
+| http read 16m                           | 20.427   | 9.725    |
+| sftp write 16m                          | 78.731   | 76.661   |
+| sftp read 16m                           | 40.111   | 39.117   |
+| chmod 1000                              | 4.101    | 3.984    |
+| rename 1000                             | 13.558   | 11.805   |
+| Compress 16 MiB + 1000 files            | 15.064   | 17.690   |
+| Extract archive                         | 45.225   | 43.193   |
+| Deliver 100 log lines to 16 subscribers | 3.771    | 3.177    |
 
 All 64 automatic-stat viewer checks passed: 16 viewers for each of four game servers, with three unsolicited samples each and advancing uptime. This checks the observed stream, not unlimited concurrency or production reliability.
 
@@ -85,19 +85,19 @@ Daemon memory excludes game containers, Panel, database, Redis and host overhead
 
 | Mean working set (MiB) | Wings   | Manta   |
 | ---------------------- | ------- | ------- |
-| idle: daemon           | 56.622  | 47.906  |
-| idle: paper            | 743.816 | 737.588 |
-| idle: bedrock          | 189.590 | 189.465 |
-| command load: daemon   | 44.911  | 43.212  |
-| command load: paper    | 768.722 | 762.057 |
-| command load: bedrock  | 256.660 | 256.644 |
+| idle: daemon           | 51.753  | 50.604  |
+| idle: paper            | 739.692 | 738.263 |
+| idle: bedrock          | 189.813 | 189.797 |
+| command load: daemon   | 43.877  | 47.817  |
+| command load: paper    | 763.033 | 764.760 |
+| command load: bedrock  | 257.992 | 257.751 |
 
 | Local game query p50 (ms) | Wings | Manta |
 | ------------------------- | ----- | ----- |
-| idle: paper               | 1.065 | 0.914 |
-| idle: bedrock             | 0.387 | 0.285 |
-| command load: paper       | 0.817 | 0.781 |
-| command load: bedrock     | 0.306 | 0.263 |
+| idle: paper               | 1.439 | 0.967 |
+| idle: bedrock             | 0.346 | 0.301 |
+| command load: paper       | 0.859 | 0.830 |
+| command load: bedrock     | 0.327 | 0.295 |
 
 Each game-query row contains 50 sequential local Java status or Bedrock UDP queries. These are server-query round trips, not gameplay latency. CPU core-seconds, sample arrays, observed peaks and Paper tick output are retained in the raw report.
 

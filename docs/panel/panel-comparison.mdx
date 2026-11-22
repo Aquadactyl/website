@@ -3,15 +3,15 @@ title: Aquadactyl vs Pterodactyl Panel v1 benchmarks
 description: Current tagged releases compared using matched browser, API, memory and frontend build workloads.
 ---
 
-Measured **2026-11-20**. These tables select two products from one matched **three-panel run**; Aquadactyl's samples are shared by both comparison pages. They are fresh measurements of unmodified release tags, with each product's own locked dependencies and bundled features. No external addons were installed.
+Measured **2026-11-22**. These tables select two products from one matched **three-panel run**; Aquadactyl's samples are shared by both comparison pages. They are fresh measurements of unmodified release tags, with each product's own locked dependencies and bundled features. No external addons were installed.
 
-[Raw samples](/benchmarks/2026-11-20-panels.json) · [Measured runner](/benchmarks/2026-11-20-panels-runner.txt) · [Final setup provenance](/benchmarks/2026-11-20-setup.json)
+[Raw samples](/benchmarks/2026-11-22-panels.json) · [Measured runner](/benchmarks/2026-11-22-panels-runner.txt) · [Final setup provenance](/benchmarks/2026-11-22-setup.json)
 
 ## Compared releases
 
 | Panel                     | Release source                                                                                         | PHP    |
 | ------------------------- | ------------------------------------------------------------------------------------------------------ | ------ |
-| Aquadactyl v1.2-beta      | [4af0abc9f41f](https://github.com/Aquadactyl/aquadactyl/tree/4af0abc9f41f1348a99082f4334365c77fa849f7) | 8.4.28 |
+| Aquadactyl v1.3-beta      | [bdd2d879a15d](https://github.com/Aquadactyl/aquadactyl/tree/bdd2d879a15d85293d8a94b51334aba4b695dbf7) | 8.4.28 |
 | Pterodactyl v1.15.2       | [90b2aa87469d](https://github.com/pterodactyl/panel/tree/90b2aa87469da4fffd941b3c99f3c1ca48a01b78)     | 8.4.28 |
 | Pterodactyl v2.0.0-beta.3 | [7f676fc22ccf](https://github.com/pterodactyl/panel/tree/7f676fc22ccfdffd8fb360b393e116c77d05236b)     | 8.4.28 |
 
@@ -25,22 +25,22 @@ The production assets served here are byte-for-byte the assets from the [new fro
 
 Headless Chromium, 1440x900, deviceScaleFactor 1, no CPU or network throttling, localhost Docker port forwarding. One warm-up pair discarded; ten measured pairs per panel in rotating order. Cold uses a new context restored from an authenticated session; warm reloads the same page/context. Server/OS caches remain warm. Wait for the first visible fixture server row, then 2 seconds to observe paints. The dashboard uses each release's normal pagination; visible row counts are recorded. Third-party requests are blocked identically to isolate the local panel; blocked URLs are recorded. FCP/LCP are navigation-to-paint; dashboardReady is measured when a fixture server name first appears visibly in the viewport, a custom application milestone. Heap is CDP JSHeapUsedSize after an explicit garbage collection; not total browser RAM.
 
-The milestone is the **first visible server-row link**, not Time to Interactive or completion of all server status calls. All three releases rendered 50 fixture rows in these runs; the raw samples retain rendered and viewport-visible row counts. Cold browser cache does not mean cold PHP, database or operating-system caches.
+The milestone is the **first server-row link with a nonzero layout rectangle intersecting the viewport**. It does not wait for opacity animations, Time to Interactive or completion of all server status calls. All three releases rendered 50 fixture rows in these runs; the raw samples retain rendered and viewport-visible row counts. Cold browser cache does not mean cold PHP, database or operating-system caches.
 
-| Measurement                                 | Pterodactyl v1.15.2 | Aquadactyl v1.2-beta |
+| Measurement                                 | Pterodactyl v1.15.2 | Aquadactyl v1.3-beta |
 | ------------------------------------------- | ------------------- | -------------------- |
-| cold: First visible server row (ms, median) | 263.0               | 218.7                |
-| cold: First contentful paint (ms, median)   | 146.0               | 116.0                |
-| cold: Largest contentful paint (ms, median) | 280.0               | 300.0                |
-| cold: Time to first byte (ms, median)       | 10.1                | 15.7                 |
-| cold: Window load (ms, median)              | 118.5               | 70.8                 |
-| warm: First visible server row (ms, median) | 236.2               | 204.1                |
-| warm: First contentful paint (ms, median)   | 118.0               | 110.0                |
+| cold: First visible server row (ms, median) | 266.4               | 214.8                |
+| cold: First contentful paint (ms, median)   | 148.0               | 116.0                |
+| cold: Largest contentful paint (ms, median) | 286.0               | 306.0                |
+| cold: Time to first byte (ms, median)       | 10.2                | 14.5                 |
+| cold: Window load (ms, median)              | 119.4               | 67.7                 |
+| warm: First visible server row (ms, median) | 234.1               | 203.7                |
+| warm: First contentful paint (ms, median)   | 120.0               | 110.0                |
 | warm: Largest contentful paint (ms, median) | 248.0               | 288.0                |
-| warm: Time to first byte (ms, median)       | 9.6                 | 14.8                 |
-| warm: Window load (ms, median)              | 113.4               | 71.1                 |
+| warm: Time to first byte (ms, median)       | 9.5                 | 15.0                 |
+| warm: Window load (ms, median)              | 113.3               | 71.5                 |
 
-| Browser memory                                | Pterodactyl v1.15.2 | Aquadactyl v1.2-beta |
+| Browser memory                                | Pterodactyl v1.15.2 | Aquadactyl v1.3-beta |
 | --------------------------------------------- | ------------------- | -------------------- |
 | cold: JS heap after explicit GC (MiB, median) | 6.6                 | 10.4                 |
 | warm: JS heap after explicit GC (MiB, median) | 6.9                 | 10.4                 |
@@ -49,27 +49,27 @@ The milestone is the **first visible server-row link**, not Time to Interactive 
 
 GET /api/client/account and GET /api/client?per_page=50, valid user API key, HTTP/1.1 persistent connections, uncompressed response bodies, concurrency 1/8/16; 10-second closed-loop windows, three repetitions with rotating panel order. Two-second warm-up before each run. No new requests after the window, in-flight requests drained and included in elapsed time. Validate every HTTP status and JSON result. Rate limits raised to 1,000,000/min on all three disposable panels. Successes per actual elapsed second, not offered requests per second or a maximum capacity claim.
 
-Each row reports the median of three window rates and the median of three per-window p95 latencies. These are not pooled percentiles. Every measured request returned a valid successful response.
+Each row reports the median of three window rates and the median of three per-window p95 latencies. These are not pooled percentiles. Every measured request returned a valid successful response. The server-list fixture has 50 owned records without additional members and requests the default response; it does not measure explicit subuser includes or high-membership scenarios.
 
-| Endpoint / concurrency | Pterodactyl v1.15.2 req/s | Aquadactyl v1.2-beta req/s | Pterodactyl v1.15.2 p95 ms | Aquadactyl v1.2-beta p95 ms |
+| Endpoint / concurrency | Pterodactyl v1.15.2 req/s | Aquadactyl v1.3-beta req/s | Pterodactyl v1.15.2 p95 ms | Aquadactyl v1.3-beta p95 ms |
 | ---------------------- | ------------------------- | -------------------------- | -------------------------- | --------------------------- |
-| account / 1            | 117.0                     | 130.5                      | 10.4                       | 9.4                         |
-| account / 8            | 317.9                     | 340.4                      | 54.8                       | 54.1                        |
-| account / 16           | 345.7                     | 364.7                      | 69.5                       | 67.9                        |
-| servers / 1            | 10.5                      | 38.7                       | 103.4                      | 27.4                        |
-| servers / 8            | 24.8                      | 89.9                       | 370.2                      | 100.6                       |
-| servers / 16           | 23.6                      | 92.2                       | 759.2                      | 191.4                       |
+| account / 1            | 114.5                     | 124.3                      | 9.8                        | 9.1                         |
+| account / 8            | 322.2                     | 349.3                      | 54.0                       | 53.8                        |
+| account / 16           | 319.0                     | 347.0                      | 71.4                       | 69.5                        |
+| servers / 1            | 9.4                       | 37.2                       | 116.8                      | 28.6                        |
+| servers / 8            | 22.7                      | 90.4                       | 396.1                      | 98.8                        |
+| servers / 16           | 22.9                      | 90.0                       | 752.7                      | 194.4                       |
 
 ## Server memory
 
 cgroup v2 memory.current minus inactive_file, clamped to zero (Docker-style working set). Separately retain raw usage bytes. Ten 1-second-spaced samples per window, three windows each after warm-up, idle and during concurrency-16 server-list load. Each sample records panel, database and Redis, and their sum. Peak is the maximum observed sample, not the kernel high-water mark. No application restarts or forced PHP GC between windows. Browser heap and server working set are different metrics.
 
-| Working set (MiB, median)        | Pterodactyl v1.15.2 | Aquadactyl v1.2-beta |
+| Working set (MiB, median)        | Pterodactyl v1.15.2 | Aquadactyl v1.3-beta |
 | -------------------------------- | ------------------- | -------------------- |
-| idle: Panel only                 | 141.3               | 125.4                |
-| idle: Panel + database + Redis   | 267.4               | 301.0                |
-| loaded: Panel only               | 145.9               | 126.7                |
-| loaded: Panel + database + Redis | 273.6               | 303.6                |
+| idle: Panel only                 | 156.8               | 141.1                |
+| idle: Panel + database + Redis   | 290.4               | 275.3                |
+| loaded: Panel only               | 161.3               | 142.7                |
+| loaded: Panel + database + Redis | 296.7               | 278.2                |
 
 ## Production frontend builds
 
@@ -77,8 +77,8 @@ Build times and all-route asset sizes are measured separately with four CPU core
 
 | Product              | Median full production build (s) |
 | -------------------- | -------------------------------- |
-| Aquadactyl v1.2-beta | 0.820                            |
-| Pterodactyl v1.15.2  | 10.608                           |
+| Aquadactyl v1.3-beta | 0.843                            |
+| Pterodactyl v1.15.2  | 10.859                           |
 
 ## Limits and history
 

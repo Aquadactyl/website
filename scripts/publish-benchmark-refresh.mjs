@@ -25,7 +25,7 @@ assert.equal(builds.measuredOn, date);
 assert.equal(daemon.measuredOn, date);
 const families = ["aquadactyl", "pterodactyl_v1", "pterodactyl_v2"];
 const releases = {
-  aquadactyl: "v1.2-beta",
+  aquadactyl: builds.panels.aquadactyl.release,
   pterodactyl_v1: "v1.15.2",
   pterodactyl_v2: "v2.0.0-beta.3",
 };
@@ -130,7 +130,11 @@ for (const r of daemon.phases.performance) {
   if ("expected_messages" in r)
     assert.equal(r.received_messages, r.expected_messages);
 }
-assert.equal(daemon.source.manta.release, "v1.2-beta");
+assert.match(
+  releases.aquadactyl,
+  /^v[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:-[0-9A-Za-z.-]+)?$/,
+);
+assert.equal(daemon.source.manta.release, releases.aquadactyl);
 assert.equal(daemon.source.wings.release, "v1.13.5");
 assert(
   !/"(?:password|token|authorization)"\s*:/i.test(
@@ -176,7 +180,7 @@ for (const [id, key, label] of [
     label,
     measuredOn: date,
     baseline: key === "pterodactyl_v1" ? "Panel v1.15.2" : "Panel v2 beta 3",
-    candidate: "Aquadactyl 1.2 beta",
+    candidate: `Aquadactyl ${releases.aquadactyl.slice(1).replaceAll("-", " ")}`,
     href:
       "/docs/panel/" +
       (id === "panel" ? "panel-comparison" : "panel-v2-comparison"),
@@ -185,7 +189,7 @@ for (const [id, key, label] of [
       {
         id: "browser",
         label: "Browser load",
-        context: "First visible server row · cold browser cache · median",
+        context: "First server row in viewport · cold browser cache · median",
         unit: "ms",
         better: "lower",
         changeLabel: "time",
@@ -232,7 +236,7 @@ summary.comparisons.daemon = {
   label: "Wings vs Manta",
   measuredOn: date,
   baseline: "Wings 1.13.5",
-  candidate: "Manta 1.2 beta",
+  candidate: `Manta ${daemon.source.manta.release.slice(1).replaceAll("-", " ")}`,
   href: "/docs/manta/benchmarks",
   description: "Paper + Bedrock · 2 CPU cores per daemon.",
   metrics: [
@@ -277,7 +281,7 @@ const num = (n, d = 1) => n.toFixed(d),
   table = (heads, rows) =>
     `| ${heads.join(" | ")} |\n| ${heads.map(() => "---").join(" | ")} |\n${rows.map((r) => "| " + r.join(" | ") + " |").join("\n")}\n`;
 const names = {
-  aquadactyl: "Aquadactyl v1.2-beta",
+  aquadactyl: `Aquadactyl ${releases.aquadactyl}`,
   pterodactyl_v1: "Pterodactyl v1.15.2",
   pterodactyl_v2: "Pterodactyl v2.0.0-beta.3",
 };
@@ -300,7 +304,7 @@ for (const [id, key] of [
   const pair = ["aquadactyl", key],
     a = panels.panels.aquadactyl,
     p = panels.panels[key];
-  let doc = `---\ntitle: Aquadactyl vs ${key === "pterodactyl_v1" ? "Pterodactyl Panel v1" : "Pterodactyl Panel v2"} benchmarks\ndescription: Current tagged releases compared using matched browser, API, memory and frontend build workloads.\n---\n\nMeasured **${date}**. These tables select two products from one matched **three-panel run**; Aquadactyl's samples are shared by both comparison pages. They are fresh measurements of unmodified release tags, with each product's own locked dependencies and bundled features. No external addons were installed.\n\n${rawLinks}\n\n## Compared releases\n\n${sourceTable}\n${panels.methodology.fixture}\n\n${panels.methodology.sharedConfiguration}\n\nThe production assets served here are byte-for-byte the assets from the [new frontend build comparison](/docs/panel/benchmarks). Artifact hashes are checked before publication. Panel v2 keeps its bundled extension system enabled. This measures whole distributions under matched settings, not one isolated optimization or their default deployment presets.\n\n## Browser load time\n\n${panels.methodology.browser}\n\nThe milestone is the **first visible server-row link**, not Time to Interactive or completion of all server status calls. All three releases rendered 50 fixture rows in these runs; the raw samples retain rendered and viewport-visible row counts. Cold browser cache does not mean cold PHP, database or operating-system caches.\n\n`;
+  let doc = `---\ntitle: Aquadactyl vs ${key === "pterodactyl_v1" ? "Pterodactyl Panel v1" : "Pterodactyl Panel v2"} benchmarks\ndescription: Current tagged releases compared using matched browser, API, memory and frontend build workloads.\n---\n\nMeasured **${date}**. These tables select two products from one matched **three-panel run**; Aquadactyl's samples are shared by both comparison pages. They are fresh measurements of unmodified release tags, with each product's own locked dependencies and bundled features. No external addons were installed.\n\n${rawLinks}\n\n## Compared releases\n\n${sourceTable}\n${panels.methodology.fixture}\n\n${panels.methodology.sharedConfiguration}\n\nThe production assets served here are byte-for-byte the assets from the [new frontend build comparison](/docs/panel/benchmarks). Artifact hashes are checked before publication. Panel v2 keeps its bundled extension system enabled. This measures whole distributions under matched settings, not one isolated optimization or their default deployment presets.\n\n## Browser load time\n\n${panels.methodology.browser}\n\nThe milestone is the **first server-row link with a nonzero layout rectangle intersecting the viewport**. It does not wait for opacity animations, Time to Interactive or completion of all server status calls. All three releases rendered 50 fixture rows in these runs; the raw samples retain rendered and viewport-visible row counts. Cold browser cache does not mean cold PHP, database or operating-system caches.\n\n`;
   doc += table(
     ["Measurement", names[key], names.aquadactyl],
     ["cold", "warm"].flatMap((cache) =>
@@ -327,7 +331,7 @@ for (const [id, key] of [
         mib(a.browser[c].heapUsedBytes.median),
       ]),
     );
-  doc += `\n## Authenticated API\n\n${panels.methodology.api}\n\nEach row reports the median of three window rates and the median of three per-window p95 latencies. These are not pooled percentiles. Every measured request returned a valid successful response.\n\n`;
+  doc += `\n## Authenticated API\n\n${panels.methodology.api}\n\nEach row reports the median of three window rates and the median of three per-window p95 latencies. These are not pooled percentiles. Every measured request returned a valid successful response. The server-list fixture has 50 owned records without additional members and requests the default response; it does not measure explicit subuser includes or high-membership scenarios.\n\n`;
   doc += table(
     [
       "Endpoint / concurrency",
@@ -378,7 +382,7 @@ for (const [id, key] of [
     doc,
   );
 }
-let buildDoc = `---\ntitle: Production frontend build benchmarks\ndescription: Five production builds of Aquadactyl, Pterodactyl Panel v1 and Panel v2, with all-route asset hashes and raw logs.\n---\n\nMeasured **${date}**, before the [live browser/API/memory comparison](/docs/panel/panel-comparison). The tested releases are Aquadactyl v1.2-beta, Pterodactyl v1.15.2 and Pterodactyl v2.0.0-beta.3.\n\n[Raw samples and asset hashes](/benchmarks/${artifacts.build}) · [Full build logs](/benchmarks/${prefix}build-logs.txt) · [Exact measured runner](/benchmarks/${prefix}builds-runner.txt)\n\n## Source and commands\n\n`;
+let buildDoc = `---\ntitle: Production frontend build benchmarks\ndescription: Five production builds of Aquadactyl, Pterodactyl Panel v1 and Panel v2, with all-route asset hashes and raw logs.\n---\n\nMeasured **${date}**, before the [live browser/API/memory comparison](/docs/panel/panel-comparison). The tested releases are Aquadactyl ${releases.aquadactyl}, Pterodactyl v1.15.2 and Pterodactyl v2.0.0-beta.3.\n\n[Raw samples and asset hashes](/benchmarks/${artifacts.build}) · [Full build logs](/benchmarks/${prefix}build-logs.txt) · [Exact measured runner](/benchmarks/${prefix}builds-runner.txt)\n\n## Source and commands\n\n`;
 buildDoc += table(
   ["Product", "Exact source", "Production command", "Package manager"],
   families.map((k) => {
@@ -438,7 +442,7 @@ const perfRows = (v, test, c) =>
   );
 const perfValue = (v, test, field, c) =>
   median(perfRows(v, test, c).map((r) => r[field]));
-let daemonDoc = `---\ntitle: Wings vs Manta benchmarks\ndescription: Fresh current-release measurements of daemon APIs, file operations, game lifecycle and resource use.\n---\n\nMeasured **${date}**: **Manta v1.2-beta** versus **Wings v1.13.5**, compiled from unmodified release tags with Go 1.27.4 and matching build flags. Both use the same runtime image and resource limits. The homepage shows three fixed metrics; all measured workloads, including regressions, appear here.\n\n[Raw results](/benchmarks/${artifacts.daemon}) · [Exact setup and runner files](/benchmarks/${artifacts.setup}) · [Repository harness](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite)\n\n## Sources and environment\n\n`;
+let daemonDoc = `---\ntitle: Wings vs Manta benchmarks\ndescription: Fresh current-release measurements of daemon APIs, file operations, game lifecycle and resource use.\n---\n\nMeasured **${date}**: **Manta ${daemon.source.manta.release}** versus **Wings v1.13.5**, compiled from unmodified release tags with Go 1.27.4 and matching build flags. Both use the same runtime image and resource limits. The homepage shows three fixed metrics; all measured workloads, including regressions, appear here.\n\n[Raw results](/benchmarks/${artifacts.daemon}) · [Exact setup and runner files](/benchmarks/${artifacts.setup}) · [Repository harness](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite)\n\n## Sources and environment\n\n`;
 daemonDoc += table(
   ["Setting", "Wings", "Manta"],
   [
@@ -607,6 +611,11 @@ daemonDoc +=
     ),
   );
 daemonDoc += `\nEach game-query row contains 50 sequential local Java status or Bedrock UDP queries. These are server-query round trips, not gameplay latency. CPU core-seconds, sample arrays, observed peaks and Paper tick output are retained in the raw report.\n\n## Reproduction and limitations\n\nThe website repository contains the exact guarded [setup, provisioning and workload sources](https://github.com/Aquadactyl/website/tree/main/scripts/daemon-suite). Follow its README with clean tagged checkouts and fresh disposable databases. Game binaries are downloaded from their publishers and are not redistributed with the report. Private account passwords, node tokens and configuration files are excluded from public artifacts.\n\n${daemon.methodology.limitations}\n\n[November 2 results](/benchmarks/daemon-comparison.json), [its historical Manta source patch](/benchmarks/daemon-comparison-manta.patch), [coverage report](/benchmarks/daemon-coverage.json) and [microbenchmarks](/benchmarks/daemon-microbenchmarks.txt) remain available. Those security/coverage/microbenchmark runs were **not repeated** as part of this current-release performance comparison. Older 400-request API batches and existing worlds differ from this rerun; do not present differences across dates as a controlled optimization experiment.\n`;
+const previousGuide = fs.readFileSync("docs/manta/benchmarks.mdx", "utf8");
+const followup = previousGuide.indexOf(
+  "## v1.3-beta directory-listing follow-up",
+);
+if (followup !== -1) daemonDoc += "\n" + previousGuide.slice(followup);
 fs.writeFileSync("docs/manta/benchmarks.mdx", daemonDoc);
 console.log(
   "Published validated measurements and guides for all five releases; homepage values are derived from the raw reports.",

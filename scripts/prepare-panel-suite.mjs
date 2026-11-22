@@ -47,8 +47,6 @@ const manifest = {
         .digest("hex"),
     })),
 };
-manifest.comparison =
-  "Aquadactyl v1.2-beta vs Pterodactyl v1.15.2 and v2.0.0-beta.3";
 manifest.runtimeMajor = "8.4";
 manifest.families = families;
 for (const [index, family] of families.entries()) {
@@ -251,6 +249,12 @@ for (const [index, family] of families.entries()) {
       .digest("hex"),
   };
 }
+manifest.comparison = families
+  .map(
+    (family) =>
+      `${family === "aquadactyl" ? "Aquadactyl" : "Pterodactyl"} ${manifest.panels[family].release}`,
+  )
+  .join(" vs ");
 fs.writeFileSync(
   path.join(work, "compose.json"),
   JSON.stringify(
