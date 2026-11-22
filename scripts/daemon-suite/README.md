@@ -26,14 +26,14 @@ Create a private JSON configuration outside the repository:
 
 The asset directory contains `server.jar`, `paper-metadata.json` from the Paper
 Fill v3 build API, `bedrock-current.zip` and `bedrock-links.json` from Microsoft's
-official Bedrock download-links API. The November 20 run pins Paper 26.3 build
-257 and Bedrock 1.26.66.1. The Paper publisher checksum is verified; all assets
+official Bedrock download-links API. The November 22 run reuses the November 20 publisher downloads, pinning Paper
+26.3 build 257 and Bedrock 1.26.66.1 for comparison continuity. The Paper publisher checksum is verified; all assets
 and runtime images are hashed/pinned before measurement. Download the binaries
 from their publishers and comply with their terms; they are not redistributed.
 The Bedrock fixtures explicitly use `transport=raknet` so the UDP query workload
 is consistent; the current publisher download otherwise defaults to NetherNet.
-The published final run uses previously initialized worlds, and excludes its
-first cached start from the warm-start medians. Normal startup configuration
+The published warm-start medians exclude the first start, which initializes
+fresh worlds on new fixture data. Normal startup configuration
 sync and registry digest checks are included; image layers are already cached.
 
 ```bash

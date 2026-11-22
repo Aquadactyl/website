@@ -1,46 +1,46 @@
 {
   "schemaVersion": 2,
-  "measuredOn": "2026-11-20",
+  "measuredOn": "2026-11-22",
   "sources": {
     "panel": {
-      "file": "2026-11-20-panels.json",
-      "sha256": "d1a1eadfe220eeeefff325817c048aeb2546cdd4f82984e9e2ea430c8611387a"
+      "file": "2026-11-22-panels.json",
+      "sha256": "1e7772df2c37cb4ea9f45167b9da761399fe949ac22c3594f4fa8d48baf10565"
     },
     "panel-v2": {
-      "file": "2026-11-20-panels.json",
-      "sha256": "d1a1eadfe220eeeefff325817c048aeb2546cdd4f82984e9e2ea430c8611387a"
+      "file": "2026-11-22-panels.json",
+      "sha256": "1e7772df2c37cb4ea9f45167b9da761399fe949ac22c3594f4fa8d48baf10565"
     },
     "daemon": {
-      "file": "2026-11-20-daemons.json",
-      "sha256": "4bcfb2ba6f84fffc5349b6faefd683709f5990ff03190005d2f04de8cf4ac9f5"
+      "file": "2026-11-22-daemons.json",
+      "sha256": "edf9013c4d53e41ef9a0775677ed5be69b5359816a9ee21e7e81ec694b0af44a"
     },
     "build": {
-      "file": "2026-11-20-builds.json",
-      "sha256": "a36ed78f0116db8adbcf30f391310a6b854a01f7117ac52acb8908d9e71c4e09"
+      "file": "2026-11-22-builds.json",
+      "sha256": "3a2f180786ed0e60c9af7e8ec11b32a3b23a90442c1ffd89465f9f6074c4d795"
     },
     "setup": {
-      "file": "2026-11-20-setup.json",
-      "sha256": "e6e7222a7ca0377c2317aeee2f688ce0a4ca31a7038ab93dbfa48fdb78fa003f"
+      "file": "2026-11-22-setup.json",
+      "sha256": "74cce0d7f97470ae2fb4250d30277f4ecac2090d4b4337261276f86709e39a48"
     }
   },
   "comparisons": {
     "panel": {
       "label": "Panel v1",
-      "measuredOn": "2026-11-20",
+      "measuredOn": "2026-11-22",
       "baseline": "Panel v1.15.2",
-      "candidate": "Aquadactyl 1.2 beta",
+      "candidate": "Aquadactyl 1.3 beta",
       "href": "/docs/panel/panel-comparison",
       "description": "50 server records · PHP 8.4 · 2 CPU cores per panel.",
       "metrics": [
         {
           "id": "browser",
           "label": "Browser load",
-          "context": "First visible server row · cold browser cache · median",
+          "context": "First server row in viewport · cold browser cache · median",
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 263,
-          "candidate": 218.65000000596046
+          "baseline": 266.40000000596046,
+          "candidate": 214.7999999821186
         },
         {
           "id": "api",
@@ -49,8 +49,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 23.57388491791008,
-          "candidate": 92.1947336967936
+          "baseline": 22.925282024602335,
+          "candidate": 90.04421475346825
         },
         {
           "id": "memory",
@@ -59,28 +59,28 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 145.919921875,
-          "candidate": 126.685546875
+          "baseline": 161.32421875,
+          "candidate": 142.703125
         }
       ]
     },
     "panel-v2": {
       "label": "Panel v2 (beta)",
-      "measuredOn": "2026-11-20",
+      "measuredOn": "2026-11-22",
       "baseline": "Panel v2 beta 3",
-      "candidate": "Aquadactyl 1.2 beta",
+      "candidate": "Aquadactyl 1.3 beta",
       "href": "/docs/panel/panel-v2-comparison",
       "description": "50 server records · PHP 8.4 · 2 CPU cores per panel.",
       "metrics": [
         {
           "id": "browser",
           "label": "Browser load",
-          "context": "First visible server row · cold browser cache · median",
+          "context": "First server row in viewport · cold browser cache · median",
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 485.55000001192093,
-          "candidate": 218.65000000596046
+          "baseline": 488.39999997615814,
+          "candidate": 214.7999999821186
         },
         {
           "id": "api",
@@ -89,8 +89,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 84.86547233247296,
-          "candidate": 92.1947336967936
+          "baseline": 81.94572478505769,
+          "candidate": 90.04421475346825
         },
         {
           "id": "memory",
@@ -99,16 +99,16 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 123.681640625,
-          "candidate": 126.685546875
+          "baseline": 148.76171875,
+          "candidate": 142.703125
         }
       ]
     },
     "daemon": {
       "label": "Wings vs Manta",
-      "measuredOn": "2026-11-20",
+      "measuredOn": "2026-11-22",
       "baseline": "Wings 1.13.5",
-      "candidate": "Manta 1.2 beta",
+      "candidate": "Manta 1.3 beta",
       "href": "/docs/manta/benchmarks",
       "description": "Paper + Bedrock · 2 CPU cores per daemon.",
       "metrics": [
@@ -119,8 +119,8 @@
           "unit": "req/s",
           "better": "higher",
           "changeLabel": "throughput",
-          "baseline": 66951.2986900272,
-          "candidate": 84766.03383181209
+          "baseline": 65224.95894256162,
+          "candidate": 82869.68195707675
         },
         {
           "id": "files",
@@ -129,8 +129,8 @@
           "unit": "ms",
           "better": "lower",
           "changeLabel": "time",
-          "baseline": 62.463,
-          "candidate": 67.78
+          "baseline": 60.876,
+          "candidate": 52.094
         },
         {
           "id": "memory",
@@ -139,8 +139,8 @@
           "unit": "MiB",
           "better": "lower",
           "changeLabel": "memory",
-          "baseline": 44.911197916666666,
-          "candidate": 43.21171875
+          "baseline": 43.87682291666667,
+          "candidate": 47.81692708333333
         }
       ]
     }

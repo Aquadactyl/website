@@ -3,15 +3,15 @@ title: Production frontend build benchmarks
 description: Five production builds of Aquadactyl, Pterodactyl Panel v1 and Panel v2, with all-route asset hashes and raw logs.
 ---
 
-Measured **2026-11-20**, before the [live browser/API/memory comparison](/docs/panel/panel-comparison). The tested releases are Aquadactyl v1.2-beta, Pterodactyl v1.15.2 and Pterodactyl v2.0.0-beta.3.
+Measured **2026-11-22**, before the [live browser/API/memory comparison](/docs/panel/panel-comparison). The tested releases are Aquadactyl v1.3-beta, Pterodactyl v1.15.2 and Pterodactyl v2.0.0-beta.3.
 
-[Raw samples and asset hashes](/benchmarks/2026-11-20-builds.json) · [Full build logs](/benchmarks/2026-11-20-build-logs.txt) · [Exact measured runner](/benchmarks/2026-11-20-builds-runner.txt)
+[Raw samples and asset hashes](/benchmarks/2026-11-22-builds.json) · [Full build logs](/benchmarks/2026-11-22-build-logs.txt) · [Exact measured runner](/benchmarks/2026-11-22-builds-runner.txt)
 
 ## Source and commands
 
 | Product                   | Exact source                                                                                           | Production command          | Package manager |
 | ------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------- | --------------- |
-| Aquadactyl v1.2-beta      | [4af0abc9f41f](https://github.com/Aquadactyl/aquadactyl/tree/4af0abc9f41f1348a99082f4334365c77fa849f7) | `pnpm run build`            | 12.15.0         |
+| Aquadactyl v1.3-beta      | [bdd2d879a15d](https://github.com/Aquadactyl/aquadactyl/tree/bdd2d879a15d85293d8a94b51334aba4b695dbf7) | `pnpm run build`            | 12.15.0         |
 | Pterodactyl v1.15.2       | [90b2aa87469d](https://github.com/pterodactyl/panel/tree/90b2aa87469da4fffd941b3c99f3c1ca48a01b78)     | `yarn run build:production` | 1.22.22         |
 | Pterodactyl v2.0.0-beta.3 | [7f676fc22ccf](https://github.com/pterodactyl/panel/tree/7f676fc22ccfdffd8fb360b393e116c77d05236b)     | `npm run build`             | 11.19.1         |
 
@@ -21,9 +21,9 @@ One discarded production build per panel, then five measured builds each, sequen
 
 | Product                   | Median (s) | Minimum (s) | Maximum (s) | Five measured samples (s)              |
 | ------------------------- | ---------- | ----------- | ----------- | -------------------------------------- |
-| Aquadactyl v1.2-beta      | 0.820      | 0.808       | 0.863       | 0.810, 0.808, 0.863, 0.820, 0.821      |
-| Pterodactyl v1.15.2       | 10.608     | 10.546      | 10.657      | 10.623, 10.546, 10.582, 10.608, 10.657 |
-| Pterodactyl v2.0.0-beta.3 | 11.873     | 11.750      | 11.993      | 11.873, 11.751, 11.974, 11.993, 11.750 |
+| Aquadactyl v1.3-beta      | 0.843      | 0.828       | 0.862       | 0.835, 0.828, 0.862, 0.845, 0.843      |
+| Pterodactyl v1.15.2       | 10.859     | 10.792      | 10.872      | 10.792, 10.802, 10.872, 10.870, 10.859 |
+| Pterodactyl v2.0.0-beta.3 | 12.174     | 12.024      | 12.264      | 12.078, 12.024, 12.264, 12.189, 12.174 |
 
 ## All-route JavaScript and CSS
 
@@ -31,7 +31,7 @@ Totals include **all manifest-emitted JavaScript and CSS**, with per-file gzip l
 
 | Product                   | Files | Uncompressed (KiB) | Gzip (KiB) |
 | ------------------------- | ----- | ------------------ | ---------- |
-| Aquadactyl v1.2-beta      | 157   | 3120.5             | 1032.0     |
+| Aquadactyl v1.3-beta      | 157   | 3120.5             | 1032.0     |
 | Pterodactyl v1.15.2       | 17    | 2659.6             | 741.2      |
 | Pterodactyl v2.0.0-beta.3 | 331   | 4516.7             | 1446.4     |
 

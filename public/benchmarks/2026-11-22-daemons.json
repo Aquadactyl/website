@@ -1,0 +1,3615 @@
+{
+  "schemaVersion": 2,
+  "measuredOn": "2026-11-22",
+  "startedAt": "2026-11-22T13:39:37.237Z",
+  "source": {
+    "manta": {
+      "revision": "25dac4d729af64f53f711bf3a3f974b3c6a7b927",
+      "release": "v1.3-beta",
+      "goSumSha256": "3b344b64dbf6723b6732241b7d0e66a93ae4c69955c6780a6a002cf4ee943dd6",
+      "binarySha256": "c301a7144c781a77e89df07849b5e638e0dc4c5060a2669f490c805c6017c719",
+      "panelBackend": {
+        "family": "aquadactyl",
+        "release": "v1.3-beta",
+        "revision": "bdd2d879a15d85293d8a94b51334aba4b695dbf7"
+      }
+    },
+    "wings": {
+      "revision": "3236480d078c09b823b8a8f21dab76c4029608a5",
+      "release": "v1.13.5",
+      "goSumSha256": "d50c55b0b0a1ddc4704df37a3ea4cff3fe3a2ebf50916d5dc567960214491e4c",
+      "binarySha256": "dedf4403a5ae848fce59a71f9fb195b4b47f96fe6dea999e18ae874dc04ecb8c",
+      "panelBackend": {
+        "family": "pterodactyl_v1",
+        "release": "v1.15.2",
+        "revision": "90b2aa87469da4fffd941b3c99f3c1ca48a01b78"
+      }
+    }
+  },
+  "engine": {
+    "container": "aqbench-v13-hxvfpq-daemons",
+    "imageId": "sha256:3f3c01aaaebf7cce837356b688b7c059a4749f10bd7660dec7c58fc454a283f0",
+    "version": "29.8.1",
+    "cpuLimit": 16,
+    "memoryLimit": 12884901888
+  },
+  "images": {
+    "paper": {
+      "reference": "ghcr.io/pterodactyl/yolks@sha256:c687f099c41bfcad67ffc9f21cac64619e14bccd21404e9305c55f7c1a4d7ba9",
+      "imageId": "sha256:d94ec170267e490266c05d9054b9bebb28694429c65619ddde51aafaa72e3c91"
+    },
+    "bedrock": {
+      "reference": "ghcr.io/ptero-eggs/yolks@sha256:3a31e5b23e671dfa8c0f3487003cc6dc6e2f44b5fac1212e194e0954eac8bd71",
+      "imageId": "sha256:212a7a92bb73fa01da78b0c0da54d871da0d81e4dfa4a8b14ec3b9e9c7438f8a"
+    }
+  },
+  "gameAssets": {
+    "paper": {
+      "id": 257,
+      "time": "2026-11-20T13:03:27Z",
+      "channel": "STABLE",
+      "commits": [
+        {
+          "sha": "d81ca50aeb956bccd912c124638f556b564ea8af",
+          "time": "2026-11-20T13:03:09Z",
+          "message": "Add vanilla collision tolerance during player movement checks (#14456)\n\nCo-authored-by: Javier Flores <113814758+JavierFlores09@users.noreply.github.com>"
+        }
+      ],
+      "downloads": {
+        "server:default": {
+          "name": "paper-26.3-257.jar",
+          "checksums": {
+            "sha256": "64a5bd44910cb982b2648e9a35036cc95a6de4d561e15812aecf5411f84f7b01"
+          },
+          "size": 55305512,
+          "url": "https://fill-data.papermc.io/v1/objects/64a5bd44910cb982b2648e9a35036cc95a6de4d561e15812aecf5411f84f7b01/paper-26.3-257.jar"
+        }
+      }
+    },
+    "bedrock": {
+      "downloadType": "serverBedrockLinux",
+      "downloadUrl": "https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-1.26.66.1.zip"
+    },
+    "paperJarSha256": "64a5bd44910cb982b2648e9a35036cc95a6de4d561e15812aecf5411f84f7b01",
+    "bedrockZipSha256": "e87bcd95bec5cc34b065ca956825c6abb7a0c356ae79408302845069cecaa6bf"
+  },
+  "compilerImage": "sha256:70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280",
+  "environment": {
+    "hostCpu": "Intel(R) Core(TM) i7-14700KF",
+    "hostLogicalCpus": 28,
+    "hostMemoryGiB": 64,
+    "hostOs": "win32 10.0.26300 x64"
+  },
+  "methodology": {
+    "api": "Three alternating repetitions per daemon, endpoint and concurrency (1/16/32). Five-second closed-loop authenticated HTTP/1.1 windows with persistent connections; one discarded request before each window. No new requests after the deadline; in-flight requests are drained. Throughput is successful requests per actual elapsed second. Body receipt is included, percentile sorting and publication are excluded. Timed responses must be HTTP 200. This replaces the old 400-request batches; do not claim a controlled before/after comparison across methods.",
+    "lifecycle": "Four start/stop rounds per game and daemon in alternating order. Fresh worlds are initialized by the first start, which is retained as a discarded warm-up; only the next three warm starts contribute to the published lifecycle medians. Timers cover power request through daemon-reported state, with 100 ms polling; shutdown is not a separately timed OS process exit. Identical cached binaries/image layers, seed and properties; normal configuration sync and registry digest checks remain in the timed power path. Bedrock explicitly uses transport=raknet for the UDP query workload.",
+    "resources": "Fifteen Docker working-set samples at two-second intervals for each of six containers, once idle and once under matching game command load. Mean is arithmetic mean; raw sample values and observed peaks are retained. Working set subtracts inactive file cache, not RSS. Commands alternate 4096 blocks between stone and air, five iterations/second per node across both games, with matching forced/ticking areas. This is not real-player load.",
+    "transfers": "16 MiB shared random payload, three repetitions with five samples each for HTTP and SFTP read/write. SFTP authentication is outside transfer timers and uses each daemon's native Panel backend. Hash-verified reads and archives; 1000 x 256-byte directory fixture; 100 console lines delivered to 16 subscribers; automatic stats validated for 16 viewers per game/daemon.",
+    "isolation": "Unmodified tagged source, identical Go 1.27.4 compiler/build flags and common Alpine runtime image. Each daemon has a two-core quota, 1 GiB RAM, GOMAXPROCS=2. Games have matching pinned images and configured limits. Private nested Docker engine is limited to 16 cores/12 GiB and publishes no host ports. Manta uses Aquadactyl; stock Wings uses its native Pterodactyl v1 backend (Wings page=0 bootstrap is incompatible with Aquadactyl validation). No production-code compatibility patch is applied. Panel and daemon workloads do not overlap.",
+    "limitations": "Single shared Windows/WSL2 workstation with unrelated existing containers, no CPU pinning or repeated clean-machine trials. Linux container networking; no TLS/WAN/mobile/endurance test or authenticated players. Daemon and game memory are separate; this is a controlled local distribution comparison, not general hosting capacity. No new security audit, race test or full coverage run is claimed by this performance rerun."
+  },
+  "runnerFiles": [
+    {
+      "file": "events.go",
+      "sha256": "da9450540953c17219db98203faed984d58364745ec631a1c67fea3a7d26c837"
+    },
+    {
+      "file": "main.go",
+      "sha256": "8750666f9d5457ccb240b316b8f51038d902df733221f57c545820b38ee795a7"
+    },
+    {
+      "file": "performance.go",
+      "sha256": "9aaaa998aaea5717bf2a56743370bb14a95fb40ae6c93ec68f5474ad2dc3b96f"
+    },
+    {
+      "file": "resources.go",
+      "sha256": "a8bd078995b104c6b55014cebb06ab0cfab86ee0173d92d411c4b67d384b2c91"
+    },
+    {
+      "file": "sockets.go",
+      "sha256": "3a341d372fb048e6daa7c8fd792ad32c6c7db2c5f2dd47afd07e19dc99614b45"
+    }
+  ],
+  "phases": {
+    "lifecycle": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "270d69d6-39c9-4380-a671-3fc57f17f848",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "270d69d6",
+            "port": 27015
+          },
+          {
+            "id": 52,
+            "uuid": "326c4b09-5862-4a42-b5b1-c543b7e197d2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "326c4b09",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "product": "manta",
+          "version": "1.3-beta"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "dce0ddc9-b4e7-4e53-aae4-675586b4ca09",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "dce0ddc9",
+            "port": 27115
+          },
+          {
+            "id": 52,
+            "uuid": "6749209c-a271-4a03-9abb-73df7a810f31",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "6749209c",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.5"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "cold": true,
+        "game": "bedrock",
+        "round": 0,
+        "start_ms": 1108.215,
+        "stop_ms": 806.405,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "bedrock",
+        "round": 0,
+        "start_ms": 1108.095,
+        "stop_ms": 806.405,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 1,
+        "start_ms": 1108.314,
+        "stop_ms": 806.607,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 1,
+        "start_ms": 1108.433,
+        "stop_ms": 906.965,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 2,
+        "start_ms": 1108.519,
+        "stop_ms": 806.518,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 2,
+        "start_ms": 1108.994,
+        "stop_ms": 907.153,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 3,
+        "start_ms": 1108.45,
+        "stop_ms": 907.008,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "bedrock",
+        "round": 3,
+        "start_ms": 1108.398,
+        "stop_ms": 806.595,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "paper",
+        "round": 0,
+        "start_ms": 7456.521,
+        "stop_ms": 806.617,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": true,
+        "game": "paper",
+        "round": 0,
+        "start_ms": 7558.491,
+        "stop_ms": 806.644,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 1,
+        "start_ms": 6650.361,
+        "stop_ms": 806.825,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 1,
+        "start_ms": 6550.823,
+        "stop_ms": 806.91,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 2,
+        "start_ms": 6448.592,
+        "stop_ms": 705.83,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 2,
+        "start_ms": 6753.204,
+        "stop_ms": 706.115,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 3,
+        "start_ms": 6550.139,
+        "stop_ms": 806.719,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cold": false,
+        "game": "paper",
+        "round": 3,
+        "start_ms": 6650.016,
+        "stop_ms": 705.611,
+        "test": "lifecycle",
+        "type": "measurement",
+        "variant": "manta"
+      }
+    ],
+    "performance": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "270d69d6-39c9-4380-a671-3fc57f17f848",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "270d69d6",
+            "port": 27015
+          },
+          {
+            "id": 52,
+            "uuid": "326c4b09-5862-4a42-b5b1-c543b7e197d2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "326c4b09",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "product": "manta",
+          "version": "1.3-beta"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "dce0ddc9-b4e7-4e53-aae4-675586b4ca09",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "dce0ddc9",
+            "port": 27115
+          },
+          {
+            "id": 52,
+            "uuid": "6749209c-a271-4a03-9abb-73df7a810f31",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "6749209c",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.5"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000102113,
+        "errors": 0,
+        "mean_ms": 0.1332731144203899,
+        "n": 37336,
+        "p50_ms": 0.129,
+        "p95_ms": 0.183,
+        "p99_ms": 0.26,
+        "requests_per_second": 7467.047503475656,
+        "round": 0,
+        "successes": 37336,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.007090533,
+        "errors": 0,
+        "mean_ms": 0.19218461883276416,
+        "n": 414936,
+        "p50_ms": 0.147,
+        "p95_ms": 0.544,
+        "p99_ms": 0.932,
+        "requests_per_second": 82869.68195707675,
+        "round": 0,
+        "successes": 414936,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.005007577,
+        "errors": 0,
+        "mean_ms": 0.3850287639572233,
+        "n": 414929,
+        "p50_ms": 0.289,
+        "p95_ms": 1.129,
+        "p99_ms": 1.817,
+        "requests_per_second": 82902.77159754238,
+        "round": 0,
+        "successes": 414929,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.002346234,
+        "errors": 0,
+        "mean_ms": 7.094653900709221,
+        "n": 705,
+        "p50_ms": 7.047,
+        "p95_ms": 7.827,
+        "p99_ms": 8.329,
+        "requests_per_second": 140.93386723378893,
+        "round": 0,
+        "successes": 705,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.05278829,
+        "errors": 0,
+        "mean_ms": 61.818755760368546,
+        "n": 1302,
+        "p50_ms": 52.094,
+        "p95_ms": 144.986,
+        "p99_ms": 197.608,
+        "requests_per_second": 257.6795078821717,
+        "round": 0,
+        "successes": 1302,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.106648026,
+        "errors": 0,
+        "mean_ms": 122.41119969742823,
+        "n": 1322,
+        "p50_ms": 99.832,
+        "p95_ms": 289.994,
+        "p99_ms": 416.005,
+        "requests_per_second": 258.8782295684304,
+        "round": 0,
+        "successes": 1322,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.158999999999999,
+        "n": 5,
+        "p50_ms": 10.234,
+        "p95_ms": 10.45,
+        "p99_ms": 10.45,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.272200000000002,
+        "n": 5,
+        "p50_ms": 9.571,
+        "p95_ms": 10.874,
+        "p99_ms": 10.874,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 77.80640000000001,
+        "n": 5,
+        "p50_ms": 76.661,
+        "p95_ms": 78.512,
+        "p99_ms": 78.512,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 39.0156,
+        "n": 5,
+        "p50_ms": 38.812,
+        "p95_ms": 39.305,
+        "p99_ms": 39.305,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.509,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 11.805,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 17.23,
+        "extract_ms": 54.529,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 3.5778112499999986,
+        "n": 1600,
+        "p50_ms": 3.558,
+        "p95_ms": 5.51,
+        "p99_ms": 5.606,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000112792,
+        "errors": 0,
+        "mean_ms": 0.14734847722496822,
+        "n": 33787,
+        "p50_ms": 0.143,
+        "p95_ms": 0.201,
+        "p99_ms": 0.282,
+        "requests_per_second": 6757.247567306477,
+        "round": 0,
+        "successes": 33787,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.0045054,
+        "errors": 0,
+        "mean_ms": 0.24911003349388305,
+        "n": 320357,
+        "p50_ms": 0.185,
+        "p95_ms": 0.746,
+        "p99_ms": 1.162,
+        "requests_per_second": 64013.71851851733,
+        "round": 0,
+        "successes": 320357,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.003287327,
+        "errors": 0,
+        "mean_ms": 0.49548374364670794,
+        "n": 322274,
+        "p50_ms": 0.366,
+        "p95_ms": 1.467,
+        "p99_ms": 2.152,
+        "requests_per_second": 64412.451042110624,
+        "round": 0,
+        "successes": 322274,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000857247,
+        "errors": 0,
+        "mean_ms": 7.728378670788247,
+        "n": 647,
+        "p50_ms": 7.705,
+        "p95_ms": 8.327,
+        "p99_ms": 8.581,
+        "requests_per_second": 129.37781825068762,
+        "round": 0,
+        "successes": 647,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.046630464,
+        "errors": 0,
+        "mean_ms": 69.10754810996568,
+        "n": 1164,
+        "p50_ms": 61.593,
+        "p95_ms": 140.717,
+        "p99_ms": 182.8,
+        "requests_per_second": 230.64894652052735,
+        "round": 0,
+        "successes": 1164,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.084928371,
+        "errors": 0,
+        "mean_ms": 137.9038017094017,
+        "n": 1170,
+        "p50_ms": 121.688,
+        "p95_ms": 302.59,
+        "p99_ms": 386.002,
+        "requests_per_second": 230.09173672389574,
+        "round": 0,
+        "successes": 1170,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.0434,
+        "n": 5,
+        "p50_ms": 10.241,
+        "p95_ms": 10.575,
+        "p99_ms": 10.575,
+        "round": 0,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 22.1654,
+        "n": 5,
+        "p50_ms": 20.963,
+        "p95_ms": 21.402,
+        "p99_ms": 21.402,
+        "round": 0,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 74.0202,
+        "n": 5,
+        "p50_ms": 73.455,
+        "p95_ms": 75.062,
+        "p99_ms": 75.062,
+        "round": 0,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 40.896,
+        "n": 5,
+        "p50_ms": 40.697,
+        "p95_ms": 41.63,
+        "p99_ms": 41.63,
+        "round": 0,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 4.101,
+        "round": 0,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 13.558,
+        "round": 0,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 13.237,
+        "extract_ms": 45.225,
+        "round": 0,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 4.014738125000001,
+        "n": 1600,
+        "p50_ms": 3.861,
+        "p95_ms": 7.357,
+        "p99_ms": 7.882,
+        "received_messages": 1600,
+        "round": 0,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000112255,
+        "errors": 0,
+        "mean_ms": 0.1435173706213021,
+        "n": 34685,
+        "p50_ms": 0.138,
+        "p95_ms": 0.198,
+        "p99_ms": 0.281,
+        "requests_per_second": 6936.844260909498,
+        "round": 1,
+        "successes": 34685,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.00421383,
+        "errors": 0,
+        "mean_ms": 0.2414133962606692,
+        "n": 330540,
+        "p50_ms": 0.181,
+        "p95_ms": 0.711,
+        "p99_ms": 1.129,
+        "requests_per_second": 66052.33333924101,
+        "round": 1,
+        "successes": 330540,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.005874475,
+        "errors": 0,
+        "mean_ms": 0.49523936944919467,
+        "n": 322702,
+        "p50_ms": 0.369,
+        "p95_ms": 1.48,
+        "p99_ms": 2.172,
+        "requests_per_second": 64464.660792358365,
+        "round": 1,
+        "successes": 322702,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.002569356,
+        "errors": 0,
+        "mean_ms": 7.465646268656718,
+        "n": 670,
+        "p50_ms": 7.449,
+        "p95_ms": 8.229,
+        "p99_ms": 8.574,
+        "requests_per_second": 133.93117662555,
+        "round": 1,
+        "successes": 670,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.041553694,
+        "errors": 0,
+        "mean_ms": 70.19491710296671,
+        "n": 1146,
+        "p50_ms": 60.876,
+        "p95_ms": 149.968,
+        "p99_ms": 187.164,
+        "requests_per_second": 227.31087866104951,
+        "round": 1,
+        "successes": 1146,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.108901671,
+        "errors": 0,
+        "mean_ms": 137.65213157894743,
+        "n": 1178,
+        "p50_ms": 116.673,
+        "p95_ms": 329.653,
+        "p99_ms": 416.753,
+        "requests_per_second": 230.57793550554322,
+        "round": 1,
+        "successes": 1178,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.628800000000002,
+        "n": 5,
+        "p50_ms": 10.925,
+        "p95_ms": 11.485,
+        "p99_ms": 11.485,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 21.991400000000002,
+        "n": 5,
+        "p50_ms": 20.427,
+        "p95_ms": 24.762,
+        "p99_ms": 24.762,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 81.74539999999999,
+        "n": 5,
+        "p50_ms": 80.484,
+        "p95_ms": 81.806,
+        "p99_ms": 81.806,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 38.794200000000004,
+        "n": 5,
+        "p50_ms": 38.609,
+        "p95_ms": 38.714,
+        "p99_ms": 38.714,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 3.415,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 13.918,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 15.316,
+        "extract_ms": 46.837,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 3.4678531250000026,
+        "n": 1600,
+        "p50_ms": 3.474,
+        "p95_ms": 5.342,
+        "p99_ms": 5.491,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000063699,
+        "errors": 0,
+        "mean_ms": 0.13522692934782354,
+        "n": 36800,
+        "p50_ms": 0.132,
+        "p95_ms": 0.184,
+        "p99_ms": 0.246,
+        "requests_per_second": 7359.906236266531,
+        "round": 1,
+        "successes": 36800,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.006062688,
+        "errors": 0,
+        "mean_ms": 0.1917781505047172,
+        "n": 415854,
+        "p50_ms": 0.146,
+        "p95_ms": 0.535,
+        "p99_ms": 0.928,
+        "requests_per_second": 83070.07441134145,
+        "round": 1,
+        "successes": 415854,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.005260902,
+        "errors": 0,
+        "mean_ms": 0.38867644203515544,
+        "n": 410999,
+        "p50_ms": 0.291,
+        "p95_ms": 1.156,
+        "p99_ms": 1.828,
+        "requests_per_second": 82113.40188795618,
+        "round": 1,
+        "successes": 410999,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.004023488,
+        "errors": 0,
+        "mean_ms": 7.137559201141229,
+        "n": 701,
+        "p50_ms": 7.096,
+        "p95_ms": 7.841,
+        "p99_ms": 8.237,
+        "requests_per_second": 140.08727210834388,
+        "round": 1,
+        "successes": 701,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.049337236,
+        "errors": 0,
+        "mean_ms": 61.51483626625867,
+        "n": 1307,
+        "p50_ms": 52.508,
+        "p95_ms": 141.606,
+        "p99_ms": 197.931,
+        "requests_per_second": 258.8458522202774,
+        "round": 1,
+        "successes": 1307,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.102768116,
+        "errors": 0,
+        "mean_ms": 122.08741358490559,
+        "n": 1325,
+        "p50_ms": 100.375,
+        "p95_ms": 298.377,
+        "p99_ms": 437.833,
+        "requests_per_second": 259.6629848503976,
+        "round": 1,
+        "successes": 1325,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.178199999999999,
+        "n": 5,
+        "p50_ms": 10.196,
+        "p95_ms": 10.418,
+        "p99_ms": 10.418,
+        "round": 1,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.787799999999999,
+        "n": 5,
+        "p50_ms": 9.725,
+        "p95_ms": 12.089,
+        "p99_ms": 12.089,
+        "round": 1,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 79.65119999999999,
+        "n": 5,
+        "p50_ms": 79.039,
+        "p95_ms": 80.926,
+        "p99_ms": 80.926,
+        "round": 1,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 39.6284,
+        "n": 5,
+        "p50_ms": 39.471,
+        "p95_ms": 40.533,
+        "p99_ms": 40.533,
+        "round": 1,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 3.984,
+        "round": 1,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 12.048,
+        "round": 1,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 17.69,
+        "extract_ms": 43.193,
+        "round": 1,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 3.1024718750000058,
+        "n": 1600,
+        "p50_ms": 3.094,
+        "p95_ms": 4.597,
+        "p99_ms": 4.719,
+        "received_messages": 1600,
+        "round": 1,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000065008,
+        "errors": 0,
+        "mean_ms": 0.1351686269183742,
+        "n": 36815,
+        "p50_ms": 0.132,
+        "p95_ms": 0.185,
+        "p99_ms": 0.251,
+        "requests_per_second": 7362.904270463837,
+        "round": 2,
+        "successes": 36815,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.006262396,
+        "errors": 0,
+        "mean_ms": 0.1945820112533339,
+        "n": 409834,
+        "p50_ms": 0.148,
+        "p95_ms": 0.549,
+        "p99_ms": 0.945,
+        "requests_per_second": 81864.26670872407,
+        "round": 2,
+        "successes": 409834,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.005363242,
+        "errors": 0,
+        "mean_ms": 0.38754439303919586,
+        "n": 412193,
+        "p50_ms": 0.29,
+        "p95_ms": 1.153,
+        "p99_ms": 1.822,
+        "requests_per_second": 82350.2671177366,
+        "round": 2,
+        "successes": 412193,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.002197801,
+        "errors": 0,
+        "mean_ms": 7.196571223021584,
+        "n": 695,
+        "p50_ms": 7.146,
+        "p95_ms": 8.022,
+        "p99_ms": 8.614,
+        "requests_per_second": 138.93892797703063,
+        "round": 2,
+        "successes": 695,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.051827838,
+        "errors": 0,
+        "mean_ms": 61.747618572524964,
+        "n": 1303,
+        "p50_ms": 51.762,
+        "p95_ms": 144.258,
+        "p99_ms": 187.508,
+        "requests_per_second": 257.9264459882807,
+        "round": 2,
+        "successes": 1303,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.104081703,
+        "errors": 0,
+        "mean_ms": 122.05191327300166,
+        "n": 1326,
+        "p50_ms": 100.509,
+        "p95_ms": 278.39,
+        "p99_ms": 407.952,
+        "requests_per_second": 259.79207958615234,
+        "round": 2,
+        "successes": 1326,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 9.785400000000001,
+        "n": 5,
+        "p50_ms": 10.156,
+        "p95_ms": 10.359,
+        "p99_ms": 10.359,
+        "round": 2,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 11.0324,
+        "n": 5,
+        "p50_ms": 11.075,
+        "p95_ms": 12.077,
+        "p99_ms": 12.077,
+        "round": 2,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 75.35159999999999,
+        "n": 5,
+        "p50_ms": 74.967,
+        "p95_ms": 76.706,
+        "p99_ms": 76.706,
+        "round": 2,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 40.096999999999994,
+        "n": 5,
+        "p50_ms": 39.117,
+        "p95_ms": 40.658,
+        "p99_ms": 40.658,
+        "round": 2,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "duration_ms": 3.382,
+        "round": 2,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "duration_ms": 11.259,
+        "round": 2,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "compress_ms": 20.048,
+        "extract_ms": 42.576,
+        "round": 2,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "manta",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 3.2134900000000015,
+        "n": 1600,
+        "p50_ms": 3.177,
+        "p95_ms": 4.758,
+        "p99_ms": 4.865,
+        "received_messages": 1600,
+        "round": 2,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.000125019,
+        "errors": 0,
+        "mean_ms": 0.14168361276365624,
+        "n": 35131,
+        "p50_ms": 0.137,
+        "p95_ms": 0.191,
+        "p99_ms": 0.26,
+        "requests_per_second": 7026.02432269304,
+        "round": 2,
+        "successes": 35131,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.004556619,
+        "errors": 0,
+        "mean_ms": 0.24447249572640312,
+        "n": 326422,
+        "p50_ms": 0.183,
+        "p95_ms": 0.72,
+        "p99_ms": 1.148,
+        "requests_per_second": 65224.95894256162,
+        "round": 2,
+        "successes": 326422,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.006277069,
+        "errors": 0,
+        "mean_ms": 0.4988198247125298,
+        "n": 320388,
+        "p50_ms": 0.37,
+        "p95_ms": 1.492,
+        "p99_ms": 2.198,
+        "requests_per_second": 63997.256960449704,
+        "round": 2,
+        "successes": 320388,
+        "test": "api_status",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 1,
+        "elapsed_seconds": 5.005325334,
+        "errors": 0,
+        "mean_ms": 7.503326836581714,
+        "n": 667,
+        "p50_ms": 7.466,
+        "p95_ms": 8.49,
+        "p99_ms": 9.115,
+        "requests_per_second": 133.25807125247695,
+        "round": 2,
+        "successes": 667,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 16,
+        "elapsed_seconds": 5.041839266,
+        "errors": 0,
+        "mean_ms": 69.23756675279927,
+        "n": 1161,
+        "p50_ms": 60.386,
+        "p95_ms": 146.445,
+        "p99_ms": 195.138,
+        "requests_per_second": 230.27310843272724,
+        "round": 2,
+        "successes": 1161,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "concurrency": 32,
+        "elapsed_seconds": 5.091865151,
+        "errors": 0,
+        "mean_ms": 137.87461125319692,
+        "n": 1173,
+        "p50_ms": 116.914,
+        "p95_ms": 326.807,
+        "p99_ms": 455.979,
+        "requests_per_second": 230.36745185006174,
+        "round": 2,
+        "successes": 1173,
+        "test": "directory_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 10.8654,
+        "n": 5,
+        "p50_ms": 10.849,
+        "p95_ms": 11.035,
+        "p99_ms": 11.035,
+        "round": 2,
+        "test": "http_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 23.1358,
+        "n": 5,
+        "p50_ms": 20.121,
+        "p95_ms": 27.938,
+        "p99_ms": 27.938,
+        "round": 2,
+        "test": "http_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 79.5058,
+        "n": 5,
+        "p50_ms": 78.731,
+        "p95_ms": 81.579,
+        "p99_ms": 81.579,
+        "round": 2,
+        "test": "sftp_write_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "bytes": 16777216,
+        "mean_ms": 39.9042,
+        "n": 5,
+        "p50_ms": 40.111,
+        "p95_ms": 41.005,
+        "p99_ms": 41.005,
+        "round": 2,
+        "test": "sftp_read_16m",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "duration_ms": 5.615,
+        "round": 2,
+        "test": "chmod_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "duration_ms": 12.215,
+        "round": 2,
+        "test": "rename_1000",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "compress_ms": 15.064,
+        "extract_ms": 44.344,
+        "round": 2,
+        "test": "archive_16m_1000_files",
+        "type": "measurement",
+        "variant": "wings",
+        "verified": true
+      },
+      {
+        "expected_messages": 1600,
+        "mean_ms": 3.681371875000002,
+        "n": 1600,
+        "p50_ms": 3.771,
+        "p95_ms": 5.596,
+        "p99_ms": 5.745,
+        "received_messages": 1600,
+        "round": 2,
+        "test": "websocket_16_subscribers_100_lines",
+        "type": "measurement",
+        "variant": "wings"
+      }
+    ],
+    "resources": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "270d69d6-39c9-4380-a671-3fc57f17f848",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "270d69d6",
+            "port": 27015
+          },
+          {
+            "id": 52,
+            "uuid": "326c4b09-5862-4a42-b5b1-c543b7e197d2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "326c4b09",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "product": "manta",
+          "version": "1.3-beta"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "dce0ddc9-b4e7-4e53-aae4-675586b4ca09",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "dce0ddc9",
+            "port": 27115
+          },
+          {
+            "id": 52,
+            "uuid": "6749209c-a271-4a03-9abb-73df7a810f31",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "6749209c",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.5"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 0.035858259045060334,
+        "cpu_core_seconds": 0.010803,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 50.60390625,
+        "peak_working_mib": 50.80859375,
+        "pids": 9,
+        "role": "daemon",
+        "samples_working_mib": [
+          50.78125,
+          50.78125,
+          50.53515625,
+          50.53515625,
+          50.53515625,
+          50.53515625,
+          50.55078125,
+          50.55078125,
+          50.80859375,
+          50.57421875,
+          50.57421875,
+          50.57421875,
+          50.57421875,
+          50.57421875,
+          50.57421875
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 1.5863603516924303,
+        "cpu_core_seconds": 0.477922,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 738.2630208333334,
+        "peak_working_mib": 738.75390625,
+        "pids": 41,
+        "role": "paper",
+        "samples_working_mib": [
+          738.21484375,
+          738.21875,
+          738,
+          738.00390625,
+          738.25,
+          738.75390625,
+          738.50390625,
+          738.5078125,
+          738.01171875,
+          738.5234375,
+          738.51953125,
+          738.3046875,
+          738.0390625,
+          738.28515625,
+          737.80859375
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 1.409614949708595,
+        "cpu_core_seconds": 0.424674,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 189.796875,
+        "peak_working_mib": 189.796875,
+        "pids": 46,
+        "role": "bedrock",
+        "samples_working_mib": [
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875,
+          189.796875
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 0.047256691106592974,
+        "cpu_core_seconds": 0.014237,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 51.752604166666664,
+        "peak_working_mib": 51.87109375,
+        "pids": 8,
+        "role": "daemon",
+        "samples_working_mib": [
+          51.734375,
+          51.75,
+          51.5234375,
+          51.77734375,
+          51.8046875,
+          51.8046875,
+          51.8046875,
+          51.8046875,
+          51.87109375,
+          51.87109375,
+          51.87109375,
+          51.66796875,
+          51.66796875,
+          51.66796875,
+          51.66796875
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 1.3668226998142212,
+        "cpu_core_seconds": 0.411782,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 739.6916666666667,
+        "peak_working_mib": 740.0078125,
+        "pids": 44,
+        "role": "paper",
+        "samples_working_mib": [
+          739.5,
+          739.99609375,
+          739.51171875,
+          739.515625,
+          739.75390625,
+          740.0078125,
+          740.0078125,
+          739.515625,
+          739.7734375,
+          739.77734375,
+          739.79296875,
+          739.29296875,
+          739.5625,
+          739.55859375,
+          739.80859375
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 1.3820582278172602,
+        "cpu_core_seconds": 0.416372,
+        "duration_s": 30.126950632,
+        "mean_working_mib": 189.8125,
+        "peak_working_mib": 189.8125,
+        "pids": 46,
+        "role": "bedrock",
+        "samples_working_mib": [
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125,
+          189.8125
+        ],
+        "test": "resources_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 1.9622799999999998,
+        "n": 50,
+        "p50_ms": 0.967,
+        "p95_ms": 1.346,
+        "p99_ms": 2.151,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.33641999999999994,
+        "n": 50,
+        "p50_ms": 0.301,
+        "p95_ms": 0.472,
+        "p99_ms": 0.55,
+        "status": "1.26.66",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "logs": "{\"data\":[\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-004\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-006\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-007\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-008\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-009\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-010\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-011\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-012\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-014\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-013\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-015\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-016\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-017\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-018\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-019\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-020\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-021\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-022\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-023\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-024\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-025\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-026\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-027\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-028\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-029\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-030\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-031\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-032\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-033\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-035\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-034\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-036\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-037\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-038\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-039\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-040\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-041\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-042\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-043\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-044\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-045\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-046\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-047\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-048\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-049\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-050\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-051\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-052\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-053\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-054\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-055\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-056\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-057\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-058\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-059\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-060\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-061\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-062\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-063\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-064\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-065\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-066\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-067\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-068\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-069\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-070\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-071\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-072\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-073\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-074\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-075\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-076\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-077\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-078\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-079\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-080\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-081\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-082\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-083\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-085\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-084\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-086\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-087\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-088\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-089\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-090\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-091\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-092\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-093\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-094\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-095\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-096\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-097\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-098\",\"[13:44:25 INFO]: [Not Secure] [Server] BENCHWS-1795355065368045253-099\",\"tps\",\"mspt\",\"[13:45:33 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[13:45:33 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[13:45:33 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.1\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.1\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m1.8\\u001b[93m, \\u001b[92m0.1\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m1.8\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "manta"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 2.79958,
+        "n": 50,
+        "p50_ms": 1.439,
+        "p95_ms": 3.146,
+        "p99_ms": 4.059,
+        "status": "Paper 26.3",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.3611800000000001,
+        "n": 50,
+        "p50_ms": 0.346,
+        "p95_ms": 0.47,
+        "p99_ms": 0.521,
+        "status": "1.26.66",
+        "test": "game_query_during_idle",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "logs": "{\"data\":[\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-005\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-006\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-007\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-008\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-009\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-010\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-011\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-012\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-013\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-014\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-015\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-016\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-017\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-018\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-019\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-020\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-021\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-022\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-023\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-024\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-025\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-026\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-027\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-029\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-028\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-030\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-031\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-032\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-033\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-034\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-035\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-036\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-037\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-038\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-039\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-040\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-041\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-042\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-043\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-044\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-045\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-046\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-047\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-049\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-048\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-050\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-051\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-052\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-053\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-054\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-055\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-056\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-057\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-058\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-059\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-060\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-061\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-062\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-063\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-064\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-065\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-066\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-067\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-068\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-069\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-070\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-071\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-072\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-073\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-074\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-075\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-076\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-077\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-078\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-079\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-080\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-081\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-082\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-083\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-084\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-085\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-086\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-087\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-088\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-089\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-090\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-091\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-092\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-093\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-094\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-095\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-096\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-097\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-098\",\"[13:44:56 INFO]: [Not Secure] [Server] BENCHWS-1795355096725765751-099\",\"tps\",\"mspt\",\"[13:45:34 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m, \\u001b[92m20.0\\u001b[0m\",\"[13:45:34 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[13:45:34 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.2\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m2.2\\u001b[93m, \\u001b[92m0.2\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m2.2\\u001b[93m, \\u001b[92m0.2\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m9.7\\u001b[0m\"]}",
+        "test": "paper_ticks_idle",
+        "type": "game_console",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 0.846515075705347,
+        "cpu_core_seconds": 0.255134,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 47.81692708333333,
+        "peak_working_mib": 55.796875,
+        "pids": 9,
+        "role": "daemon",
+        "samples_working_mib": [
+          51.59375,
+          52.37109375,
+          52.984375,
+          52.26953125,
+          52.05078125,
+          52.81640625,
+          52.640625,
+          53.8671875,
+          54.41796875,
+          55.796875,
+          47.80078125,
+          35.32421875,
+          34.3515625,
+          34.36328125,
+          34.60546875
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 15.557713089383185,
+        "cpu_core_seconds": 4.688991,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 764.7598958333333,
+        "peak_working_mib": 767.03125,
+        "pids": 45,
+        "role": "paper",
+        "samples_working_mib": [
+          741.83203125,
+          766.19921875,
+          765.70703125,
+          766.53515625,
+          765.54296875,
+          766.546875,
+          766.7578125,
+          766.03125,
+          766.5234375,
+          767.03125,
+          766.42578125,
+          766.6875,
+          766.70703125,
+          766.55859375,
+          766.3125
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 9.567165844202865,
+        "cpu_core_seconds": 2.88348,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 257.7513020833333,
+        "peak_working_mib": 262.76171875,
+        "pids": 46,
+        "role": "bedrock",
+        "samples_working_mib": [
+          192.546875,
+          261.92578125,
+          261.3203125,
+          261.3203125,
+          262.65234375,
+          262.44140625,
+          262.49609375,
+          262.5,
+          262.53125,
+          262.76171875,
+          262.75390625,
+          262.75390625,
+          262.75390625,
+          262.75390625,
+          262.7578125
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "cpu_core_percent": 9.345575010186005,
+        "cpu_core_seconds": 2.816694,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 257.9921875,
+        "peak_working_mib": 263.2890625,
+        "pids": 46,
+        "role": "bedrock",
+        "samples_working_mib": [
+          190.06640625,
+          262.23046875,
+          261.83203125,
+          262.08984375,
+          262.9140625,
+          262.82421875,
+          263.10546875,
+          262.890625,
+          263.2890625,
+          263.1015625,
+          263.10546875,
+          263.10546875,
+          263.10546875,
+          263.11328125,
+          263.109375
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 0.8327954623333871,
+        "cpu_core_seconds": 0.250999,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 43.87682291666667,
+        "peak_working_mib": 57.37890625,
+        "pids": 8,
+        "role": "daemon",
+        "samples_working_mib": [
+          53.16796875,
+          55.87890625,
+          57.25,
+          57.37890625,
+          45.91015625,
+          38.4140625,
+          38.9453125,
+          38.68359375,
+          38.6875,
+          38.68359375,
+          38.89453125,
+          39.15625,
+          39.0234375,
+          38.76953125,
+          39.30859375
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "cpu_core_percent": 15.850161496113849,
+        "cpu_core_seconds": 4.777133,
+        "duration_s": 30.139333288,
+        "mean_working_mib": 763.0330729166667,
+        "peak_working_mib": 764.91015625,
+        "pids": 45,
+        "role": "paper",
+        "samples_working_mib": [
+          743.21484375,
+          763.921875,
+          764.08984375,
+          764.91015625,
+          764.48828125,
+          764.53125,
+          764.38671875,
+          764.4921875,
+          764.36328125,
+          764.79296875,
+          764.58203125,
+          764.375,
+          764.8515625,
+          764.234375,
+          764.26171875
+        ],
+        "test": "resources_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 0.8759999999999998,
+        "n": 50,
+        "p50_ms": 0.83,
+        "p95_ms": 1.123,
+        "p99_ms": 1.347,
+        "status": "Paper 26.3",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.31614000000000003,
+        "n": 50,
+        "p50_ms": 0.295,
+        "p95_ms": 0.404,
+        "p99_ms": 0.486,
+        "status": "1.26.66",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "manta"
+      },
+      {
+        "logs": "{\"data\":[\"[13:45:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"[13:46:05 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.7\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[13:46:05 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[13:46:05 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m1.0\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.5\\u001b[93m, \\u001b[92m1.0\\u001b[37m/\\u001b[92m0.2\\u001b[37m/\\u001b[92m6.5\\u001b[93m, \\u001b[92m1.6\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m1054.6\\u001b[0m\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
+        "test": "paper_ticks_command_load",
+        "type": "game_console",
+        "variant": "manta"
+      },
+      {
+        "game": "paper",
+        "mean_ms": 0.9268599999999998,
+        "n": 50,
+        "p50_ms": 0.859,
+        "p95_ms": 1.137,
+        "p99_ms": 1.479,
+        "status": "Paper 26.3",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "game": "bedrock",
+        "mean_ms": 0.33924,
+        "n": 50,
+        "p50_ms": 0.327,
+        "p95_ms": 0.402,
+        "p99_ms": 0.446,
+        "status": "1.26.66",
+        "test": "game_query_during_command_load",
+        "type": "measurement",
+        "variant": "wings"
+      },
+      {
+        "logs": "{\"data\":[\"[13:45:56 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:57 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:58 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:45:59 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:00 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:01 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:02 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:03 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:04 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"tps\",\"mspt\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:05 INFO]: \\u001b[33mTPS from last 1m, 5m, 15m: \\u001b[0m\\u001b[92m19.7\\u001b[0m, \\u001b[92m19.9\\u001b[0m, \\u001b[92m19.9\\u001b[0m\",\"[13:46:05 INFO]: \\u001b[33mServer tick times \\u001b[93m(\\u001b[37mavg\\u001b[93m/\\u001b[37mmin\\u001b[93m/\\u001b[37mmax\\u001b[93m)\\u001b[33m from last 5s\\u001b[37m,\\u001b[33m 10s\\u001b[37m,\\u001b[33m 1m\\u001b[93m:\\u001b[0m\",\"[13:46:05 INFO]: \\u001b[33m◴ \\u001b[37m\\u001b[92m0.9\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m5.5\\u001b[93m, \\u001b[92m1.0\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[92m6.1\\u001b[93m, \\u001b[92m1.6\\u001b[37m/\\u001b[92m0.1\\u001b[37m/\\u001b[91m1066.2\\u001b[0m\",\"[13:46:05 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 stone replace\",\"[13:46:06 INFO]: System chat: Successfully filled 4096 block(s)\",\"fill 0 64 0 15 79 15 air replace\",\"[13:46:06 INFO]: System chat: Successfully filled 4096 block(s)\"]}",
+        "test": "paper_ticks_command_load",
+        "type": "game_console",
+        "variant": "wings"
+      }
+    ],
+    "events": [
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "270d69d6-39c9-4380-a671-3fc57f17f848",
+            "name": "Benchmark Manta Paper",
+            "kind": "paper",
+            "identifier": "270d69d6",
+            "port": 27015
+          },
+          {
+            "id": 52,
+            "uuid": "326c4b09-5862-4a42-b5b1-c543b7e197d2",
+            "name": "Benchmark Manta Bedrock",
+            "kind": "bedrock",
+            "identifier": "326c4b09",
+            "port": 27016
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "product": "manta",
+          "version": "1.3-beta"
+        },
+        "type": "metadata",
+        "variant": "manta"
+      },
+      {
+        "cpu_limit": 2,
+        "go_version": "go1.27.4",
+        "gomaxprocs": "2",
+        "image_id": "sha256:28b08aecbcba252c4323016e5cddfd57a722723cc661d42ed2aca20546d02984",
+        "memory_limit": 1073741824,
+        "servers": [
+          {
+            "id": 51,
+            "uuid": "dce0ddc9-b4e7-4e53-aae4-675586b4ca09",
+            "name": "Benchmark Wings Paper",
+            "kind": "paper",
+            "identifier": "dce0ddc9",
+            "port": 27115
+          },
+          {
+            "id": 52,
+            "uuid": "6749209c-a271-4a03-9abb-73df7a810f31",
+            "name": "Benchmark Wings Bedrock",
+            "kind": "bedrock",
+            "identifier": "6749209c",
+            "port": 27116
+          }
+        ],
+        "system": {
+          "architecture": "amd64",
+          "cpu_count": 28,
+          "kernel_version": "6.18.58.1-microsoft-standard-WSL2",
+          "os": "linux",
+          "version": "1.13.5"
+        },
+        "type": "metadata",
+        "variant": "wings"
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 278378,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 807071744,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.408,
+          "network": {
+            "rx_bytes": 276827,
+            "tx_bytes": 59080
+          },
+          "uptime": 280386
+        },
+        "last_uptime": 280386,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 274387,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 275685376,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.528,
+          "network": {
+            "rx_bytes": 76984,
+            "tx_bytes": 30365
+          },
+          "uptime": 276396
+        },
+        "last_uptime": 276396,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "manta",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 14
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 276371,
+        "game": "paper",
+        "last_stats": {
+          "memory_bytes": 804528128,
+          "memory_limit_bytes": 1852203008,
+          "cpu_absolute": 1.256,
+          "network": {
+            "rx_bytes": 350615,
+            "tx_bytes": 65034
+          },
+          "uptime": 278377
+        },
+        "last_uptime": 278377,
+        "pass": true,
+        "samples": 3,
+        "server_id": 51,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 15
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 7
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 0
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 4
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 2
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 10
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 12
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 1
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 3
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 8
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 11
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 9
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 5
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 6
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 13
+      },
+      {
+        "first_uptime": 272374,
+        "game": "bedrock",
+        "last_stats": {
+          "memory_bytes": 276111360,
+          "memory_limit_bytes": 617398272,
+          "cpu_absolute": 1.434,
+          "network": {
+            "rx_bytes": 74200,
+            "tx_bytes": 32993
+          },
+          "uptime": 274384
+        },
+        "last_uptime": 274384,
+        "pass": true,
+        "samples": 3,
+        "server_id": 52,
+        "test": "automatic_stats_16_viewers",
+        "type": "check",
+        "variant": "wings",
+        "viewer": 14
+      }
+    ]
+  },
+  "games": [
+    {
+      "variant": "manta",
+      "game": "paper",
+      "uuid": "270d69d6-39c9-4380-a671-3fc57f17f848",
+      "port": 27015,
+      "configuredMemoryMiB": 1536,
+      "configuredCpuPercent": 200,
+      "binarySha256": "64a5bd44910cb982b2648e9a35036cc95a6de4d561e15812aecf5411f84f7b01",
+      "properties": "server-ip=0.0.0.0\nserver-port=27015\nonline-mode=false\nenforce-secure-profile=false\nlevel-name=benchworld\nlevel-seed=746574\nlevel-type=minecraft:flat\ngenerate-structures=false\nview-distance=4\nsimulation-distance=4\nspawn-protection=0\nallow-nether=false\nmax-players=20\npause-when-empty-seconds=-1\nmotd=Manta Wings Benchmark",
+      "imageId": "sha256:d94ec170267e490266c05d9054b9bebb28694429c65619ddde51aafaa72e3c91",
+      "effectiveLimits": {
+        "cpuQuota": 200000,
+        "cpuPeriod": 100000,
+        "nanoCpus": 0,
+        "memoryBytes": 1852204646,
+        "memorySwapBytes": 1852204646
+      }
+    },
+    {
+      "variant": "manta",
+      "game": "bedrock",
+      "uuid": "326c4b09-5862-4a42-b5b1-c543b7e197d2",
+      "port": 27016,
+      "configuredMemoryMiB": 512,
+      "configuredCpuPercent": 200,
+      "binarySha256": "dba89ef48dfd54b26ecaaff2554bfb0f06008a37a1645285c42d2fd62f409887",
+      "properties": "server-name=Manta Wings Benchmark\ngamemode=creative\ndifficulty=peaceful\nallow-cheats=true\nonline-mode=false\nserver-port=27016\nserver-portv6=27017\nlevel-name=benchworld\nlevel-seed=746574\nview-distance=4\ntick-distance=4\nmax-threads=2\nmax-players=20\nemit-server-telemetry=false\ntransport=raknet",
+      "imageId": "sha256:212a7a92bb73fa01da78b0c0da54d871da0d81e4dfa4a8b14ec3b9e9c7438f8a",
+      "effectiveLimits": {
+        "cpuQuota": 200000,
+        "cpuPeriod": 100000,
+        "nanoCpus": 0,
+        "memoryBytes": 617401549,
+        "memorySwapBytes": 617401549
+      }
+    },
+    {
+      "variant": "wings",
+      "game": "paper",
+      "uuid": "dce0ddc9-b4e7-4e53-aae4-675586b4ca09",
+      "port": 27115,
+      "configuredMemoryMiB": 1536,
+      "configuredCpuPercent": 200,
+      "binarySha256": "64a5bd44910cb982b2648e9a35036cc95a6de4d561e15812aecf5411f84f7b01",
+      "properties": "server-ip=0.0.0.0\nserver-port=27115\nonline-mode=false\nenforce-secure-profile=false\nlevel-name=benchworld\nlevel-seed=746574\nlevel-type=minecraft:flat\ngenerate-structures=false\nview-distance=4\nsimulation-distance=4\nspawn-protection=0\nallow-nether=false\nmax-players=20\npause-when-empty-seconds=-1\nmotd=Manta Wings Benchmark",
+      "imageId": "sha256:d94ec170267e490266c05d9054b9bebb28694429c65619ddde51aafaa72e3c91",
+      "effectiveLimits": {
+        "cpuQuota": 200000,
+        "cpuPeriod": 100000,
+        "nanoCpus": 0,
+        "memoryBytes": 1852204646,
+        "memorySwapBytes": 1852204646
+      }
+    },
+    {
+      "variant": "wings",
+      "game": "bedrock",
+      "uuid": "6749209c-a271-4a03-9abb-73df7a810f31",
+      "port": 27116,
+      "configuredMemoryMiB": 512,
+      "configuredCpuPercent": 200,
+      "binarySha256": "dba89ef48dfd54b26ecaaff2554bfb0f06008a37a1645285c42d2fd62f409887",
+      "properties": "server-name=Manta Wings Benchmark\ngamemode=creative\ndifficulty=peaceful\nallow-cheats=true\nonline-mode=false\nserver-port=27116\nserver-portv6=27117\nlevel-name=benchworld\nlevel-seed=746574\nview-distance=4\ntick-distance=4\nmax-threads=2\nmax-players=20\nemit-server-telemetry=false\ntransport=raknet",
+      "imageId": "sha256:212a7a92bb73fa01da78b0c0da54d871da0d81e4dfa4a8b14ec3b9e9c7438f8a",
+      "effectiveLimits": {
+        "cpuQuota": 200000,
+        "cpuPeriod": 100000,
+        "nanoCpus": 0,
+        "memoryBytes": 617401549,
+        "memorySwapBytes": 617401549
+      }
+    }
+  ],
+  "completedAt": "2026-11-22T13:46:20.749Z",
+  "runnerSha256": "b0dfd910399304daa269dbcdfddbe1967c37252a24aaa7db7631630a255b126a"
+}
